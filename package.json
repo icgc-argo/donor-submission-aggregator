@@ -4,10 +4,10 @@
   "description": "Donor aggregation service for the ICGC-ARGO Submission System",
   "main": "src",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rm -rf dist && tsc",
     "start::prod": "cd dist && NODE_PATH=. node index.js",
-    "start::dev": "ts-node-dev -r tsconfig-paths/register --respawn src/index.ts"
+    "start::dev": "ts-node-dev -r tsconfig-paths/register --respawn src/index.ts",
+    "test::unit": "ts-mocha -r tsconfig-paths/register src/**/*unit.test.ts"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,11 @@
   },
   "homepage": "https://github.com/icgc-argo/donor-submission-aggregator#readme",
   "devDependencies": {
+    "@types/chai": "^4.2.8",
+    "@types/mocha": "^7.0.1",
+    "chai": "^4.2.0",
+    "mocha": "^7.0.1",
+    "ts-mocha": "^6.0.0",
     "ts-node": "^8.6.2",
     "ts-node-dev": "^1.0.0-pre.44",
     "tsconfig-paths": "^3.9.0",
