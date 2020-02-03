@@ -1,0 +1,29 @@
+{
+  "name": "donor-submission-aggregator",
+  "version": "1.0.0",
+  "description": "Donor aggregation service for the ICGC-ARGO Submission System",
+  "main": "src",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm -rf dist && tsc",
+    "start::prod": "cd dist && NODE_PATH=. node index.js",
+    "start::dev": "ts-node-dev -r tsconfig-paths/register --respawn src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/icgc-argo/donor-submission-aggregator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/icgc-argo/donor-submission-aggregator/issues"
+  },
+  "homepage": "https://github.com/icgc-argo/donor-submission-aggregator#readme",
+  "devDependencies": {
+    "ts-node": "^8.6.2",
+    "ts-node-dev": "^1.0.0-pre.44",
+    "tsconfig-paths": "^3.9.0",
+    "typescript": "^3.7.5"
+  }
+}
