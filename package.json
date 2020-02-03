@@ -8,6 +8,7 @@
     "start::prod": "cd dist && NODE_PATH=. node index.js",
     "start::dev": "ts-node-dev -r tsconfig-paths/register --respawn src/index.ts",
     "test::unit": "ts-mocha -r tsconfig-paths/register src/**/*unit.test.ts",
+    "test::integrate": "ts-mocha -r tsconfig-paths/register src/**/*integrate.test.ts",
     "createMongoDonors": "ts-node ./scripts/createMongoDonors.ts"
   },
   "repository": {
