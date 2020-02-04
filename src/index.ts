@@ -1,6 +1,9 @@
 import indexProgram from "indexProgram";
 import rollCall from "rollCall";
 import { initIndexMappping } from "elasticsearch";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 (async () => {
   const programShortName = "TEST_PROGRAM";

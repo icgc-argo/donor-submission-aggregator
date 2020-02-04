@@ -1,6 +1,9 @@
 {
   "mappings": {
     "properties": {
+      "programId": {
+        "type": "keyword"
+      },
       "validWithCurrentDictionary": {
         "type": "boolean"
       },
