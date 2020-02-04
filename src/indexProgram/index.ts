@@ -10,7 +10,7 @@ import { toJson } from "donorModel";
 
 export default async (programShortName: string, targetIndexName: string) => {
   const donorStream = programDonorStream(programShortName, {
-    chunkSize: 2000
+    chunkSize: 1000
   });
   let chunksCount = 0;
   for await (const chunk of donorStream) {
