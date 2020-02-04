@@ -7,9 +7,23 @@
     "build": "rm -rf dist && tsc",
     "start::prod": "cd dist && NODE_PATH=. node index.js",
     "start::dev": "ts-node-dev -r tsconfig-paths/register --respawn src/index.ts",
-    "test::unit": "ts-mocha -r tsconfig-paths/register src/**/*unit.test.ts",
-    "test::integrate": "ts-mocha -r tsconfig-paths/register src/**/*integrate.test.ts",
-    "createMongoDonors": "ts-node ./scripts/createMongoDonors.ts"
+    "test::unit": "nyc ts-mocha -r tsconfig-paths/register src/**/*unit.test.ts && npm run cover",
+    "test::integrate": "nyc ts-mocha -r tsconfig-paths/register src/**/*integrate.test.ts && npm run cover",
+    "createMongoDonors": "ts-node ./scripts/createMongoDonors.ts",
+    "cover": "nyc report  --reporter=lcov --reporter=text"
+  },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ],
+    "exclude": [
+      "**/*.d.ts",
+      "**/*.js",
+      "**/*.test.ts"
+    ],
+    "reporter": [
+      "html"
+    ]
   },
   "repository": {
     "type": "git",
@@ -28,7 +42,10 @@
     "@types/node": "^13.7.0",
     "@types/uuid": "^3.4.7",
     "chai": "^4.2.0",
+    "coveralls": "^3.0.9",
     "mocha": "^7.0.1",
+    "nyc": "^15.0.0",
+    "source-map-support": "^0.5.16",
     "ts-mocha": "^6.0.0",
     "ts-node": "^8.6.2",
     "ts-node-dev": "^1.0.0-pre.44",
