@@ -18,10 +18,7 @@ export default async (
     submittedExtendedDataPercent: 0,
 
     registeredNormalSamples: mongoDoc.specimens.reduce(
-      (acc, specimen) => [
-        ...acc,
-        specimen.samples.filter(sample => sample.sampleType)
-      ],
+      (acc, specimen) => [...acc, specimen.samples.filter(sample => true)],
       []
     ).length,
     registeredTumourSamples: mongoDoc.specimens.reduce(
