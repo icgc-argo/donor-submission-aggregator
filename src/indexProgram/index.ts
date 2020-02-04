@@ -1,16 +1,12 @@
 import transformToEsDonor from "./transformToEsDonor";
 import programDonorStream from "./programDonorStream";
-import rollCall from "rollCall";
-import {
-  esClient,
-  initIndexMappping,
-  toEsBulkIndexActions
-} from "elasticsearch";
+import { esClient, toEsBulkIndexActions } from "elasticsearch";
 import { toJson } from "donorModel";
+import { STREAM_CHUNK_SIZE } from "config";
 
 export default async (programShortName: string, targetIndexName: string) => {
   const donorStream = programDonorStream(programShortName, {
-    chunkSize: 1000
+    chunkSize: STREAM_CHUNK_SIZE
   });
   let chunksCount = 0;
   for await (const chunk of donorStream) {
