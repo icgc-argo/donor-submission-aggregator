@@ -1,0 +1,65 @@
+{
+  "mappings": {
+    "properties": {
+      "validWithCurrentDictionary": {
+        "type": "boolean"
+      },
+      "releaseStatus": {
+        "type": "keyword"
+      },
+      "donorId": {
+        "type": "keyword"
+      },
+      "submitterDonorId": {
+        "type": "keyword"
+      },
+      "submittedCoreDataPercent": {
+        "type": "scaled_float",
+        "scaling_factor": 100
+      },
+      "submittedExtendedDataPercent": {
+        "type": "scaled_float",
+        "scaling_factor": 100
+      },
+      "registeredNormalSamples": {
+        "type": "byte"
+      },
+      "registeredTumourSamples": {
+        "type": "byte"
+      },
+      "publishedNormalAnalysis": {
+        "type": "byte"
+      },
+      "publishedTumourAnalysis": {
+        "type": "byte"
+      },
+      "alignmentsCompleted": {
+        "type": "byte"
+      },
+      "alignmentsRunning": {
+        "type": "byte"
+      },
+      "alignmentsFailed": {
+        "type": "byte"
+      },
+      "sangerVcsCompleted": {
+        "type": "byte"
+      },
+      "sangerVcsRunning": {
+        "type": "byte"
+      },
+      "sangerVcsFailed": {
+        "type": "byte"
+      },
+      "processingStatus": {
+        "type": "keyword"
+      },
+      "updatedAt": {
+        "type": "date"
+      },
+      "createdAt": {
+        "type": "date"
+      }
+    }
+  }
+}

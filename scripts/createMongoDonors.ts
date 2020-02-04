@@ -7,7 +7,8 @@ import donorModel from "../src/donorModel";
 import createDonor from "./createDonor";
 
 const PROGRAM_SHORT_NAME = process.env.PROGRAM_SHORT_NAME || "TEST-CA";
-const donors: Donor[] = range(0, 10000).map(() =>
+const COLLECTION_SIZE = Number(process.env.COLLECTION_SIZE) || 10000;
+const donors: Donor[] = range(0, COLLECTION_SIZE).map(() =>
   createDonor(PROGRAM_SHORT_NAME)
 );
 
