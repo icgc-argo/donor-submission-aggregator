@@ -2,24 +2,19 @@ import { expect } from "chai";
 import indexProgram from "indexProgram";
 import transformToEsDonor from "./transformToEsDonor";
 import programDonorStream from "./programDonorStream";
+import { GenericContainer, StartedTestContainer } from "testcontainers";
 import { promisify } from "util";
 import { exec } from "child_process";
-import connectMongo from "connectMongo";
 import uuid from "uuid";
 import DonorSchema from "donorModel";
 import mongoose from "mongoose";
 import { Donor } from "donorModel/types";
 import { Client } from "@elastic/elasticsearch";
-import { ES_HOST } from "config";
 
 const TEST_PROGRAM_SHORT_NAME = "MINH-CA";
 const DB_COLLECTION_SIZE = 10000;
 const TARGET_ES_INDEX = "test_index";
 const asyncExec = promisify(exec);
-
-const esClient = new Client({
-  node: ES_HOST
-});
 
 describe("transformToEsDonor", () => {
   it("must transform properly", async () => {
@@ -50,22 +45,51 @@ describe("transformToEsDonor", () => {
   });
 });
 
-describe("indexProgram", () => {
+describe("indexing programs", () => {
+  let mongoContainer: StartedTestContainer;
+  let elasticsearchContainer: StartedTestContainer;
+  let esClient: Client;
+  const ES_PORT = 9200;
+  const MONGO_PORT = 27017;
+  let MONGO_URL: string;
+  before(async () => {
+    try {
+      [mongoContainer, elasticsearchContainer] = await Promise.all([
+        new GenericContainer("mongo").withExposedPorts(MONGO_PORT).start(),
+        new GenericContainer("elasticsearch", "7.5.0")
+          .withExposedPorts(ES_PORT)
+          .withEnv("discovery.type", "single-node")
+          .start()
+      ]);
+      const ES_HOST = `http://${elasticsearchContainer.getContainerIpAddress()}:${elasticsearchContainer.getMappedPort(
+        ES_PORT
+      )}`;
+      esClient = new Client({
+        node: ES_HOST
+      });
+      MONGO_URL = `mongodb://${mongoContainer.getContainerIpAddress()}:${mongoContainer.getMappedPort(
+        MONGO_PORT
+      )}/clinical`;
+      await mongoose.connect(MONGO_URL);
+    } catch (err) {
+      console.error("before >>>>>>>>>>>", err);
+    }
+  });
+  after(async () => {
+    await mongoContainer.stop();
+    await elasticsearchContainer.stop();
+  });
   beforeEach(async function() {
-    this.timeout(30000);
     const { stdout } = await asyncExec(
-      `PROGRAM_SHORT_NAME=${TEST_PROGRAM_SHORT_NAME} COLLECTION_SIZE=${DB_COLLECTION_SIZE} npm run createMongoDonors`
+      `PROGRAM_SHORT_NAME=${TEST_PROGRAM_SHORT_NAME} COLLECTION_SIZE=${DB_COLLECTION_SIZE} MONGO_URL=${MONGO_URL} npm run createMongoDonors`
     );
-    console.log(stdout);
-    await connectMongo();
+    console.log("beforeEach >>>>>>>>>>>", stdout);
     await esClient.indices.create({
       index: TARGET_ES_INDEX
     });
   });
   afterEach(async function() {
-    this.timeout(30000);
-    await DonorSchema.deleteMany({}, async () => {});
-    await mongoose.disconnect();
+    await DonorSchema().deleteMany({});
     await esClient.indices.delete({
       index: TARGET_ES_INDEX
     });
@@ -73,7 +97,6 @@ describe("indexProgram", () => {
 
   describe("programDonorStream", () => {
     it("must stream all donors", async function() {
-      this.timeout(20000);
       const trunkSize = 1000;
       let donorCount = 0;
       const donorStream = programDonorStream(TEST_PROGRAM_SHORT_NAME, {
@@ -86,17 +109,18 @@ describe("indexProgram", () => {
     });
   });
 
-  it("must index all data into Elasticsearch", async function() {
-    this.timeout(20000);
-    console.time("indexProgram");
-    await indexProgram(TEST_PROGRAM_SHORT_NAME, TARGET_ES_INDEX);
-    console.timeEnd("indexProgram");
-    const totalEsDocuments = (
-      await esClient.search({
-        index: TARGET_ES_INDEX
-      })
-    ).body?.hits?.total?.value;
-    expect(totalEsDocuments).to.equal(DB_COLLECTION_SIZE);
+  describe("indexProgram", () => {
+    it("must index all data into Elasticsearch", async function() {
+      console.time("indexProgram");
+      await indexProgram(TEST_PROGRAM_SHORT_NAME, TARGET_ES_INDEX, esClient);
+      console.timeEnd("indexProgram");
+      const totalEsDocuments = (
+        await esClient.search({
+          index: TARGET_ES_INDEX
+        })
+      ).body?.hits?.total?.value;
+      expect(totalEsDocuments).to.equal(DB_COLLECTION_SIZE);
+    });
   });
 });
 

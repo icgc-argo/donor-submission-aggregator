@@ -27,8 +27,9 @@ const donors: Donor[] = range(0, COLLECTION_SIZE).map(() =>
     useFindAndModify: false
   });
   console.log(`connected to mongo at ${MONGO_URL}`);
-  await donorModel.insertMany(donors);
-  console.log(`finished writing ${donors.length} donors`);
+  await donorModel().insertMany(donors);
+  const written = await donorModel().find({});
+  console.log(`finished writing ${written.length} donors`);
 })().then(() => {
   mongoose.disconnect();
 });

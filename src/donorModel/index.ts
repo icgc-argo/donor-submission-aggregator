@@ -10,7 +10,8 @@ export const toJson = (
 ): MongoDonorDocument => doc.toJSON();
 
 const DonorSchema = new mongoose.Schema<Donor>({}, { strict: false });
-export default mongoose.model<mongoose.Document & MongoDonorDocument>(
-  MONGO_DONOR_MODEL_NAME,
-  DonorSchema
-);
+export default () =>
+  mongoose.model<mongoose.Document & MongoDonorDocument>(
+    MONGO_DONOR_MODEL_NAME,
+    DonorSchema
+  );

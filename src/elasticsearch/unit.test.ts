@@ -1,7 +1,8 @@
 import { expect } from "chai";
-import { initIndexMappping, esClient, toEsBulkIndexActions } from "./index";
+import { initIndexMappping, toEsBulkIndexActions } from "./index";
 import donorIndexMapping from "./donorIndexMapping.json";
-
+import { GenericContainer, StartedTestContainer } from "testcontainers";
+import { Client } from "@elastic/elasticsearch";
 const TEST_INDEX = "test_index";
 
 describe("toEsBulkIndexActions", () => {
@@ -19,21 +20,44 @@ describe("toEsBulkIndexActions", () => {
 });
 
 describe("initIndexMappping", () => {
-  beforeEach(async function() {
-    this.timeout(10000);
+  let elasticsearchContainer: StartedTestContainer;
+  const ES_PORT = 9200;
+  let esClient: Client;
+  before(async () => {
+    try {
+      elasticsearchContainer = await new GenericContainer(
+        "elasticsearch",
+        "7.5.0"
+      )
+        .withExposedPorts(ES_PORT)
+        .withEnv("discovery.type", "single-node")
+        .start();
+      const ES_HOST = `http://${elasticsearchContainer.getContainerIpAddress()}:${elasticsearchContainer.getMappedPort(
+        ES_PORT
+      )}`;
+      esClient = new Client({
+        node: ES_HOST
+      });
+    } catch (err) {
+      console.log(`before >>>>>>>>>>>`, err);
+    }
+  });
+  after(async () => {
+    await elasticsearchContainer.stop();
+  });
+  beforeEach(async () => {
     await esClient.indices.create({
       index: TEST_INDEX
     });
   });
-  afterEach(async function() {
-    this.timeout(10000);
+  afterEach(async () => {
     await esClient.indices.delete({
       index: TEST_INDEX
     });
   });
 
   it("must puts index mappping properly", async () => {
-    await initIndexMappping(TEST_INDEX);
+    await initIndexMappping(TEST_INDEX, esClient);
     const { body: exists } = await esClient.indices.exists({
       index: TEST_INDEX
     });

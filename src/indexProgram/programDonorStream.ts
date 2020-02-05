@@ -2,7 +2,6 @@ import donorModel, { MongoDonorDocument } from "../donorModel";
 
 type StreamState = {
   currentPage: number;
-  lastPageLength: number;
 };
 
 const programDonorStream = async function*(
@@ -14,18 +13,20 @@ const programDonorStream = async function*(
 ): AsyncGenerator<MongoDonorDocument[]> {
   const chunkSize = config?.chunkSize || 1000;
   const streamState: StreamState = {
-    currentPage: config?.state?.currentPage || 0,
-    lastPageLength: config?.state?.lastPageLength || chunkSize
+    currentPage: config?.state?.currentPage || 0
   };
-  while (streamState.lastPageLength >= chunkSize) {
-    const page = await donorModel
+  while (true) {
+    const page = await donorModel()
       .find({ programId: programShortName })
       .skip(streamState.currentPage * chunkSize)
       .limit(chunkSize)
       .exec();
-    streamState.lastPageLength = page.length;
     streamState.currentPage++;
-    yield page;
+    if (page.length >= chunkSize) {
+      yield page;
+    } else {
+      break;
+    }
   }
 };
 
