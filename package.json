@@ -7,7 +7,7 @@
     "build": "rm -rf dist && tsc",
     "start::prod": "cd dist && NODE_PATH=. node index.js",
     "start::dev": "ts-node-dev -r tsconfig-paths/register --respawn src/index.ts",
-    "test": "nyc ts-mocha --timeout 60000 -r tsconfig-paths/register src/**/*.test.ts && npm run cover",
+    "test": "nyc ts-mocha --timeout 240000 -r tsconfig-paths/register src/**/*.test.ts && npm run cover",
     "createMongoDonors": "ts-node ./scripts/createMongoDonors.ts",
     "cover": "nyc report  --reporter=lcov --reporter=text"
   },
@@ -18,7 +18,8 @@
     "exclude": [
       "**/*.d.ts",
       "**/*.js",
-      "**/*.test.ts"
+      "**/*.test.ts",
+      "scripts/**"
     ],
     "reporter": [
       "html"
@@ -43,9 +44,10 @@
     "chai": "^4.2.0",
     "coveralls": "^3.0.9",
     "mocha": "^7.0.1",
+    "node-duration": "^1.0.4",
     "nyc": "^15.0.0",
     "source-map-support": "^0.5.16",
-    "testcontainers": "^2.3.1",
+    "testcontainers": "^1.1.19",
     "ts-mocha": "^6.0.0",
     "ts-node": "^8.6.2",
     "ts-node-dev": "^1.0.0-pre.44",

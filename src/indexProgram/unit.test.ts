@@ -10,6 +10,7 @@ import DonorSchema from "donorModel";
 import mongoose from "mongoose";
 import { Donor } from "donorModel/types";
 import { Client } from "@elastic/elasticsearch";
+import { Duration, TemporalUnit } from "node-duration";
 
 const TEST_PROGRAM_SHORT_NAME = "MINH-CA";
 const DB_COLLECTION_SIZE = 10000;
@@ -57,6 +58,7 @@ describe("indexing programs", () => {
       [mongoContainer, elasticsearchContainer] = await Promise.all([
         new GenericContainer("mongo").withExposedPorts(MONGO_PORT).start(),
         new GenericContainer("elasticsearch", "7.5.0")
+          .withStartupTimeout(new Duration(120, TemporalUnit.SECONDS))
           .withExposedPorts(ES_PORT)
           .withEnv("discovery.type", "single-node")
           .start()

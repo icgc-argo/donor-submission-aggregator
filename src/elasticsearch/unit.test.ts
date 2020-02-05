@@ -3,6 +3,7 @@ import { initIndexMappping, toEsBulkIndexActions } from "./index";
 import donorIndexMapping from "./donorIndexMapping.json";
 import { GenericContainer, StartedTestContainer } from "testcontainers";
 import { Client } from "@elastic/elasticsearch";
+import { Duration, TemporalUnit } from "node-duration";
 const TEST_INDEX = "test_index";
 
 describe("toEsBulkIndexActions", () => {
@@ -29,6 +30,7 @@ describe("initIndexMappping", () => {
         "elasticsearch",
         "7.5.0"
       )
+        .withStartupTimeout(new Duration(120, TemporalUnit.SECONDS))
         .withExposedPorts(ES_PORT)
         .withEnv("discovery.type", "single-node")
         .start();
@@ -55,7 +57,6 @@ describe("initIndexMappping", () => {
       index: TEST_INDEX
     });
   });
-
   it("must puts index mappping properly", async () => {
     await initIndexMappping(TEST_INDEX, esClient);
     const { body: exists } = await esClient.indices.exists({
