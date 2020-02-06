@@ -4,10 +4,26 @@
   "description": "Donor aggregation service for the ICGC-ARGO Submission System",
   "main": "src",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rm -rf dist && tsc",
     "start::prod": "cd dist && NODE_PATH=. node index.js",
-    "start::dev": "ts-node-dev -r tsconfig-paths/register --respawn src/index.ts"
+    "start::dev": "ts-node-dev -r tsconfig-paths/register --respawn src/index.ts",
+    "test": "nyc ts-mocha --timeout 240000 -r tsconfig-paths/register src/**/*.test.ts && npm run cover",
+    "createMongoDonors": "ts-node ./scripts/createMongoDonors.ts",
+    "cover": "nyc report  --reporter=lcov --reporter=text"
+  },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ],
+    "exclude": [
+      "**/*.d.ts",
+      "**/*.js",
+      "**/*.test.ts",
+      "scripts/**"
+    ],
+    "reporter": [
+      "html"
+    ]
   },
   "repository": {
     "type": "git",
@@ -21,9 +37,30 @@
   },
   "homepage": "https://github.com/icgc-argo/donor-submission-aggregator#readme",
   "devDependencies": {
+    "@types/chai": "^4.2.8",
+    "@types/mocha": "^7.0.1",
+    "@types/node": "^13.7.0",
+    "@types/uuid": "^3.4.7",
+    "chai": "^4.2.0",
+    "coveralls": "^3.0.9",
+    "mocha": "^7.0.1",
+    "node-duration": "^1.0.4",
+    "nyc": "^15.0.0",
+    "source-map-support": "^0.5.16",
+    "testcontainers": "^1.1.19",
+    "ts-mocha": "^6.0.0",
     "ts-node": "^8.6.2",
     "ts-node-dev": "^1.0.0-pre.44",
     "tsconfig-paths": "^3.9.0",
-    "typescript": "^3.7.5"
+    "typescript": "^3.7.5",
+    "uuid": "^3.4.0"
+  },
+  "dependencies": {
+    "@elastic/elasticsearch": "^7.5.0",
+    "@types/lodash": "^4.14.149",
+    "@types/mongoose": "^5.7.0",
+    "dotenv": "^8.2.0",
+    "lodash": "^4.17.15",
+    "mongoose": "^5.8.11"
   }
 }
