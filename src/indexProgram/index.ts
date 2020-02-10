@@ -18,7 +18,9 @@ export default async (
   });
   let chunksCount = 0;
   for await (const chunk of donorStream) {
-    const timer = `streaming chunk #${chunksCount++} of program ${programShortName}`;
+    const timer = `streaming ${
+      chunk.length
+    } donor(s) from chunk #${chunksCount++} of program ${programShortName}`;
     console.time(timer);
     const esDocuments = await Promise.all(
       chunk.map(toJson).map(transformToEsDonor)

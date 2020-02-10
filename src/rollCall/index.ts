@@ -10,7 +10,7 @@ const getNewIndexName = async (programShortName: string) => {
   return indexName;
 };
 
-const release = async (index: string) => {};
+const release = async (index: string) => Promise.resolve();
 
 export default {
   getNewIndexName: getNewIndexName,
