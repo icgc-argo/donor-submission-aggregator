@@ -24,9 +24,7 @@ export default async (
     programId: mongoDoc.programId,
 
     submittedCoreDataPercent:
-      expectedCoreFields || 0 > 0
-        ? submittedCoreFields / expectedCoreFields
-        : 0,
+      expectedCoreFields > 0 ? submittedCoreFields / expectedCoreFields : 0,
 
     submittedExtendedDataPercent:
       expectedExtendedFields > 0
