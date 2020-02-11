@@ -1,3 +1,5 @@
+def dockerhubRepo = "icgcargo/donor-submission-aggregator"
+def githubRepo = "icgc-argo/donor-submission-aggregator"
 def commit = "UNKNOWN"
 def version = "UNKNOWN"
 
@@ -42,25 +44,70 @@ spec:
         }
     }
     stages {
-        stage('Prepare') {
-            steps {
-                script {
-                    commit = sh(returnStdout: true, script: 'git describe --always').trim()
-                }
-                script {
-                    version = sh(returnStdout: true, script: 'cat package.json | grep version | cut -d \':\' -f2 | sed -e \'s/"//\' -e \'s/",//\'').trim()
-                }
-            }
+      stage('Prepare') {
+        steps {
+          script {
+            commit = sh(returnStdout: true, script: 'git describe --always').trim()
+          }
+          script {
+            version = sh(returnStdout: true, script: 'cat package.json | grep version | cut -d \':\' -f2 | sed -e \'s/"//\' -e \'s/",//\'').trim()
+          }
         }
+      }
 
-        stage('Test') {
-            steps {
-                container('node') {
-                    sh "npm ci"
-                    sh "npm run test"
-                }
-            }
+      stage('Test') {
+        steps {
+          container('node') {
+            sh "npm ci"
+            sh "npm run test"
+          }
         }
+      }
+
+      stage('Build image') {
+        steps {
+          container('docker') {
+            sh "docker build --network=host -t ${dockerhubRepo}:${commit} ."
+          }
+        }
+      }
+
+      stage('deploy to develop') {
+        when {
+          branch "develop"
+        }
+        steps {
+          container('docker') {
+            withCredentials([usernamePassword(credentialsId:'argoDockerHub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                sh "docker login -u $USERNAME -p $PASSWORD"
+            }
+            sh "docker tag ${dockerhubRepo}:${commit} ${dockerhubRepo}:edge"
+            sh "docker push ${dockerhubRepo}:${commit}"
+            sh "docker push ${dockerhubRepo}:edge"
+          }
+        }
+      }
+
+      stage('deploy to QA') {
+        when {
+          branch "master"
+        }
+        steps {
+          container('docker') {
+            withCredentials([usernamePassword(credentialsId: 'argoGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+              sh "git tag ${version}"
+              sh "git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${githubRepo} --tags"
+            }
+            withCredentials([usernamePassword(credentialsId:'argoDockerHub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                sh 'docker login -u $USERNAME -p $PASSWORD'
+            }
+            sh "docker tag ${dockerhubRepo}:${commit} ${dockerhubRepo}:${version}"
+            sh "docker tag ${dockerhubRepo}:${commit} ${dockerhubRepo}:latest"
+            sh "docker push ${dockerhubRepo}:${version}"
+            sh "docker push ${dockerhubRepo}:latest"
+          }
+        }
+      }
 
     }
 

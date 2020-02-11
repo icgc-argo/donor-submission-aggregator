@@ -4,7 +4,7 @@
   "description": "Donor aggregation service for the ICGC-ARGO Submission System",
   "main": "src",
   "scripts": {
-    "build": "rm -rf dist && tsc",
+    "build": "rm -rf dist && tsc -p ./tsconfig.build.json",
     "start::prod": "cd dist && NODE_PATH=. node index.js",
     "start::dev": "ts-node-dev -r tsconfig-paths/register --respawn src/index.ts",
     "test": "nyc ts-mocha --timeout 240000 -r tsconfig-paths/register src/**/*.test.ts && npm run cover",
@@ -38,6 +38,7 @@
   "homepage": "https://github.com/icgc-argo/donor-submission-aggregator#readme",
   "devDependencies": {
     "@types/chai": "^4.2.8",
+    "@types/dockerode": "^2.5.22",
     "@types/mocha": "^7.0.1",
     "@types/node": "^13.7.0",
     "@types/uuid": "^3.4.7",
