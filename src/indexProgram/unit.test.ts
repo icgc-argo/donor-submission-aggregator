@@ -7,9 +7,8 @@ import { StartedTestContainer } from "testcontainers/dist/test-container";
 import { promisify } from "util";
 import { exec } from "child_process";
 import uuid from "uuid";
-import DonorSchema from "donorModel";
+import DonorSchema, { MongoDonorDocument } from "donorModel";
 import mongoose from "mongoose";
-import { Donor } from "donorModel/types";
 import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
 
@@ -28,10 +27,10 @@ describe("transformToEsDonor", () => {
       donorId: mongoDoc.donorId,
       submitterDonorId: mongoDoc.submitterId,
       programId: TEST_PROGRAM_SHORT_NAME,
-      submittedCoreDataPercent: 0,
-      submittedExtendedDataPercent: 0,
-      registeredNormalSamples: 3,
-      registeredTumourSamples: 3,
+      submittedCoreDataPercent: 0.4,
+      submittedExtendedDataPercent: 0.5,
+      registeredNormalSamples: 5,
+      registeredTumourSamples: 10,
       publishedNormalAnalysis: 0,
       publishedTumourAnalysis: 0,
       alignmentsCompleted: 0,
@@ -143,6 +142,12 @@ const createDonor = (programShortName: string) => {
       originalSchemaVersion: "",
       lastMigrationId: uuid()
     },
+    aggregatedInfoStats: {
+      expectedCoreFields: 100,
+      expectedExtendedFields: 100,
+      submittedCoreFields: 40,
+      submittedExtendedFields: 50
+    },
     clinicalInfo: {},
     primaryDiagnosis: {
       clinicalInfo: {}
@@ -160,7 +165,7 @@ const createDonor = (programShortName: string) => {
         specimenTissueSource: "",
         specimenType: "",
         submitterId: submitterId,
-        tumourNormalDesignation: ""
+        tumourNormalDesignation: "Normal"
       },
       {
         clinicalInfo: {},
@@ -174,7 +179,7 @@ const createDonor = (programShortName: string) => {
         specimenTissueSource: "",
         specimenType: "",
         submitterId: submitterId,
-        tumourNormalDesignation: ""
+        tumourNormalDesignation: "Tumour"
       },
       {
         clinicalInfo: {},
@@ -188,7 +193,7 @@ const createDonor = (programShortName: string) => {
         specimenTissueSource: "",
         specimenType: "",
         submitterId: submitterId,
-        tumourNormalDesignation: ""
+        tumourNormalDesignation: "Tumour"
       }
     ],
     followUps: [
@@ -207,5 +212,5 @@ const createDonor = (programShortName: string) => {
         ]
       }
     ]
-  } as Donor;
+  } as MongoDonorDocument;
 };

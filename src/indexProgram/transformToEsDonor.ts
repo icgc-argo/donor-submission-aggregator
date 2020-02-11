@@ -4,8 +4,18 @@ import { EsDonorDocument } from "./types";
 export default async (
   mongoDoc: MongoDonorDocument
 ): Promise<EsDonorDocument> => {
+  const expectedCoreFields =
+    mongoDoc.aggregatedInfoStats?.expectedCoreFields || 0;
+  const submittedCoreFields =
+    mongoDoc.aggregatedInfoStats?.submittedCoreFields || 0;
+
+  const expectedExtendedFields =
+    mongoDoc.aggregatedInfoStats?.expectedExtendedFields || 0;
+  const submittedExtendedFields =
+    mongoDoc.aggregatedInfoStats?.submittedExtendedFields || 0;
+
   return {
-    validWithCurrentDictionary: true,
+    validWithCurrentDictionary: mongoDoc.schemaMetadata.isValid,
 
     releaseStatus: "",
 
@@ -13,18 +23,23 @@ export default async (
     submitterDonorId: mongoDoc.submitterId,
     programId: mongoDoc.programId,
 
-    submittedCoreDataPercent: 0,
+    submittedCoreDataPercent:
+      expectedCoreFields || 0 > 0
+        ? submittedCoreFields / expectedCoreFields
+        : 0,
 
-    submittedExtendedDataPercent: 0,
+    submittedExtendedDataPercent:
+      expectedExtendedFields > 0
+        ? submittedExtendedFields / expectedExtendedFields
+        : 0,
 
-    registeredNormalSamples: mongoDoc.specimens.reduce(
-      (acc, specimen) => [...acc, specimen.samples.filter(sample => true)],
-      []
-    ).length,
-    registeredTumourSamples: mongoDoc.specimens.reduce(
-      (acc, specimen) => [...acc, specimen.samples.filter(sample => true)],
-      []
-    ).length,
+    registeredNormalSamples: mongoDoc.specimens
+      .filter(specimen => specimen.tumourNormalDesignation === "Normal")
+      .reduce((sum, specimen) => sum + specimen.samples.length, 0),
+
+    registeredTumourSamples: mongoDoc.specimens
+      .filter(specimen => specimen.tumourNormalDesignation === "Tumour")
+      .reduce((sum, specimen) => sum + specimen.samples.length, 0),
 
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
