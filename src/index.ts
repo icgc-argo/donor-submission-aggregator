@@ -11,11 +11,17 @@ import {
   KAFKA_BROKERS,
   PARTITIONS_CONSUMED_CONCURRENTLY
 } from "config";
+import statusReport from "./statusReport";
 
 dotenv.config();
 
 (async () => {
   await connectMongo();
+  const statusReporter = statusReport();
+  statusReporter.app.listen(7000, () => {
+    console.log(`Start readiness check at :${7000}/status`);
+  });
+
   const kafka = new Kafka({
     clientId: `donor-submission-aggregator-${Math.random()}`,
     brokers: KAFKA_BROKERS
@@ -24,28 +30,24 @@ dotenv.config();
     groupId: KAFKA_CONSUMER_GROUP
   });
   await consumer.connect();
-  console.log("Connected Kafka consumer");
   await consumer.subscribe({ topic: CLINICAL_PROGRAM_UPDATE_TOPIC });
-  console.log(`Subscribed to topic: ${CLINICAL_PROGRAM_UPDATE_TOPIC}`);
   await consumer.run({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: async ({ message }) => {
       try {
         const messageContent = toProgramUpdateEvent(message.value.toString());
-        const indexTimer = `indexProgram ${messageContent.programId}`;
         const newIndexName = await rollCall.getNewIndexName(
           messageContent.programId.toLowerCase()
         );
-        console.log("newIndexName: ", newIndexName);
         await initIndexMappping(newIndexName);
-        console.time(indexTimer);
+        statusReporter.startProcessingProgram(messageContent.programId);
         await indexProgram(messageContent.programId, newIndexName);
-        console.timeEnd(indexTimer);
+        statusReporter.completeProcessingProgram(messageContent.programId);
         await rollCall.release(newIndexName);
       } catch (err) {
         console.error(err);
       }
     }
   });
-  console.log("Started processing");
+  statusReporter.setReady(true);
 })();
