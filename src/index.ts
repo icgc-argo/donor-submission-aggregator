@@ -47,7 +47,7 @@ statusReporter.app.listen(7000, () => {
         statusReporter.endProcessingProgram(messageContent.programId);
         await rollCall.release(newIndexName);
       } catch (err) {
-        console.error(err);
+        logger.error(err);
       }
     }
   });
