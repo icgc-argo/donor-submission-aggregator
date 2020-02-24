@@ -3,54 +3,49 @@ import rollCall from "rollCall";
 import { initIndexMappping } from "elasticsearch";
 import dotenv from "dotenv";
 import connectMongo from "connectMongo";
-import mongoose from "mongoose";
 import { Kafka } from "kafkajs";
 import toProgramUpdateEvent from "toProgramUpdateEvent";
+import {
+  CLINICAL_PROGRAM_UPDATE_TOPIC,
+  KAFKA_CONSUMER_GROUP,
+  KAFKA_BROKERS,
+  PARTITIONS_CONSUMED_CONCURRENTLY
+} from "config";
 
 dotenv.config();
-
-// (async () => {
-//   await connectMongo();
-//   const programShortName = "DASH-CA";
-//   const newIndexName = await rollCall.getNewIndexName(
-//     programShortName.toLowerCase()
-//   );
-//   await initIndexMappping(newIndexName);
-//   await indexProgram(programShortName, newIndexName);
-//   await rollCall.release(newIndexName);
-//   await mongoose.disconnect();
-// })();
-
-const PROGRAM_UPDATE_TOPIC = "PROGRAM_UPDATE";
 
 (async () => {
   await connectMongo();
   const kafka = new Kafka({
-    clientId: "donor-submission-aggregator",
-    brokers: ["localhost:9092"]
+    clientId: `donor-submission-aggregator-${Math.random()}`,
+    brokers: KAFKA_BROKERS
   });
   const consumer = kafka.consumer({
-    groupId: "donor-submission-aggregator"
+    groupId: KAFKA_CONSUMER_GROUP
   });
   await consumer.connect();
   console.log("Connected Kafka consumer");
-  await consumer.subscribe({ topic: PROGRAM_UPDATE_TOPIC });
-  console.log(`Subscribed to topic: ${PROGRAM_UPDATE_TOPIC}`);
+  await consumer.subscribe({ topic: CLINICAL_PROGRAM_UPDATE_TOPIC });
+  console.log(`Subscribed to topic: ${CLINICAL_PROGRAM_UPDATE_TOPIC}`);
   await consumer.run({
+    partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: async ({ message }) => {
       try {
         const messageContent = toProgramUpdateEvent(message.value.toString());
+        const indexTimer = `indexProgram ${messageContent.programId}`;
         const newIndexName = await rollCall.getNewIndexName(
           messageContent.programId.toLowerCase()
         );
         console.log("newIndexName: ", newIndexName);
         await initIndexMappping(newIndexName);
+        console.time(indexTimer);
         await indexProgram(messageContent.programId, newIndexName);
+        console.timeEnd(indexTimer);
         await rollCall.release(newIndexName);
       } catch (err) {
         console.error(err);
       }
     }
   });
-  console.log("started processing");
+  console.log("Started processing");
 })();
