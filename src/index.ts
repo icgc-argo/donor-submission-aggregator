@@ -12,19 +12,20 @@ import {
   PARTITIONS_CONSUMED_CONCURRENTLY
 } from "config";
 import statusReport from "./statusReport";
+import logger from "logger";
 
 dotenv.config();
 
 const statusReporter = statusReport();
 statusReporter.app.listen(7000, () => {
-  console.log(`Start readiness check at :${7000}/status`);
+  logger.info(`Start readiness check at :${7000}/status`);
 });
 
 (async () => {
   await connectMongo();
 
   const kafka = new Kafka({
-    clientId: `donor-submission-aggregator-${Math.random()}`,
+    clientId: `donor-submission-aggregator`,
     brokers: KAFKA_BROKERS
   });
   const consumer = kafka.consumer({

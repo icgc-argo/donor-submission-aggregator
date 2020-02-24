@@ -7,6 +7,7 @@ import {
 import { toJson } from "donorModel";
 import { STREAM_CHUNK_SIZE } from "config";
 import { Client } from "@elastic/elasticsearch";
+import logger from "logger";
 
 export default async (
   programShortName: string,
@@ -21,7 +22,7 @@ export default async (
     const timer = `streaming ${
       chunk.length
     } donor(s) from chunk #${chunksCount++} of program ${programShortName}`;
-    console.time(timer);
+    logger.profile(timer);
     const esDocuments = await Promise.all(
       chunk.map(toJson).map(transformToEsDonor)
     );
@@ -29,6 +30,6 @@ export default async (
       body: toEsBulkIndexActions(targetIndexName)(esDocuments),
       refresh: "true"
     });
-    console.timeEnd(timer);
+    logger.profile(timer);
   }
 };

@@ -1,5 +1,6 @@
 import express from "express";
 import packageJson from "../../package.json";
+import logger from "logger";
 
 export default () => {
   let state: {
@@ -39,11 +40,13 @@ export default () => {
         setState({
           processingProgram: [...state.processingProgram, programId]
         });
+        logger.profile(programId);
       } else {
-        console.error(new Error("detected parallel program"));
+        logger.error(new Error("detected parallel program"));
       }
     },
     endProcessingProgram: (programId: string) => {
+      logger.profile(programId);
       setState({
         processingProgram: state.processingProgram.filter(
           id => programId !== id
