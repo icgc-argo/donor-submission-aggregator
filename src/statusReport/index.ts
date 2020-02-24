@@ -4,10 +4,10 @@ import packageJson from "../../package.json";
 export default () => {
   let state: {
     isReady: boolean;
-    currentProcessing: string[];
+    processingProgram: string[];
   } = {
     isReady: false,
-    currentProcessing: []
+    processingProgram: []
   };
 
   const setState = (_state: Partial<typeof state>) => {
@@ -35,17 +35,17 @@ export default () => {
       });
     },
     startProcessingProgram: (programId: string) => {
-      if (!state.currentProcessing.includes(programId)) {
+      if (!state.processingProgram.includes(programId)) {
         setState({
-          currentProcessing: [...state.currentProcessing, programId]
+          processingProgram: [...state.processingProgram, programId]
         });
       } else {
         console.error(new Error("detected parallel program"));
       }
     },
-    completeProcessingProgram: (programId: string) => {
+    endProcessingProgram: (programId: string) => {
       setState({
-        currentProcessing: state.currentProcessing.filter(
+        processingProgram: state.processingProgram.filter(
           id => programId !== id
         )
       });

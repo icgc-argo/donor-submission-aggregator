@@ -15,12 +15,13 @@ import statusReport from "./statusReport";
 
 dotenv.config();
 
+const statusReporter = statusReport();
+statusReporter.app.listen(7000, () => {
+  console.log(`Start readiness check at :${7000}/status`);
+});
+
 (async () => {
   await connectMongo();
-  const statusReporter = statusReport();
-  statusReporter.app.listen(7000, () => {
-    console.log(`Start readiness check at :${7000}/status`);
-  });
 
   const kafka = new Kafka({
     clientId: `donor-submission-aggregator-${Math.random()}`,
@@ -42,7 +43,7 @@ dotenv.config();
         await initIndexMappping(newIndexName);
         statusReporter.startProcessingProgram(messageContent.programId);
         await indexProgram(messageContent.programId, newIndexName);
-        statusReporter.completeProcessingProgram(messageContent.programId);
+        statusReporter.endProcessingProgram(messageContent.programId);
         await rollCall.release(newIndexName);
       } catch (err) {
         console.error(err);
