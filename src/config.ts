@@ -15,9 +15,8 @@ export const KAFKA_CONSUMER_GROUP =
 
 const kafkaBrokers = process.env.KAFKA_CONSUMER_GROUP
   ? String(process.env.KAFKA_CONSUMER_GROUP)
-      .split(" ")
-      .join("")
       .split(",")
+      .map(str => str.trim())
   : [];
 export const KAFKA_BROKERS = kafkaBrokers.length
   ? kafkaBrokers
