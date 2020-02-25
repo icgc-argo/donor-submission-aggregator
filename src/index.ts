@@ -15,7 +15,8 @@ import {
   KAFKA_CONSUMER_GROUP,
   KAFKA_BROKERS,
   PARTITIONS_CONSUMED_CONCURRENTLY,
-  PORT
+  PORT,
+  ENABLED
 } from "config";
 import applyStatusRepor from "./statusReport";
 import logger from "logger";
@@ -39,35 +40,37 @@ expressApp.listen(7000, () => {
 /**
  * The main Kafka subscription
  */
-(async () => {
-  await connectMongo();
+if (ENABLED) {
+  (async () => {
+    await connectMongo();
 
-  const kafka = new Kafka({
-    clientId: `donor-submission-aggregator`,
-    brokers: KAFKA_BROKERS
-  });
-  const consumer = kafka.consumer({
-    groupId: KAFKA_CONSUMER_GROUP
-  });
-  await consumer.connect();
-  await consumer.subscribe({ topic: CLINICAL_PROGRAM_UPDATE_TOPIC });
-  await consumer.run({
-    partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
-    eachMessage: async ({ message }) => {
-      try {
-        const { programId } = toProgramUpdateEvent(message.value.toString());
-        const newIndexName = await rollCall.getNewIndexName(
-          programId.toLowerCase()
-        );
-        await initIndexMappping(newIndexName);
-        statusReporter.startProcessingProgram(programId);
-        await indexProgram(programId, newIndexName);
-        statusReporter.endProcessingProgram(programId);
-        await rollCall.release(newIndexName);
-      } catch (err) {
-        logger.error(err);
+    const kafka = new Kafka({
+      clientId: `donor-submission-aggregator`,
+      brokers: KAFKA_BROKERS
+    });
+    const consumer = kafka.consumer({
+      groupId: KAFKA_CONSUMER_GROUP
+    });
+    await consumer.connect();
+    await consumer.subscribe({ topic: CLINICAL_PROGRAM_UPDATE_TOPIC });
+    await consumer.run({
+      partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
+      eachMessage: async ({ message }) => {
+        try {
+          const { programId } = toProgramUpdateEvent(message.value.toString());
+          const newIndexName = await rollCall.getNewIndexName(
+            programId.toLowerCase()
+          );
+          await initIndexMappping(newIndexName);
+          statusReporter.startProcessingProgram(programId);
+          await indexProgram(programId, newIndexName);
+          statusReporter.endProcessingProgram(programId);
+          await rollCall.release(newIndexName);
+        } catch (err) {
+          logger.error(err);
+        }
       }
-    }
-  });
-  statusReporter.setReady(true);
-})();
+    });
+    statusReporter.setReady(true);
+  })();
+}
