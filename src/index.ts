@@ -47,14 +47,14 @@ statusReporter.app.listen(7000, () => {
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: async ({ message }) => {
       try {
-        const messageContent = toProgramUpdateEvent(message.value.toString());
+        const { programId } = toProgramUpdateEvent(message.value.toString());
         const newIndexName = await rollCall.getNewIndexName(
-          messageContent.programId.toLowerCase()
+          programId.toLowerCase()
         );
         await initIndexMappping(newIndexName);
-        statusReporter.startProcessingProgram(messageContent.programId);
-        await indexProgram(messageContent.programId, newIndexName);
-        statusReporter.endProcessingProgram(messageContent.programId);
+        statusReporter.startProcessingProgram(programId);
+        await indexProgram(programId, newIndexName);
+        statusReporter.endProcessingProgram(programId);
         await rollCall.release(newIndexName);
       } catch (err) {
         logger.error(err);
