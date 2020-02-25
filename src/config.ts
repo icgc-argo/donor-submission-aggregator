@@ -26,3 +26,4 @@ export const PARTITIONS_CONSUMED_CONCURRENTLY = process.env
   .PARTITIONS_CONSUMED_CONCURRENTLY
   ? Number(process.env.PARTITIONS_CONSUMED_CONCURRENTLY)
   : 10;
+export const PORT = Number(process.env.PORT || 7000);

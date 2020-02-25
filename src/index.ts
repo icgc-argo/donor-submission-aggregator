@@ -13,7 +13,8 @@ import {
   CLINICAL_PROGRAM_UPDATE_TOPIC,
   KAFKA_CONSUMER_GROUP,
   KAFKA_BROKERS,
-  PARTITIONS_CONSUMED_CONCURRENTLY
+  PARTITIONS_CONSUMED_CONCURRENTLY,
+  PORT
 } from "config";
 import statusReport from "./statusReport";
 import logger from "logger";
@@ -27,7 +28,7 @@ statusReporter.app.use(
   swaggerUi.setup(yaml.load(path.join(__dirname, "./assets/swagger.yaml")))
 );
 statusReporter.app.listen(7000, () => {
-  logger.info(`Start readiness check at :${7000}/status`);
+  logger.info(`Start readiness check at :${PORT}/status`);
 });
 
 (async () => {
