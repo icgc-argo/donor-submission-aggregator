@@ -1,5 +1,5 @@
 import uuid from "uuid";
-import { Donor } from "../src/donorModel/types";
+import { MongoDonorDocument } from "../src/donorModel";
 
 export default (programShortName: string) => {
   const submitterId = uuid();
@@ -20,6 +20,12 @@ export default (programShortName: string) => {
     primaryDiagnosis: {
       clinicalInfo: {}
     },
+    aggregatedInfoStats: {
+      expectedCoreFields: 100,
+      expectedExtendedFields: 100,
+      submittedCoreFields: 40,
+      submittedExtendedFields: 50
+    },
     specimens: [
       {
         clinicalInfo: {},
@@ -33,7 +39,7 @@ export default (programShortName: string) => {
         specimenTissueSource: "",
         specimenType: "",
         submitterId: submitterId,
-        tumourNormalDesignation: ""
+        tumourNormalDesignation: "Normal"
       },
       {
         clinicalInfo: {},
@@ -47,7 +53,7 @@ export default (programShortName: string) => {
         specimenTissueSource: "",
         specimenType: "",
         submitterId: submitterId,
-        tumourNormalDesignation: ""
+        tumourNormalDesignation: "Tumour"
       },
       {
         clinicalInfo: {},
@@ -61,7 +67,7 @@ export default (programShortName: string) => {
         specimenTissueSource: "",
         specimenType: "",
         submitterId: submitterId,
-        tumourNormalDesignation: ""
+        tumourNormalDesignation: "Tumour"
       }
     ],
     followUps: [
@@ -80,5 +86,5 @@ export default (programShortName: string) => {
         ]
       }
     ]
-  } as Donor;
+  } as MongoDonorDocument;
 };

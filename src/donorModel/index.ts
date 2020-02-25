@@ -3,7 +3,17 @@ import { Donor } from "./types";
 
 const MONGO_DONOR_MODEL_NAME = "Donor";
 
-export type MongoDonorDocument = Donor;
+type TumourNormalDesignation = "Normal" | "Tumour";
+export type MongoDonorDocument = Omit<Donor, "specimens"> & {
+  donorId: NonNullable<Donor["donorId"]>;
+  createdAt: NonNullable<Donor["createdAt"]>;
+  updatedAt: NonNullable<Donor["updatedAt"]>;
+  specimens: Array<
+    Donor["specimens"][0] & {
+      tumourNormalDesignation: TumourNormalDesignation;
+    }
+  >;
+};
 
 export const toJson = (
   doc: mongoose.Document & MongoDonorDocument

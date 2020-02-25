@@ -22,7 +22,7 @@ const programDonorStream = async function*(
       .limit(chunkSize)
       .exec();
     streamState.currentPage++;
-    if (page.length >= chunkSize) {
+    if (page.length) {
       yield page;
     } else {
       break;
