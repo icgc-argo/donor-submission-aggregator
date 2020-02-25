@@ -16,8 +16,8 @@ export default async () => {
     useFindAndModify: false,
     ...(MONGO_USER && MONGO_PASS
       ? {
-          // user: MONGO_USER,
-          // pass: MONGO_PASS
+          user: MONGO_USER,
+          pass: MONGO_PASS
         }
       : {})
   });

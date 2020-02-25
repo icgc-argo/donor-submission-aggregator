@@ -5,3 +5,4 @@ node_modules
 docker
 coverage
 .nyc_output
+*.log
