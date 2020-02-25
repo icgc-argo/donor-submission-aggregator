@@ -7,6 +7,7 @@ import { Kafka } from "kafkajs";
 import * as swaggerUi from "swagger-ui-express";
 import path from "path";
 import yaml from "yamljs";
+import express from "express";
 
 import toProgramUpdateEvent from "toProgramUpdateEvent";
 import {
@@ -16,21 +17,28 @@ import {
   PARTITIONS_CONSUMED_CONCURRENTLY,
   PORT
 } from "config";
-import statusReport from "./statusReport";
+import applyStatusRepor from "./statusReport";
 import logger from "logger";
 
 dotenv.config();
 
-const statusReporter = statusReport();
-statusReporter.app.use(
+/**
+ * Express app to host status reports and other interface for interacting with this app
+ */
+const expressApp = express();
+const statusReporter = applyStatusRepor(expressApp)("/status");
+expressApp.use(
   "/",
   swaggerUi.serve,
   swaggerUi.setup(yaml.load(path.join(__dirname, "./assets/swagger.yaml")))
 );
-statusReporter.app.listen(7000, () => {
+expressApp.listen(7000, () => {
   logger.info(`Start readiness check at :${PORT}/status`);
 });
 
+/**
+ * The main Kafka subscription
+ */
 (async () => {
   await connectMongo();
 

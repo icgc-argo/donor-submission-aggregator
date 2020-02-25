@@ -2,7 +2,7 @@ import express from "express";
 import packageJson from "../../package.json";
 import logger from "logger";
 
-export default () => {
+export default (app: ReturnType<typeof express>) => (endpoint: string) => {
   let state: {
     isReady: boolean;
     processingProgram: string[];
@@ -18,8 +18,7 @@ export default () => {
     };
   };
 
-  const app = express();
-  app.get("/status", (req, res) => {
+  app.get(endpoint, (req, res) => {
     if (state.isReady) {
       res.send({
         state,
@@ -31,7 +30,6 @@ export default () => {
   });
 
   return {
-    app,
     setReady: (isReady: boolean) => {
       setState({
         isReady
