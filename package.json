@@ -4,8 +4,8 @@
   "description": "Donor aggregation service for the ICGC-ARGO Submission System",
   "main": "src",
   "scripts": {
-    "build": "rm -rf dist && tsc -p ./tsconfig.build.json",
-    "start::prod": "cd dist && NODE_PATH=. node index.js",
+    "build": "rm -rf dist && tsc -p ./tsconfig.build.json && cp -r src/assets dist/src",
+    "start::prod": "cd dist/src && NODE_PATH=. node index.js",
     "start::dev": "ts-node-dev -r tsconfig-paths/register --respawn src/index.ts",
     "test": "nyc ts-mocha --timeout 240000 -r tsconfig-paths/register src/**/*.test.ts && npm run cover",
     "createMongoDonors": "ts-node ./scripts/createMongoDonors.ts",
