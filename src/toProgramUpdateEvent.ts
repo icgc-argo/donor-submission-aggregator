@@ -8,12 +8,10 @@ const isProgramUpdateEvent = (data: unknown): data is ProgramUpdateEvent => {
       return (
         data && typeof (data as { programId: string })["programId"] === "string"
       );
-    } else {
-      return false;
     }
-  } else {
     return false;
   }
+  return false;
 };
 
 const toProgramUpdateEvent = (str: string): ProgramUpdateEvent => {
