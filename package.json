@@ -1,6 +1,6 @@
 {
   "name": "donor-submission-aggregator",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Donor aggregation service for the ICGC-ARGO Submission System",
   "main": "src",
   "scripts": {
