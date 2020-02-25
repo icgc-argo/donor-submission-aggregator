@@ -4,6 +4,10 @@ import { initIndexMappping } from "elasticsearch";
 import dotenv from "dotenv";
 import connectMongo from "connectMongo";
 import { Kafka } from "kafkajs";
+import * as swaggerUi from "swagger-ui-express";
+import path from "path";
+import yaml from "yamljs";
+
 import toProgramUpdateEvent from "toProgramUpdateEvent";
 import {
   CLINICAL_PROGRAM_UPDATE_TOPIC,
@@ -17,6 +21,11 @@ import logger from "logger";
 dotenv.config();
 
 const statusReporter = statusReport();
+statusReporter.app.use(
+  "/",
+  swaggerUi.serve,
+  swaggerUi.setup(yaml.load(path.join(__dirname, "./assets/swagger.yaml")))
+);
 statusReporter.app.listen(7000, () => {
   logger.info(`Start readiness check at :${7000}/status`);
 });

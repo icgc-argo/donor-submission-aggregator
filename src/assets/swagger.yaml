@@ -1,0 +1,19 @@
+openapi: 3.0.0
+info:
+  title: Clinical
+  version: 1.0.0
+security:
+paths:
+  /status:
+    get:
+      tags:
+        - Health
+      responses:
+        "500":
+          description: "app is not fully healthy"
+        "200":
+          description: "all components reporting healthy status"
+          content:
+            application/json:
+              schema:
+                type: object

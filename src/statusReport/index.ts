@@ -25,6 +25,8 @@ export default () => {
         state,
         version: packageJson.version
       });
+    } else {
+      res.status(500).send("not ready");
     }
   });
 
