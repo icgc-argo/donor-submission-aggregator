@@ -42,7 +42,7 @@ export default (app: ReturnType<typeof express>) => (endpoint: string) => {
         });
         logger.profile(programId);
       } else {
-        logger.error(new Error("detected parallel program"));
+        logger.error(new Error(`detected parallel program ${programId}`));
       }
     },
     endProcessingProgram: (programId: string) => {
