@@ -7,7 +7,7 @@
     "build": "rm -rf dist && tsc -p ./tsconfig.build.json",
     "start::prod": "cd dist && NODE_PATH=. node index.js",
     "start::dev": "ts-node-dev -r tsconfig-paths/register --respawn src/index.ts",
-    "test": "nyc ts-mocha --timeout 240000 -r tsconfig-paths/register src/integration.test.ts && npm run cover",
+    "test": "nyc ts-mocha --timeout 240000 -r tsconfig-paths/register src/**/*.test.ts && npm run cover",
     "createMongoDonors": "ts-node ./scripts/createMongoDonors.ts",
     "cover": "nyc report  --reporter=lcov --reporter=text"
   },
