@@ -91,3 +91,18 @@ services:
       CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
       CONFLUENT_METRICS_TOPIC_REPLICATION: 1
       PORT: 9021
+
+  rollcall:
+    image: overture/rollcall:edge # TODO - change to use versions
+    depends_on:
+      - elasticsearch
+    ports:
+      - "9001:9001"
+    environment:
+      ELASTICSEARCH_HOST: http://elasticsearch
+      ELASTICSEARCH_PORT: 9200
+      SPRING_PROFILES_ACTIVE: test
+      SERVER_PORT: 9001
+      ROLLCALL_ALIASES_0_ALIAS: donor_centric
+      ROLLCALL_ALIASES_0_ENTITY: donor
+      ROLLCALL_ALIASES_0_TYPE: centric
