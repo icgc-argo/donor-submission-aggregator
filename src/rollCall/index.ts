@@ -32,7 +32,7 @@ export default (
   };
 
   const release = async (resovledIndex: ResolvedIndex): Promise<boolean> =>  { 
-    const url = urljoin(`${rootUrl}/aliases/release`)
+    const url = urljoin(`${rootUrl}`, `/aliases/release`)
     
     const req = await convertResolvedIndexToIndexReleaseRequest(resovledIndex);
 
