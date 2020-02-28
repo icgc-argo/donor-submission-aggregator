@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 export const MONGO_URL =
   process.env.MONGO_URL || "mongodb://localhost:27017/clinical";
 export const MONGO_USER = process.env.MONG_OUSER;

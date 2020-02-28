@@ -1,7 +1,6 @@
 import indexProgram from "indexProgram";
 import rollCall from "rollCall";
 import { initIndexMappping } from "elasticsearch";
-import dotenv from "dotenv";
 import connectMongo from "connectMongo";
 import { Kafka } from "kafkajs";
 import * as swaggerUi from "swagger-ui-express";
@@ -20,8 +19,6 @@ import {
 } from "config";
 import applyStatusRepor from "./statusReport";
 import logger from "logger";
-
-dotenv.config();
 
 /**
  * Express app to host status reports and other interface for interacting with this app
