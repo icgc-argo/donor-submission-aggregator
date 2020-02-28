@@ -12,7 +12,6 @@ export default (
   const createNewResolvableIndex = async (programShortName: string, cloneFromReleasedIndex?: boolean): Promise<ResolvedIndex> => {
     const url = `${rootUrl}/indices/create`;
 
-    // shardPrefix, entity, and type could be config variables
     const req: CreateResolvableIndexRequest = {
       shardPrefix: shardPrefix,
       shard: await formatProgramShortName(programShortName),
@@ -35,7 +34,6 @@ export default (
   const release = async (indexName: string): Promise<boolean> =>  { 
     const url = `${rootUrl}/aliases/release`
 
-    // shardPrefix, entity, and type could be config variables
     const req = await convertIndexNameToIndexReleaseRequest(indexName);
 
     const acknowledged = await fetch(url, 
@@ -47,7 +45,7 @@ export default (
     ).then(res => res.json())
     .catch(err => { throw new Error(err) })  as boolean;
 
-    return Boolean(acknowledged);
+    return acknowledged;
  };
 
  const convertIndexNameToIndexReleaseRequest = async (indexName: string): Promise<IndexReleaseRequest> => {

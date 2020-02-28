@@ -15,9 +15,9 @@ import {
   KAFKA_CONSUMER_GROUP,
   KAFKA_BROKERS,
   PARTITIONS_CONSUMED_CONCURRENTLY,
-  ROLLCALL_SERVICE_ROOT,
   PORT,
   ENABLED,
+  ROLLCALL_SERVICE_ROOT,
   ROLLCALL_INDEX_ENTITY,
   ROLLCALL_INDEX_SHARDPREFIX,
   ROLLCALL_INDEX_TYPE
@@ -70,14 +70,14 @@ if (ENABLED) {
       eachMessage: async ({ message }) => {
         try {
           const { programId } = toProgramUpdateEvent(message.value.toString());
-          const newResolvableIndex = await rollCallClient.createNewResolvableIndex(
+          const { indexName: newIndexName} = await rollCallClient.createNewResolvableIndex(
             programId.toLowerCase()
           );
-          await initIndexMappping(newResolvableIndex.indexName);
+          await initIndexMappping(newIndexName);
           statusReporter.startProcessingProgram(programId);
-          await indexProgram(programId, newResolvableIndex.indexName);
+          await indexProgram(programId, newIndexName);
           statusReporter.endProcessingProgram(programId);
-          await rollCallClient.release(newResolvableIndex.indexName);
+          await rollCallClient.release(newIndexName);
         } catch (err) {
           logger.error(err);
         }
