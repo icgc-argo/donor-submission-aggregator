@@ -1,5 +1,5 @@
 import indexProgram from "indexProgram";
-import { RollcallClient } from "rollCall";
+import applyRollcallClient from "rollCall";
 import { initIndexMappping } from "elasticsearch";
 import dotenv from "dotenv";
 import connectMongo from "connectMongo";
@@ -17,7 +17,10 @@ import {
   PARTITIONS_CONSUMED_CONCURRENTLY,
   ROLLCALL_SERVICE_ROOT,
   PORT,
-  ENABLED
+  ENABLED,
+  ROLLCALL_INDEX_ENTITY,
+  ROLLCALL_INDEX_SHARDPREFIX,
+  ROLLCALL_INDEX_TYPE
 } from "config";
 import applyStatusRepor from "./statusReport";
 import logger from "logger";
@@ -46,7 +49,12 @@ if (ENABLED) {
   (async () => {
     await connectMongo();
 
-    const rollCallClient = new RollcallClient({url: ROLLCALL_SERVICE_ROOT});
+    const rollCallClient = applyRollcallClient({
+      url: ROLLCALL_SERVICE_ROOT, 
+      entity: ROLLCALL_INDEX_ENTITY, 
+      type: ROLLCALL_INDEX_TYPE, 
+      shardPrefix: ROLLCALL_INDEX_SHARDPREFIX
+    });
 
     const kafka = new Kafka({
       clientId: `donor-submission-aggregator`,

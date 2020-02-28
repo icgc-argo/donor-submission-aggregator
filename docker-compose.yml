@@ -14,9 +14,8 @@ services:
     image: "elasticsearch:7.5.0"
     ports:
       - 9200:9200
-      - 9300:9300
     volumes:
-      - ./docker/volumes/elasticsearch/data:/usr/share/elasticsearch/data
+      - es_data:/usr/share/elasticsearch/data
     environment:
       - discovery.type=single-node
       - cluster.name=workflow.elasticsearch
@@ -106,3 +105,6 @@ services:
       ROLLCALL_ALIASES_0_ALIAS: donor_centric
       ROLLCALL_ALIASES_0_ENTITY: donor
       ROLLCALL_ALIASES_0_TYPE: centric
+volumes:
+  es_data:
+    driver: local

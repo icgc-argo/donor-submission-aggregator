@@ -1,27 +1,24 @@
 import fetch from 'node-fetch';
-import { IndexReleaseRequest, CreateResolvableIndexRequest, ResolvedIndex } from './types';
-export class RollcallClient {
-  rootUrl: string;
-  indexEntity: string;;
-  indexType: string;
-  shardPrefix: string;
+import { IndexReleaseRequest, CreateResolvableIndexRequest, ResolvedIndex, RollcallClient } from './types';
 
-  constructor(configData: {url: string, entity?: string, type?: string, shardPrefix?: string}) {
-    this.rootUrl = configData.url;
-    this.indexEntity = configData?.entity || "donor";
-    this.indexType = configData?.type || "centric";
-    this.shardPrefix = configData?.shardPrefix || "pgm";
-  }
+export default (
+  configData: {url: string, entity?: string, type?: string, shardPrefix?: string}
+  ): RollcallClient => {
+  const rootUrl = configData.url;
+  const indexEntity = configData?.entity || "donor";
+  const indexType = configData?.type || "centric";
+  const shardPrefix = configData?.shardPrefix || "pgm";
 
-  createNewResolvableIndex = async (programShortName: string): Promise<ResolvedIndex> => {
-    const url = `${this.rootUrl}/indices/create`;
+  const createNewResolvableIndex = async (programShortName: string, cloneFromReleasedIndex?: boolean): Promise<ResolvedIndex> => {
+    const url = `${rootUrl}/indices/create`;
 
     // shardPrefix, entity, and type could be config variables
     const req: CreateResolvableIndexRequest = {
-      shardPrefix: this.shardPrefix,
-      shard: this.formatProgramShortName(programShortName),
-      entity: this.indexEntity,
-      type: this.indexType
+      shardPrefix: shardPrefix,
+      shard: await formatProgramShortName(programShortName),
+      entity: indexEntity,
+      type: indexType,
+      cloneFromReleasedIndex: cloneFromReleasedIndex || false
   }
 
     const newResolvedIndex = await fetch(url, { 
@@ -35,13 +32,13 @@ export class RollcallClient {
     return newResolvedIndex;
   };
 
-  release = async (indexName: string): Promise<boolean> =>  { 
-    const url = `${this.rootUrl}/aliases/release`
+  const release = async (indexName: string): Promise<boolean> =>  { 
+    const url = `${rootUrl}/aliases/release`
 
     // shardPrefix, entity, and type could be config variables
-    const req = await this.convertIndexNameToIndexReleaseRequest(indexName);
+    const req = await convertIndexNameToIndexReleaseRequest(indexName);
 
-    const acknoledged = await fetch(url, 
+    const acknowledged = await fetch(url, 
       {
         method: 'POST',
         body: JSON.stringify(req), 
@@ -50,10 +47,10 @@ export class RollcallClient {
     ).then(res => res.json())
     .catch(err => { throw new Error(err) })  as boolean;
 
-    return Boolean(acknoledged);
+    return Boolean(acknowledged);
  };
 
- private convertIndexNameToIndexReleaseRequest = async (indexName: string): Promise<IndexReleaseRequest> => {
+ const convertIndexNameToIndexReleaseRequest = async (indexName: string): Promise<IndexReleaseRequest> => {
    const indexNameParts = indexName.split('_');
    const alias = indexNameParts[0] + "_" + indexNameParts[1];
    const shard = indexNameParts[2] + "_" + indexNameParts[3];
@@ -62,7 +59,12 @@ export class RollcallClient {
    return { alias, release, shards: [shard] };
  }
 
- private formatProgramShortName(programShortName: string) {
+ const formatProgramShortName = async (programShortName: string) => {
    return programShortName.replace("-", "").trim().toLowerCase();
+ }
+
+ return {
+  createNewResolvableIndex,
+  release
  }
 }
