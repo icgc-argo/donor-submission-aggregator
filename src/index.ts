@@ -1,5 +1,5 @@
 import indexProgram from "indexProgram";
-import applyRollcallClient from "rollCall";
+import createRollcallClient from "rollCall";
 import { initIndexMappping } from "elasticsearch";
 import connectMongo from "connectMongo";
 import { Kafka } from "kafkajs";
@@ -46,7 +46,7 @@ if (ENABLED) {
   (async () => {
     await connectMongo();
 
-    const rollCallClient = applyRollcallClient({
+    const rollCallClient = createRollcallClient({
       url: ROLLCALL_SERVICE_ROOT, 
       entity: ROLLCALL_INDEX_ENTITY, 
       type: ROLLCALL_INDEX_TYPE, 
@@ -67,14 +67,14 @@ if (ENABLED) {
       eachMessage: async ({ message }) => {
         try {
           const { programId } = toProgramUpdateEvent(message.value.toString());
-          const { indexName: newIndexName} = await rollCallClient.createNewResolvableIndex(
+          const newResolvedIndex = await rollCallClient.createNewResolvableIndex(
             programId.toLowerCase()
           );
-          await initIndexMappping(newIndexName);
+          await initIndexMappping(newResolvedIndex.indexName);
           statusReporter.startProcessingProgram(programId);
-          await indexProgram(programId, newIndexName);
+          await indexProgram(programId, newResolvedIndex.indexName);
           statusReporter.endProcessingProgram(programId);
-          await rollCallClient.release(newIndexName);
+          await rollCallClient.release(newResolvedIndex);
         } catch (err) {
           logger.error(err);
         }

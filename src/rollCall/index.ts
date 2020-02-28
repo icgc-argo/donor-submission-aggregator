@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import { IndexReleaseRequest, CreateResolvableIndexRequest, ResolvedIndex, RollcallClient } from './types';
+import urljoin from 'url-join';
 
 export default (
   configData: {url: string, entity?: string, type?: string, shardPrefix?: string}
@@ -10,8 +11,8 @@ export default (
   const shardPrefix = configData?.shardPrefix || "pgm";
 
   const createNewResolvableIndex = async (programShortName: string, cloneFromReleasedIndex?: boolean): Promise<ResolvedIndex> => {
-    const url = `${rootUrl}/indices/create`;
-
+    const url = urljoin(`${rootUrl}`, `/indices/create`);
+    
     const req: CreateResolvableIndexRequest = {
       shardPrefix: shardPrefix,
       shard: await formatProgramShortName(programShortName),
@@ -25,16 +26,15 @@ export default (
       body: JSON.stringify(req), 
       headers: {  "Content-Type": "application/json" }
     })
-    .then(res => res.json())
-    .catch(err => { throw new Error(err) }) as ResolvedIndex;
+    .then(res => res.json()) as ResolvedIndex;
 
     return newResolvedIndex;
   };
 
-  const release = async (indexName: string): Promise<boolean> =>  { 
-    const url = `${rootUrl}/aliases/release`
-
-    const req = await convertIndexNameToIndexReleaseRequest(indexName);
+  const release = async (resovledIndex: ResolvedIndex): Promise<boolean> =>  { 
+    const url = urljoin(`${rootUrl}/aliases/release`)
+    
+    const req = await convertResolvedIndexToIndexReleaseRequest(resovledIndex);
 
     const acknowledged = await fetch(url, 
       {
@@ -42,17 +42,15 @@ export default (
         body: JSON.stringify(req), 
         headers: {  "Content-Type": "application/json" }
       }
-    ).then(res => res.json())
-    .catch(err => { throw new Error(err) })  as boolean;
+    ).then(res => res.json()) as boolean;
 
     return acknowledged;
  };
 
- const convertIndexNameToIndexReleaseRequest = async (indexName: string): Promise<IndexReleaseRequest> => {
-   const indexNameParts = indexName.split('_');
-   const alias = indexNameParts[0] + "_" + indexNameParts[1];
-   const shard = indexNameParts[2] + "_" + indexNameParts[3];
-   const release = indexNameParts[4] + "_" + indexNameParts[5];
+ const convertResolvedIndexToIndexReleaseRequest = async (resovledIndex: ResolvedIndex): Promise<IndexReleaseRequest> => {  
+   const alias = resovledIndex.entity + "_" + resovledIndex.type;
+   const shard = resovledIndex.shardPrefix + "_" + resovledIndex.shard;
+   const release = resovledIndex.releasePrefix + "_" + resovledIndex.release;
 
    return { alias, release, shards: [shard] };
  }

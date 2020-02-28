@@ -30,5 +30,5 @@ export type ResolvedIndex = {
 
 export type RollcallClient = {
     createNewResolvableIndex: (programShortName: string, cloneFromReleasedIndex?: boolean) => Promise<ResolvedIndex>,
-    release: (indexName: string) => Promise<boolean>
+    release: (indexName: ResolvedIndex) => Promise<boolean>
 }

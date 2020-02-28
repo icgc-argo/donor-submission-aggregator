@@ -98,7 +98,7 @@ describe("rollcall integration", () => {
     expect(exists).to.be.true;
 
     // ask rollcall to reelase the new index
-    const releasedNewIndex = await rollcallClient.release(newIndexName);
+    const releasedNewIndex = await rollcallClient.release(newResolvedIndex);
     expect(releasedNewIndex).to.be.true;
 
     // check released index has alias
