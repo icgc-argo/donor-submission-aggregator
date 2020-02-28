@@ -1,5 +1,5 @@
 import indexProgram from "indexProgram";
-import rollCall from "rollCall";
+import createRollcallClient from "rollCall";
 import { initIndexMappping } from "elasticsearch";
 import connectMongo from "connectMongo";
 import { Kafka } from "kafkajs";
@@ -15,7 +15,11 @@ import {
   KAFKA_BROKERS,
   PARTITIONS_CONSUMED_CONCURRENTLY,
   PORT,
-  ENABLED
+  ENABLED,
+  ROLLCALL_SERVICE_ROOT,
+  ROLLCALL_INDEX_ENTITY,
+  ROLLCALL_INDEX_SHARDPREFIX,
+  ROLLCALL_INDEX_TYPE
 } from "config";
 import applyStatusRepor from "./statusReport";
 import logger from "logger";
@@ -34,12 +38,20 @@ expressApp.listen(7000, () => {
   logger.info(`Start readiness check at :${PORT}/status`);
 });
 
+
 /**
  * The main Kafka subscription
  */
 if (ENABLED) {
   (async () => {
     await connectMongo();
+
+    const rollCallClient = createRollcallClient({
+      url: ROLLCALL_SERVICE_ROOT, 
+      entity: ROLLCALL_INDEX_ENTITY, 
+      type: ROLLCALL_INDEX_TYPE, 
+      shardPrefix: ROLLCALL_INDEX_SHARDPREFIX
+    });
 
     const kafka = new Kafka({
       clientId: `donor-submission-aggregator`,
@@ -55,14 +67,14 @@ if (ENABLED) {
       eachMessage: async ({ message }) => {
         try {
           const { programId } = toProgramUpdateEvent(message.value.toString());
-          const newIndexName = await rollCall.getNewIndexName(
+          const newResolvedIndex = await rollCallClient.createNewResolvableIndex(
             programId.toLowerCase()
           );
-          await initIndexMappping(newIndexName);
+          await initIndexMappping(newResolvedIndex.indexName);
           statusReporter.startProcessingProgram(programId);
-          await indexProgram(programId, newIndexName);
+          await indexProgram(programId, newResolvedIndex.indexName);
           statusReporter.endProcessingProgram(programId);
-          await rollCall.release(newIndexName);
+          await rollCallClient.release(newResolvedIndex);
         } catch (err) {
           logger.error(err);
         }
