@@ -1,6 +1,6 @@
 import indexProgram from "indexProgram";
 import createRollcallClient from "rollCall";
-import { initIndexMappping } from "elasticsearch";
+import { initIndexMapping } from "elasticsearch";
 import connectMongo from "connectMongo";
 import { Kafka } from "kafkajs";
 import * as swaggerUi from "swagger-ui-express";
@@ -38,7 +38,6 @@ expressApp.listen(7000, () => {
   logger.info(`Start readiness check at :${PORT}/status`);
 });
 
-
 /**
  * The main Kafka subscription
  */
@@ -47,9 +46,9 @@ if (ENABLED) {
     await connectMongo();
 
     const rollCallClient = createRollcallClient({
-      url: ROLLCALL_SERVICE_ROOT, 
-      entity: ROLLCALL_INDEX_ENTITY, 
-      type: ROLLCALL_INDEX_TYPE, 
+      url: ROLLCALL_SERVICE_ROOT,
+      entity: ROLLCALL_INDEX_ENTITY,
+      type: ROLLCALL_INDEX_TYPE,
       shardPrefix: ROLLCALL_INDEX_SHARDPREFIX
     });
 
@@ -70,7 +69,7 @@ if (ENABLED) {
           const newResolvedIndex = await rollCallClient.createNewResolvableIndex(
             programId.toLowerCase()
           );
-          await initIndexMappping(newResolvedIndex.indexName);
+          await initIndexMapping(newResolvedIndex.indexName);
           statusReporter.startProcessingProgram(programId);
           await indexProgram(programId, newResolvedIndex.indexName);
           statusReporter.endProcessingProgram(programId);
