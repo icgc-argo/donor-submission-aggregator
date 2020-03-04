@@ -34,9 +34,15 @@ const isMongoSecretContent = (obj: {
 export default async ({
   vaultClient = createVaultClient(),
   useVault = USE_VAULT,
-  vaultSecretPath = VAULT_MONGO_SECRET_PATH
+  vaultSecretPath = VAULT_MONGO_SECRET_PATH,
+  mongoUrl = MONGO_URL,
+  user = MONGO_USER,
+  pass = MONGO_PASS
 } = {}) => {
-  let mongoCredentials = {};
+  let mongoCredentials = {
+    user,
+    pass
+  };
   if (useVault) {
     const secret = await loadVaultSecret(vaultClient)(vaultSecretPath);
     if (isMongoSecret(secret)) {
@@ -49,7 +55,7 @@ export default async ({
       }
     }
   }
-  await mongoose.connect(MONGO_URL, {
+  await mongoose.connect(mongoUrl, {
     autoReconnect: true,
     // http://mongodb.github.io/node-mongodb-native/3.1/reference/faq/
     socketTimeoutMS: 10000,
@@ -61,12 +67,8 @@ export default async ({
     bufferMaxEntries: 0,
     useNewUrlParser: true,
     useFindAndModify: false,
-    ...(MONGO_USER && MONGO_PASS
-      ? {
-          user: MONGO_USER,
-          pass: MONGO_PASS
-        }
-      : mongoCredentials)
+    ...mongoCredentials
   });
   logger.info(`connected to Mongo at ${MONGO_URL}`);
+  return true;
 };
