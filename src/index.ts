@@ -1,7 +1,8 @@
 import indexProgram from "indexProgram";
 import createRollcallClient from "rollCall";
+
 import { initIndexMapping } from "elasticsearch";
-import connectMongo from "connectMongo";
+import connectMongo from "clinicalMongo";
 import { Kafka } from "kafkajs";
 import * as swaggerUi from "swagger-ui-express";
 import path from "path";
