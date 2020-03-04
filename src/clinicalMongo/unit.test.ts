@@ -38,15 +38,4 @@ describe("clinicalMongo", () => {
     });
     expect(connected).to.be.true;
   });
-  it("can connect with vault", async () => {
-    const connected = await connectMongo({
-      mongoUrl: MONGO_URL,
-      useVault: true,
-      vaultClient: createVaultClient({
-        endpoint: VAULT_URL
-      }),
-      vaultSecretPath: "kv/clinical/secrets_v1"
-    });
-    expect(connected).to.be.true;
-  });
 });
