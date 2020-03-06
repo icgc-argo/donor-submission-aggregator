@@ -9,7 +9,6 @@ describe("clinicalMongo", () => {
 
   const MONGO_PORT = 27017;
   let MONGO_URL: string;
-  let VAULT_URL: string = "http://127.0.0.1:8200";
 
   before(async () => {
     try {
