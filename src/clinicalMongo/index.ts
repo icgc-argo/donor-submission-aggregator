@@ -10,21 +10,11 @@ import { loadVaultSecret, createVaultClient } from "vault";
 import logger from "logger";
 
 type MongoSecret = {
-  content: string;
-};
-
-type MongoSecretContent = {
   CLINICAL_DB_USERNAME: string;
   CLINICAL_DB_PASSWORD: string;
 };
 
 const isMongoSecret = (obj: { [k: string]: any }): obj is MongoSecret => {
-  return typeof obj["content"] === "string";
-};
-
-const isMongoSecretContent = (obj: {
-  [k: string]: any;
-}): obj is MongoSecretContent => {
   return (
     typeof obj["CLINICAL_DB_USERNAME"] === "string" &&
     typeof obj["CLINICAL_DB_PASSWORD"] === "string"
@@ -46,13 +36,14 @@ export default async ({
   if (useVault) {
     const secret = await loadVaultSecret(vaultClient)(vaultSecretPath);
     if (isMongoSecret(secret)) {
-      const secretContent = JSON.parse(secret.content);
-      if (isMongoSecretContent(secretContent)) {
-        mongoCredentials = {
-          user: secretContent.CLINICAL_DB_USERNAME,
-          pass: secretContent.CLINICAL_DB_PASSWORD
-        };
-      }
+      mongoCredentials = {
+        user: secret.CLINICAL_DB_USERNAME,
+        pass: secret.CLINICAL_DB_PASSWORD
+      };
+    } else {
+      throw new Error(
+        `Vault contains wrong secret shape in ${vaultSecretPath}`
+      );
     }
   }
   await mongoose.connect(mongoUrl, {

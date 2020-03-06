@@ -34,5 +34,5 @@ export const loadVaultSecret = (
 ) => async (path: string) => {
   const result = await (await vaultClient).read(path);
   logger.info(`Loaded Vault secret at ${path}`);
-  return result.data.data as { [k: string]: any };
+  return result.data as { [k: string]: any };
 };
