@@ -111,7 +111,7 @@ spec:
             sh "docker push ${dockerhubRepo}:latest"
           }
           build(job: "/ARGO/provision/donor-submission-aggregator", parameters: [
-            [$class: 'StringParameterValue', name: 'AP_ARGO_ENV', value: 'dev' ],
+            [$class: 'StringParameterValue', name: 'AP_ARGO_ENV', value: 'qa' ],
             [$class: 'StringParameterValue', name: 'AP_ARGS_LINE', value: "--set-string image.tag=${version}" ]
           ])
         }
