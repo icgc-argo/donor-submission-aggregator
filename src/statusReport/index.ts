@@ -1,6 +1,12 @@
 import express from "express";
-import packageJson from "../../package.json";
 import logger from "logger";
+import path from "path";
+import { promises } from "fs";
+import { APP_DIR } from "config";
+
+const packageJson = promises
+  .readFile(path.resolve(APP_DIR, "../package.json"), "utf-8")
+  .then(result => JSON.parse(result));
 
 export default (app: ReturnType<typeof express>) => (endpoint: string) => {
   let state: {
@@ -18,11 +24,11 @@ export default (app: ReturnType<typeof express>) => (endpoint: string) => {
     };
   };
 
-  app.get(endpoint, (req, res) => {
+  app.get(endpoint, async (req, res) => {
     if (state.isReady) {
       res.send({
         state,
-        version: packageJson.version
+        version: (await packageJson).version
       });
     } else {
       res.status(500).send("not ready");

@@ -14,9 +14,8 @@ services:
     image: "elasticsearch:7.5.0"
     ports:
       - 9200:9200
-      - 9300:9300
     volumes:
-      - ./docker/volumes/elasticsearch/data:/usr/share/elasticsearch/data
+      - es_data:/usr/share/elasticsearch/data
     environment:
       - discovery.type=single-node
       - cluster.name=workflow.elasticsearch
@@ -91,3 +90,32 @@ services:
       CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
       CONFLUENT_METRICS_TOPIC_REPLICATION: 1
       PORT: 9021
+
+  rollcall:
+    image: overture/rollcall:2.0.0
+    depends_on:
+      - elasticsearch
+    ports:
+      - "9001:9001"
+    environment:
+      ELASTICSEARCH_HOST: http://elasticsearch
+      ELASTICSEARCH_PORT: 9200
+      SPRING_PROFILES_ACTIVE: test
+      SERVER_PORT: 9001
+      ROLLCALL_ALIASES_0_ALIAS: donor_centric
+      ROLLCALL_ALIASES_0_ENTITY: donor
+      ROLLCALL_ALIASES_0_TYPE: centric
+
+  vault:
+    image: vault:1.1.3
+    cap_add:
+      - IPC_LOCK
+    ports:
+      - 8200:8200
+    environment:
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+      VAULT_DEV_ROOT_TOKEN_ID: "rootToken"
+
+volumes:
+  es_data:
+    driver: local

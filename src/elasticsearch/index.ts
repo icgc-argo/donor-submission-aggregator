@@ -7,7 +7,7 @@ const globalEsClient = new Client({
   node: ES_HOST
 });
 
-export const initIndexMappping = async (
+export const initIndexMapping = async (
   index: string,
   esClient: Client = globalEsClient
 ) => {
