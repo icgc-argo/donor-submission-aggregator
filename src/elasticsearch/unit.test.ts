@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { initIndexMappping, toEsBulkIndexActions } from "./index";
+import { initIndexMapping, toEsBulkIndexActions } from "./index";
 import donorIndexMapping from "./donorIndexMapping.json";
 import { GenericContainer, StartedTestContainer } from "testcontainers";
 import { Client } from "@elastic/elasticsearch";
@@ -20,7 +20,7 @@ describe("toEsBulkIndexActions", () => {
   });
 });
 
-describe("initIndexMappping", () => {
+describe("initIndexMapping", () => {
   let elasticsearchContainer: StartedTestContainer;
   const ES_PORT = 9200;
   let esClient: Client;
@@ -58,7 +58,7 @@ describe("initIndexMappping", () => {
     });
   });
   it("must puts index mappping properly", async () => {
-    await initIndexMappping(TEST_INDEX, esClient);
+    await initIndexMapping(TEST_INDEX, esClient);
     const { body: exists } = await esClient.indices.exists({
       index: TEST_INDEX
     });
