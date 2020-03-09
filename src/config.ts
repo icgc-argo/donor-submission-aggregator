@@ -30,8 +30,8 @@ export const CLINICAL_PROGRAM_UPDATE_TOPIC =
 export const KAFKA_CONSUMER_GROUP =
   process.env.KAFKA_CONSUMER_GROUP || "donor-submission-aggregator";
 
-const kafkaBrokers = process.env.KAFKA_CONSUMER_GROUP
-  ? String(process.env.KAFKA_CONSUMER_GROUP)
+const kafkaBrokers = process.env.KAFKA_BROKERS
+  ? String(process.env.KAFKA_BROKERS)
       .split(",")
       .map(str => str.trim())
   : [];
