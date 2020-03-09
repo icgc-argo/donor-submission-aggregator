@@ -2,7 +2,6 @@ import { expect } from "chai";
 import { GenericContainer, StartedTestContainer } from "testcontainers";
 import connectMongo from "./index";
 import mongoose from "mongoose";
-import { createVaultClient } from "vault";
 
 describe("clinicalMongo", () => {
   let mongoContainer: StartedTestContainer;
