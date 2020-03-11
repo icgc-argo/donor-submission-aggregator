@@ -1,7 +1,7 @@
 import indexProgram from "indexProgram";
 import createRollcallClient from "rollCall";
 
-import { initIndexMapping } from "elasticsearch";
+import { createEsClient, initIndexMapping } from "elasticsearch";
 import connectMongo from "clinicalMongo";
 import { Kafka } from "kafkajs";
 import * as swaggerUi from "swagger-ui-express";
@@ -45,6 +45,7 @@ expressApp.listen(7000, () => {
 if (ENABLED) {
   (async () => {
     await connectMongo();
+    const esClient = await createEsClient();
 
     const rollCallClient = createRollcallClient({
       url: ROLLCALL_SERVICE_ROOT,
@@ -70,7 +71,7 @@ if (ENABLED) {
           const newResolvedIndex = await rollCallClient.createNewResolvableIndex(
             programId.toLowerCase()
           );
-          await initIndexMapping(newResolvedIndex.indexName);
+          await initIndexMapping(newResolvedIndex.indexName, esClient);
           statusReporter.startProcessingProgram(programId);
           await indexProgram(programId, newResolvedIndex.indexName);
           statusReporter.endProcessingProgram(programId);

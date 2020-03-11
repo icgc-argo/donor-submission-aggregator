@@ -14,7 +14,7 @@ const isEsSecret = (data: { [k: string]: any }): data is EsSecret => {
   return typeof data["user"] === "string" && typeof data["pass"] === "string";
 };
 
-const createEsClient = async () => {
+export const createEsClient = async () => {
   if (USE_VAULT) {
     const secretData = await loadVaultSecret()(VAULT_ES_SECRET_PATH).catch(
       err => {
@@ -44,10 +44,10 @@ const createEsClient = async () => {
 
 export const initIndexMapping = async (
   index: string,
-  esClientPromise = createEsClient()
+  esClientPromise: Client
 ) => {
   const serializedIndexName = index.toLowerCase();
-  await (await esClientPromise).indices.putMapping({
+  await esClientPromise.indices.putMapping({
     index: serializedIndexName,
     body: esMapping.mappings
   });
