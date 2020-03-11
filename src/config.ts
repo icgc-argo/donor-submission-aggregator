@@ -56,13 +56,15 @@ export const VAULT_AUTH_METHOD = process.env.VAULT_AUTH_METHOD as
   | "kubernetes";
 export const VAULT_URL = process.env.VAULT_URL as string;
 export const VAULT_ROLE = process.env.VAULT_ROLE as string;
+export const VAULT_ES_SECRET_PATH = process.env.VAULT_ES_SECRET_PATH as string;
 export const VAULT_MONGO_SECRET_PATH = process.env
   .VAULT_MONGO_SECRET_PATH as string;
 const REQUIRED_VAULT_CONFIGS = {
   VAULT_AUTH_METHOD,
   VAULT_URL,
   VAULT_ROLE,
-  VAULT_MONGO_SECRET_PATH
+  VAULT_MONGO_SECRET_PATH,
+  VAULT_ES_SECRET_PATH
 };
 const missingValue = ([key, value]: [string, any]) => !value;
 if (USE_VAULT && Object.entries(REQUIRED_VAULT_CONFIGS).some(missingValue)) {

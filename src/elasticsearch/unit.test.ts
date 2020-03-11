@@ -58,7 +58,7 @@ describe("initIndexMapping", () => {
     });
   });
   it("must puts index mappping properly", async () => {
-    await initIndexMapping(TEST_INDEX, esClient);
+    await initIndexMapping(TEST_INDEX, Promise.resolve(esClient));
     const { body: exists } = await esClient.indices.exists({
       index: TEST_INDEX
     });
