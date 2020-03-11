@@ -68,14 +68,14 @@ if (ENABLED) {
       eachMessage: async ({ message }) => {
         try {
           const { programId } = toProgramUpdateEvent(message.value.toString());
+          statusReporter.startProcessingProgram(programId);
           const newResolvedIndex = await rollCallClient.createNewResolvableIndex(
             programId.toLowerCase()
           );
           await initIndexMapping(newResolvedIndex.indexName, esClient);
-          statusReporter.startProcessingProgram(programId);
           await indexProgram(programId, newResolvedIndex.indexName);
-          statusReporter.endProcessingProgram(programId);
           await rollCallClient.release(newResolvedIndex);
+          statusReporter.endProcessingProgram(programId);
         } catch (err) {
           logger.error(err);
         }

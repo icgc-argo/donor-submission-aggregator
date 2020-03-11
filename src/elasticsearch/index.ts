@@ -3,7 +3,7 @@ import flatMap from "lodash/flatMap";
 import esMapping from "./donorIndexMapping.json";
 import { Client } from "@elastic/elasticsearch";
 import { loadVaultSecret } from "vault";
-import logger from "logger.js";
+import logger from "logger";
 
 type EsSecret = {
   user: string;
