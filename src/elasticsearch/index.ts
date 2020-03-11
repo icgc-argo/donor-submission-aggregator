@@ -42,12 +42,9 @@ export const createEsClient = async () => {
   });
 };
 
-export const initIndexMapping = async (
-  index: string,
-  esClientPromise: Client
-) => {
+export const initIndexMapping = async (index: string, esClient: Client) => {
   const serializedIndexName = index.toLowerCase();
-  await esClientPromise.indices.putMapping({
+  await esClient.indices.putMapping({
     index: serializedIndexName,
     body: esMapping.mappings
   });
