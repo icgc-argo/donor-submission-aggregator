@@ -73,7 +73,7 @@ if (ENABLED) {
             programId.toLowerCase()
           );
           await initIndexMapping(newResolvedIndex.indexName, esClient);
-          await indexProgram(programId, newResolvedIndex.indexName);
+          await indexProgram(programId, newResolvedIndex.indexName, esClient);
           await rollCallClient.release(newResolvedIndex);
           statusReporter.endProcessingProgram(programId);
         } catch (err) {

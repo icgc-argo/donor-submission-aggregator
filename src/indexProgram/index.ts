@@ -1,9 +1,6 @@
 import transformToEsDonor from "./transformToEsDonor";
 import programDonorStream from "./programDonorStream";
-import {
-  esClient as globalEsClient,
-  toEsBulkIndexActions
-} from "elasticsearch";
+import { toEsBulkIndexActions } from "elasticsearch";
 import { toJson } from "donorModel";
 import { STREAM_CHUNK_SIZE } from "config";
 import { Client } from "@elastic/elasticsearch";
@@ -12,7 +9,7 @@ import logger from "logger";
 export default async (
   programShortName: string,
   targetIndexName: string,
-  esClient: Client = globalEsClient
+  esClient: Client
 ) => {
   const donorStream = programDonorStream(programShortName, {
     chunkSize: STREAM_CHUNK_SIZE
