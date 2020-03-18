@@ -3,7 +3,7 @@ import applyRollcallClient from "./index";
 import { GenericContainer, StartedTestContainer, Wait } from "testcontainers";
 import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
-import { RollcallClient } from './types';
+import { RollcallClient } from "./types";
 
 const TEST_INDEX = "file_centric_sh_shardA_re_1";
 
@@ -22,16 +22,15 @@ describe("rollcall integration", () => {
 
   const RESOLVED_INDEX_PARTS = {
     entity: "file",
-    type: "centric",    
+    type: "centric",
     shardPrefix: "pgm",
     releasePrefix: "re"
-  }
+  };
 
-  const alias = RESOLVED_INDEX_PARTS.entity + '_' + RESOLVED_INDEX_PARTS.type;
+  const alias = RESOLVED_INDEX_PARTS.entity + "_" + RESOLVED_INDEX_PARTS.type;
 
   before(async () => {
     try {
-
       // ***** start relevant servers *****
       elasticsearchContainer = await new GenericContainer(
         "elasticsearch",
@@ -46,34 +45,41 @@ describe("rollcall integration", () => {
           startPeriod: new Duration(2, TemporalUnit.SECONDS),
           retries: 2,
           interval: new Duration(1, TemporalUnit.SECONDS),
-          timeout: new Duration(5, TemporalUnit.SECONDS),
+          timeout: new Duration(5, TemporalUnit.SECONDS)
         })
         .withWaitStrategy(Wait.forHealthCheck())
         .start();
-        
+
       const ES_MAPPED_HOST = `http://${elasticsearchContainer.getContainerIpAddress()}`;
       const ES_HOST = `${ES_MAPPED_HOST}:${ES_PORT}`;
 
-      rollcallContainer = await new GenericContainer("overture/rollcall", "2.0.0")
+      rollcallContainer = await new GenericContainer(
+        "overture/rollcall",
+        "2.0.0"
+      )
         .withNetworkMode(NETOWRK_MODE)
         .withExposedPorts(ROLLCALL_PORT)
-        .withEnv("SPRING_PROFILES_ACTIVE","test")
+        .withEnv("SPRING_PROFILES_ACTIVE", "test")
         .withEnv("SERVER_PORT", `${ROLLCALL_PORT}`)
         .withEnv("ELASTICSEARCH_HOST", `${ES_MAPPED_HOST}`)
         .withEnv("ELASTICSEARCH_PORT", `${ES_PORT}`)
-        .withEnv("ROLLCALL_ALIASES_0_ALIAS", `${RESOLVED_INDEX_PARTS.entity}_${RESOLVED_INDEX_PARTS.type}`)
+        .withEnv(
+          "ROLLCALL_ALIASES_0_ALIAS",
+          `${RESOLVED_INDEX_PARTS.entity}_${RESOLVED_INDEX_PARTS.type}`
+        )
         .withEnv("ROLLCALL_ALIASES_0_ENTITY", `${RESOLVED_INDEX_PARTS.entity}`)
         .withEnv("ROLLCALL_ALIASES_0_TYPE", `${RESOLVED_INDEX_PARTS.type}`)
-        .withWaitStrategy(Wait.forLogMessage('Started RollcallApplication'))
+        .withWaitStrategy(Wait.forLogMessage("Started RollcallApplication"))
         .start();
 
       const ROLLCALL_HOST = `http://${rollcallContainer.getContainerIpAddress()}:${ROLLCALL_PORT}`;
 
-
       // ***** start relevant clients *****
       esClient = new Client({ node: ES_HOST });
-      rollcallClient = applyRollcallClient({ url: `${ROLLCALL_HOST}`, ...RESOLVED_INDEX_PARTS});  
-       
+      rollcallClient = applyRollcallClient({
+        url: `${ROLLCALL_HOST}`,
+        ...RESOLVED_INDEX_PARTS
+      });
     } catch (err) {
       console.log(`before >>>>>>>>>>>`, err);
     }
@@ -86,10 +92,16 @@ describe("rollcall integration", () => {
 
   it("should create new indices and release them", async () => {
     // ask rollcall to create a new index in elasticsearch for TEST_PROGRAM
-    const newResolvedIndex = await rollcallClient.createNewResolvableIndex(TEST_PROGRAM);
+    const newResolvedIndex = await rollcallClient.createNewResolvableIndex(
+      TEST_PROGRAM
+    );
     const newIndexName = newResolvedIndex.indexName;
-    
-    expect(newResolvedIndex).to.contain({...RESOLVED_INDEX_PARTS, shard: "testca", release: "1"});
+
+    expect(newResolvedIndex).to.contain({
+      ...RESOLVED_INDEX_PARTS,
+      shard: "testca",
+      release: "1"
+    });
 
     // check elastic search has new index
     const { body: exists } = await esClient.indices.exists({
@@ -102,7 +114,11 @@ describe("rollcall integration", () => {
     expect(releasedNewIndex).to.be.true;
 
     // check released index has alias
-   const { body } = await esClient.cat.aliases({ name: alias, format: "JSON", h: ["alias", "index"]})   
-    expect(body).to.deep.include({ alias: alias, index: newIndexName});
-   });
+    const { body } = await esClient.cat.aliases({
+      name: alias,
+      format: "JSON",
+      h: ["alias", "index"]
+    });
+    expect(body).to.deep.include({ alias: alias, index: newIndexName });
+  });
 });
