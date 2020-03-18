@@ -57,6 +57,7 @@ export const createEsClient = async (): Promise<Client> => {
     logger.error(`esClient failed to connect to cluster`);
     throw err;
   }
+  logger.info(`successfully created Elasticsearch client for ${ES_HOST}`);
   return esClient;
 };
 
