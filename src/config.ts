@@ -13,6 +13,8 @@ export const MONGO_USER = process.env.MONG_OUSER;
 export const MONGO_PASS = process.env.MONGO_PASS;
 
 export const ES_HOST = process.env.ES_HOST || "http://localhost:9200";
+export const ES_CLIENT_TRUST_SSL_CERT =
+  process.env.ES_CLIENT_TRUST_SSL_CERT === "true";
 
 export const ROLLCALL_SERVICE_ROOT =
   process.env.ROLLCALL_SERVICE_ROOT || "http://localhost:9001";
@@ -56,13 +58,15 @@ export const VAULT_AUTH_METHOD = process.env.VAULT_AUTH_METHOD as
   | "kubernetes";
 export const VAULT_URL = process.env.VAULT_URL as string;
 export const VAULT_ROLE = process.env.VAULT_ROLE as string;
+export const VAULT_ES_SECRET_PATH = process.env.VAULT_ES_SECRET_PATH as string;
 export const VAULT_MONGO_SECRET_PATH = process.env
   .VAULT_MONGO_SECRET_PATH as string;
 const REQUIRED_VAULT_CONFIGS = {
   VAULT_AUTH_METHOD,
   VAULT_URL,
   VAULT_ROLE,
-  VAULT_MONGO_SECRET_PATH
+  VAULT_MONGO_SECRET_PATH,
+  VAULT_ES_SECRET_PATH
 };
 const missingValue = ([key, value]: [string, any]) => !value;
 if (USE_VAULT && Object.entries(REQUIRED_VAULT_CONFIGS).some(missingValue)) {
