@@ -1,7 +1,12 @@
-import { ES_HOST, VAULT_ES_SECRET_PATH, USE_VAULT } from "config";
+import {
+  ES_HOST,
+  VAULT_ES_SECRET_PATH,
+  USE_VAULT,
+  ES_CLIENT_TRUST_SSL_CERT
+} from "config";
 import flatMap from "lodash/flatMap";
 import esMapping from "./donorIndexMapping.json";
-import { Client } from "@elastic/elasticsearch";
+import { Client, Transport } from "@elastic/elasticsearch";
 import { loadVaultSecret } from "vault";
 import logger from "logger";
 
@@ -14,7 +19,8 @@ const isEsSecret = (data: { [k: string]: any }): data is EsSecret => {
   return typeof data["user"] === "string" && typeof data["pass"] === "string";
 };
 
-export const createEsClient = async () => {
+export const createEsClient = async (): Promise<Client> => {
+  let esClient: Client;
   if (USE_VAULT) {
     const secretData = await loadVaultSecret()(VAULT_ES_SECRET_PATH).catch(
       err => {
@@ -25,21 +31,33 @@ export const createEsClient = async () => {
       }
     );
     if (isEsSecret(secretData)) {
-      return new Client({
+      esClient = new Client({
         node: ES_HOST,
+        ssl: {
+          rejectUnauthorized: !ES_CLIENT_TRUST_SSL_CERT
+        },
         auth: {
           username: secretData.user,
           password: secretData.pass
         }
       });
+    } else {
+      throw new Error(
+        `vault secret at ${VAULT_ES_SECRET_PATH} could not be read`
+      );
     }
-    throw new Error(
-      `vault secret at ${VAULT_ES_SECRET_PATH} could not be read`
-    );
+  } else {
+    esClient = new Client({
+      node: ES_HOST
+    });
   }
-  return new Client({
-    node: ES_HOST
-  });
+  try {
+    await esClient.ping();
+  } catch (err) {
+    logger.error(`esClient failed to connect to cluster`);
+    throw err;
+  }
+  return esClient;
 };
 
 export const initIndexMapping = async (index: string, esClient: Client) => {

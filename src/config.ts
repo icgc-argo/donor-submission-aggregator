@@ -13,6 +13,8 @@ export const MONGO_USER = process.env.MONG_OUSER;
 export const MONGO_PASS = process.env.MONGO_PASS;
 
 export const ES_HOST = process.env.ES_HOST || "http://localhost:9200";
+export const ES_CLIENT_TRUST_SSL_CERT =
+  process.env.ES_CLIENT_TRUST_SSL_CERT === "true";
 
 export const ROLLCALL_SERVICE_ROOT =
   process.env.ROLLCALL_SERVICE_ROOT || "http://localhost:9001";
