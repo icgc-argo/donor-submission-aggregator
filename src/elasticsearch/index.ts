@@ -1,7 +1,12 @@
-import { ES_HOST, VAULT_ES_SECRET_PATH, USE_VAULT } from "config";
+import {
+  ES_HOST,
+  VAULT_ES_SECRET_PATH,
+  USE_VAULT,
+  ES_CLIENT_TRUST_SSL_CERT
+} from "config";
 import flatMap from "lodash/flatMap";
 import esMapping from "./donorIndexMapping.json";
-import { Client } from "@elastic/elasticsearch";
+import { Client, Transport } from "@elastic/elasticsearch";
 import { loadVaultSecret } from "vault";
 import logger from "logger";
 
@@ -27,6 +32,9 @@ export const createEsClient = async () => {
     if (isEsSecret(secretData)) {
       return new Client({
         node: ES_HOST,
+        ssl: {
+          rejectUnauthorized: !ES_CLIENT_TRUST_SSL_CERT
+        },
         auth: {
           username: secretData.user,
           password: secretData.pass
