@@ -17,7 +17,7 @@ export default async (
   return {
     validWithCurrentDictionary: mongoDoc.schemaMetadata.isValid,
 
-    releaseStatus: "",
+    releaseStatus: "NO_RELEASE",
 
     donorId: mongoDoc.donorId,
     submitterDonorId: mongoDoc.submitterId,
@@ -50,7 +50,10 @@ export default async (
     sangerVcsRunning: 0,
     sangerVcsFailed: 0,
 
-    processingStatus: "",
+    processingStatus: "REGISTERED",
+
+    filesCount: 0,
+    filesToQc: 0,
 
     updatedAt: new Date(mongoDoc.updatedAt),
     createdAt: new Date(mongoDoc.createdAt)
