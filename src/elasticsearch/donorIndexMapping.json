@@ -57,10 +57,10 @@
       "processingStatus": {
         "type": "keyword"
       },
-      "filesCount": {
+      "totalFilesCount": {
         "type": "byte"
       },
-      "filesToQc": {
+      "filesToQcCount": {
         "type": "byte"
       },
       "updatedAt": {
