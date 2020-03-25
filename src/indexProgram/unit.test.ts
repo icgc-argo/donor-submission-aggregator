@@ -44,7 +44,7 @@ describe("transformToEsDonor", () => {
       updatedAt: new Date(mongoDoc.updatedAt),
       createdAt: new Date(mongoDoc.createdAt),
       filesCount: 0,
-      filesToQc: 0
+      filesToQcCount: 0
     } as EsDonorDocument);
   });
 });

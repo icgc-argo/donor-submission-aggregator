@@ -53,7 +53,7 @@ export default async (
     processingStatus: "REGISTERED",
 
     filesCount: 0,
-    filesToQc: 0,
+    filesToQcCount: 0,
 
     updatedAt: new Date(mongoDoc.updatedAt),
     createdAt: new Date(mongoDoc.createdAt)
