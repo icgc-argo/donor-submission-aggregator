@@ -38,7 +38,7 @@ export type EsDonorDocument = {
 
   processingStatus: DonorMolecularDataProcessingStatus;
 
-  filesCount: number;
+  totalFilesCount: number;
   filesToQcCount: number;
 
   updatedAt: Date;
