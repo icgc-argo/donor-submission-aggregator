@@ -8,6 +8,7 @@ import * as swaggerUi from "swagger-ui-express";
 import path from "path";
 import yaml from "yamljs";
 import express from "express";
+import withRetry from "promise-retry";
 
 import toProgramUpdateEvent from "toProgramUpdateEvent";
 import {
@@ -36,9 +37,6 @@ import logger from "logger";
     swaggerUi.serve,
     swaggerUi.setup(yaml.load(path.join(__dirname, "./assets/swagger.yaml")))
   );
-  expressApp.listen(7000, () => {
-    logger.info(`Start readiness check at :${PORT}/status`);
-  });
 
   await connectMongo();
   const esClient = await createEsClient();
@@ -59,6 +57,10 @@ import logger from "logger";
   });
   await consumer.connect();
 
+  expressApp.listen(7000, () => {
+    logger.info(`Start readiness check at :${PORT}/status`);
+  });
+
   /**
    * The main Kafka subscription
    */
@@ -69,19 +71,39 @@ import logger from "logger";
     await consumer.run({
       partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
       eachMessage: async ({ message }) => {
-        try {
-          const { programId } = toProgramUpdateEvent(message.value.toString());
-          statusReporter.startProcessingProgram(programId);
-          const newResolvedIndex = await rollCallClient.createNewResolvableIndex(
-            programId.toLowerCase()
+        const { programId } = toProgramUpdateEvent(message.value.toString());
+        statusReporter.startProcessingProgram(programId);
+        const newResolvedIndex = await rollCallClient.createNewResolvableIndex(
+          programId.toLowerCase()
+        );
+        const retryConfig = {
+          factor: 2,
+          retries: 10,
+          minTimeout: 1000,
+          maxTimeout: Infinity
+        };
+        logger.info(`obtained new index name: ${newResolvedIndex.indexName}`);
+        await withRetry(async (retry, attemptIndex) => {
+          try {
+            await initIndexMapping(newResolvedIndex.indexName, esClient);
+            await indexProgram(programId, newResolvedIndex.indexName, esClient);
+            await rollCallClient.release(newResolvedIndex);
+          } catch (err) {
+            await esClient.indices.delete({
+              index: newResolvedIndex.indexName
+            });
+            logger.warn(
+              `failed to index program ${programId} on attempt #${attemptIndex}: ${err}`
+            );
+            logger.warn(`index ${newResolvedIndex.indexName} was removed`);
+            retry(err);
+          }
+        }, retryConfig).catch(err => {
+          logger.error(
+            `FAILED TO INDEX PROGRAM ${programId} after ${retryConfig.retries} attempts: ${err}`
           );
-          await initIndexMapping(newResolvedIndex.indexName, esClient);
-          await indexProgram(programId, newResolvedIndex.indexName, esClient);
-          await rollCallClient.release(newResolvedIndex);
-          statusReporter.endProcessingProgram(programId);
-        } catch (err) {
-          logger.error(err);
-        }
+        });
+        statusReporter.endProcessingProgram(programId);
       }
     });
   }
