@@ -1,9 +1,19 @@
+export type DonorMolecularDataReleaseStatus =
+  | "FULLY_RELEASED"
+  | "PARTIALLY_RELEASED"
+  | "NO_RELEASE";
+
+export type DonorMolecularDataProcessingStatus =
+  | "COMPLETE"
+  | "PROCESSING"
+  | "REGISTERED";
+
 export type EsDonorDocument = {
   programId: string;
 
   validWithCurrentDictionary: boolean;
 
-  releaseStatus: string;
+  releaseStatus: DonorMolecularDataReleaseStatus;
 
   donorId: number;
   submitterDonorId: string;
@@ -26,7 +36,10 @@ export type EsDonorDocument = {
   sangerVcsRunning: number;
   sangerVcsFailed: number;
 
-  processingStatus: string;
+  processingStatus: DonorMolecularDataProcessingStatus;
+
+  totalFilesCount: number;
+  filesToQcCount: number;
 
   updatedAt: Date;
   createdAt: Date;

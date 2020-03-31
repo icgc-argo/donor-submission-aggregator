@@ -11,6 +11,7 @@ import DonorSchema, { MongoDonorDocument } from "donorModel";
 import mongoose from "mongoose";
 import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
+import { EsDonorDocument } from "./types";
 
 const TEST_PROGRAM_SHORT_NAME = "MINH-CA";
 const DB_COLLECTION_SIZE = 10010;
@@ -23,7 +24,7 @@ describe("transformToEsDonor", () => {
     const esDoc = await transformToEsDonor(mongoDoc);
     expect(esDoc).to.deep.equal({
       validWithCurrentDictionary: true,
-      releaseStatus: "",
+      releaseStatus: "NO_RELEASE",
       donorId: mongoDoc.donorId,
       submitterDonorId: mongoDoc.submitterId,
       programId: TEST_PROGRAM_SHORT_NAME,
@@ -39,10 +40,12 @@ describe("transformToEsDonor", () => {
       sangerVcsCompleted: 0,
       sangerVcsRunning: 0,
       sangerVcsFailed: 0,
-      processingStatus: "",
+      processingStatus: "REGISTERED",
       updatedAt: new Date(mongoDoc.updatedAt),
-      createdAt: new Date(mongoDoc.createdAt)
-    });
+      createdAt: new Date(mongoDoc.createdAt),
+      totalFilesCount: 0,
+      filesToQcCount: 0
+    } as EsDonorDocument);
   });
 });
 
