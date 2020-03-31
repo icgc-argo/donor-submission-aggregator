@@ -37,9 +37,6 @@ import logger from "logger";
     swaggerUi.serve,
     swaggerUi.setup(yaml.load(path.join(__dirname, "./assets/swagger.yaml")))
   );
-  expressApp.listen(7000, () => {
-    logger.info(`Start readiness check at :${PORT}/status`);
-  });
 
   await connectMongo();
   const esClient = await createEsClient();
@@ -59,6 +56,10 @@ import logger from "logger";
     groupId: KAFKA_CONSUMER_GROUP
   });
   await consumer.connect();
+
+  expressApp.listen(7000, () => {
+    logger.info(`Start readiness check at :${PORT}/status`);
+  });
 
   /**
    * The main Kafka subscription
