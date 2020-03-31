@@ -43,7 +43,7 @@ export default (configData: {
   };
 
   const release = async (resovledIndex: ResolvedIndex): Promise<boolean> => {
-    logger.info(`releasing index ${resovledIndex}`);
+    logger.info(`releasing index ${resovledIndex.indexName}`);
     const url = urljoin(`${rootUrl}`, `/aliases/release`);
 
     const req = await convertResolvedIndexToIndexReleaseRequest(resovledIndex);

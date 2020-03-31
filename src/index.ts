@@ -89,9 +89,15 @@ import logger from "logger";
             await indexProgram(programId, newResolvedIndex.indexName, esClient);
             await rollCallClient.release(newResolvedIndex);
           } catch (err) {
-            await esClient.indices.delete({
-              index: newResolvedIndex.indexName
-            });
+            await esClient.indices
+              .delete({
+                index: newResolvedIndex.indexName
+              })
+              .catch(err => {
+                logger.warn(
+                  `could not delete index ${newResolvedIndex.indexName}: ${err}`
+                );
+              });
             logger.warn(
               `failed to index program ${programId} on attempt #${attemptIndex}: ${err}`
             );
