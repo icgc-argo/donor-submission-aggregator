@@ -6,6 +6,7 @@ import {
   RollcallClient
 } from "./types";
 import urljoin from "url-join";
+import logger from "logger";
 
 export default (configData: {
   url: string;
@@ -42,6 +43,7 @@ export default (configData: {
   };
 
   const release = async (resovledIndex: ResolvedIndex): Promise<boolean> => {
+    logger.info(`releasing index ${resovledIndex}`);
     const url = urljoin(`${rootUrl}`, `/aliases/release`);
 
     const req = await convertResolvedIndexToIndexReleaseRequest(resovledIndex);
