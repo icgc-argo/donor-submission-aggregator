@@ -75,7 +75,7 @@ import logger from "logger";
         statusReporter.startProcessingProgram(programId);
         const retryConfig = {
           factor: 2,
-          retries: 10,
+          retries: 100,
           minTimeout: 1000,
           maxTimeout: Infinity
         };
@@ -108,6 +108,7 @@ import logger from "logger";
           logger.error(
             `FAILED TO INDEX PROGRAM ${programId} after ${retryConfig.retries} attempts: ${err}`
           );
+          throw err;
         });
         statusReporter.endProcessingProgram(programId);
       }
