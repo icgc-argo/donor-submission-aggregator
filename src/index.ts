@@ -73,17 +73,17 @@ import logger from "logger";
       eachMessage: async ({ message }) => {
         const { programId } = toProgramUpdateEvent(message.value.toString());
         statusReporter.startProcessingProgram(programId);
-        const newResolvedIndex = await rollCallClient.createNewResolvableIndex(
-          programId.toLowerCase()
-        );
         const retryConfig = {
           factor: 2,
           retries: 10,
           minTimeout: 1000,
           maxTimeout: Infinity
         };
-        logger.info(`obtained new index name: ${newResolvedIndex.indexName}`);
         await withRetry(async (retry, attemptIndex) => {
+          const newResolvedIndex = await rollCallClient.createNewResolvableIndex(
+            programId.toLowerCase()
+          );
+          logger.info(`obtained new index name: ${newResolvedIndex.indexName}`);
           try {
             await initIndexMapping(newResolvedIndex.indexName, esClient);
             await indexProgram(programId, newResolvedIndex.indexName, esClient);
