@@ -1,6 +1,6 @@
 import vault, { VaultOptions } from "node-vault";
 import { VAULT_URL, VAULT_ROLE, VAULT_TOKEN, VAULT_AUTH_METHOD } from "config";
-import { promises } from "fs";
+import { promises, realpathSync } from "fs";
 import memoize from "lodash/memoize";
 import logger from "logger";
 
