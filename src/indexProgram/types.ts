@@ -15,7 +15,7 @@ export type EsDonorDocument = {
 
   releaseStatus: DonorMolecularDataReleaseStatus;
 
-  donorId: number;
+  donorId: string;
   submitterDonorId: string;
 
   submittedCoreDataPercent: number;
