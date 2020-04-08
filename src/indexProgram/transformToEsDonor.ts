@@ -19,7 +19,7 @@ export default async (
 
     releaseStatus: "NO_RELEASE",
 
-    donorId: 'DO' + mongoDoc.donorId,
+    donorId: `DO${mongoDoc.donorId}`,
     submitterDonorId: mongoDoc.submitterId,
     programId: mongoDoc.programId,
 
