@@ -10,11 +10,13 @@ import logger from "logger";
 
 export default (configData: {
   url: string;
+  aliasName?: string
   entity?: string;
   type?: string;
   shardPrefix?: string;
 }): RollcallClient => {
   const rootUrl = configData.url;
+  const aliasName = configData.aliasName || "donor_submission_summary";
   const indexEntity = configData?.entity || "donor";
   const indexType = configData?.type || "centric";
   const shardPrefix = configData?.shardPrefix || "pgm";
@@ -60,7 +62,7 @@ export default (configData: {
   const convertResolvedIndexToIndexReleaseRequest = async (
     resovledIndex: ResolvedIndex
   ): Promise<IndexReleaseRequest> => {
-    const alias = resovledIndex.entity + "_" + resovledIndex.type;
+    const alias = aliasName;
     const shard = resovledIndex.shardPrefix + "_" + resovledIndex.shard;
     const release = resovledIndex.releasePrefix + "_" + resovledIndex.release;
 

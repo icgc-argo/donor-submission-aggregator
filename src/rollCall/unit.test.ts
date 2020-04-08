@@ -5,8 +5,6 @@ import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
 import { RollcallClient } from "./types";
 
-const TEST_INDEX = "file_centric_sh_shardA_re_1";
-
 describe("rollcall integration", () => {
   let elasticsearchContainer: StartedTestContainer;
   let rollcallContainer: StartedTestContainer;
@@ -27,7 +25,7 @@ describe("rollcall integration", () => {
     releasePrefix: "re"
   };
 
-  const alias = RESOLVED_INDEX_PARTS.entity + "_" + RESOLVED_INDEX_PARTS.type;
+  const aliasName = "file_centric";
 
   before(async () => {
     try {
@@ -78,7 +76,8 @@ describe("rollcall integration", () => {
       esClient = new Client({ node: ES_HOST });
       rollcallClient = applyRollcallClient({
         url: `${ROLLCALL_HOST}`,
-        ...RESOLVED_INDEX_PARTS
+        ...RESOLVED_INDEX_PARTS,
+        aliasName
       });
     } catch (err) {
       console.log(`before >>>>>>>>>>>`, err);
@@ -115,10 +114,10 @@ describe("rollcall integration", () => {
 
     // check released index has alias
     const { body } = await esClient.cat.aliases({
-      name: alias,
+      name: aliasName,
       format: "JSON",
       h: ["alias", "index"]
     });
-    expect(body).to.deep.include({ alias: alias, index: newIndexName });
+    expect(body).to.deep.include({ alias: aliasName, index: newIndexName });
   });
 });

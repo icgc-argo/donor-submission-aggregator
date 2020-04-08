@@ -18,6 +18,7 @@ export const ES_CLIENT_TRUST_SSL_CERT =
 
 export const ROLLCALL_SERVICE_ROOT =
   process.env.ROLLCALL_SERVICE_ROOT || "http://localhost:9001";
+export const ROLLCALL_ALIAS_NAME = process.env.ROLLCALL_ALIAS_NAME || "donor_submission_summary"
 export const ROLLCALL_INDEX_ENTITY =
   process.env.ROLLCALL_INDEX_ENTITY || "donor";
 export const ROLLCALL_INDEX_TYPE = process.env.ROLLCALL_INDEX_TYPE || "centric";
