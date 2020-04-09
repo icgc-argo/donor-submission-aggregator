@@ -21,7 +21,8 @@ import {
   ROLLCALL_SERVICE_ROOT,
   ROLLCALL_INDEX_ENTITY,
   ROLLCALL_INDEX_SHARDPREFIX,
-  ROLLCALL_INDEX_TYPE
+  ROLLCALL_INDEX_TYPE,
+  ROLLCALL_ALIAS_NAME
 } from "config";
 import applyStatusRepor from "./statusReport";
 import logger from "logger";
@@ -43,6 +44,7 @@ import logger from "logger";
 
   const rollCallClient = createRollcallClient({
     url: ROLLCALL_SERVICE_ROOT,
+    aliasName: ROLLCALL_ALIAS_NAME,
     entity: ROLLCALL_INDEX_ENTITY,
     type: ROLLCALL_INDEX_TYPE,
     shardPrefix: ROLLCALL_INDEX_SHARDPREFIX

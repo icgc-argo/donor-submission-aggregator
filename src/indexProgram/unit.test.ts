@@ -25,7 +25,7 @@ describe("transformToEsDonor", () => {
     expect(esDoc).to.deep.equal({
       validWithCurrentDictionary: true,
       releaseStatus: "NO_RELEASE",
-      donorId: mongoDoc.donorId,
+      donorId: `DO${mongoDoc.donorId}`,
       submitterDonorId: mongoDoc.submitterId,
       programId: TEST_PROGRAM_SHORT_NAME,
       submittedCoreDataPercent: 0.4,
