@@ -4,15 +4,11 @@ import { EsDonorDocument } from "./types";
 export default async (
   mongoDoc: MongoDonorDocument
 ): Promise<EsDonorDocument> => {
-  const expectedCoreFields =
-    mongoDoc.aggregatedInfoStats?.expectedCoreFields || 0;
-  const submittedCoreFields =
-    mongoDoc.aggregatedInfoStats?.submittedCoreFields || 0;
+  const coreCompletessStats = Object.values(mongoDoc?.completenessStats?.coreCompletion || {});
+  const submittedCoreDataPercent =  coreCompletessStats.reduce((a,b) => a + b, 0) / coreCompletessStats.length || 0;
 
-  const expectedExtendedFields =
-    mongoDoc.aggregatedInfoStats?.expectedExtendedFields || 0;
-  const submittedExtendedFields =
-    mongoDoc.aggregatedInfoStats?.submittedExtendedFields || 0;
+  const submittedExtendedDataPercent = 0; // this calcualtion is not yet defined
+
 
   return {
     validWithCurrentDictionary: mongoDoc.schemaMetadata.isValid,
@@ -23,13 +19,9 @@ export default async (
     submitterDonorId: mongoDoc.submitterId,
     programId: mongoDoc.programId,
 
-    submittedCoreDataPercent:
-      expectedCoreFields > 0 ? submittedCoreFields / expectedCoreFields : 0,
+    submittedCoreDataPercent: submittedCoreDataPercent,
 
-    submittedExtendedDataPercent:
-      expectedExtendedFields > 0
-        ? submittedExtendedFields / expectedExtendedFields
-        : 0,
+    submittedExtendedDataPercent: submittedExtendedDataPercent,
 
     registeredNormalSamples: mongoDoc.specimens
       .filter(specimen => specimen.tumourNormalDesignation === "Normal")

@@ -20,11 +20,15 @@ export default (programShortName: string) => {
     primaryDiagnosis: {
       clinicalInfo: {}
     },
-    aggregatedInfoStats: {
-      expectedCoreFields: 100,
-      expectedExtendedFields: 100,
-      submittedCoreFields: 40,
-      submittedExtendedFields: 50
+    completenessStats: {
+      coreCompletion: {
+        donor: 1,
+        specimens: 0,
+        primaryDiagnosis: 1,
+        followUps: 0,
+        treatments: 1,
+      },
+      overriddenCoreCompletion: [],
     },
     specimens: [
       {
