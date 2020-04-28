@@ -17,10 +17,10 @@ export interface Donor {
   treatments?: Array<Treatment>;
   createdAt?: string;
   updatedAt?: string;
-  completenessStats?: CompetenessStats;
+  completenessStats?: CompeletenessStats;
 }
 
-export interface CompetenessStats {
+export interface CompeletenessStats {
   coreCompletion: CoreCompletionStats;
   overriddenCoreCompletion: CoreClinicalEntites[];
 }

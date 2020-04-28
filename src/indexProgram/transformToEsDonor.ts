@@ -1,11 +1,11 @@
 import { MongoDonorDocument } from "donorModel";
 import { EsDonorDocument } from "./types";
+import { mean } from 'lodash';
 
 export default async (
   mongoDoc: MongoDonorDocument
 ): Promise<EsDonorDocument> => {
-  const coreCompletessStats = Object.values(mongoDoc?.completenessStats?.coreCompletion || {});
-  const submittedCoreDataPercent =  coreCompletessStats.reduce((a,b) => a + b, 0) / coreCompletessStats.length || 0;
+  const submittedCoreDataPercent =  mean(Object.values(mongoDoc?.completenessStats?.coreCompletion || {}));
 
   const submittedExtendedDataPercent = 0; // this calcualtion is not yet defined
 
