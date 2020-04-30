@@ -145,7 +145,7 @@ const createDonor = (programShortName: string) => {
       originalSchemaVersion: "",
       lastMigrationId: uuid()
     },
-    completenessStats: {
+    completionStats: {
       coreCompletion: {
         donor: 1,
         specimens: 0,

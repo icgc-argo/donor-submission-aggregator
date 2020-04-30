@@ -20,7 +20,7 @@ export default (programShortName: string) => {
     primaryDiagnosis: {
       clinicalInfo: {}
     },
-    completenessStats: {
+    completionStats: {
       coreCompletion: {
         donor: 1,
         specimens: 0,
