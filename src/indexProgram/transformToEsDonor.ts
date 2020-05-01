@@ -5,7 +5,7 @@ import { mean } from 'lodash';
 export default async (
   mongoDoc: MongoDonorDocument
 ): Promise<EsDonorDocument> => {
-  const submittedCoreDataPercent =  mean(Object.values(mongoDoc?.completionStats?.coreCompletion || {}));
+  const submittedCoreDataPercent =  mean(Object.values(mongoDoc?.completionStats?.coreCompletion || {})) || 0;
 
   const submittedExtendedDataPercent = 0; // this calcualtion is not yet defined
 
