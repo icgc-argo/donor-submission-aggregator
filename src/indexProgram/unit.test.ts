@@ -28,8 +28,8 @@ describe("transformToEsDonor", () => {
       donorId: `DO${mongoDoc.donorId}`,
       submitterDonorId: mongoDoc.submitterId,
       programId: TEST_PROGRAM_SHORT_NAME,
-      submittedCoreDataPercent: 0.4,
-      submittedExtendedDataPercent: 0.5,
+      submittedCoreDataPercent: 0.6,
+      submittedExtendedDataPercent: 0, // this calculation is not yet defined
       registeredNormalSamples: 5,
       registeredTumourSamples: 10,
       publishedNormalAnalysis: 0,
@@ -145,11 +145,15 @@ const createDonor = (programShortName: string) => {
       originalSchemaVersion: "",
       lastMigrationId: uuid()
     },
-    aggregatedInfoStats: {
-      expectedCoreFields: 100,
-      expectedExtendedFields: 100,
-      submittedCoreFields: 40,
-      submittedExtendedFields: 50
+    completionStats: {
+      coreCompletion: {
+        donor: 1,
+        specimens: 0,
+        primaryDiagnosis: 1,
+        followUps: 0,
+        treatments: 1,
+      },
+      overriddenCoreCompletion: [],
     },
     clinicalInfo: {},
     primaryDiagnosis: {
