@@ -1,5 +1,5 @@
-import indexProgram from "indexProgram";
-import createRollcallClient from "rollCall";
+import indexProgram, { handleIndexingFailure } from "indexProgram";
+import createRollCallClient from "rollCall";
 
 import { createEsClient, initIndexMapping } from "elasticsearch";
 import connectMongo from "clinicalMongo";
@@ -22,7 +22,7 @@ import {
   ROLLCALL_INDEX_ENTITY,
   ROLLCALL_INDEX_SHARDPREFIX,
   ROLLCALL_INDEX_TYPE,
-  ROLLCALL_ALIAS_NAME
+  ROLLCALL_ALIAS_NAME,
 } from "config";
 import applyStatusRepor from "./statusReport";
 import logger from "logger";
@@ -42,20 +42,20 @@ import logger from "logger";
   await connectMongo();
   const esClient = await createEsClient();
 
-  const rollCallClient = createRollcallClient({
+  const rollCallClient = createRollCallClient({
     url: ROLLCALL_SERVICE_ROOT,
     aliasName: ROLLCALL_ALIAS_NAME,
     entity: ROLLCALL_INDEX_ENTITY,
     type: ROLLCALL_INDEX_TYPE,
-    shardPrefix: ROLLCALL_INDEX_SHARDPREFIX
+    shardPrefix: ROLLCALL_INDEX_SHARDPREFIX,
   });
 
   const kafka = new Kafka({
     clientId: `donor-submission-aggregator`,
-    brokers: KAFKA_BROKERS
+    brokers: KAFKA_BROKERS,
   });
   const consumer = kafka.consumer({
-    groupId: KAFKA_CONSUMER_GROUP
+    groupId: KAFKA_CONSUMER_GROUP,
   });
   await consumer.connect();
 
@@ -68,7 +68,7 @@ import logger from "logger";
    */
   if (ENABLED) {
     await consumer.subscribe({
-      topic: CLINICAL_PROGRAM_UPDATE_TOPIC
+      topic: CLINICAL_PROGRAM_UPDATE_TOPIC,
     });
     await consumer.run({
       partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
@@ -79,7 +79,7 @@ import logger from "logger";
           factor: 2,
           retries: 100,
           minTimeout: 1000,
-          maxTimeout: Infinity
+          maxTimeout: Infinity,
         };
         await withRetry(async (retry, attemptIndex) => {
           const newResolvedIndex = await rollCallClient.createNewResolvableIndex(
@@ -91,29 +91,23 @@ import logger from "logger";
             await indexProgram(programId, newResolvedIndex.indexName, esClient);
             await rollCallClient.release(newResolvedIndex);
           } catch (err) {
-            await esClient.indices
-              .delete({
-                index: newResolvedIndex.indexName
-              })
-              .catch(err => {
-                logger.warn(
-                  `could not delete index ${newResolvedIndex.indexName}: ${err}`
-                );
-              });
             logger.warn(
               `failed to index program ${programId} on attempt #${attemptIndex}: ${err}`
             );
-            logger.warn(`index ${newResolvedIndex.indexName} was removed`);
+            handleIndexingFailure({
+              esClient: esClient,
+              rollCallIndex: newResolvedIndex,
+            });
             retry(err);
           }
-        }, retryConfig).catch(err => {
+        }, retryConfig).catch((err) => {
           logger.error(
             `FAILED TO INDEX PROGRAM ${programId} after ${retryConfig.retries} attempts: ${err}`
           );
           throw err;
         });
         statusReporter.endProcessingProgram(programId);
-      }
+      },
     });
   }
   statusReporter.setReady(true);

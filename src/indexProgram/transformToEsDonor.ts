@@ -24,11 +24,11 @@ export default async (
     submittedExtendedDataPercent: submittedExtendedDataPercent,
 
     registeredNormalSamples: mongoDoc.specimens
-      .filter(specimen => specimen.tumourNormalDesignation === "Normal")
+      .filter((specimen) => specimen.tumourNormalDesignation === "Normal")
       .reduce((sum, specimen) => sum + specimen.samples.length, 0),
 
     registeredTumourSamples: mongoDoc.specimens
-      .filter(specimen => specimen.tumourNormalDesignation === "Tumour")
+      .filter((specimen) => specimen.tumourNormalDesignation === "Tumour")
       .reduce((sum, specimen) => sum + specimen.samples.length, 0),
 
     publishedNormalAnalysis: 0,
@@ -48,6 +48,6 @@ export default async (
     filesToQcCount: 0,
 
     updatedAt: new Date(mongoDoc.updatedAt),
-    createdAt: new Date(mongoDoc.createdAt)
+    createdAt: new Date(mongoDoc.createdAt),
   };
 };
