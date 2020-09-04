@@ -103,12 +103,14 @@ const createAggregatedEvent = ({
    * The main Kafka subscription
    */
   if (ENABLED) {
-    await consumer.subscribe({
-      topic: CLINICAL_PROGRAM_UPDATE_TOPIC,
-    });
-    await consumer.subscribe({
-      topic: PROGRAM_QUEUE_TOPIC,
-    });
+    await Promise.all([
+      consumer.subscribe({
+        topic: CLINICAL_PROGRAM_UPDATE_TOPIC,
+      }),
+      consumer.subscribe({
+        topic: PROGRAM_QUEUE_TOPIC,
+      }),
+    ]);
     await consumer.run({
       partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
       eachMessage: async ({ topic, message }) => {
