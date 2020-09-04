@@ -1,8 +1,10 @@
-type ProgramUpdateEvent = {
+type ClinicalProgramUpdateEvent = {
   programId: string;
 };
 
-const isProgramUpdateEvent = (data: unknown): data is ProgramUpdateEvent => {
+const isProgramUpdateEvent = (
+  data: unknown
+): data is ClinicalProgramUpdateEvent => {
   if (typeof data === "object") {
     if (data) {
       return (
@@ -14,7 +16,7 @@ const isProgramUpdateEvent = (data: unknown): data is ProgramUpdateEvent => {
   return false;
 };
 
-const toProgramUpdateEvent = (str: string): ProgramUpdateEvent => {
+const toProgramUpdateEvent = (str: string): ClinicalProgramUpdateEvent => {
   const obj = JSON.parse(str);
   if (isProgramUpdateEvent(obj)) {
     return obj;

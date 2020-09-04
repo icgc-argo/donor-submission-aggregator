@@ -6,21 +6,23 @@ import { APP_DIR } from "config";
 
 const packageJson = promises
   .readFile(path.resolve(APP_DIR, "../package.json"), "utf-8")
-  .then(result => JSON.parse(result));
+  .then((result) => JSON.parse(result));
 
-export default (app: ReturnType<typeof express>) => (endpoint: string) => {
+const createStatusReporter = (app: ReturnType<typeof express>) => (
+  endpoint: string
+) => {
   let state: {
     isReady: boolean;
     processingProgram: string[];
   } = {
     isReady: false,
-    processingProgram: []
+    processingProgram: [],
   };
 
   const setState = (_state: Partial<typeof state>) => {
     state = {
       ...state,
-      ..._state
+      ..._state,
     };
   };
 
@@ -28,7 +30,7 @@ export default (app: ReturnType<typeof express>) => (endpoint: string) => {
     if (state.isReady) {
       res.send({
         state,
-        version: (await packageJson).version
+        version: (await packageJson).version,
       });
     } else {
       res.status(500).send("not ready");
@@ -38,13 +40,13 @@ export default (app: ReturnType<typeof express>) => (endpoint: string) => {
   return {
     setReady: (isReady: boolean) => {
       setState({
-        isReady
+        isReady,
       });
     },
     startProcessingProgram: (programId: string) => {
       if (!state.processingProgram.includes(programId)) {
         setState({
-          processingProgram: [...state.processingProgram, programId]
+          processingProgram: [...state.processingProgram, programId],
         });
         logger.profile(programId);
       } else {
@@ -55,9 +57,13 @@ export default (app: ReturnType<typeof express>) => (endpoint: string) => {
       logger.profile(programId);
       setState({
         processingProgram: state.processingProgram.filter(
-          id => programId !== id
-        )
+          (id) => programId !== id
+        ),
       });
-    }
+    },
   };
 };
+export default createStatusReporter;
+export type StatusReporter = ReturnType<
+  ReturnType<typeof createStatusReporter>
+>;

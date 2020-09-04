@@ -1,18 +1,17 @@
-import indexProgram, { handleIndexingFailure } from "indexProgram";
 import createRollCallClient from "rollCall";
 
-import { createEsClient, initIndexMapping } from "elasticsearch";
+import { createEsClient } from "elasticsearch";
 import connectMongo from "clinicalMongo";
-import { Kafka } from "kafkajs";
+import { Kafka, ProducerRecord } from "kafkajs";
 import * as swaggerUi from "swagger-ui-express";
 import path from "path";
 import yaml from "yamljs";
 import express from "express";
-import withRetry from "promise-retry";
 
-import toProgramUpdateEvent from "toProgramUpdateEvent";
+import toClinicalProgramUpdateEvent from "toClinicalProgramUpdateEvent";
 import {
   CLINICAL_PROGRAM_UPDATE_TOPIC,
+  PROGRAM_QUEUE_TOPIC,
   KAFKA_CONSUMER_GROUP,
   KAFKA_BROKERS,
   PARTITIONS_CONSUMED_CONCURRENTLY,
@@ -26,6 +25,43 @@ import {
 } from "config";
 import applyStatusRepor from "./statusReport";
 import logger from "logger";
+import processProgram from "processProgram";
+
+enum KnownEventSource {
+  CLINICAL = "CLINICAL",
+  RDPC = "RDPC",
+}
+type AggregatedEvent = {
+  programId: string;
+  sources: Array<KnownEventSource>;
+};
+const createAggregatedEvent = ({
+  sourceTopics,
+  programId,
+}: {
+  sourceTopics: string[];
+  programId: string;
+}): ProducerRecord => {
+  return {
+    topic: PROGRAM_QUEUE_TOPIC,
+    messages: [
+      {
+        key: programId,
+        value: JSON.stringify({
+          programId,
+          sources: sourceTopics
+            .map(
+              (topic) =>
+                ({
+                  [CLINICAL_PROGRAM_UPDATE_TOPIC]: KnownEventSource.CLINICAL,
+                }[topic])
+            )
+            .filter(Boolean),
+        } as AggregatedEvent),
+      },
+    ],
+  };
+};
 
 (async () => {
   /**
@@ -57,7 +93,7 @@ import logger from "logger";
   const consumer = kafka.consumer({
     groupId: KAFKA_CONSUMER_GROUP,
   });
-  await consumer.connect();
+  const producer = kafka.producer();
 
   expressApp.listen(7000, () => {
     logger.info(`Start readiness check at :${PORT}/status`);
@@ -70,43 +106,34 @@ import logger from "logger";
     await consumer.subscribe({
       topic: CLINICAL_PROGRAM_UPDATE_TOPIC,
     });
+    await consumer.subscribe({
+      topic: PROGRAM_QUEUE_TOPIC,
+    });
     await consumer.run({
       partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
-      eachMessage: async ({ message }) => {
-        const { programId } = toProgramUpdateEvent(message.value.toString());
-        statusReporter.startProcessingProgram(programId);
-        const retryConfig = {
-          factor: 2,
-          retries: 100,
-          minTimeout: 1000,
-          maxTimeout: Infinity,
-        };
-        await withRetry(async (retry, attemptIndex) => {
-          const newResolvedIndex = await rollCallClient.createNewResolvableIndex(
-            programId.toLowerCase()
+      eachMessage: async ({ topic, message }) => {
+        if (topic === CLINICAL_PROGRAM_UPDATE_TOPIC) {
+          const { programId } = toClinicalProgramUpdateEvent(
+            message.value.toString()
           );
-          logger.info(`obtained new index name: ${newResolvedIndex.indexName}`);
-          try {
-            await initIndexMapping(newResolvedIndex.indexName, esClient);
-            await indexProgram(programId, newResolvedIndex.indexName, esClient);
-            await rollCallClient.release(newResolvedIndex);
-          } catch (err) {
-            logger.warn(
-              `failed to index program ${programId} on attempt #${attemptIndex}: ${err}`
-            );
-            handleIndexingFailure({
-              esClient: esClient,
-              rollCallIndex: newResolvedIndex,
-            });
-            retry(err);
-          }
-        }, retryConfig).catch((err) => {
-          logger.error(
-            `FAILED TO INDEX PROGRAM ${programId} after ${retryConfig.retries} attempts: ${err}`
+          await producer.send(
+            createAggregatedEvent({
+              sourceTopics: [CLINICAL_PROGRAM_UPDATE_TOPIC],
+              programId,
+            })
           );
-          throw err;
-        });
-        statusReporter.endProcessingProgram(programId);
+        }
+        if (topic === PROGRAM_QUEUE_TOPIC) {
+          const { programId } = toClinicalProgramUpdateEvent(
+            message.value.toString()
+          );
+          await processProgram({
+            programId,
+            esClient,
+            statusReporter,
+            rollCallClient,
+          });
+        }
       },
     });
   }
