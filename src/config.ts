@@ -30,9 +30,9 @@ export const STREAM_CHUNK_SIZE = Number(process.env.STREAM_CHUNK_SIZE) || 1000;
 
 export const CLINICAL_PROGRAM_UPDATE_TOPIC =
   process.env.CLINICAL_PROGRAM_UPDATE_TOPIC || "PROGRAM_UPDATE";
-export const PROGRAM_QUEUE_TOPIC =
-  process.env.PROGRAM_QUEUE_TOPIC || "aggregator_program_queues";
 
+export const KAFKA_PROGRAM_QUEUE_TOPIC =
+  process.env.KAFKA_PROGRAM_QUEUE_TOPIC || "aggregator_program_queues";
 export const KAFKA_CONSUMER_GROUP =
   process.env.KAFKA_CONSUMER_GROUP || "donor-submission-aggregator";
 
@@ -48,6 +48,9 @@ export const PARTITIONS_CONSUMED_CONCURRENTLY = process.env
   .PARTITIONS_CONSUMED_CONCURRENTLY
   ? Number(process.env.PARTITIONS_CONSUMED_CONCURRENTLY)
   : 10;
+export const KAFKA_AGGREGATED_TOPIC_PARTITIONS = Number(
+  process.env.KAFKA_AGGREGATED_TOPIC_PARTITIONS || 5
+);
 export const PORT = Number(process.env.PORT || 7000);
 
 export const ENABLED = process.env.ENABLED === "true";

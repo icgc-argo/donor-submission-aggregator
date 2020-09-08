@@ -2,16 +2,14 @@ import createRollCallClient from "rollCall";
 
 import { createEsClient } from "elasticsearch";
 import connectMongo from "clinicalMongo";
-import { Kafka, ProducerRecord } from "kafkajs";
+import { Kafka } from "kafkajs";
 import * as swaggerUi from "swagger-ui-express";
 import path from "path";
 import yaml from "yamljs";
 import express from "express";
-
-import toClinicalProgramUpdateEvent from "toClinicalProgramUpdateEvent";
 import {
   CLINICAL_PROGRAM_UPDATE_TOPIC,
-  PROGRAM_QUEUE_TOPIC,
+  KAFKA_PROGRAM_QUEUE_TOPIC,
   KAFKA_CONSUMER_GROUP,
   KAFKA_BROKERS,
   PARTITIONS_CONSUMED_CONCURRENTLY,
@@ -23,52 +21,16 @@ import {
   ROLLCALL_INDEX_TYPE,
   ROLLCALL_ALIAS_NAME,
 } from "config";
-import applyStatusRepor from "./statusReport";
+import applyStatusReport from "./statusReport";
 import logger from "logger";
-import processProgram from "processProgram";
-
-enum KnownEventSource {
-  CLINICAL = "CLINICAL",
-  RDPC = "RDPC",
-}
-type AggregatedEvent = {
-  programId: string;
-  sources: Array<KnownEventSource>;
-};
-const createAggregatedEvent = ({
-  sourceTopics,
-  programId,
-}: {
-  sourceTopics: string[];
-  programId: string;
-}): ProducerRecord => {
-  return {
-    topic: PROGRAM_QUEUE_TOPIC,
-    messages: [
-      {
-        key: programId,
-        value: JSON.stringify({
-          programId,
-          sources: sourceTopics
-            .map(
-              (topic) =>
-                ({
-                  [CLINICAL_PROGRAM_UPDATE_TOPIC]: KnownEventSource.CLINICAL,
-                }[topic])
-            )
-            .filter(Boolean),
-        } as AggregatedEvent),
-      },
-    ],
-  };
-};
+import createProgramQueueProcessor from "programQueueProcessor";
 
 (async () => {
   /**
    * Express app to host status reports and other interface for interacting with this app
    */
   const expressApp = express();
-  const statusReporter = applyStatusRepor(expressApp)("/status");
+  const statusReporter = applyStatusReport(expressApp)("/status");
   expressApp.use(
     "/",
     swaggerUi.serve,
@@ -93,14 +55,20 @@ const createAggregatedEvent = ({
   const consumer = kafka.consumer({
     groupId: KAFKA_CONSUMER_GROUP,
   });
-  const producer = kafka.producer();
+
+  const programQueueProcessor = await createProgramQueueProcessor({
+    kafka,
+    esClient,
+    rollCallClient,
+    statusReporter,
+  });
 
   expressApp.listen(7000, () => {
     logger.info(`Start readiness check at :${PORT}/status`);
   });
 
   /**
-   * The main Kafka subscription
+   * The main Kafka subscription to source events
    */
   if (ENABLED) {
     await Promise.all([
@@ -108,32 +76,16 @@ const createAggregatedEvent = ({
         topic: CLINICAL_PROGRAM_UPDATE_TOPIC,
       }),
       consumer.subscribe({
-        topic: PROGRAM_QUEUE_TOPIC,
+        topic: KAFKA_PROGRAM_QUEUE_TOPIC,
       }),
     ]);
     await consumer.run({
       partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
       eachMessage: async ({ topic, message }) => {
         if (topic === CLINICAL_PROGRAM_UPDATE_TOPIC) {
-          const { programId } = toClinicalProgramUpdateEvent(
-            message.value.toString()
-          );
-          await producer.send(
-            createAggregatedEvent({
-              sourceTopics: [CLINICAL_PROGRAM_UPDATE_TOPIC],
-              programId,
-            })
-          );
-        }
-        if (topic === PROGRAM_QUEUE_TOPIC) {
-          const { programId } = toClinicalProgramUpdateEvent(
-            message.value.toString()
-          );
-          await processProgram({
-            programId,
-            esClient,
-            statusReporter,
-            rollCallClient,
+          programQueueProcessor.queueSourceEvent({
+            message: message,
+            eventSources: [programQueueProcessor.dataSourceMap[topic]],
           });
         }
       },
