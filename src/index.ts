@@ -22,6 +22,7 @@ import {
 import applyStatusReport from "./statusReport";
 import logger from "logger";
 import createProgramQueueProcessor from "programQueueProcessor";
+import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUpdateEvent";
 
 (async () => {
   /**
@@ -61,10 +62,6 @@ import createProgramQueueProcessor from "programQueueProcessor";
     statusReporter,
   });
 
-  expressApp.listen(7000, () => {
-    logger.info(`Start readiness check at :${PORT}/status`);
-  });
-
   /**
    * The main Kafka subscription to source events
    */
@@ -74,13 +71,27 @@ import createProgramQueueProcessor from "programQueueProcessor";
   await consumer.run({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: async ({ topic, message }) => {
-      if (topic === CLINICAL_PROGRAM_UPDATE_TOPIC) {
-        programQueueProcessor.queueSourceEvent({
-          message: message,
-          eventSources: [programQueueProcessor.dataSourceMap[topic]],
-        });
+      switch (topic) {
+        case CLINICAL_PROGRAM_UPDATE_TOPIC:
+          const { programId } = parseClinicalProgramUpdateEvent(
+            message.value.toString()
+          );
+          await programQueueProcessor.enqueueSourceEvent({
+            programId,
+            changes: [
+              { source: programQueueProcessor.knownEventSource.CLINICAL },
+            ],
+          });
+          break;
+
+        default:
+          break;
       }
     },
+  });
+
+  expressApp.listen(7000, () => {
+    logger.info(`Start readiness check at :${PORT}/status`);
   });
   statusReporter.setReady(true);
 })();

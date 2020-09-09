@@ -1,35 +1,40 @@
 import {
-  CLINICAL_PROGRAM_UPDATE_TOPIC,
   KAFKA_PROGRAM_QUEUE_TOPIC,
-  KAFKA_AGGREGATED_TOPIC_PARTITIONS,
   PARTITIONS_CONSUMED_CONCURRENTLY,
   KAFKA_CONSUMER_GROUP,
 } from "config";
-import { ProducerRecord, KafkaMessage, Kafka } from "kafkajs";
+import { ProducerRecord, Kafka } from "kafkajs";
 import { Client } from "@elastic/elasticsearch";
 import { StatusReporter } from "statusReport";
 import { RollCallClient } from "rollCall/types";
-import processProgram from "processProgram";
-import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUpdateEvent";
+import indexClinicalProgram from "indexProgram";
+import { initIndexMapping } from "elasticsearch";
+import withRetry from "promise-retry";
+import { handleIndexingFailure } from "indexProgram/handleIndexingFailure";
 import logger from "logger";
+import initializeProgramQueueTopic from "./initializeProgramQueueTopic";
 
-enum KnownEventSource {
+export enum KnownEventSource {
   CLINICAL = "CLINICAL",
   RDPC = "RDPC",
 }
-type AggregatedEvent = {
+type QueuedProgramEventPayload =
+  | {
+      source: KnownEventSource.CLINICAL;
+    }
+  | {
+      source: KnownEventSource.RDPC;
+      analysisId?: string;
+    };
+type ProgramQueueEvent = {
   programId: string;
-  sources: Array<KnownEventSource>;
+  changes: Array<QueuedProgramEventPayload>;
 };
-const dataSourceMap = {
-  [CLINICAL_PROGRAM_UPDATE_TOPIC]: KnownEventSource.CLINICAL,
-};
-
-const createAggregatedEvent = ({
-  sourceTopics,
+const createProgramQueueRecord = ({
+  changes,
   programId,
 }: {
-  sourceTopics: string[];
+  changes: QueuedProgramEventPayload[];
   programId: string;
 }): ProducerRecord => {
   return {
@@ -39,35 +44,14 @@ const createAggregatedEvent = ({
         key: programId,
         value: JSON.stringify({
           programId,
-          sources: sourceTopics
-            .map((topic) => dataSourceMap[topic])
-            .filter(Boolean),
-        } as AggregatedEvent),
+          changes,
+        } as ProgramQueueEvent),
       },
     ],
   };
 };
-
-const initializeProgramQueueTopic = async (kafka: Kafka) => {
-  const kafkaAdmin = kafka.admin();
-  try {
-    await kafkaAdmin.connect();
-    await kafkaAdmin.createTopics({
-      topics: [
-        {
-          topic: KAFKA_PROGRAM_QUEUE_TOPIC,
-          numPartitions: KAFKA_AGGREGATED_TOPIC_PARTITIONS,
-        },
-      ],
-    });
-    await kafkaAdmin.disconnect();
-  } catch (err) {
-    logger.error(
-      `failed to create topic ${KAFKA_PROGRAM_QUEUE_TOPIC} with ${KAFKA_AGGREGATED_TOPIC_PARTITIONS} partitions`
-    );
-    throw err;
-  }
-};
+const parseProgramQueueEvent = (message: string): ProgramQueueEvent =>
+  JSON.parse(message);
 
 const createProgramQueueManager = async ({
   kafka,
@@ -85,40 +69,81 @@ const createProgramQueueManager = async ({
   });
   const producer = kafka.producer();
 
-  await initializeProgramQueueTopic(kafka);
+  const programQueueTopic = await initializeProgramQueueTopic(kafka);
   await consumer.subscribe({
-    topic: KAFKA_PROGRAM_QUEUE_TOPIC,
+    topic: programQueueTopic,
   });
   await consumer.run({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
-    eachMessage: async ({ topic, message }) => {
-      const { programId } = parseClinicalProgramUpdateEvent(
-        message.value.toString()
-      );
-      await processProgram({
-        programId,
-        esClient,
-        statusReporter,
-        rollCallClient,
+    eachMessage: async ({ message }) => {
+      const queuedEvent = parseProgramQueueEvent(message.value.toString());
+      const { programId } = queuedEvent;
+      const retryConfig = {
+        factor: 2,
+        retries: 100,
+        minTimeout: 1000,
+        maxTimeout: Infinity,
+      };
+      await withRetry(async (retry, attemptIndex) => {
+        const newResolvedIndex = await rollCallClient.createNewResolvableIndex(
+          programId.toLowerCase()
+        );
+        logger.info(`obtained new index name: ${newResolvedIndex.indexName}`);
+        try {
+          await initIndexMapping(newResolvedIndex.indexName, esClient);
+          const clinicalEvent = queuedEvent.changes.find(
+            (change) => change.source === KnownEventSource.CLINICAL
+          );
+          const rdpcEvent = queuedEvent.changes.find(
+            (change) => change.source === KnownEventSource.RDPC
+          );
+          if (clinicalEvent) {
+            await indexClinicalProgram(
+              programId,
+              newResolvedIndex.indexName,
+              esClient
+            );
+          }
+          if (rdpcEvent) {
+            console.log("yooo!!!");
+          }
+
+          await rollCallClient.release(newResolvedIndex);
+        } catch (err) {
+          logger.warn(
+            `failed to index program ${programId} on attempt #${attemptIndex}: ${err}`
+          );
+          handleIndexingFailure({
+            esClient: esClient,
+            rollCallIndex: newResolvedIndex,
+          });
+          retry(err);
+        }
+      }, retryConfig).catch((err) => {
+        logger.error(
+          `FAILED TO INDEX PROGRAM ${programId} after ${retryConfig.retries} attempts: ${err}`
+        );
+        throw err;
       });
+      statusReporter.endProcessingProgram(programId);
     },
   });
 
   return {
-    dataSourceMap,
-    queueSourceEvent: async ({
-      message,
-      eventSources,
+    knownEventSource: {
+      CLINICAL: KnownEventSource.CLINICAL,
+      RDPC: KnownEventSource.RDPC,
+    },
+    enqueueSourceEvent: async ({
+      changes,
+      programId,
     }: {
-      message: KafkaMessage;
-      eventSources: KnownEventSource[];
+      changes: QueuedProgramEventPayload[];
+      programId: string;
     }) => {
-      const { programId } = parseClinicalProgramUpdateEvent(
-        message.value.toString()
-      );
       await producer.send(
-        createAggregatedEvent({
-          sourceTopics: eventSources,
+        createProgramQueueRecord({
+          changes,
           programId,
         })
       );
