@@ -110,7 +110,7 @@ const createProgramQueueManager = async ({
           logger.warn(
             `failed to index program ${programId} on attempt #${attemptIndex}: ${err}`
           );
-          handleIndexingFailure({
+          await handleIndexingFailure({
             esClient: esClient,
             rollCallIndex: newResolvedIndex,
           });
