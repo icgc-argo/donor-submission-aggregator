@@ -16,7 +16,9 @@ const isProgramUpdateEvent = (
   return false;
 };
 
-const toProgramUpdateEvent = (str: string): ClinicalProgramUpdateEvent => {
+const parseClinicalProgramUpdateEvent = (
+  str: string
+): ClinicalProgramUpdateEvent => {
   const obj = JSON.parse(str);
   if (isProgramUpdateEvent(obj)) {
     return obj;
@@ -25,4 +27,4 @@ const toProgramUpdateEvent = (str: string): ClinicalProgramUpdateEvent => {
   }
 };
 
-export default toProgramUpdateEvent;
+export default parseClinicalProgramUpdateEvent;

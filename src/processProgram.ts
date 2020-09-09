@@ -4,7 +4,7 @@ import { initIndexMapping } from "elasticsearch";
 import withRetry from "promise-retry";
 
 import logger from "logger";
-import { RollcallClient } from "rollCall/types";
+import { RollCallClient } from "rollCall/types";
 import { Client } from "@elastic/elasticsearch";
 import { StatusReporter } from "statusReport";
 
@@ -16,7 +16,7 @@ const processProgram = async ({
 }: {
   programId: string;
   statusReporter: StatusReporter;
-  rollCallClient: RollcallClient;
+  rollCallClient: RollCallClient;
   esClient: Client;
 }) => {
   statusReporter.startProcessingProgram(programId);

@@ -3,7 +3,7 @@ import {
   IndexReleaseRequest,
   CreateResolvableIndexRequest,
   ResolvedIndex,
-  RollcallClient,
+  RollCallClient,
 } from "./types";
 import urljoin from "url-join";
 import logger from "logger";
@@ -14,7 +14,7 @@ export default (configData: {
   entity?: string;
   type?: string;
   shardPrefix?: string;
-}): RollcallClient => {
+}): RollCallClient => {
   const rootUrl = configData.url;
   const aliasName = configData.aliasName || "donor_submission_summary";
   const indexEntity = configData?.entity || "donor";

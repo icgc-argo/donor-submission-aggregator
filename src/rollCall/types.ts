@@ -27,7 +27,7 @@ export type ResolvedIndex = {
   valid: boolean;
 };
 
-export type RollcallClient = {
+export type RollCallClient = {
   createNewResolvableIndex: (
     programShortName: string,
     cloneFromReleasedIndex?: boolean

@@ -9,12 +9,10 @@ import yaml from "yamljs";
 import express from "express";
 import {
   CLINICAL_PROGRAM_UPDATE_TOPIC,
-  KAFKA_PROGRAM_QUEUE_TOPIC,
   KAFKA_CONSUMER_GROUP,
   KAFKA_BROKERS,
   PARTITIONS_CONSUMED_CONCURRENTLY,
   PORT,
-  ENABLED,
   ROLLCALL_SERVICE_ROOT,
   ROLLCALL_INDEX_ENTITY,
   ROLLCALL_INDEX_SHARDPREFIX,
@@ -70,26 +68,19 @@ import createProgramQueueProcessor from "programQueueProcessor";
   /**
    * The main Kafka subscription to source events
    */
-  if (ENABLED) {
-    await Promise.all([
-      consumer.subscribe({
-        topic: CLINICAL_PROGRAM_UPDATE_TOPIC,
-      }),
-      consumer.subscribe({
-        topic: KAFKA_PROGRAM_QUEUE_TOPIC,
-      }),
-    ]);
-    await consumer.run({
-      partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
-      eachMessage: async ({ topic, message }) => {
-        if (topic === CLINICAL_PROGRAM_UPDATE_TOPIC) {
-          programQueueProcessor.queueSourceEvent({
-            message: message,
-            eventSources: [programQueueProcessor.dataSourceMap[topic]],
-          });
-        }
-      },
-    });
-  }
+  await consumer.subscribe({
+    topic: CLINICAL_PROGRAM_UPDATE_TOPIC,
+  });
+  await consumer.run({
+    partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
+    eachMessage: async ({ topic, message }) => {
+      if (topic === CLINICAL_PROGRAM_UPDATE_TOPIC) {
+        programQueueProcessor.queueSourceEvent({
+          message: message,
+          eventSources: [programQueueProcessor.dataSourceMap[topic]],
+        });
+      }
+    },
+  });
   statusReporter.setReady(true);
 })();

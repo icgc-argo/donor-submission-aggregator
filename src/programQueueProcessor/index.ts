@@ -8,9 +8,9 @@ import {
 import { ProducerRecord, KafkaMessage, Kafka } from "kafkajs";
 import { Client } from "@elastic/elasticsearch";
 import { StatusReporter } from "statusReport";
-import { RollcallClient } from "rollCall/types";
+import { RollCallClient } from "rollCall/types";
 import processProgram from "processProgram";
-import toClinicalProgramUpdateEvent from "toClinicalProgramUpdateEvent";
+import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUpdateEvent";
 import logger from "logger";
 
 enum KnownEventSource {
@@ -48,23 +48,8 @@ const createAggregatedEvent = ({
   };
 };
 
-const createProgramQueueManager = async ({
-  kafka,
-  esClient,
-  statusReporter,
-  rollCallClient,
-}: {
-  kafka: Kafka;
-  esClient: Client;
-  statusReporter: StatusReporter;
-  rollCallClient: RollcallClient;
-}) => {
-  const consumer = kafka.consumer({
-    groupId: KAFKA_CONSUMER_GROUP,
-  });
-  const producer = kafka.producer();
+const initializeProgramQueueTopic = async (kafka: Kafka) => {
   const kafkaAdmin = kafka.admin();
-
   try {
     await kafkaAdmin.connect();
     await kafkaAdmin.createTopics({
@@ -82,11 +67,32 @@ const createProgramQueueManager = async ({
     );
     throw err;
   }
+};
 
+const createProgramQueueManager = async ({
+  kafka,
+  esClient,
+  statusReporter,
+  rollCallClient,
+}: {
+  kafka: Kafka;
+  esClient: Client;
+  statusReporter: StatusReporter;
+  rollCallClient: RollCallClient;
+}) => {
+  const consumer = kafka.consumer({
+    groupId: KAFKA_CONSUMER_GROUP,
+  });
+  const producer = kafka.producer();
+
+  await initializeProgramQueueTopic(kafka);
+  await consumer.subscribe({
+    topic: KAFKA_PROGRAM_QUEUE_TOPIC,
+  });
   await consumer.run({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: async ({ topic, message }) => {
-      const { programId } = toClinicalProgramUpdateEvent(
+      const { programId } = parseClinicalProgramUpdateEvent(
         message.value.toString()
       );
       await processProgram({
@@ -107,7 +113,7 @@ const createProgramQueueManager = async ({
       message: KafkaMessage;
       eventSources: KnownEventSource[];
     }) => {
-      const { programId } = toClinicalProgramUpdateEvent(
+      const { programId } = parseClinicalProgramUpdateEvent(
         message.value.toString()
       );
       await producer.send(
