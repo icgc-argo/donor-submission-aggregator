@@ -65,9 +65,11 @@ import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUp
   /**
    * The main Kafka subscription to source events
    */
-  await consumer.subscribe({
-    topic: CLINICAL_PROGRAM_UPDATE_TOPIC,
-  });
+  await Promise.all([
+    consumer.subscribe({
+      topic: CLINICAL_PROGRAM_UPDATE_TOPIC,
+    }),
+  ]);
   await consumer.run({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: async ({ topic, message }) => {
@@ -76,10 +78,12 @@ import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUp
           const { programId } = parseClinicalProgramUpdateEvent(
             message.value.toString()
           );
-          await programQueueProcessor.enqueueSourceEvent({
+          await programQueueProcessor.enqueueEvent({
             programId,
             changes: [
-              { source: programQueueProcessor.knownEventSource.CLINICAL },
+              {
+                source: programQueueProcessor.knownEventSource.CLINICAL,
+              },
             ],
           });
           break;

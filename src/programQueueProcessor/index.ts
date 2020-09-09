@@ -18,14 +18,16 @@ export enum KnownEventSource {
   CLINICAL = "CLINICAL",
   RDPC = "RDPC",
 }
-type QueuedProgramEventPayload =
-  | {
-      source: KnownEventSource.CLINICAL;
-    }
-  | {
-      source: KnownEventSource.RDPC;
-      analysisId?: string;
-    };
+type QueuedClinicalEvent = {
+  source: KnownEventSource.CLINICAL;
+};
+type QueuedRdpcEvent = {
+  source: KnownEventSource.RDPC;
+  programId: string;
+  analysisId: string;
+  rdpcGatewayUrl: string;
+};
+type QueuedProgramEventPayload = QueuedClinicalEvent | QueuedRdpcEvent;
 type ProgramQueueEvent = {
   programId: string;
   changes: Array<QueuedProgramEventPayload>;
@@ -91,21 +93,16 @@ const createProgramQueueManager = async ({
         logger.info(`obtained new index name: ${newResolvedIndex.indexName}`);
         try {
           await initIndexMapping(newResolvedIndex.indexName, esClient);
-          const clinicalEvent = queuedEvent.changes.find(
-            (change) => change.source === KnownEventSource.CLINICAL
-          );
-          const rdpcEvent = queuedEvent.changes.find(
-            (change) => change.source === KnownEventSource.RDPC
-          );
-          if (clinicalEvent) {
-            await indexClinicalProgram(
-              programId,
-              newResolvedIndex.indexName,
-              esClient
-            );
-          }
-          if (rdpcEvent) {
-            console.log("yooo!!!");
+          for (const change of queuedEvent.changes) {
+            if (change.source === KnownEventSource.CLINICAL) {
+              await indexClinicalProgram(
+                programId,
+                newResolvedIndex.indexName,
+                esClient
+              );
+            } else if (change.source === KnownEventSource.RDPC) {
+              console.log(change.analysisId);
+            }
           }
 
           await rollCallClient.release(newResolvedIndex);
@@ -131,14 +128,14 @@ const createProgramQueueManager = async ({
 
   return {
     knownEventSource: {
-      CLINICAL: KnownEventSource.CLINICAL,
-      RDPC: KnownEventSource.RDPC,
+      CLINICAL: KnownEventSource.CLINICAL as KnownEventSource.CLINICAL,
+      RDPC: KnownEventSource.RDPC as KnownEventSource.RDPC,
     },
-    enqueueSourceEvent: async ({
+    enqueueEvent: async ({
       changes,
       programId,
     }: {
-      changes: QueuedProgramEventPayload[];
+      changes: Array<QueuedProgramEventPayload>;
       programId: string;
     }) => {
       await producer.send(
