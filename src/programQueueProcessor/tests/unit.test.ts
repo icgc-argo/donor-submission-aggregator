@@ -3,6 +3,7 @@ import { GenericContainer } from "testcontainers";
 import { StartedTestContainer, Wait } from "testcontainers";
 import { promisify } from "util";
 import { exec } from "child_process";
+import DonorSchema from "donorModel";
 import mongoose from "mongoose";
 import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
@@ -39,7 +40,7 @@ describe("programQueueProcessor", () => {
   const ROLLCALL_PORT = 10091;
   const MONGO_PORT = 27017;
   const NETOWRK_MODE = "host";
-  const aliasName = "file_centric";
+  const ALIAS_NAME = "file_centric";
   let MONGO_URL: string;
   /****************************/
 
@@ -96,7 +97,7 @@ describe("programQueueProcessor", () => {
       rollcallClient = createRollCallClient({
         url: `${ROLLCALL_HOST}`,
         ...RESOLVED_INDEX_PARTS,
-        aliasName,
+        aliasName: ALIAS_NAME,
       });
       MONGO_URL = `mongodb://${mongoContainer.getContainerIpAddress()}:${mongoContainer.getMappedPort(
         MONGO_PORT
@@ -108,7 +109,7 @@ describe("programQueueProcessor", () => {
   });
   after(async () => {
     await mongoContainer.stop();
-    // await elasticsearchContainer.stop();
+    await elasticsearchContainer.stop();
     await rollcallContainer.stop();
   });
   beforeEach(async function () {

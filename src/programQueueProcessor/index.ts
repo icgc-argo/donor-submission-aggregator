@@ -13,7 +13,6 @@ import withRetry from "promise-retry";
 import { handleIndexingFailure } from "indexProgram/handleIndexingFailure";
 import logger from "logger";
 import initializeProgramQueueTopic from "./initializeProgramQueueTopic";
-import KafkaMock from "./tests/kafkaMock";
 
 enum KnownEventSource {
   CLINICAL = "CLINICAL",
