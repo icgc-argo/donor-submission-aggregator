@@ -32,7 +32,7 @@ export const CLINICAL_PROGRAM_UPDATE_TOPIC =
   process.env.CLINICAL_PROGRAM_UPDATE_TOPIC || "PROGRAM_UPDATE";
 
 export const KAFKA_PROGRAM_QUEUE_TOPIC =
-  process.env.KAFKA_PROGRAM_QUEUE_TOPIC || "aggregator_program_queues";
+  process.env.KAFKA_PROGRAM_QUEUE_TOPIC || "donor_aggregator_program_queues";
 export const KAFKA_CONSUMER_GROUP =
   process.env.KAFKA_CONSUMER_GROUP || "donor-submission-aggregator";
 

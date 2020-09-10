@@ -13,8 +13,9 @@ import withRetry from "promise-retry";
 import { handleIndexingFailure } from "indexProgram/handleIndexingFailure";
 import logger from "logger";
 import initializeProgramQueueTopic from "./initializeProgramQueueTopic";
+import KafkaMock from "./tests/kafkaMock";
 
-export enum KnownEventSource {
+enum KnownEventSource {
   CLINICAL = "CLINICAL",
   RDPC = "RDPC",
 }
@@ -56,6 +57,10 @@ const parseProgramQueueEvent = (message: string): ProgramQueueEvent =>
   JSON.parse(message);
 
 const createProgramQueueManager = async ({
+  /*--- these configs exists for test mocking ---*/
+  queueInitializer = initializeProgramQueueTopic,
+  /*---------------------------------------------*/
+
   kafka,
   esClient,
   statusReporter,
@@ -63,15 +68,16 @@ const createProgramQueueManager = async ({
 }: {
   kafka: Kafka;
   esClient: Client;
-  statusReporter: StatusReporter;
+  statusReporter?: StatusReporter;
   rollCallClient: RollCallClient;
+  queueInitializer?: typeof initializeProgramQueueTopic;
 }) => {
   const consumer = kafka.consumer({
     groupId: KAFKA_CONSUMER_GROUP,
   });
   const producer = kafka.producer();
 
-  const programQueueTopic = await initializeProgramQueueTopic(kafka);
+  const programQueueTopic = await queueInitializer(kafka);
   await consumer.subscribe({
     topic: programQueueTopic,
   });
@@ -122,7 +128,7 @@ const createProgramQueueManager = async ({
         );
         throw err;
       });
-      statusReporter.endProcessingProgram(programId);
+      statusReporter?.endProcessingProgram(programId);
     },
   });
 
