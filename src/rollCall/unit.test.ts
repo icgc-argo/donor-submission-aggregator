@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import applyRollcallClient from "./index";
+import createRollcallClient from "./index";
 import { GenericContainer, StartedTestContainer, Wait } from "testcontainers";
 import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
@@ -74,7 +74,7 @@ describe("rollcall integration", () => {
 
       // ***** start relevant clients *****
       esClient = new Client({ node: ES_HOST });
-      rollcallClient = applyRollcallClient({
+      rollcallClient = createRollcallClient({
         url: `${ROLLCALL_HOST}`,
         ...RESOLVED_INDEX_PARTS,
         aliasName,
