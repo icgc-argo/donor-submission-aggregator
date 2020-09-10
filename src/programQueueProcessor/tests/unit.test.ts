@@ -3,14 +3,13 @@ import { GenericContainer } from "testcontainers";
 import { StartedTestContainer, Wait } from "testcontainers";
 import { promisify } from "util";
 import { exec } from "child_process";
-import DonorSchema from "donorModel";
 import mongoose from "mongoose";
 import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
 import KafkaMock from "./kafkaMock";
 import createProgramQueueProcessor from "../index";
-import { RollCallClient } from "rollCall/types";
-import createRollCallClient from "rollCall";
+import { RollCallClient } from "../../rollCall/types";
+import createRollCallClient from "../../rollCall";
 
 const TEST_PROGRAM_SHORT_NAME = "MINH-CA";
 const DB_COLLECTION_SIZE = 10010;
