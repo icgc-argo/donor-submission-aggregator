@@ -1,3 +1,4 @@
+import { CLINICAL_PROGRAM_UPDATE_TOPIC } from "config";
 import { expect } from "chai";
 import { GenericContainer } from "testcontainers";
 import { StartedTestContainer, Wait } from "testcontainers";
@@ -146,6 +147,16 @@ describe("programQueueProcessor", () => {
       kafkaClient = new Kafka({
         clientId: `donor-submission-aggregator`,
         brokers: [KAFKA_HOST],
+      });
+      const kafkaAdmin = kafkaClient.admin();
+      kafkaAdmin.connect();
+      kafkaAdmin.createTopics({
+        topics: [
+          {
+            topic: CLINICAL_PROGRAM_UPDATE_TOPIC,
+            numPartitions: 5,
+          },
+        ],
       });
       MONGO_URL = `mongodb://${mongoContainer.getContainerIpAddress()}:${mongoContainer.getMappedPort(
         MONGO_PORT
