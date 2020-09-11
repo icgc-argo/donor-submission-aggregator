@@ -183,6 +183,11 @@ describe("programQueueProcessor", () => {
       //   clientId: "test",
       //   topics: {},
       // });
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, 10000);
+      });
       const kafka = new Kafka({
         clientId: `donor-submission-aggregator`,
         brokers: [KAFKA_HOST],
@@ -203,7 +208,7 @@ describe("programQueueProcessor", () => {
       await new Promise((resolve) => {
         setTimeout(() => {
           resolve();
-        }, 5000);
+        }, 10000);
       });
       const totalEsDocuments = (
         await esClient.search({
