@@ -190,9 +190,6 @@ describe("programQueueProcessor", () => {
         kafka: kafka as any,
         esClient,
         rollCallClient: rollcallClient,
-        queueInitializer: async (kafka) => {
-          return "";
-        },
       });
       await programQueueProcessor.enqueueEvent({
         programId: TEST_PROGRAM_SHORT_NAME,
