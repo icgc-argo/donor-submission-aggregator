@@ -11,6 +11,7 @@ import KafkaMock from "./kafkaMock";
 import createProgramQueueProcessor from "../index";
 import { RollCallClient } from "../../rollCall/types";
 import createRollCallClient from "../../rollCall";
+import { Kafka } from "kafkajs";
 
 const TEST_PROGRAM_SHORT_NAME = "MINH-CA";
 const DB_COLLECTION_SIZE = 10010;
@@ -22,6 +23,8 @@ describe("programQueueProcessor", () => {
   let mongoContainer: StartedTestContainer;
   let elasticsearchContainer: StartedTestContainer;
   let rollcallContainer: StartedTestContainer;
+  let zookeeperContainer: StartedTestContainer;
+  let kafkaContainer: StartedTestContainer;
   /***************************/
 
   /******** Clients *********/
@@ -39,15 +42,22 @@ describe("programQueueProcessor", () => {
   const ES_PORT = 9200;
   const ROLLCALL_PORT = 10091;
   const MONGO_PORT = 27017;
+  const ZOOKEEPER_PORT = 2181;
+  const KAFKA_PORT = 9092;
   const NETOWRK_MODE = "host";
   const ALIAS_NAME = "file_centric";
   let MONGO_URL: string;
+  let KAFKA_HOST: string;
   /****************************/
 
   before(async () => {
     try {
       // ***** start relevant servers *****
-      [mongoContainer, elasticsearchContainer] = await Promise.all([
+      [
+        mongoContainer,
+        elasticsearchContainer,
+        zookeeperContainer,
+      ] = await Promise.all([
         new GenericContainer("mongo").withExposedPorts(MONGO_PORT).start(),
         new GenericContainer("elasticsearch", "7.5.0")
           .withNetworkMode(NETOWRK_MODE)
@@ -63,34 +73,71 @@ describe("programQueueProcessor", () => {
           })
           .withWaitStrategy(Wait.forHealthCheck())
           .start(),
+        new GenericContainer("wurstmeister/zookeeper", "latest")
+          .withNetworkMode(NETOWRK_MODE)
+          .withExposedPorts(ZOOKEEPER_PORT)
+          .start(),
       ]);
 
       const ES_MAPPED_HOST = `http://${elasticsearchContainer.getContainerIpAddress()}`;
       const ES_HOST = `${ES_MAPPED_HOST}:${ES_PORT}`;
+      const ZOOKEEPER_HOST = `${zookeeperContainer.getContainerIpAddress()}:${zookeeperContainer.getMappedPort(
+        ZOOKEEPER_PORT
+      )}`;
 
       console.log("ES_HOST: ", ES_HOST);
 
-      rollcallContainer = await new GenericContainer(
-        "overture/rollcall",
-        "2.0.0"
-      )
-        .withNetworkMode(NETOWRK_MODE)
-        .withExposedPorts(ROLLCALL_PORT)
-        .withEnv("SPRING_PROFILES_ACTIVE", "test")
-        .withEnv("SERVER_PORT", `${ROLLCALL_PORT}`)
-        .withEnv("ELASTICSEARCH_HOST", `${ES_MAPPED_HOST}`)
-        .withEnv("ELASTICSEARCH_PORT", `${ES_PORT}`)
-        .withEnv(
-          "ROLLCALL_ALIASES_0_ALIAS",
-          `${RESOLVED_INDEX_PARTS.entity}_${RESOLVED_INDEX_PARTS.type}`
-        )
-        .withEnv("ROLLCALL_ALIASES_0_ENTITY", `${RESOLVED_INDEX_PARTS.entity}`)
-        .withEnv("ROLLCALL_ALIASES_0_TYPE", `${RESOLVED_INDEX_PARTS.type}`)
-        .withWaitStrategy(Wait.forLogMessage("Started RollcallApplication"))
-        .start();
+      [rollcallContainer, kafkaContainer] = await Promise.all([
+        new GenericContainer("overture/rollcall", "2.0.0")
+          .withNetworkMode(NETOWRK_MODE)
+          .withExposedPorts(ROLLCALL_PORT)
+          .withEnv("SPRING_PROFILES_ACTIVE", "test")
+          .withEnv("SERVER_PORT", `${ROLLCALL_PORT}`)
+          .withEnv("ELASTICSEARCH_HOST", `${ES_MAPPED_HOST}`)
+          .withEnv("ELASTICSEARCH_PORT", `${ES_PORT}`)
+          .withEnv(
+            "ROLLCALL_ALIASES_0_ALIAS",
+            `${RESOLVED_INDEX_PARTS.entity}_${RESOLVED_INDEX_PARTS.type}`
+          )
+          .withEnv(
+            "ROLLCALL_ALIASES_0_ENTITY",
+            `${RESOLVED_INDEX_PARTS.entity}`
+          )
+          .withEnv("ROLLCALL_ALIASES_0_TYPE", `${RESOLVED_INDEX_PARTS.type}`)
+          .withWaitStrategy(Wait.forLogMessage("Started RollcallApplication"))
+          .start(),
+        new GenericContainer("confluentinc/cp-kafka", "5.2.1")
+          .withNetworkMode(NETOWRK_MODE)
+          .withExposedPorts(29092)
+          .withExposedPorts(KAFKA_PORT)
+          .withEnv("KAFKA_BROKER_ID", 1)
+          .withEnv("KAFKA_ZOOKEEPER_CONNECT", ZOOKEEPER_HOST)
+          .withEnv(
+            "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP",
+            "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+          )
+          .withEnv(
+            "KAFKA_ADVERTISED_LISTENERS",
+            "PLAINTEXT://kafka.aggregator.dev:29092,PLAINTEXT_HOST://localhost:9092"
+          )
+          .withEnv("KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR", 1)
+          .withEnv("KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS", 0)
+          .withEnv(
+            "CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS",
+            "kafka.aggregator.dev:29092"
+          )
+          .withEnv(
+            "CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT",
+            ZOOKEEPER_HOST
+          )
+          .start(),
+      ]);
 
       const ROLLCALL_HOST = `http://${rollcallContainer.getContainerIpAddress()}:${ROLLCALL_PORT}`;
       console.log("ROLLCALL_HOST: ", ROLLCALL_HOST);
+      KAFKA_HOST = `${kafkaContainer.getContainerIpAddress()}:${kafkaContainer.getMappedPort(
+        KAFKA_PORT
+      )}`;
 
       // ***** start relevant clients *****
       esClient = new Client({ node: ES_HOST });
@@ -108,9 +155,13 @@ describe("programQueueProcessor", () => {
     }
   });
   after(async () => {
-    await mongoContainer.stop();
-    await elasticsearchContainer.stop();
-    await rollcallContainer.stop();
+    await Promise.all([
+      mongoContainer.stop(),
+      elasticsearchContainer.stop(),
+      rollcallContainer.stop(),
+      zookeeperContainer.stop(),
+      kafkaContainer.stop(),
+    ]);
   });
   beforeEach(async function () {
     const { stdout } = await asyncExec(
@@ -130,10 +181,14 @@ describe("programQueueProcessor", () => {
 
   describe("programQueueProcessor", () => {
     it("must index all data into Elasticsearch", async function () {
-      const kafka = new KafkaMock({
-        brokers: [],
-        clientId: "test",
-        topics: {},
+      // const kafka = new KafkaMock({
+      //   brokers: [],
+      //   clientId: "test",
+      //   topics: {},
+      // });
+      const kafka = new Kafka({
+        clientId: `donor-submission-aggregator`,
+        brokers: [KAFKA_HOST],
       });
       const programQueueProcessor = await createProgramQueueProcessor({
         kafka: kafka as any,
