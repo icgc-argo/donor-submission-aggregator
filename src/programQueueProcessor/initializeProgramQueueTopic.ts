@@ -14,6 +14,7 @@ export default async (kafka: Kafka) => {
   const kafkaAdmin = kafka.admin();
   try {
     await kafkaAdmin.connect();
+    logger.info(await kafkaAdmin.listTopics());
     logger.info("connected kafka admin");
     const isTopicCreated = await kafkaAdmin.createTopics({
       topics: [

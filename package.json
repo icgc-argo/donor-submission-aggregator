@@ -72,7 +72,7 @@
     "@elastic/elasticsearch": "^7.5.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "kafkajs": "^1.12.0",
+    "kafkajs": "^1.13.0",
     "lodash": "^4.17.19",
     "mongoose": "^5.8.11",
     "node-vault": "^0.9.13",
