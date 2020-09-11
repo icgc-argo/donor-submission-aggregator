@@ -134,6 +134,7 @@ describe("programQueueProcessor", () => {
       const ROLLCALL_HOST = `http://${rollcallContainer.getContainerIpAddress()}:${ROLLCALL_PORT}`;
       console.log("ROLLCALL_HOST: ", ROLLCALL_HOST);
       KAFKA_HOST = `${kafkaContainer.getContainerIpAddress()}:${KAFKA_PORT}`;
+      console.log("KAFKA_HOST: ", KAFKA_HOST);
 
       // ***** start relevant clients *****
       esClient = new Client({ node: ES_HOST });
