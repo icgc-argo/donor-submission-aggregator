@@ -110,7 +110,7 @@ describe("programQueueProcessor", () => {
           .withNetworkMode(NETOWRK_MODE)
           .withExposedPorts(29092)
           .withExposedPorts(KAFKA_PORT)
-          .withEnv("KAFKA_BROKER_ID", 1)
+          .withEnv("KAFKA_BROKER_ID", "1")
           .withEnv("KAFKA_ZOOKEEPER_CONNECT", ZOOKEEPER_HOST)
           .withEnv(
             "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP",
@@ -120,8 +120,8 @@ describe("programQueueProcessor", () => {
             "KAFKA_ADVERTISED_LISTENERS",
             "PLAINTEXT://kafka.aggregator.dev:29092,PLAINTEXT_HOST://localhost:9092"
           )
-          .withEnv("KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR", 1)
-          .withEnv("KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS", 0)
+          .withEnv("KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR", "1")
+          .withEnv("KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS", "0")
           .withEnv(
             "CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS",
             "kafka.aggregator.dev:29092"
