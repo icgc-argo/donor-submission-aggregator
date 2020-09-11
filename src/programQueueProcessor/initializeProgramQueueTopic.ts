@@ -18,6 +18,7 @@ export default async (kafka: Kafka) => {
       ],
     });
     await kafkaAdmin.disconnect();
+    logger.info(`created topic ${KAFKA_PROGRAM_QUEUE_TOPIC} for queuing`);
     return KAFKA_PROGRAM_QUEUE_TOPIC;
   } catch (err) {
     logger.error(
