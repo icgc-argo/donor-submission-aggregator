@@ -107,8 +107,7 @@ describe("programQueueProcessor", () => {
           .start(),
         new GenericContainer("confluentinc/cp-kafka", "5.2.1")
           .withNetworkMode(NETOWRK_MODE)
-          .withExposedPorts(29092)
-          .withExposedPorts(KAFKA_PORT)
+          .withExposedPorts(29092, KAFKA_PORT)
           .withEnv("KAFKA_BROKER_ID", "1")
           .withEnv("KAFKA_ZOOKEEPER_CONNECT", ZOOKEEPER_HOST)
           .withEnv(
@@ -117,7 +116,7 @@ describe("programQueueProcessor", () => {
           )
           .withEnv(
             "KAFKA_ADVERTISED_LISTENERS",
-            "PLAINTEXT://kafka.aggregator.dev:29092,PLAINTEXT_HOST://localhost:9092"
+            `PLAINTEXT://kafka.aggregator.dev:29092,PLAINTEXT_HOST://localhost:${KAFKA_PORT}`
           )
           .withEnv("KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR", "1")
           .withEnv("KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS", "0")
