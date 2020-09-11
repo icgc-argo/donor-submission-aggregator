@@ -70,9 +70,11 @@ import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUp
       topic: CLINICAL_PROGRAM_UPDATE_TOPIC,
     }),
   ]);
+  logger.info(`subscribed to source events ${CLINICAL_PROGRAM_UPDATE_TOPIC}`);
   await consumer.run({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: async ({ topic, message }) => {
+      logger.info(`received event from topic ${topic}`);
       switch (topic) {
         case CLINICAL_PROGRAM_UPDATE_TOPIC:
           const { programId } = parseClinicalProgramUpdateEvent(
@@ -93,7 +95,7 @@ import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUp
       }
     },
   });
-
+  logger.info("pipeline is ready!");
   expressApp.listen(7000, () => {
     logger.info(`Start readiness check at :${PORT}/status`);
   });

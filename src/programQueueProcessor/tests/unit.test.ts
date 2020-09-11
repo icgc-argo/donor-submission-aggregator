@@ -194,7 +194,7 @@ describe("programQueueProcessor", () => {
           return "";
         },
       });
-      programQueueProcessor.enqueueEvent({
+      await programQueueProcessor.enqueueEvent({
         programId: TEST_PROGRAM_SHORT_NAME,
         changes: [
           {

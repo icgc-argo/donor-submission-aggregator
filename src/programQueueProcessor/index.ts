@@ -1,7 +1,7 @@
 import {
   KAFKA_PROGRAM_QUEUE_TOPIC,
   PARTITIONS_CONSUMED_CONCURRENTLY,
-  KAFKA_CONSUMER_GROUP,
+  KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP,
 } from "config";
 import { ProducerRecord, Kafka } from "kafkajs";
 import { Client } from "@elastic/elasticsearch";
@@ -72,7 +72,7 @@ const createProgramQueueManager = async ({
   queueInitializer?: typeof initializeProgramQueueTopic;
 }) => {
   const consumer = kafka.consumer({
-    groupId: KAFKA_CONSUMER_GROUP,
+    groupId: KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP,
   });
   const producer = kafka.producer();
 
@@ -80,6 +80,7 @@ const createProgramQueueManager = async ({
   await consumer.subscribe({
     topic: programQueueTopic,
   });
+  logger.info(`subscribed to topic ${programQueueTopic} for queuing`);
   await consumer.run({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: async ({ message }) => {
@@ -149,6 +150,7 @@ const createProgramQueueManager = async ({
           programId,
         })
       );
+      logger.info(`enqueued event for program ${programId}`);
     },
   };
 };

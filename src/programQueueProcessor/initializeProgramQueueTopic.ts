@@ -9,7 +9,7 @@ export default async (kafka: Kafka) => {
   const kafkaAdmin = kafka.admin();
   try {
     await kafkaAdmin.connect();
-    await kafkaAdmin.createTopics({
+    const isTopicCreated = await kafkaAdmin.createTopics({
       topics: [
         {
           topic: KAFKA_PROGRAM_QUEUE_TOPIC,
@@ -18,7 +18,9 @@ export default async (kafka: Kafka) => {
       ],
     });
     await kafkaAdmin.disconnect();
-    logger.info(`created topic ${KAFKA_PROGRAM_QUEUE_TOPIC} for queuing`);
+    logger.info(
+      `created topic ${KAFKA_PROGRAM_QUEUE_TOPIC} for queuing: ${isTopicCreated}`
+    );
     return KAFKA_PROGRAM_QUEUE_TOPIC;
   } catch (err) {
     logger.error(
