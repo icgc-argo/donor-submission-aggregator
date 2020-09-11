@@ -75,23 +75,27 @@ import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUp
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: async ({ topic, message }) => {
       logger.info(`received event from topic ${topic}`);
-      switch (topic) {
-        case CLINICAL_PROGRAM_UPDATE_TOPIC:
-          const { programId } = parseClinicalProgramUpdateEvent(
-            message.value.toString()
-          );
-          await programQueueProcessor.enqueueEvent({
-            programId,
-            changes: [
-              {
-                source: programQueueProcessor.knownEventSource.CLINICAL,
-              },
-            ],
-          });
-          break;
+      if (message && message.value) {
+        switch (topic) {
+          case CLINICAL_PROGRAM_UPDATE_TOPIC:
+            const { programId } = parseClinicalProgramUpdateEvent(
+              message.value.toString()
+            );
+            await programQueueProcessor.enqueueEvent({
+              programId,
+              changes: [
+                {
+                  source: programQueueProcessor.knownEventSource.CLINICAL,
+                },
+              ],
+            });
+            break;
 
-        default:
-          break;
+          default:
+            break;
+        }
+      } else {
+        throw new Error(`missing message from a ${topic} event`);
       }
     },
   });

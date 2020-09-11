@@ -79,51 +79,55 @@ const createProgramQueueManager = async ({
   await consumer.run({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: async ({ message }) => {
-      const queuedEvent = parseProgramQueueEvent(message.value.toString());
-      const { programId } = queuedEvent;
-      const retryConfig = {
-        factor: 2,
-        retries: 100,
-        minTimeout: 1000,
-        maxTimeout: Infinity,
-      };
-      await withRetry(async (retry, attemptIndex) => {
-        const newResolvedIndex = await rollCallClient.createNewResolvableIndex(
-          programId.toLowerCase()
-        );
-        logger.info(`obtained new index name: ${newResolvedIndex.indexName}`);
-        try {
-          await initIndexMapping(newResolvedIndex.indexName, esClient);
-          for (const change of queuedEvent.changes) {
-            if (change.source === KnownEventSource.CLINICAL) {
-              await indexClinicalProgram(
-                programId,
-                newResolvedIndex.indexName,
-                esClient
-              );
-            } else if (change.source === KnownEventSource.RDPC) {
-              console.log(change.analysisId);
-            }
-          }
-
-          await rollCallClient.release(newResolvedIndex);
-        } catch (err) {
-          logger.warn(
-            `failed to index program ${programId} on attempt #${attemptIndex}: ${err}`
+      if (message && message.value) {
+        const queuedEvent = parseProgramQueueEvent(message.value.toString());
+        const { programId } = queuedEvent;
+        const retryConfig = {
+          factor: 2,
+          retries: 100,
+          minTimeout: 1000,
+          maxTimeout: Infinity,
+        };
+        await withRetry(async (retry, attemptIndex) => {
+          const newResolvedIndex = await rollCallClient.createNewResolvableIndex(
+            programId.toLowerCase()
           );
-          await handleIndexingFailure({
-            esClient: esClient,
-            rollCallIndex: newResolvedIndex,
-          });
-          retry(err);
-        }
-      }, retryConfig).catch((err) => {
-        logger.error(
-          `FAILED TO INDEX PROGRAM ${programId} after ${retryConfig.retries} attempts: ${err}`
-        );
-        throw err;
-      });
-      statusReporter?.endProcessingProgram(programId);
+          logger.info(`obtained new index name: ${newResolvedIndex.indexName}`);
+          try {
+            await initIndexMapping(newResolvedIndex.indexName, esClient);
+            for (const change of queuedEvent.changes) {
+              if (change.source === KnownEventSource.CLINICAL) {
+                await indexClinicalProgram(
+                  programId,
+                  newResolvedIndex.indexName,
+                  esClient
+                );
+              } else if (change.source === KnownEventSource.RDPC) {
+                console.log(change.analysisId);
+              }
+            }
+
+            await rollCallClient.release(newResolvedIndex);
+          } catch (err) {
+            logger.warn(
+              `failed to index program ${programId} on attempt #${attemptIndex}: ${err}`
+            );
+            await handleIndexingFailure({
+              esClient: esClient,
+              rollCallIndex: newResolvedIndex,
+            });
+            retry(err);
+          }
+        }, retryConfig).catch((err) => {
+          logger.error(
+            `FAILED TO INDEX PROGRAM ${programId} after ${retryConfig.retries} attempts: ${err}`
+          );
+          throw err;
+        });
+        statusReporter?.endProcessingProgram(programId);
+      } else {
+        throw new Error(`missing message from a ${programQueueTopic}`);
+      }
     },
   });
 
