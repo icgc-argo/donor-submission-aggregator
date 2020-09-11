@@ -6,25 +6,31 @@ import { Kafka } from "kafkajs";
 import logger from "logger";
 
 export default async (kafka: Kafka) => {
+  const topic = KAFKA_PROGRAM_QUEUE_TOPIC;
+  const partitionCount = KAFKA_PROGRAM_QUEUE_TOPIC_PARTITIONS;
+  logger.info(
+    `creating program queue topic ${topic} with ${partitionCount} partitions`
+  );
   const kafkaAdmin = kafka.admin();
   try {
     await kafkaAdmin.connect();
+    logger.info("connected kafka admin");
     const isTopicCreated = await kafkaAdmin.createTopics({
       topics: [
         {
-          topic: KAFKA_PROGRAM_QUEUE_TOPIC,
-          numPartitions: KAFKA_PROGRAM_QUEUE_TOPIC_PARTITIONS,
+          topic,
+          numPartitions: partitionCount,
         },
       ],
     });
+    logger.info("topic now exists");
     await kafkaAdmin.disconnect();
-    logger.info(
-      `created topic ${KAFKA_PROGRAM_QUEUE_TOPIC} for queuing: ${isTopicCreated}`
-    );
-    return KAFKA_PROGRAM_QUEUE_TOPIC;
+    logger.info("disconnected kafka admin");
+    logger.info(`created topic ${topic} for queuing: ${isTopicCreated}`);
+    return topic;
   } catch (err) {
     logger.error(
-      `failed to create topic ${KAFKA_PROGRAM_QUEUE_TOPIC} with ${KAFKA_PROGRAM_QUEUE_TOPIC_PARTITIONS} partitions`
+      `failed to create topic ${topic} with ${partitionCount} partitions`
     );
     throw err;
   }
