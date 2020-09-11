@@ -116,13 +116,13 @@ describe("programQueueProcessor", () => {
           )
           .withEnv(
             "KAFKA_ADVERTISED_LISTENERS",
-            `PLAINTEXT://kafka.aggregator.dev:29092,PLAINTEXT_HOST://localhost:${KAFKA_PORT}`
+            `PLAINTEXT://localhost:29092,PLAINTEXT_HOST://localhost:${KAFKA_PORT}`
           )
           .withEnv("KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR", "1")
           .withEnv("KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS", "0")
           .withEnv(
             "CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS",
-            "kafka.aggregator.dev:29092"
+            "localhost:29092"
           )
           .withEnv(
             "CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT",
