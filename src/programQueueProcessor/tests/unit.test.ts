@@ -158,6 +158,7 @@ describe("programQueueProcessor", () => {
           },
         ],
       });
+      kafkaAdmin.disconnect();
       MONGO_URL = `mongodb://${mongoContainer.getContainerIpAddress()}:${mongoContainer.getMappedPort(
         MONGO_PORT
       )}/clinical`;
