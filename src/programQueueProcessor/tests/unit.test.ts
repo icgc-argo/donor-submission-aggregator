@@ -29,6 +29,7 @@ describe("programQueueProcessor", () => {
   /******** Clients *********/
   let esClient: Client;
   let rollcallClient: RollCallClient;
+  let kafkaClient: Kafka;
   /**************************/
 
   /******** Cooonfigs *********/
@@ -143,6 +144,10 @@ describe("programQueueProcessor", () => {
         ...RESOLVED_INDEX_PARTS,
         aliasName: ALIAS_NAME,
       });
+      kafkaClient = new Kafka({
+        clientId: `donor-submission-aggregator`,
+        brokers: [KAFKA_HOST],
+      });
       MONGO_URL = `mongodb://${mongoContainer.getContainerIpAddress()}:${mongoContainer.getMappedPort(
         MONGO_PORT
       )}/clinical`;
@@ -188,12 +193,8 @@ describe("programQueueProcessor", () => {
           resolve();
         }, 10000);
       });
-      const kafka = new Kafka({
-        clientId: `donor-submission-aggregator`,
-        brokers: [KAFKA_HOST],
-      });
       const programQueueProcessor = await createProgramQueueProcessor({
-        kafka: kafka as any,
+        kafka: kafkaClient,
         esClient,
         rollCallClient: rollcallClient,
       });
