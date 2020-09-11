@@ -7,7 +7,6 @@ import DonorSchema from "donorModel";
 import mongoose from "mongoose";
 import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
-import KafkaMock from "./kafkaMock";
 import createProgramQueueProcessor from "../index";
 import { RollCallClient } from "../../rollCall/types";
 import createRollCallClient from "../../rollCall";
@@ -81,10 +80,9 @@ describe("programQueueProcessor", () => {
 
       const ES_MAPPED_HOST = `http://${elasticsearchContainer.getContainerIpAddress()}`;
       const ES_HOST = `${ES_MAPPED_HOST}:${ES_PORT}`;
-      const ZOOKEEPER_HOST = `${zookeeperContainer.getContainerIpAddress()}:${zookeeperContainer.getMappedPort(
-        ZOOKEEPER_PORT
-      )}`;
+      const ZOOKEEPER_HOST = `${zookeeperContainer.getContainerIpAddress()}:${ZOOKEEPER_PORT}`;
 
+      console.log("ZOOKEEPER_HOST: ", ZOOKEEPER_HOST);
       console.log("ES_HOST: ", ES_HOST);
 
       [rollcallContainer, kafkaContainer] = await Promise.all([
@@ -135,9 +133,7 @@ describe("programQueueProcessor", () => {
 
       const ROLLCALL_HOST = `http://${rollcallContainer.getContainerIpAddress()}:${ROLLCALL_PORT}`;
       console.log("ROLLCALL_HOST: ", ROLLCALL_HOST);
-      KAFKA_HOST = `${kafkaContainer.getContainerIpAddress()}:${kafkaContainer.getMappedPort(
-        KAFKA_PORT
-      )}`;
+      KAFKA_HOST = `${kafkaContainer.getContainerIpAddress()}:${KAFKA_PORT}`;
 
       // ***** start relevant clients *****
       esClient = new Client({ node: ES_HOST });
@@ -156,11 +152,11 @@ describe("programQueueProcessor", () => {
   });
   after(async () => {
     await Promise.all([
-      mongoContainer.stop(),
-      elasticsearchContainer.stop(),
-      rollcallContainer.stop(),
-      zookeeperContainer.stop(),
-      kafkaContainer.stop(),
+      mongoContainer?.stop(),
+      elasticsearchContainer?.stop(),
+      rollcallContainer?.stop(),
+      zookeeperContainer?.stop(),
+      kafkaContainer?.stop(),
     ]);
   });
   beforeEach(async function () {
