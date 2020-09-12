@@ -55,7 +55,7 @@
     "coveralls": "^3.0.9",
     "mocha": "^7.0.1",
     "node-duration": "^1.0.4",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "nyc": "^15.0.0",
     "source-map-support": "^0.5.16",
     "testcontainers": "^2.6.0",
