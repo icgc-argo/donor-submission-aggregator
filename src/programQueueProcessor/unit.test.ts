@@ -1,4 +1,4 @@
-import { CLINICAL_PROGRAM_UPDATE_TOPIC, ROLLCALL_ALIAS_NAME } from "config";
+import { CLINICAL_PROGRAM_UPDATE_TOPIC } from "config";
 import { expect } from "chai";
 import { GenericContainer } from "testcontainers";
 import { StartedTestContainer, Wait } from "testcontainers";
@@ -47,7 +47,7 @@ describe("kafka integration", () => {
   const ZOOKEEPER_PORT = 2181;
   const KAFKA_PORT = 9092;
   const NETOWRK_MODE = "host";
-  const ALIAS_NAME = "file_centric";
+  const ALIAS_NAME = "donor_centric";
   let MONGO_URL: string;
   let KAFKA_HOST: string;
   /****************************/
@@ -98,7 +98,7 @@ describe("kafka integration", () => {
           .withEnv("SERVER_PORT", `${ROLLCALL_PORT}`)
           .withEnv("SPRING_CLOUD_VAULT_ENABLED", `${false}`)
           .withEnv("ELASTICSEARCH_NODE", `${ES_HOST}`)
-          .withEnv("ROLLCALL_ALIASES_0_ALIAS", `${ROLLCALL_ALIAS_NAME}`)
+          .withEnv("ROLLCALL_ALIASES_0_ALIAS", `${ALIAS_NAME}`)
           .withEnv(
             "ROLLCALL_ALIASES_0_ENTITY",
             `${RESOLVED_INDEX_PARTS.entity}`
@@ -223,7 +223,7 @@ describe("kafka integration", () => {
       programQueueProcessor = processor;
       const totalEsDocuments = (
         await esClient.search({
-          index: ROLLCALL_ALIAS_NAME,
+          index: ALIAS_NAME,
           track_total_hits: true,
         })
       ).body?.hits?.total?.value;
