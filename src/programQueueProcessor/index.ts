@@ -55,12 +55,16 @@ const createProgramQueueRecord = ({
 const parseProgramQueueEvent = (message: string): ProgramQueueEvent =>
   JSON.parse(message);
 
+export type TestEventProcessedPayload = {
+  queuedEvent: ProgramQueueEvent;
+  targetIndex: ResolvedIndex;
+};
 const createProgramQueueManager = async ({
   kafka,
   esClient,
   statusReporter,
   rollCallClient,
-  onEventProcessed = () => {},
+  test_onEventProcessed = (data) => {},
 }: {
   kafka: Kafka;
   esClient: Client;
@@ -68,10 +72,7 @@ const createProgramQueueManager = async ({
   rollCallClient: RollCallClient;
 
   /** This is used for tests **/
-  test_onEventProcessed?: (data: {
-    queuedEvent: ProgramQueueEvent;
-    targetIndex: ResolvedIndex;
-  }) => any;
+  test_onEventProcessed?: (data: TestEventProcessedPayload) => any;
   /******************************/
 }) => {
   const consumer = kafka.consumer({
@@ -134,7 +135,7 @@ const createProgramQueueManager = async ({
           throw err;
         });
         if (newResolvedIndex) {
-          onEventProcessed({ queuedEvent, targetIndex: newResolvedIndex });
+          test_onEventProcessed({ queuedEvent, targetIndex: newResolvedIndex });
         } else {
           logger.warning(`did not receive a targetIndex`);
         }
