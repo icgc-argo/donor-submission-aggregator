@@ -10,16 +10,16 @@ import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
 import createProgramQueueProcessor, {
   TestEventProcessedPayload,
-} from "../index";
-import { RollCallClient, ResolvedIndex } from "../../rollCall/types";
-import createRollCallClient from "../../rollCall";
+} from "./index";
+import { RollCallClient } from "../rollCall/types";
+import createRollCallClient from "../rollCall";
 import { Kafka } from "kafkajs";
 
 const TEST_PROGRAM_SHORT_NAME = "MINH-CA";
 const DB_COLLECTION_SIZE = 10010;
 const asyncExec = promisify(exec);
 
-describe("programQueueProcessor", () => {
+describe("kafka integration", () => {
   /******* Containers ********/
   let mongoContainer: StartedTestContainer;
   let elasticsearchContainer: StartedTestContainer;
@@ -190,7 +190,7 @@ describe("programQueueProcessor", () => {
     await (await programQueueProcessor)?.destroy();
   });
 
-  describe("programQueueProcessor", () => {
+  describe("program queue processor", () => {
     it("must index all data into Elasticsearch", async function () {
       await new Promise((resolve) => {
         setTimeout(() => {
