@@ -17,7 +17,6 @@ import { Kafka } from "kafkajs";
 
 const TEST_PROGRAM_SHORT_NAME = "MINH-CA";
 const DB_COLLECTION_SIZE = 10010;
-const TARGET_ES_INDEX = "test_prog";
 const asyncExec = promisify(exec);
 
 describe("programQueueProcessor", () => {
@@ -185,15 +184,9 @@ describe("programQueueProcessor", () => {
       `PROGRAM_SHORT_NAME=${TEST_PROGRAM_SHORT_NAME} COLLECTION_SIZE=${DB_COLLECTION_SIZE} MONGO_URL=${MONGO_URL} npm run createMongoDonors`
     );
     console.log("beforeEach >>>>>>>>>>>", stdout);
-    await esClient.indices.create({
-      index: TARGET_ES_INDEX,
-    });
   });
   afterEach(async function () {
     await DonorSchema().deleteMany({});
-    await esClient.indices.delete({
-      index: TARGET_ES_INDEX,
-    });
     await (await programQueueProcessor)?.destroy();
   });
 
