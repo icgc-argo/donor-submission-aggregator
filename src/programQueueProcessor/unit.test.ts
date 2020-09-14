@@ -96,6 +96,7 @@ describe("kafka integration", () => {
           .withExposedPorts(ROLLCALL_PORT)
           .withEnv("SPRING_PROFILES_ACTIVE", "test")
           .withEnv("SERVER_PORT", `${ROLLCALL_PORT}`)
+          .withEnv("SPRING_CLOUD_VAULT_ENABLED", `${false}`)
           .withEnv("ELASTICSEARCH_NODE", `${ES_HOST}`)
           .withEnv("ROLLCALL_ALIASES_0_ALIAS", `${ROLLCALL_ALIAS_NAME}`)
           .withEnv(
