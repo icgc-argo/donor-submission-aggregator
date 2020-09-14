@@ -92,19 +92,19 @@ services:
       PORT: 9021
 
   rollcall:
-    image: overture/rollcall:2.0.0
+    image: overture/rollcall:2.4.0
     depends_on:
       - elasticsearch
     ports:
       - "9001:9001"
     environment:
-      ELASTICSEARCH_HOST: http://elasticsearch
-      ELASTICSEARCH_PORT: 9200
+      ELASTICSEARCH_NODE: http://elasticsearch:9200
       SPRING_PROFILES_ACTIVE: test
       SERVER_PORT: 9001
-      ROLLCALL_ALIASES_0_ALIAS: donor_centric
+      ROLLCALL_ALIASES_0_ALIAS: donor_submission_summary
       ROLLCALL_ALIASES_0_ENTITY: donor
       ROLLCALL_ALIASES_0_TYPE: centric
+      SPRING_CLOUD_VAULT_ENABLED: "false"
 
   vault:
     image: vault:1.1.3
