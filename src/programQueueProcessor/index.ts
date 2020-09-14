@@ -151,6 +151,10 @@ const createProgramQueueManager = async ({
       );
       logger.info(`enqueued event for program ${programId}`);
     },
+    destroy: async () => {
+      await consumer.stop();
+      await Promise.all([consumer.disconnect(), producer.disconnect()]);
+    },
   };
 };
 

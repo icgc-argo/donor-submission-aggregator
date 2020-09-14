@@ -194,11 +194,6 @@ describe("programQueueProcessor", () => {
 
   describe("programQueueProcessor", () => {
     it("must index all data into Elasticsearch", async function () {
-      // const kafka = new KafkaMock({
-      //   brokers: [],
-      //   clientId: "test",
-      //   topics: {},
-      // });
       await new Promise((resolve) => {
         setTimeout(() => {
           resolve();
@@ -217,6 +212,7 @@ describe("programQueueProcessor", () => {
           },
         ],
       });
+      await programQueueProcessor.destroy();
       await new Promise((resolve) => {
         setTimeout(() => {
           resolve();
