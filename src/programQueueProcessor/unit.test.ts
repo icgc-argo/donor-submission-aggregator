@@ -8,9 +8,7 @@ import DonorSchema from "donorModel";
 import mongoose from "mongoose";
 import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
-import createProgramQueueProcessor, {
-  TestEventProcessedPayload,
-} from "./index";
+import createProgramQueueProcessor, { ProgramQueueProcessor } from "./index";
 import { RollCallClient } from "../rollCall/types";
 import createRollCallClient from "../rollCall";
 import { Kafka } from "kafkajs";
@@ -52,7 +50,7 @@ describe("kafka integration", () => {
   let KAFKA_HOST: string;
   /****************************/
 
-  let programQueueProcessor: ReturnType<typeof createProgramQueueProcessor>;
+  let programQueueProcessor: ProgramQueueProcessor;
 
   before(async () => {
     try {
@@ -191,35 +189,31 @@ describe("kafka integration", () => {
   });
   afterEach(async function () {
     await DonorSchema().deleteMany({});
-    await (await programQueueProcessor)?.destroy();
+    await programQueueProcessor?.destroy();
   });
 
   describe("program queue processor", () => {
     it("must index all data into Elasticsearch", async function () {
-      const { processor, processedEvent } = await new Promise<{
-        processor: ReturnType<typeof createProgramQueueProcessor>;
-        processedEvent: TestEventProcessedPayload;
-      }>(async (resolve) => {
-        const programQueueProcessor = createProgramQueueProcessor({
-          kafka: kafkaClient,
-          esClient,
-          rollCallClient: rollcallClient,
-          test_onEventProcessed: async (event) => {
-            resolve({
-              processor: programQueueProcessor,
-              processedEvent: event,
-            });
-          },
-        });
-        (await programQueueProcessor).enqueueEvent({
-          programId: TEST_PROGRAM_SHORT_NAME,
-          changes: [
-            {
-              source: (await programQueueProcessor).knownEventSource.CLINICAL,
+      const processor = await new Promise<ProgramQueueProcessor>(
+        async (resolve) => {
+          const programQueueProcessor = await createProgramQueueProcessor({
+            kafka: kafkaClient,
+            esClient,
+            rollCallClient: rollcallClient,
+            test_onEventProcessed: async (event) => {
+              resolve(programQueueProcessor);
             },
-          ],
-        });
-      });
+          });
+          programQueueProcessor.enqueueEvent({
+            programId: TEST_PROGRAM_SHORT_NAME,
+            changes: [
+              {
+                source: programQueueProcessor.knownEventSource.CLINICAL,
+              },
+            ],
+          });
+        }
+      );
       programQueueProcessor = processor;
       const totalEsDocuments = (
         await esClient.search({

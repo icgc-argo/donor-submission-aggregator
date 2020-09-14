@@ -59,6 +59,17 @@ export type TestEventProcessedPayload = {
   queuedEvent: ProgramQueueEvent;
   targetIndex: ResolvedIndex;
 };
+export type ProgramQueueProcessor = {
+  knownEventSource: {
+    CLINICAL: KnownEventSource.CLINICAL;
+    RDPC: KnownEventSource.RDPC;
+  };
+  enqueueEvent: (event: {
+    changes: Array<QueuedProgramEventPayload>;
+    programId: string;
+  }) => Promise<void>;
+  destroy: () => Promise<void>;
+};
 const createProgramQueueManager = async ({
   kafka,
   esClient,
@@ -74,7 +85,7 @@ const createProgramQueueManager = async ({
   /*v* This is used for tests ***/
   test_onEventProcessed?: (data: TestEventProcessedPayload) => any;
   /******************************/
-}) => {
+}): Promise<ProgramQueueProcessor> => {
   const consumer = kafka.consumer({
     groupId: KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP,
   });
