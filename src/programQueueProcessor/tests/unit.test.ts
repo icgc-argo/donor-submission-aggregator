@@ -53,6 +53,8 @@ describe("programQueueProcessor", () => {
   let KAFKA_HOST: string;
   /****************************/
 
+  let programQueueProcessor: ReturnType<typeof createProgramQueueProcessor>;
+
   before(async () => {
     try {
       // ***** start relevant servers *****
@@ -192,6 +194,7 @@ describe("programQueueProcessor", () => {
     await esClient.indices.delete({
       index: TARGET_ES_INDEX,
     });
+    await (await programQueueProcessor)?.destroy();
   });
 
   describe("programQueueProcessor", () => {
@@ -201,10 +204,7 @@ describe("programQueueProcessor", () => {
           resolve();
         }, 10000);
       });
-      const {
-        processor: programQueueProcessor,
-        processedEvent,
-      } = await new Promise<{
+      const { processor, processedEvent } = await new Promise<{
         processor: ReturnType<typeof createProgramQueueProcessor>;
         processedEvent: TestEventProcessedPayload;
       }>(async (resolve) => {
@@ -228,7 +228,7 @@ describe("programQueueProcessor", () => {
           ],
         });
       });
-      await (await programQueueProcessor).destroy();
+      programQueueProcessor = processor;
       const totalEsDocuments = (
         await esClient.search({
           index: processedEvent.targetIndex.indexName,
