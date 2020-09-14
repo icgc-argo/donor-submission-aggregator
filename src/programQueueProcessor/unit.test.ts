@@ -137,6 +137,12 @@ describe("kafka integration", () => {
       console.log("KAFKA_HOST: ", KAFKA_HOST);
 
       // ***** start relevant clients *****
+      esClient = new Client({ node: ES_HOST });
+      rollcallClient = createRollCallClient({
+        url: `${ROLLCALL_HOST}`,
+        ...RESOLVED_INDEX_PARTS,
+        aliasName: ALIAS_NAME,
+      });
       // Needs to wait for kafka to come up...
       await new Promise((resolve) => {
         setTimeout(() => {
@@ -144,18 +150,12 @@ describe("kafka integration", () => {
         }, 10000);
       });
       kafkaClient = new Kafka({
-        clientId: `donor-submission-aggregator`,
+        clientId: `donor-submission-aggregator-test`,
         brokers: [KAFKA_HOST],
       });
-      esClient = new Client({ node: ES_HOST });
-      rollcallClient = createRollCallClient({
-        url: `${ROLLCALL_HOST}`,
-        ...RESOLVED_INDEX_PARTS,
-        aliasName: ALIAS_NAME,
-      });
       const kafkaAdmin = kafkaClient.admin();
-      kafkaAdmin.connect();
-      kafkaAdmin.createTopics({
+      await kafkaAdmin.connect();
+      await kafkaAdmin.createTopics({
         topics: [
           {
             topic: CLINICAL_PROGRAM_UPDATE_TOPIC,
@@ -163,7 +163,7 @@ describe("kafka integration", () => {
           },
         ],
       });
-      kafkaAdmin.disconnect();
+      await kafkaAdmin.disconnect();
       MONGO_URL = `mongodb://${mongoContainer.getContainerIpAddress()}:${mongoContainer.getMappedPort(
         MONGO_PORT
       )}/clinical`;
