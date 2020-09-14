@@ -137,15 +137,21 @@ describe("kafka integration", () => {
       console.log("KAFKA_HOST: ", KAFKA_HOST);
 
       // ***** start relevant clients *****
+      // Needs to wait for kafka to come up...
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, 10000);
+      });
+      kafkaClient = new Kafka({
+        clientId: `donor-submission-aggregator`,
+        brokers: [KAFKA_HOST],
+      });
       esClient = new Client({ node: ES_HOST });
       rollcallClient = createRollCallClient({
         url: `${ROLLCALL_HOST}`,
         ...RESOLVED_INDEX_PARTS,
         aliasName: ALIAS_NAME,
-      });
-      kafkaClient = new Kafka({
-        clientId: `donor-submission-aggregator`,
-        brokers: [KAFKA_HOST],
       });
       const kafkaAdmin = kafkaClient.admin();
       kafkaAdmin.connect();
@@ -188,11 +194,6 @@ describe("kafka integration", () => {
 
   describe("program queue processor", () => {
     it("must index all data into Elasticsearch", async function () {
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, 10000);
-      });
       const { processor, processedEvent } = await new Promise<{
         processor: ReturnType<typeof createProgramQueueProcessor>;
         processedEvent: TestEventProcessedPayload;
