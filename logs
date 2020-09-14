@@ -1,0 +1,492 @@
+Attaching to donor-submission-aggregator_rollcall_1
+[36mrollcall_1        |[0m 2020-09-14 21:34:44.546  INFO 1 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration' of type [org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration$$EnhancerBySpringCGLIB$$dc9db1fe] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+[36mrollcall_1        |[0m 
+[36mrollcall_1        |[0m   .   ____          _            __ _ _
+[36mrollcall_1        |[0m  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+[36mrollcall_1        |[0m ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+[36mrollcall_1        |[0m  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+[36mrollcall_1        |[0m   '  |____| .__|_| |_|_| |_\__, | / / / /
+[36mrollcall_1        |[0m  =========|_|==============|___/=/_/_/_/
+[36mrollcall_1        |[0m  :: Spring Boot ::        (v2.2.4.RELEASE)
+[36mrollcall_1        |[0m 
+[36mrollcall_1        |[0m 2020-09-14 21:34:44.773  INFO 1 --- [           main] b.overture.rollcall.RollcallApplication  : The following profiles are active: test
+[36mrollcall_1        |[0m 2020-09-14 21:34:46.249  INFO 1 --- [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=108ba5c7-adda-37b3-937d-026e62b0d259
+[36mrollcall_1        |[0m 2020-09-14 21:34:46.576  INFO 1 --- [           main] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration' of type [org.springframework.cloud.autoconfigure.ConfigurationPropertiesRebinderAutoConfiguration$$EnhancerBySpringCGLIB$$dc9db1fe] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+[36mrollcall_1        |[0m 2020-09-14 21:34:47.010  INFO 1 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 9001 (http)
+[36mrollcall_1        |[0m 2020-09-14 21:34:47.033  INFO 1 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+[36mrollcall_1        |[0m 2020-09-14 21:34:47.034  INFO 1 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.30]
+[36mrollcall_1        |[0m 2020-09-14 21:34:47.173  INFO 1 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+[36mrollcall_1        |[0m 2020-09-14 21:34:47.173  INFO 1 --- [           main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 2364 ms
+[36mrollcall_1        |[0m 2020-09-14 21:34:47.366  INFO 1 --- [           main] b.o.rollcall.config.ElasticsearchConfig  : Elasticsearch Client - built
+[36mrollcall_1        |[0m 2020-09-14 21:34:49.026  INFO 1 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+[36mrollcall_1        |[0m 
+[36mrollcall_1        |[0m Using generated security password: dcb78345-8f73-4a5d-9682-28d220515672
+[36mrollcall_1        |[0m 
+[36mrollcall_1        |[0m 2020-09-14 21:34:49.722  INFO 1 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Creating filter chain: any request, [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@60723d6a, org.springframework.security.web.context.SecurityContextPersistenceFilter@1d4664d7, org.springframework.security.web.header.HeaderWriterFilter@1dab9dd6, org.springframework.security.web.authentication.logout.LogoutFilter@25b865b5, org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationProcessingFilter@2fe88a09, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@56ccd751, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@1d207fad, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@18324f97, org.springframework.security.web.session.SessionManagementFilter@7fedfe27, org.springframework.security.web.access.ExceptionTranslationFilter@30af7377, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@13cd7ea5]
+[36mrollcall_1        |[0m 2020-09-14 21:34:49.781  INFO 1 --- [           main] pertySourcedRequestMappingHandlerMapping : Mapped URL path [/v2/api-docs] onto method [springfox.documentation.swagger2.web.Swagger2Controller#getDocumentation(String, HttpServletRequest)]
+[36mrollcall_1        |[0m 2020-09-14 21:34:49.976  INFO 1 --- [           main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+[36mrollcall_1        |[0m 2020-09-14 21:34:50.545  INFO 1 --- [           main] d.s.w.p.DocumentationPluginsBootstrapper : Context refreshed
+[36mrollcall_1        |[0m 2020-09-14 21:34:50.628  INFO 1 --- [           main] d.s.w.p.DocumentationPluginsBootstrapper : Found 1 custom documentation plugin(s)
+[36mrollcall_1        |[0m 2020-09-14 21:34:50.712  INFO 1 --- [           main] s.d.s.w.s.ApiListingReferenceScanner     : Scanning for api listing references
+[36mrollcall_1        |[0m 2020-09-14 21:34:51.150  INFO 1 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 9001 (http) with context path ''
+[36mrollcall_1        |[0m 2020-09-14 21:34:51.156  INFO 1 --- [           main] b.overture.rollcall.RollcallApplication  : Started RollcallApplication in 8.317 seconds (JVM running for 9.336)
+[36mrollcall_1        |[0m 2020-09-14 21:35:37.963  INFO 1 --- [nio-9001-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+[36mrollcall_1        |[0m 2020-09-14 21:35:37.964  INFO 1 --- [nio-9001-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+[36mrollcall_1        |[0m 2020-09-14 21:35:37.979  INFO 1 --- [nio-9001-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 15 ms
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m 2020-09-14 21:35:38.769  INFO 1 --- [nio-9001-exec-1] b.o.rollcall.service.IndexService        : New cloned/created index name: donor_centric_pgm_testca_re_1
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m 2020-09-14 21:36:20.654  INFO 1 --- [nio-9001-exec-3] b.o.rollcall.service.IndexService        : New cloned/created index name: donor_centric_pgm_testca_re_2
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m 2020-09-14 21:36:50.954  INFO 1 --- [nio-9001-exec-5] b.o.rollcall.service.IndexService        : New cloned/created index name: donor_centric_pgm_testca_re_3
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m 2020-09-14 21:37:21.770  INFO 1 --- [nio-9001-exec-7] b.o.rollcall.service.IndexService        : New cloned/created index name: donor_centric_pgm_testca_re_4
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m 2020-09-14 21:37:55.513  INFO 1 --- [nio-9001-exec-8] b.o.rollcall.service.IndexService        : New cloned/created index name: donor_centric_pgm_testca_re_5
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m 2020-09-14 21:38:32.290  INFO 1 --- [nio-9001-exec-1] b.o.rollcall.service.IndexService        : New cloned/created index name: donor_centric_pgm_testca_re_6
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m 2020-09-14 21:39:04.458  INFO 1 --- [nio-9001-exec-3] b.o.rollcall.service.IndexService        : New cloned/created index name: donor_centric_pgm_testca_re_7
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m 2020-09-14 21:39:36.076  INFO 1 --- [nio-9001-exec-5] b.o.rollcall.service.IndexService        : New cloned/created index name: donor_centric_pgm_testca_re_8
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m 2020-09-14 21:40:12.708  INFO 1 --- [nio-9001-exec-7] b.o.rollcall.service.IndexService        : New cloned/created index name: donor_centric_pgm_testca_re_9
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m 2020-09-14 21:40:48.232  INFO 1 --- [nio-9001-exec-8] b.o.rollcall.service.IndexService        : New cloned/created index name: donor_centric_pgm_testca_re_10
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m 2020-09-14 21:41:24.547  INFO 1 --- [nio-9001-exec-1] b.o.rollcall.service.IndexService        : New cloned/created index name: donor_centric_pgm_testca_re_11
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m 2020-09-14 21:42:00.021  INFO 1 --- [nio-9001-exec-3] b.o.rollcall.service.IndexService        : New cloned/created index name: donor_centric_pgm_testca_re_12
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:4 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:10 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:5 mismatched input 'agent' expecting '_'
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input '1' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:0 token recognition error at: '.'
+[36mrollcall_1        |[0m line 1:8 mismatched input 'task' expecting {'centric', 'text', 'entity'}
+[36mrollcall_1        |[0m line 1:22 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m line 1:8 token recognition error at: '-'
+[36mrollcall_1        |[0m line 1:9 mismatched input 'sets' expecting '_'
+[36mrollcall_1        |[0m line 1:4 mismatched input '<EOF>' expecting '_'
+[36mrollcall_1        |[0m 2020-09-14 21:42:34.687  INFO 1 --- [nio-9001-exec-5] b.o.rollcall.service.IndexService        : New cloned/created index name: donor_centric_pgm_testca_re_13

@@ -36,7 +36,7 @@ describe("kafka integration", () => {
 
   /******** Cooonfigs *********/
   const RESOLVED_INDEX_PARTS = {
-    entity: "file",
+    entity: "donor",
     type: "centric",
     shardPrefix: "pgm",
     releasePrefix: "re",
