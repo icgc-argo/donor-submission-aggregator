@@ -1,4 +1,4 @@
-import { CLINICAL_PROGRAM_UPDATE_TOPIC } from "config";
+import { CLINICAL_PROGRAM_UPDATE_TOPIC, ROLLCALL_ALIAS_NAME } from "config";
 import { expect } from "chai";
 import { GenericContainer } from "testcontainers";
 import { StartedTestContainer, Wait } from "testcontainers";
@@ -91,17 +91,13 @@ describe("kafka integration", () => {
       console.log("ES_HOST: ", ES_HOST);
 
       [rollcallContainer, kafkaContainer] = await Promise.all([
-        new GenericContainer("overture/rollcall", "2.0.0")
+        new GenericContainer("overture/rollcall", "2.4.0")
           .withNetworkMode(NETOWRK_MODE)
           .withExposedPorts(ROLLCALL_PORT)
           .withEnv("SPRING_PROFILES_ACTIVE", "test")
           .withEnv("SERVER_PORT", `${ROLLCALL_PORT}`)
-          .withEnv("ELASTICSEARCH_HOST", `${ES_MAPPED_HOST}`)
-          .withEnv("ELASTICSEARCH_PORT", `${ES_PORT}`)
-          .withEnv(
-            "ROLLCALL_ALIASES_0_ALIAS",
-            `${RESOLVED_INDEX_PARTS.entity}_${RESOLVED_INDEX_PARTS.type}`
-          )
+          .withEnv("ELASTICSEARCH_NODE", `${ES_HOST}`)
+          .withEnv("ROLLCALL_ALIASES_0_ALIAS", `${ROLLCALL_ALIAS_NAME}`)
           .withEnv(
             "ROLLCALL_ALIASES_0_ENTITY",
             `${RESOLVED_INDEX_PARTS.entity}`
