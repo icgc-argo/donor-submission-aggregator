@@ -199,25 +199,27 @@ describe("programQueueProcessor", () => {
           resolve();
         }, 10000);
       });
-      const programQueueProcessor = await createProgramQueueProcessor({
-        kafka: kafkaClient,
-        esClient,
-        rollCallClient: rollcallClient,
-      });
-      await programQueueProcessor.enqueueEvent({
-        programId: TEST_PROGRAM_SHORT_NAME,
-        changes: [
-          {
-            source: programQueueProcessor.knownEventSource.CLINICAL,
+      const programQueueProcessor = await new Promise<
+        ReturnType<typeof createProgramQueueProcessor>
+      >(async (resolve) => {
+        const programQueueProcessor = createProgramQueueProcessor({
+          kafka: kafkaClient,
+          esClient,
+          rollCallClient: rollcallClient,
+          onEventProcessed: async (event) => {
+            resolve(programQueueProcessor);
           },
-        ],
+        });
+        (await programQueueProcessor).enqueueEvent({
+          programId: TEST_PROGRAM_SHORT_NAME,
+          changes: [
+            {
+              source: (await programQueueProcessor).knownEventSource.CLINICAL,
+            },
+          ],
+        });
       });
       await programQueueProcessor.destroy();
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, 10000);
-      });
       const totalEsDocuments = (
         await esClient.search({
           index: TARGET_ES_INDEX,

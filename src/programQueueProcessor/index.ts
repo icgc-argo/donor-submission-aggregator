@@ -3,7 +3,7 @@ import {
   PARTITIONS_CONSUMED_CONCURRENTLY,
   KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP,
 } from "config";
-import { ProducerRecord, Kafka } from "kafkajs";
+import { ProducerRecord, Kafka, RecordMetadata } from "kafkajs";
 import { Client } from "@elastic/elasticsearch";
 import { StatusReporter } from "statusReport";
 import { RollCallClient } from "rollCall/types";
@@ -60,11 +60,16 @@ const createProgramQueueManager = async ({
   esClient,
   statusReporter,
   rollCallClient,
+  onEventProcessed = () => {},
 }: {
   kafka: Kafka;
   esClient: Client;
   statusReporter?: StatusReporter;
   rollCallClient: RollCallClient;
+
+  /** This is used for tests **/
+  onEventProcessed?: (queuedEvent: ProgramQueueEvent) => any;
+  /******************************/
 }) => {
   const consumer = kafka.consumer({
     groupId: KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP,
@@ -124,6 +129,7 @@ const createProgramQueueManager = async ({
           );
           throw err;
         });
+        onEventProcessed(queuedEvent);
         statusReporter?.endProcessingProgram(programId);
       } else {
         throw new Error(`missing message from a ${programQueueTopic}`);
@@ -143,7 +149,7 @@ const createProgramQueueManager = async ({
       changes: Array<QueuedProgramEventPayload>;
       programId: string;
     }) => {
-      await producer.send(
+      const record = await producer.send(
         createProgramQueueRecord({
           changes,
           programId,
