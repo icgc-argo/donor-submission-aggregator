@@ -3,7 +3,7 @@ import {
   PARTITIONS_CONSUMED_CONCURRENTLY,
   KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP,
 } from "config";
-import { ProducerRecord, Kafka, RecordMetadata } from "kafkajs";
+import { ProducerRecord, Kafka } from "kafkajs";
 import { Client } from "@elastic/elasticsearch";
 import { StatusReporter } from "statusReport";
 import { RollCallClient, ResolvedIndex } from "rollCall/types";
@@ -160,7 +160,7 @@ const createProgramQueueManager = async ({
       changes: Array<QueuedProgramEventPayload>;
       programId: string;
     }) => {
-      const record = await producer.send(
+      await producer.send(
         createProgramQueueRecord({
           changes,
           programId,
