@@ -71,7 +71,7 @@ const createProgramQueueManager = async ({
   statusReporter?: StatusReporter;
   rollCallClient: RollCallClient;
 
-  /** This is used for tests **/
+  /*v* This is used for tests ***/
   test_onEventProcessed?: (data: TestEventProcessedPayload) => any;
   /******************************/
 }) => {
@@ -113,7 +113,9 @@ const createProgramQueueManager = async ({
                   esClient
                 );
               } else if (change.source === KnownEventSource.RDPC) {
-                console.log(change.analysisId);
+                logger.info(
+                  `RDPC event received for analysis ${change.analysisId}`
+                );
               }
             }
 
