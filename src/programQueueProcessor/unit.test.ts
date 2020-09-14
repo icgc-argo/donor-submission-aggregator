@@ -170,6 +170,7 @@ describe("kafka integration", () => {
       await mongoose.connect(MONGO_URL);
     } catch (err) {
       console.log(`before >>>>>>>>>>>`, err);
+      throw err;
     }
   });
   after(async () => {
