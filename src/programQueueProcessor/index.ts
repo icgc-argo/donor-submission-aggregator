@@ -6,7 +6,7 @@ import {
 import { ProducerRecord, Kafka, RecordMetadata } from "kafkajs";
 import { Client } from "@elastic/elasticsearch";
 import { StatusReporter } from "statusReport";
-import { RollCallClient } from "rollCall/types";
+import { RollCallClient, ResolvedIndex } from "rollCall/types";
 import indexClinicalProgram from "indexProgram";
 import { initIndexMapping } from "elasticsearch";
 import withRetry from "promise-retry";
@@ -68,7 +68,10 @@ const createProgramQueueManager = async ({
   rollCallClient: RollCallClient;
 
   /** This is used for tests **/
-  onEventProcessed?: (queuedEvent: ProgramQueueEvent) => any;
+  test_onEventProcessed?: (data: {
+    queuedEvent: ProgramQueueEvent;
+    targetIndex: ResolvedIndex;
+  }) => any;
   /******************************/
 }) => {
   const consumer = kafka.consumer({
@@ -93,8 +96,9 @@ const createProgramQueueManager = async ({
           minTimeout: 1000,
           maxTimeout: Infinity,
         };
+        let newResolvedIndex: ResolvedIndex | null = null;
         await withRetry(async (retry, attemptIndex) => {
-          const newResolvedIndex = await rollCallClient.createNewResolvableIndex(
+          newResolvedIndex = await rollCallClient.createNewResolvableIndex(
             programId.toLowerCase()
           );
           logger.info(`obtained new index name: ${newResolvedIndex.indexName}`);
@@ -129,7 +133,11 @@ const createProgramQueueManager = async ({
           );
           throw err;
         });
-        onEventProcessed(queuedEvent);
+        if (newResolvedIndex) {
+          onEventProcessed({ queuedEvent, targetIndex: newResolvedIndex });
+        } else {
+          logger.warning(`did not receive a targetIndex`);
+        }
         statusReporter?.endProcessingProgram(programId);
       } else {
         throw new Error(`missing message from a ${programQueueTopic}`);

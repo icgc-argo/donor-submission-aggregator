@@ -8,8 +8,10 @@ import DonorSchema from "donorModel";
 import mongoose from "mongoose";
 import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
-import createProgramQueueProcessor from "../index";
-import { RollCallClient } from "../../rollCall/types";
+import createProgramQueueProcessor, {
+  TestEventProcessedPayload,
+} from "../index";
+import { RollCallClient, ResolvedIndex } from "../../rollCall/types";
 import createRollCallClient from "../../rollCall";
 import { Kafka } from "kafkajs";
 
@@ -199,15 +201,22 @@ describe("programQueueProcessor", () => {
           resolve();
         }, 10000);
       });
-      const programQueueProcessor = await new Promise<
-        ReturnType<typeof createProgramQueueProcessor>
-      >(async (resolve) => {
+      const {
+        processor: programQueueProcessor,
+        processedEvent,
+      } = await new Promise<{
+        processor: ReturnType<typeof createProgramQueueProcessor>;
+        processedEvent: TestEventProcessedPayload;
+      }>(async (resolve) => {
         const programQueueProcessor = createProgramQueueProcessor({
           kafka: kafkaClient,
           esClient,
           rollCallClient: rollcallClient,
-          onEventProcessed: async (event) => {
-            resolve(programQueueProcessor);
+          test_onEventProcessed: async (event) => {
+            resolve({
+              processor: programQueueProcessor,
+              processedEvent: event,
+            });
           },
         });
         (await programQueueProcessor).enqueueEvent({
@@ -219,10 +228,10 @@ describe("programQueueProcessor", () => {
           ],
         });
       });
-      await programQueueProcessor.destroy();
+      await (await programQueueProcessor).destroy();
       const totalEsDocuments = (
         await esClient.search({
-          index: TARGET_ES_INDEX,
+          index: processedEvent.targetIndex.indexName,
           track_total_hits: true,
         })
       ).body?.hits?.total?.value;
