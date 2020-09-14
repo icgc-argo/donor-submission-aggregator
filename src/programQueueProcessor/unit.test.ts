@@ -220,7 +220,7 @@ describe("kafka integration", () => {
       programQueueProcessor = processor;
       const totalEsDocuments = (
         await esClient.search({
-          index: processedEvent.targetIndex.indexName,
+          index: ROLLCALL_ALIAS_NAME,
           track_total_hits: true,
         })
       ).body?.hits?.total?.value;
