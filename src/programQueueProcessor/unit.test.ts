@@ -158,7 +158,7 @@ describe("kafka integration", () => {
         topics: [
           {
             topic: CLINICAL_PROGRAM_UPDATE_TOPIC,
-            numPartitions: 5,
+            numPartitions: 1,
           },
         ],
       });
