@@ -8,10 +8,11 @@ import DonorSchema from "donorModel";
 import mongoose from "mongoose";
 import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
-import createProgramQueueProcessor, { ProgramQueueProcessor } from "./index";
+import createProgramQueueProcessor from "./index";
 import { RollCallClient } from "../rollCall/types";
 import createRollCallClient from "../rollCall";
 import { Kafka } from "kafkajs";
+import { ProgramQueueProcessor } from "./types";
 
 const TEST_PROGRAM_SHORT_NAME = "MINH-CA";
 const DB_COLLECTION_SIZE = 10010;

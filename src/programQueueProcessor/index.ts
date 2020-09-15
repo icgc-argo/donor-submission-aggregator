@@ -13,6 +13,7 @@ import {
   QueuedProgramEventPayload,
   ProgramQueueEvent,
   KnownEventSource,
+  ProgramQueueProcessor,
 } from "./types";
 import createEventProcessor from "./eventProcessor";
 
@@ -35,22 +36,6 @@ const createProgramQueueRecord = ({
       },
     ],
   };
-};
-
-export type TestEventProcessedPayload = {
-  queuedEvent: ProgramQueueEvent;
-  targetIndex: ResolvedIndex;
-};
-export type ProgramQueueProcessor = {
-  knownEventSource: {
-    CLINICAL: KnownEventSource.CLINICAL;
-    RDPC: KnownEventSource.RDPC;
-  };
-  enqueueEvent: (event: {
-    changes: Array<QueuedProgramEventPayload>;
-    programId: string;
-  }) => Promise<void>;
-  destroy: () => Promise<void>;
 };
 
 const createProgramQueueProcessor = async ({
