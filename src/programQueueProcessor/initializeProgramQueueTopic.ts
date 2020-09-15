@@ -14,8 +14,8 @@ export default async (kafka: Kafka) => {
   const kafkaAdmin = kafka.admin();
   try {
     await kafkaAdmin.connect();
-    logger.info(await kafkaAdmin.listTopics());
     logger.info("connected kafka admin");
+    logger.info(`existing kafka topics: ${await kafkaAdmin.listTopics()}`);
     const isTopicCreated = await kafkaAdmin.createTopics({
       topics: [
         {
@@ -24,7 +24,9 @@ export default async (kafka: Kafka) => {
         },
       ],
     });
-    logger.info("topic now exists");
+    logger.info(
+      `existing kafka topics after creation: ${await kafkaAdmin.listTopics()}`
+    );
     await kafkaAdmin.disconnect();
     logger.info("disconnected kafka admin");
     logger.info(`created topic ${topic} for queuing: ${isTopicCreated}`);
