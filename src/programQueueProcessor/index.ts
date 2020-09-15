@@ -6,7 +6,7 @@ import {
 import { ProducerRecord, Kafka } from "kafkajs";
 import { Client } from "@elastic/elasticsearch";
 import { StatusReporter } from "statusReport";
-import { RollCallClient, ResolvedIndex } from "rollCall/types";
+import { RollCallClient } from "rollCall/types";
 import logger from "logger";
 import initializeProgramQueueTopic from "./initializeProgramQueueTopic";
 import {
