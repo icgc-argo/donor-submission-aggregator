@@ -62,7 +62,7 @@ describe("rollcall integration", () => {
         .withEnv("SPRING_CLOUD_VAULT_ENABLED", `${false}`)
         .withEnv("ELASTICSEARCH_NODE", `${ES_HOST}`)
         .withEnv(
-          "ROLLCALL_AzzLIASES_0_ALIAS",
+          "ROLLCALL_ALIASES_0_ALIAS",
           `${RESOLVED_INDEX_PARTS.entity}_${RESOLVED_INDEX_PARTS.type}`
         )
         .withEnv("ROLLCALL_ALIASES_0_ENTITY", `${RESOLVED_INDEX_PARTS.entity}`)
