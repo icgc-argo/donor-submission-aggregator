@@ -53,16 +53,16 @@ describe("rollcall integration", () => {
 
       rollcallContainer = await new GenericContainer(
         "overture/rollcall",
-        "2.0.0"
+        "2.4.0"
       )
         .withNetworkMode(NETOWRK_MODE)
         .withExposedPorts(ROLLCALL_PORT)
         .withEnv("SPRING_PROFILES_ACTIVE", "test")
         .withEnv("SERVER_PORT", `${ROLLCALL_PORT}`)
-        .withEnv("ELASTICSEARCH_HOST", `${ES_MAPPED_HOST}`)
-        .withEnv("ELASTICSEARCH_PORT", `${ES_PORT}`)
+        .withEnv("SPRING_CLOUD_VAULT_ENABLED", `${false}`)
+        .withEnv("ELASTICSEARCH_NODE", `${ES_HOST}`)
         .withEnv(
-          "ROLLCALL_ALIASES_0_ALIAS",
+          "ROLLCALL_AzzLIASES_0_ALIAS",
           `${RESOLVED_INDEX_PARTS.entity}_${RESOLVED_INDEX_PARTS.type}`
         )
         .withEnv("ROLLCALL_ALIASES_0_ENTITY", `${RESOLVED_INDEX_PARTS.entity}`)
