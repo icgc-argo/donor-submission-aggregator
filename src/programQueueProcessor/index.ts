@@ -158,6 +158,7 @@ const createProgramQueueProcessor = async ({
       }
     },
   });
+  logger.info(`queue pipeline setup complete with topic ${programQueueTopic}`);
 
   return {
     knownEventSource: {
