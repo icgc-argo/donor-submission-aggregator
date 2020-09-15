@@ -95,7 +95,6 @@ describe("rollcall integration", () => {
       TEST_PROGRAM
     );
     const newIndexName = newResolvedIndex.indexName;
-    console.log(JSON.stringify(newResolvedIndex, null, 2));
     expect(newResolvedIndex).to.contain({
       ...RESOLVED_INDEX_PARTS,
       shard: "testca",
