@@ -144,12 +144,6 @@ describe("kafka integration", () => {
         ...RESOLVED_INDEX_PARTS,
         aliasName: ALIAS_NAME,
       });
-      // Needs to wait for kafka to come up...
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, 10000);
-      });
       kafkaClient = new Kafka({
         clientId: `donor-submission-aggregator-test`,
         brokers: [KAFKA_HOST],
