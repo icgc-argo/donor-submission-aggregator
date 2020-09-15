@@ -14,11 +14,11 @@ import createRollCallClient from "../rollCall";
 import { Kafka } from "kafkajs";
 import { ProgramQueueProcessor } from "./types";
 
-const TEST_PROGRAM_SHORT_NAME = "MINH-CA";
+const TEST_PROGRAM_SHORT_NAME = "TESTPROG-CA";
 const DB_COLLECTION_SIZE = 10010;
 const asyncExec = promisify(exec);
 
-describe("kafka integration", () => {
+describe("programQueueProcessor", () => {
   /******* Containers ********/
   let mongoContainer: StartedTestContainer;
   let elasticsearchContainer: StartedTestContainer;
@@ -189,34 +189,32 @@ describe("kafka integration", () => {
     await programQueueProcessor?.destroy();
   });
 
-  describe("program queue processor", () => {
-    it("must index all data into Elasticsearch", async function () {
-      programQueueProcessor = await createProgramQueueProcessor({
-        kafka: kafkaClient,
-        esClient,
-        rollCallClient: rollcallClient,
-      });
-      await programQueueProcessor.enqueueEvent({
-        programId: TEST_PROGRAM_SHORT_NAME,
-        changes: [
-          {
-            source: programQueueProcessor.knownEventSource.CLINICAL,
-          },
-        ],
-      });
-      // wait for indexing to complete
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, 20000);
-      });
-      const totalEsDocuments = (
-        await esClient.search({
-          index: ALIAS_NAME,
-          track_total_hits: true,
-        })
-      ).body?.hits?.total?.value;
-      expect(totalEsDocuments).to.equal(DB_COLLECTION_SIZE);
+  it("must index all data into Elasticsearch", async function () {
+    programQueueProcessor = await createProgramQueueProcessor({
+      kafka: kafkaClient,
+      esClient,
+      rollCallClient: rollcallClient,
     });
+    await programQueueProcessor.enqueueEvent({
+      programId: TEST_PROGRAM_SHORT_NAME,
+      changes: [
+        {
+          source: programQueueProcessor.knownEventSource.CLINICAL,
+        },
+      ],
+    });
+    // wait for indexing to complete
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 20000);
+    });
+    const totalEsDocuments = (
+      await esClient.search({
+        index: ALIAS_NAME,
+        track_total_hits: true,
+      })
+    ).body?.hits?.total?.value;
+    expect(totalEsDocuments).to.equal(DB_COLLECTION_SIZE);
   });
 });

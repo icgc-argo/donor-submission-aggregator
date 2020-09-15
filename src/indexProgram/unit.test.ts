@@ -13,7 +13,7 @@ import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
 import { EsDonorDocument } from "./types";
 
-const TEST_PROGRAM_SHORT_NAME = "MINH-CA";
+const TEST_PROGRAM_SHORT_NAME = "TESTPROG-CA";
 const DB_COLLECTION_SIZE = 10010;
 const TARGET_ES_INDEX = "test_prog";
 const asyncExec = promisify(exec);
@@ -44,7 +44,7 @@ describe("transformToEsDonor", () => {
       updatedAt: new Date(mongoDoc.updatedAt),
       createdAt: new Date(mongoDoc.createdAt),
       totalFilesCount: 0,
-      filesToQcCount: 0
+      filesToQcCount: 0,
     } as EsDonorDocument);
   });
 });
@@ -64,13 +64,13 @@ describe("indexing programs", () => {
           .withStartupTimeout(new Duration(120, TemporalUnit.SECONDS))
           .withExposedPorts(ES_PORT)
           .withEnv("discovery.type", "single-node")
-          .start()
+          .start(),
       ]);
       const ES_HOST = `http://${elasticsearchContainer.getContainerIpAddress()}:${elasticsearchContainer.getMappedPort(
         ES_PORT
       )}`;
       esClient = new Client({
-        node: ES_HOST
+        node: ES_HOST,
       });
       MONGO_URL = `mongodb://${mongoContainer.getContainerIpAddress()}:${mongoContainer.getMappedPort(
         MONGO_PORT
@@ -84,28 +84,28 @@ describe("indexing programs", () => {
     await mongoContainer.stop();
     await elasticsearchContainer.stop();
   });
-  beforeEach(async function() {
+  beforeEach(async function () {
     const { stdout } = await asyncExec(
       `PROGRAM_SHORT_NAME=${TEST_PROGRAM_SHORT_NAME} COLLECTION_SIZE=${DB_COLLECTION_SIZE} MONGO_URL=${MONGO_URL} npm run createMongoDonors`
     );
     console.log("beforeEach >>>>>>>>>>>", stdout);
     await esClient.indices.create({
-      index: TARGET_ES_INDEX
+      index: TARGET_ES_INDEX,
     });
   });
-  afterEach(async function() {
+  afterEach(async function () {
     await DonorSchema().deleteMany({});
     await esClient.indices.delete({
-      index: TARGET_ES_INDEX
+      index: TARGET_ES_INDEX,
     });
   });
 
   describe("programDonorStream", () => {
-    it("must stream all donors", async function() {
+    it("must stream all donors", async function () {
       const trunkSize = 1000;
       let donorCount = 0;
       const donorStream = programDonorStream(TEST_PROGRAM_SHORT_NAME, {
-        chunkSize: trunkSize
+        chunkSize: trunkSize,
       });
       for await (const chunk of donorStream) {
         donorCount = donorCount += chunk.length;
@@ -115,14 +115,14 @@ describe("indexing programs", () => {
   });
 
   describe("indexProgram", () => {
-    it("must index all data into Elasticsearch", async function() {
+    it("must index all data into Elasticsearch", async function () {
       console.time("indexProgram");
       await indexProgram(TEST_PROGRAM_SHORT_NAME, TARGET_ES_INDEX, esClient);
       console.timeEnd("indexProgram");
       const totalEsDocuments = (
         await esClient.search({
           index: TARGET_ES_INDEX,
-          track_total_hits: true
+          track_total_hits: true,
         })
       ).body?.hits?.total?.value;
       expect(totalEsDocuments).to.equal(DB_COLLECTION_SIZE);
@@ -143,7 +143,7 @@ const createDonor = (programShortName: string) => {
       isValid: true,
       lastValidSchemaVersion: "",
       originalSchemaVersion: "",
-      lastMigrationId: uuid()
+      lastMigrationId: uuid(),
     },
     completionStats: {
       coreCompletion: {
@@ -157,7 +157,7 @@ const createDonor = (programShortName: string) => {
     },
     clinicalInfo: {},
     primaryDiagnosis: {
-      clinicalInfo: {}
+      clinicalInfo: {},
     },
     specimens: [
       {
@@ -167,12 +167,12 @@ const createDonor = (programShortName: string) => {
           { sampleType: "", submitterId: submitterId, sampleId: 2 },
           { sampleType: "", submitterId: submitterId, sampleId: 2 },
           { sampleType: "", submitterId: submitterId, sampleId: 2 },
-          { sampleType: "", submitterId: submitterId, sampleId: 2 }
+          { sampleType: "", submitterId: submitterId, sampleId: 2 },
         ],
         specimenTissueSource: "",
         specimenType: "",
         submitterId: submitterId,
-        tumourNormalDesignation: "Normal"
+        tumourNormalDesignation: "Normal",
       },
       {
         clinicalInfo: {},
@@ -181,12 +181,12 @@ const createDonor = (programShortName: string) => {
           { sampleType: "", submitterId: submitterId, sampleId: 2 },
           { sampleType: "", submitterId: submitterId, sampleId: 2 },
           { sampleType: "", submitterId: submitterId, sampleId: 2 },
-          { sampleType: "", submitterId: submitterId, sampleId: 2 }
+          { sampleType: "", submitterId: submitterId, sampleId: 2 },
         ],
         specimenTissueSource: "",
         specimenType: "",
         submitterId: submitterId,
-        tumourNormalDesignation: "Tumour"
+        tumourNormalDesignation: "Tumour",
       },
       {
         clinicalInfo: {},
@@ -195,18 +195,18 @@ const createDonor = (programShortName: string) => {
           { sampleType: "", submitterId: submitterId, sampleId: 2 },
           { sampleType: "", submitterId: submitterId, sampleId: 2 },
           { sampleType: "", submitterId: submitterId, sampleId: 2 },
-          { sampleType: "", submitterId: submitterId, sampleId: 2 }
+          { sampleType: "", submitterId: submitterId, sampleId: 2 },
         ],
         specimenTissueSource: "",
         specimenType: "",
         submitterId: submitterId,
-        tumourNormalDesignation: "Tumour"
-      }
+        tumourNormalDesignation: "Tumour",
+      },
     ],
     followUps: [
       {
-        clinicalInfo: {}
-      }
+        clinicalInfo: {},
+      },
     ],
     treatments: [
       {
@@ -215,9 +215,9 @@ const createDonor = (programShortName: string) => {
           { clinicalInfo: {}, therapyType: "" },
           { clinicalInfo: {}, therapyType: "" },
           { clinicalInfo: {}, therapyType: "" },
-          { clinicalInfo: {}, therapyType: "" }
-        ]
-      }
-    ]
+          { clinicalInfo: {}, therapyType: "" },
+        ],
+      },
+    ],
   } as MongoDonorDocument;
 };
