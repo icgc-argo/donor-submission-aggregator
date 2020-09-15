@@ -57,7 +57,6 @@ export default (configData: {
       body: JSON.stringify(req),
       headers: { "Content-Type": "application/json" },
     }).then((res) => res.json())) as boolean;
-    console.log("acknowledged: ", acknowledged);
 
     return acknowledged;
   };
