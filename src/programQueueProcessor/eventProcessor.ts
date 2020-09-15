@@ -5,7 +5,7 @@ import { RollCallClient, ResolvedIndex } from "rollCall/types";
 import indexClinicalProgram from "indexProgram";
 import { initIndexMapping } from "elasticsearch";
 import withRetry from "promise-retry";
-import { handleIndexingFailure } from "indexProgram/handleIndexingFailure";
+import handleIndexingFailure from "programQueueProcessor/handleIndexingFailure";
 import logger from "logger";
 import { ProgramQueueEvent, KnownEventSource } from "./types";
 

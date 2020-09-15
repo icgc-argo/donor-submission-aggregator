@@ -2,7 +2,7 @@ import { Client } from "@elastic/elasticsearch";
 import { ResolvedIndex } from "rollCall/types";
 import logger from "logger";
 
-export const handleIndexingFailure = async ({
+export default async ({
   esClient,
   rollCallIndex,
 }: {
