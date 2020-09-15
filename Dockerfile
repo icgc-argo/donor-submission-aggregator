@@ -14,4 +14,5 @@ COPY . .
 RUN npm ci
 
 RUN npm run build
+RUN rm dist/**/*.test.js dist/**/*.test.js.map
 CMD [ "npm", "run", "start::prod" ]
