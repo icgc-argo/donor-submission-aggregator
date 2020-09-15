@@ -195,26 +195,25 @@ describe("kafka integration", () => {
 
   describe("program queue processor", () => {
     it("must index all data into Elasticsearch", async function () {
-      programQueueProcessor = await new Promise<ProgramQueueProcessor>(
-        async (resolve) => {
-          const processor = await createProgramQueueProcessor({
-            kafka: kafkaClient,
-            esClient,
-            rollCallClient: rollcallClient,
-            test_onEventProcessed: async (event) => {
-              resolve(processor);
-            },
-          });
-          processor.enqueueEvent({
-            programId: TEST_PROGRAM_SHORT_NAME,
-            changes: [
-              {
-                source: processor.knownEventSource.CLINICAL,
-              },
-            ],
-          });
-        }
-      );
+      programQueueProcessor = await createProgramQueueProcessor({
+        kafka: kafkaClient,
+        esClient,
+        rollCallClient: rollcallClient,
+      });
+      await programQueueProcessor.enqueueEvent({
+        programId: TEST_PROGRAM_SHORT_NAME,
+        changes: [
+          {
+            source: programQueueProcessor.knownEventSource.CLINICAL,
+          },
+        ],
+      });
+      // wait for indexing to complete
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, 20000);
+      });
       const totalEsDocuments = (
         await esClient.search({
           index: ALIAS_NAME,
