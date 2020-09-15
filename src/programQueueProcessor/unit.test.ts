@@ -128,6 +128,7 @@ describe("kafka integration", () => {
             "CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT",
             ZOOKEEPER_HOST
           )
+          .withWaitStrategy(Wait.forLogMessage("Startup complete"))
           .start(),
       ]);
 
