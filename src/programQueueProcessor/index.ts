@@ -70,7 +70,7 @@ export type ProgramQueueProcessor = {
   }) => Promise<void>;
   destroy: () => Promise<void>;
 };
-const createProgramQueueManager = async ({
+const createProgramQueueProcessor = async ({
   kafka,
   esClient,
   statusReporter,
@@ -186,4 +186,4 @@ const createProgramQueueManager = async ({
   };
 };
 
-export default createProgramQueueManager;
+export default createProgramQueueProcessor;
