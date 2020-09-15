@@ -189,6 +189,7 @@ describe("kafka integration", () => {
   });
   afterEach(async function () {
     await DonorSchema().deleteMany({});
+    console.log("programQueueProcessor: ", programQueueProcessor);
     await programQueueProcessor?.destroy();
   });
 
