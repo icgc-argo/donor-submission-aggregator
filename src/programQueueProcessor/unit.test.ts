@@ -142,6 +142,14 @@ describe("programQueueProcessor", () => {
       console.log("ZOOKEEPER_HOST: ", ZOOKEEPER_HOST);
       console.log("ES_HOST: ", ES_HOST);
 
+      await new Promise((resolve) => {
+        console.log(`awaiting zookeeper`);
+        setTimeout(() => {
+          console.log(`continuing`);
+          resolve();
+        }, 20000);
+      });
+
       [startedRollcallContainer, startedKafkaContainer] = await Promise.all([
         rollcallContainer.start(),
         kafkaContainer.start(),
