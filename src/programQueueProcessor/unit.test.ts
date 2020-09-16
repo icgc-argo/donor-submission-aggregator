@@ -18,7 +18,7 @@ const TEST_PROGRAM_SHORT_NAME = "TESTPROG-CA";
 const DB_COLLECTION_SIZE = 10010;
 const asyncExec = promisify(exec);
 
-describe("programQueueProcessor", () => {
+describe("kafka integration", () => {
   /******** Cooonfigs *********/
   const RESOLVED_INDEX_PARTS = {
     entity: "donor",
@@ -212,32 +212,34 @@ describe("programQueueProcessor", () => {
     await programQueueProcessor?.destroy();
   });
 
-  it("must index all data into Elasticsearch", async function () {
-    programQueueProcessor = await createProgramQueueProcessor({
-      kafka: kafkaClient,
-      esClient,
-      rollCallClient: rollcallClient,
+  describe("programQueueProcessor", () => {
+    it("must index all data into Elasticsearch", async function () {
+      programQueueProcessor = await createProgramQueueProcessor({
+        kafka: kafkaClient,
+        esClient,
+        rollCallClient: rollcallClient,
+      });
+      await programQueueProcessor.enqueueEvent({
+        programId: TEST_PROGRAM_SHORT_NAME,
+        changes: [
+          {
+            source: programQueueProcessor.knownEventSource.CLINICAL,
+          },
+        ],
+      });
+      // wait for indexing to complete
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, 20000);
+      });
+      const totalEsDocuments = (
+        await esClient.search({
+          index: ALIAS_NAME,
+          track_total_hits: true,
+        })
+      ).body?.hits?.total?.value;
+      expect(totalEsDocuments).to.equal(DB_COLLECTION_SIZE);
     });
-    await programQueueProcessor.enqueueEvent({
-      programId: TEST_PROGRAM_SHORT_NAME,
-      changes: [
-        {
-          source: programQueueProcessor.knownEventSource.CLINICAL,
-        },
-      ],
-    });
-    // wait for indexing to complete
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, 20000);
-    });
-    const totalEsDocuments = (
-      await esClient.search({
-        index: ALIAS_NAME,
-        track_total_hits: true,
-      })
-    ).body?.hits?.total?.value;
-    expect(totalEsDocuments).to.equal(DB_COLLECTION_SIZE);
   });
 });
