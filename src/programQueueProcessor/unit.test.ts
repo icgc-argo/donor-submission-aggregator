@@ -147,7 +147,7 @@ describe("kafka integration", () => {
         setTimeout(() => {
           console.log(`continuing`);
           resolve();
-        }, 20000);
+        }, 30000);
       });
 
       [startedRollcallContainer, startedKafkaContainer] = await Promise.all([
@@ -231,7 +231,7 @@ describe("kafka integration", () => {
       await new Promise((resolve) => {
         setTimeout(() => {
           resolve();
-        }, 20000);
+        }, 30000);
       });
       const totalEsDocuments = (
         await esClient.search({
