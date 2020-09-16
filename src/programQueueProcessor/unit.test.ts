@@ -147,13 +147,6 @@ describe("programQueueProcessor", () => {
         kafkaContainer.start(),
       ]);
 
-      // await kafka container
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, 20000);
-      });
-
       const ROLLCALL_HOST = `http://${startedRollcallContainer.getContainerIpAddress()}:${ROLLCALL_PORT}`;
       console.log("ROLLCALL_HOST: ", ROLLCALL_HOST);
       KAFKA_HOST = `${startedKafkaContainer.getContainerIpAddress()}:${KAFKA_PORT}`;
