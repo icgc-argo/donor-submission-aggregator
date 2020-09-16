@@ -29,6 +29,11 @@ export default (configs: {
     if (message && message.value) {
       const queuedEvent = parseProgramQueueEvent(message.value.toString());
       const { programId } = queuedEvent;
+      logger.info(
+        `starts processing event for program ${programId} with changes from ${queuedEvent.changes
+          .map((c) => c.source)
+          .join(", ")}`
+      );
       const retryConfig = {
         factor: 2,
         retries: 100,
