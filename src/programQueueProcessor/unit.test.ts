@@ -147,11 +147,6 @@ describe("programQueueProcessor", () => {
         kafkaContainer.start(),
       ]);
 
-      (await (startedKafkaContainer as any).logs())
-        .on("data", (line: string) => console.log(`kafkaContainer: ${line}`))
-        .on("err", (line: string) => console.error(`kafkaContainer: ${line}`))
-        .on("end", () => console.log("Stream closed"));
-
       // await kafka container
       await new Promise((resolve) => {
         setTimeout(() => {
