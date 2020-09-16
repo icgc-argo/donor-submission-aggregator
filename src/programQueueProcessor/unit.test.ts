@@ -142,16 +142,15 @@ describe("programQueueProcessor", () => {
       console.log("ZOOKEEPER_HOST: ", ZOOKEEPER_HOST);
       console.log("ES_HOST: ", ES_HOST);
 
-      (kafkaContainer as any)
-        .logs()
-        .on("data", (line: string) => console.log(`kafkaContainer: ${line}`))
-        .on("err", (line: string) => console.error(`kafkaContainer: ${line}`))
-        .on("end", () => console.log("Stream closed"));
-
       [startedRollcallContainer, startedKafkaContainer] = await Promise.all([
         rollcallContainer.start(),
         kafkaContainer.start(),
       ]);
+
+      (await (startedKafkaContainer as any).logs())
+        .on("data", (line: string) => console.log(`kafkaContainer: ${line}`))
+        .on("err", (line: string) => console.error(`kafkaContainer: ${line}`))
+        .on("end", () => console.log("Stream closed"));
 
       // await kafka container
       await new Promise((resolve) => {
