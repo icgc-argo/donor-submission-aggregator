@@ -19,20 +19,6 @@ const DB_COLLECTION_SIZE = 10010;
 const asyncExec = promisify(exec);
 
 describe("programQueueProcessor", () => {
-  /******* Containers ********/
-  let mongoContainer: StartedTestContainer;
-  let elasticsearchContainer: StartedTestContainer;
-  let rollcallContainer: StartedTestContainer;
-  let zookeeperContainer: StartedTestContainer;
-  let kafkaContainer: StartedTestContainer;
-  /***************************/
-
-  /******** Clients *********/
-  let esClient: Client;
-  let rollcallClient: RollCallClient;
-  let kafkaClient: Kafka;
-  /**************************/
-
   /******** Cooonfigs *********/
   const RESOLVED_INDEX_PARTS = {
     entity: "donor",
@@ -51,85 +37,120 @@ describe("programQueueProcessor", () => {
   let KAFKA_HOST: string;
   /****************************/
 
+  /******* Containers ********/
+  let startedMongoContainer: StartedTestContainer;
+  let startedElasticsearchContainer: StartedTestContainer;
+  let startedRollcallContainer: StartedTestContainer;
+  let startedZookeeperContainer: StartedTestContainer;
+  let startedKafkaContainer: StartedTestContainer;
+  /***************************/
+
+  /** container log streams **/
+  let kafkaContainerLogStream;
+  /***************************/
+
+  /******** Clients *********/
+  let esClient: Client;
+  let rollcallClient: RollCallClient;
+  let kafkaClient: Kafka;
+  /**************************/
+
   let programQueueProcessor: ProgramQueueProcessor;
 
   before(async () => {
+    const mongoContainer = new GenericContainer("mongo").withExposedPorts(
+      MONGO_PORT
+    );
+    const elasticsearchContainer = new GenericContainer(
+      "elasticsearch",
+      "7.5.0"
+    )
+      .withNetworkMode(NETOWRK_MODE)
+      .withExposedPorts(ES_PORT)
+      .withEnv("discovery.type", "single-node")
+      .withEnv("http.port", `${ES_PORT}`)
+      .withHealthCheck({
+        test: `curl -f http://localhost:${ES_PORT} || exit 1`, // this is executed inside the container
+        startPeriod: new Duration(2, TemporalUnit.SECONDS),
+        retries: 2,
+        interval: new Duration(1, TemporalUnit.SECONDS),
+        timeout: new Duration(5, TemporalUnit.SECONDS),
+      })
+      .withWaitStrategy(Wait.forHealthCheck());
+    const zookeeperContainer = new GenericContainer(
+      "wurstmeister/zookeeper",
+      "latest"
+    )
+      .withNetworkMode(NETOWRK_MODE)
+      .withExposedPorts(ZOOKEEPER_PORT);
+
     try {
       // ***** start relevant servers *****
       [
-        mongoContainer,
-        elasticsearchContainer,
-        zookeeperContainer,
+        startedMongoContainer,
+        startedElasticsearchContainer,
+        startedZookeeperContainer,
       ] = await Promise.all([
-        new GenericContainer("mongo").withExposedPorts(MONGO_PORT).start(),
-        new GenericContainer("elasticsearch", "7.5.0")
-          .withNetworkMode(NETOWRK_MODE)
-          .withExposedPorts(ES_PORT)
-          .withEnv("discovery.type", "single-node")
-          .withEnv("http.port", `${ES_PORT}`)
-          .withHealthCheck({
-            test: `curl -f http://localhost:${ES_PORT} || exit 1`, // this is executed inside the container
-            startPeriod: new Duration(2, TemporalUnit.SECONDS),
-            retries: 2,
-            interval: new Duration(1, TemporalUnit.SECONDS),
-            timeout: new Duration(5, TemporalUnit.SECONDS),
-          })
-          .withWaitStrategy(Wait.forHealthCheck())
-          .start(),
-        new GenericContainer("wurstmeister/zookeeper", "latest")
-          .withNetworkMode(NETOWRK_MODE)
-          .withExposedPorts(ZOOKEEPER_PORT)
-          .start(),
+        mongoContainer.start(),
+        elasticsearchContainer.start(),
+        zookeeperContainer.start(),
       ]);
 
-      const ES_MAPPED_HOST = `http://${elasticsearchContainer.getContainerIpAddress()}`;
+      const ES_MAPPED_HOST = `http://${startedElasticsearchContainer.getContainerIpAddress()}`;
       const ES_HOST = `${ES_MAPPED_HOST}:${ES_PORT}`;
-      const ZOOKEEPER_HOST = `${zookeeperContainer.getContainerIpAddress()}:${ZOOKEEPER_PORT}`;
+      const ZOOKEEPER_HOST = `${startedZookeeperContainer.getContainerIpAddress()}:${ZOOKEEPER_PORT}`;
+
+      const rollcallContainer = new GenericContainer(
+        "overture/rollcall",
+        "2.4.0"
+      )
+        .withNetworkMode(NETOWRK_MODE)
+        .withExposedPorts(ROLLCALL_PORT)
+        .withEnv("SPRING_PROFILES_ACTIVE", "test")
+        .withEnv("SERVER_PORT", `${ROLLCALL_PORT}`)
+        .withEnv("SPRING_CLOUD_VAULT_ENABLED", `${false}`)
+        .withEnv("ELASTICSEARCH_NODE", `${ES_HOST}`)
+        .withEnv("ROLLCALL_ALIASES_0_ALIAS", `${ALIAS_NAME}`)
+        .withEnv("ROLLCALL_ALIASES_0_ENTITY", `${RESOLVED_INDEX_PARTS.entity}`)
+        .withEnv("ROLLCALL_ALIASES_0_TYPE", `${RESOLVED_INDEX_PARTS.type}`)
+        .withWaitStrategy(Wait.forLogMessage("Started RollcallApplication"));
+      const kafkaContainer = new GenericContainer(
+        "confluentinc/cp-kafka",
+        "5.2.1"
+      )
+        .withNetworkMode(NETOWRK_MODE)
+        .withExposedPorts(29092, KAFKA_PORT)
+        .withEnv("KAFKA_BROKER_ID", "1")
+        .withEnv("KAFKA_ZOOKEEPER_CONNECT", ZOOKEEPER_HOST)
+        .withEnv(
+          "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP",
+          "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+        )
+        .withEnv(
+          "KAFKA_ADVERTISED_LISTENERS",
+          `PLAINTEXT://localhost:29092,PLAINTEXT_HOST://localhost:${KAFKA_PORT}`
+        )
+        .withEnv("KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR", "1")
+        .withEnv("KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS", "0")
+        .withEnv(
+          "CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS",
+          "localhost:29092"
+        )
+        .withEnv("CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT", ZOOKEEPER_HOST)
+        .withWaitStrategy(Wait.forLogMessage("Startup complete"));
 
       console.log("ZOOKEEPER_HOST: ", ZOOKEEPER_HOST);
       console.log("ES_HOST: ", ES_HOST);
 
-      [rollcallContainer, kafkaContainer] = await Promise.all([
-        new GenericContainer("overture/rollcall", "2.4.0")
-          .withNetworkMode(NETOWRK_MODE)
-          .withExposedPorts(ROLLCALL_PORT)
-          .withEnv("SPRING_PROFILES_ACTIVE", "test")
-          .withEnv("SERVER_PORT", `${ROLLCALL_PORT}`)
-          .withEnv("SPRING_CLOUD_VAULT_ENABLED", `${false}`)
-          .withEnv("ELASTICSEARCH_NODE", `${ES_HOST}`)
-          .withEnv("ROLLCALL_ALIASES_0_ALIAS", `${ALIAS_NAME}`)
-          .withEnv(
-            "ROLLCALL_ALIASES_0_ENTITY",
-            `${RESOLVED_INDEX_PARTS.entity}`
-          )
-          .withEnv("ROLLCALL_ALIASES_0_TYPE", `${RESOLVED_INDEX_PARTS.type}`)
-          .withWaitStrategy(Wait.forLogMessage("Started RollcallApplication"))
-          .start(),
-        new GenericContainer("confluentinc/cp-kafka", "5.2.1")
-          .withNetworkMode(NETOWRK_MODE)
-          .withExposedPorts(29092, KAFKA_PORT)
-          .withEnv("KAFKA_BROKER_ID", "1")
-          .withEnv("KAFKA_ZOOKEEPER_CONNECT", ZOOKEEPER_HOST)
-          .withEnv(
-            "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP",
-            "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
-          )
-          .withEnv(
-            "KAFKA_ADVERTISED_LISTENERS",
-            `PLAINTEXT://localhost:29092,PLAINTEXT_HOST://localhost:${KAFKA_PORT}`
-          )
-          .withEnv("KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR", "1")
-          .withEnv("KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS", "0")
-          .withEnv(
-            "CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS",
-            "localhost:29092"
-          )
-          .withEnv(
-            "CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT",
-            ZOOKEEPER_HOST
-          )
-          .withWaitStrategy(Wait.forLogMessage("Startup complete"))
-          .start(),
+      (kafkaContainer as any)
+        .logs()
+        .on("data", (line: string) => console.log(`kafkaContainer: ${line}`))
+        .on("err", (line: string) => console.error(`kafkaContainer: ${line}`))
+        .on("end", () => console.log("Stream closed"));
+
+      [startedRollcallContainer, startedKafkaContainer] = await Promise.all([
+        rollcallContainer.start(),
+        kafkaContainer.start(),
       ]);
 
       // await kafka container
@@ -139,9 +160,9 @@ describe("programQueueProcessor", () => {
         }, 20000);
       });
 
-      const ROLLCALL_HOST = `http://${rollcallContainer.getContainerIpAddress()}:${ROLLCALL_PORT}`;
+      const ROLLCALL_HOST = `http://${startedRollcallContainer.getContainerIpAddress()}:${ROLLCALL_PORT}`;
       console.log("ROLLCALL_HOST: ", ROLLCALL_HOST);
-      KAFKA_HOST = `${kafkaContainer.getContainerIpAddress()}:${KAFKA_PORT}`;
+      KAFKA_HOST = `${startedKafkaContainer.getContainerIpAddress()}:${KAFKA_PORT}`;
       console.log("KAFKA_HOST: ", KAFKA_HOST);
 
       // ***** start relevant clients *****
@@ -166,7 +187,7 @@ describe("programQueueProcessor", () => {
         ],
       });
       await kafkaAdmin.disconnect();
-      MONGO_URL = `mongodb://${mongoContainer.getContainerIpAddress()}:${mongoContainer.getMappedPort(
+      MONGO_URL = `mongodb://${startedMongoContainer.getContainerIpAddress()}:${startedMongoContainer.getMappedPort(
         MONGO_PORT
       )}/clinical`;
       await mongoose.connect(MONGO_URL);
@@ -177,11 +198,11 @@ describe("programQueueProcessor", () => {
   });
   after(async () => {
     await Promise.all([
-      mongoContainer?.stop(),
-      elasticsearchContainer?.stop(),
-      rollcallContainer?.stop(),
-      zookeeperContainer?.stop(),
-      kafkaContainer?.stop(),
+      startedMongoContainer?.stop(),
+      startedElasticsearchContainer?.stop(),
+      startedRollcallContainer?.stop(),
+      startedZookeeperContainer?.stop(),
+      startedKafkaContainer?.stop(),
     ]);
   });
   beforeEach(async function () {
