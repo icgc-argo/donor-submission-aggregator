@@ -189,7 +189,7 @@ describe("programQueueProcessor", () => {
     await programQueueProcessor?.destroy();
   });
 
-  it("must index all data into Elasticsearch", async function (done) {
+  it("must index all data into Elasticsearch", async function () {
     programQueueProcessor = await createProgramQueueProcessor({
       kafka: kafkaClient,
       esClient,
@@ -216,6 +216,5 @@ describe("programQueueProcessor", () => {
       })
     ).body?.hits?.total?.value;
     expect(totalEsDocuments).to.equal(DB_COLLECTION_SIZE);
-    done();
   });
 });
