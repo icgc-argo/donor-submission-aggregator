@@ -73,12 +73,12 @@ describe("kafka integration", () => {
         timeout: new Duration(5, TemporalUnit.SECONDS),
       })
       .withWaitStrategy(Wait.forHealthCheck());
-    const zookeeperContainer = new GenericContainer(
-      "wurstmeister/zookeeper",
-      "latest"
-    )
-      .withNetworkMode(NETOWRK_MODE)
-      .withExposedPorts(ZOOKEEPER_PORT);
+    // const zookeeperContainer = new GenericContainer(
+    //   "wurstmeister/zookeeper",
+    //   "latest"
+    // )
+    //   .withNetworkMode(NETOWRK_MODE)
+    //   .withExposedPorts(ZOOKEEPER_PORT);
 
     try {
       // ***** start relevant servers *****
@@ -94,7 +94,7 @@ describe("kafka integration", () => {
 
       const ES_MAPPED_HOST = `http://${startedElasticsearchContainer.getContainerIpAddress()}`;
       const ES_HOST = `${ES_MAPPED_HOST}:${ES_PORT}`;
-      const ZOOKEEPER_HOST = `${startedZookeeperContainer.getContainerIpAddress()}:${ZOOKEEPER_PORT}`;
+      // const ZOOKEEPER_HOST = `${startedZookeeperContainer.getContainerIpAddress()}:${ZOOKEEPER_PORT}`;
 
       const rollcallContainer = new GenericContainer(
         "overture/rollcall",
