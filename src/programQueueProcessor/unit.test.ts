@@ -138,7 +138,7 @@ describe("kafka integration", () => {
         .withNetworkMode(NETOWRK_MODE)
         .withExposedPorts(KAFKA_PORT);
 
-      console.log("ZOOKEEPER_HOST: ", ZOOKEEPER_HOST);
+      // console.log("ZOOKEEPER_HOST: ", ZOOKEEPER_HOST);
       console.log("ES_HOST: ", ES_HOST);
 
       await new Promise((resolve) => {
