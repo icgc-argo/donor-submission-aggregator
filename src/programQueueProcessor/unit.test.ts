@@ -29,7 +29,6 @@ describe("kafka integration", () => {
   const ES_PORT = 9200;
   const ROLLCALL_PORT = 10091;
   const MONGO_PORT = 27017;
-  const ZOOKEEPER_PORT = 2181;
   const KAFKA_PORT = 9092;
   const NETOWRK_MODE = "host";
   const ALIAS_NAME = "donor_centric";
@@ -41,7 +40,6 @@ describe("kafka integration", () => {
   let startedMongoContainer: StartedTestContainer;
   let startedElasticsearchContainer: StartedTestContainer;
   let startedRollcallContainer: StartedTestContainer;
-  let startedZookeeperContainer: StartedTestContainer;
   let startedKafkaContainer: StartedTestContainer;
   /***************************/
 
@@ -73,28 +71,19 @@ describe("kafka integration", () => {
         timeout: new Duration(5, TemporalUnit.SECONDS),
       })
       .withWaitStrategy(Wait.forHealthCheck());
-    // const zookeeperContainer = new GenericContainer(
-    //   "wurstmeister/zookeeper",
-    //   "latest"
-    // )
-    //   .withNetworkMode(NETOWRK_MODE)
-    //   .withExposedPorts(ZOOKEEPER_PORT);
 
     try {
       // ***** start relevant servers *****
       [
         startedMongoContainer,
         startedElasticsearchContainer,
-        // startedZookeeperContainer,
       ] = await Promise.all([
         mongoContainer.start(),
         elasticsearchContainer.start(),
-        // zookeeperContainer.start(),
       ]);
 
       const ES_MAPPED_HOST = `http://${startedElasticsearchContainer.getContainerIpAddress()}`;
       const ES_HOST = `${ES_MAPPED_HOST}:${ES_PORT}`;
-      // const ZOOKEEPER_HOST = `${startedZookeeperContainer.getContainerIpAddress()}:${ZOOKEEPER_PORT}`;
 
       const rollcallContainer = new GenericContainer(
         "overture/rollcall",
@@ -110,44 +99,11 @@ describe("kafka integration", () => {
         .withEnv("ROLLCALL_ALIASES_0_ENTITY", `${RESOLVED_INDEX_PARTS.entity}`)
         .withEnv("ROLLCALL_ALIASES_0_TYPE", `${RESOLVED_INDEX_PARTS.type}`)
         .withWaitStrategy(Wait.forLogMessage("Started RollcallApplication"));
-      // const kafkaContainer = new GenericContainer(
-      //   "confluentinc/cp-kafka",
-      //   "5.2.1"
-      // )
-      //   .withNetworkMode(NETOWRK_MODE)
-      //   .withExposedPorts(29092, KAFKA_PORT)
-      //   .withEnv("KAFKA_BROKER_ID", "1")
-      //   .withEnv("KAFKA_ZOOKEEPER_CONNECT", ZOOKEEPER_HOST)
-      //   .withEnv(
-      //     "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP",
-      //     "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
-      //   )
-      //   .withEnv(
-      //     "KAFKA_ADVERTISED_LISTENERS",
-      //     `PLAINTEXT://localhost:29092,PLAINTEXT_HOST://localhost:${KAFKA_PORT}`
-      //   )
-      //   .withEnv("KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR", "1")
-      //   .withEnv("KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS", "0")
-      //   .withEnv(
-      //     "CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS",
-      //     "localhost:29092"
-      //   )
-      //   .withEnv("CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT", ZOOKEEPER_HOST)
-      //   .withWaitStrategy(Wait.forLogMessage("Startup complete"));
       const kafkaContainer = new GenericContainer("spotify/kafka", "latest")
         .withNetworkMode(NETOWRK_MODE)
         .withExposedPorts(KAFKA_PORT);
 
-      // console.log("ZOOKEEPER_HOST: ", ZOOKEEPER_HOST);
       console.log("ES_HOST: ", ES_HOST);
-
-      await new Promise((resolve) => {
-        console.log(`awaiting zookeeper`);
-        setTimeout(() => {
-          console.log(`continuing`);
-          resolve();
-        }, 30000);
-      });
 
       [startedRollcallContainer, startedKafkaContainer] = await Promise.all([
         rollcallContainer.start(),
@@ -195,7 +151,6 @@ describe("kafka integration", () => {
       startedMongoContainer?.stop(),
       startedElasticsearchContainer?.stop(),
       startedRollcallContainer?.stop(),
-      startedZookeeperContainer?.stop(),
       startedKafkaContainer?.stop(),
     ]);
   });
