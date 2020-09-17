@@ -37,10 +37,10 @@ describe("kafka integration", () => {
   /****************************/
 
   /******* Containers ********/
-  let startedMongoContainer: StartedTestContainer;
-  let startedElasticsearchContainer: StartedTestContainer;
-  let startedRollcallContainer: StartedTestContainer;
-  let startedKafkaContainer: StartedTestContainer;
+  let mongoContainer: StartedTestContainer;
+  let elasticsearchContainer: StartedTestContainer;
+  let rollcallContainer: StartedTestContainer;
+  let kafkaContainer: StartedTestContainer;
   /***************************/
 
   /******** Clients *********/
@@ -52,40 +52,38 @@ describe("kafka integration", () => {
   let programQueueProcessor: ProgramQueueProcessor;
 
   before(async () => {
-    const mongoContainer = new GenericContainer("mongo").withExposedPorts(
-      MONGO_PORT
-    );
-    const elasticsearchContainer = new GenericContainer(
-      "elasticsearch",
-      "7.5.0"
-    )
-      .withNetworkMode(NETOWRK_MODE)
-      .withExposedPorts(ES_PORT)
-      .withEnv("discovery.type", "single-node")
-      .withEnv("http.port", `${ES_PORT}`)
-      .withHealthCheck({
-        test: `curl -f http://localhost:${ES_PORT} || exit 1`, // this is executed inside the container
-        startPeriod: new Duration(2, TemporalUnit.SECONDS),
-        retries: 2,
-        interval: new Duration(1, TemporalUnit.SECONDS),
-        timeout: new Duration(5, TemporalUnit.SECONDS),
-      })
-      .withWaitStrategy(Wait.forHealthCheck());
-
     try {
       // ***** start relevant servers *****
       [
-        startedMongoContainer,
-        startedElasticsearchContainer,
+        mongoContainer,
+        elasticsearchContainer,
+        kafkaContainer,
       ] = await Promise.all([
-        mongoContainer.start(),
-        elasticsearchContainer.start(),
+        new GenericContainer("mongo").withExposedPorts(MONGO_PORT).start(),
+        new GenericContainer("elasticsearch", "7.5.0")
+          .withNetworkMode(NETOWRK_MODE)
+          .withExposedPorts(ES_PORT)
+          .withEnv("discovery.type", "single-node")
+          .withEnv("http.port", `${ES_PORT}`)
+          .withHealthCheck({
+            test: `curl -f http://localhost:${ES_PORT} || exit 1`, // this is executed inside the container
+            startPeriod: new Duration(2, TemporalUnit.SECONDS),
+            retries: 2,
+            interval: new Duration(1, TemporalUnit.SECONDS),
+            timeout: new Duration(5, TemporalUnit.SECONDS),
+          })
+          .withWaitStrategy(Wait.forHealthCheck())
+          .start(),
+        new GenericContainer("spotify/kafka", "latest")
+          .withNetworkMode(NETOWRK_MODE)
+          .withExposedPorts(KAFKA_PORT)
+          .start(),
       ]);
 
-      const ES_MAPPED_HOST = `http://${startedElasticsearchContainer.getContainerIpAddress()}`;
+      const ES_MAPPED_HOST = `http://${elasticsearchContainer.getContainerIpAddress()}`;
       const ES_HOST = `${ES_MAPPED_HOST}:${ES_PORT}`;
 
-      const rollcallContainer = new GenericContainer(
+      rollcallContainer = await new GenericContainer(
         "overture/rollcall",
         "2.4.0"
       )
@@ -98,22 +96,11 @@ describe("kafka integration", () => {
         .withEnv("ROLLCALL_ALIASES_0_ALIAS", `${ALIAS_NAME}`)
         .withEnv("ROLLCALL_ALIASES_0_ENTITY", `${RESOLVED_INDEX_PARTS.entity}`)
         .withEnv("ROLLCALL_ALIASES_0_TYPE", `${RESOLVED_INDEX_PARTS.type}`)
-        .withWaitStrategy(Wait.forLogMessage("Started RollcallApplication"));
-      const kafkaContainer = new GenericContainer("spotify/kafka", "latest")
-        .withNetworkMode(NETOWRK_MODE)
-        .withExposedPorts(KAFKA_PORT);
+        .withWaitStrategy(Wait.forLogMessage("Started RollcallApplication"))
+        .start();
 
-      console.log("ES_HOST: ", ES_HOST);
-
-      [startedRollcallContainer, startedKafkaContainer] = await Promise.all([
-        rollcallContainer.start(),
-        kafkaContainer.start(),
-      ]);
-
-      const ROLLCALL_HOST = `http://${startedRollcallContainer.getContainerIpAddress()}:${ROLLCALL_PORT}`;
-      console.log("ROLLCALL_HOST: ", ROLLCALL_HOST);
-      KAFKA_HOST = `${startedKafkaContainer.getContainerIpAddress()}:${KAFKA_PORT}`;
-      console.log("KAFKA_HOST: ", KAFKA_HOST);
+      const ROLLCALL_HOST = `http://${rollcallContainer.getContainerIpAddress()}:${ROLLCALL_PORT}`;
+      KAFKA_HOST = `${kafkaContainer.getContainerIpAddress()}:${KAFKA_PORT}`;
 
       // ***** start relevant clients *****
       esClient = new Client({ node: ES_HOST });
@@ -137,7 +124,7 @@ describe("kafka integration", () => {
         ],
       });
       await kafkaAdmin.disconnect();
-      MONGO_URL = `mongodb://${startedMongoContainer.getContainerIpAddress()}:${startedMongoContainer.getMappedPort(
+      MONGO_URL = `mongodb://${mongoContainer.getContainerIpAddress()}:${mongoContainer.getMappedPort(
         MONGO_PORT
       )}/clinical`;
       await mongoose.connect(MONGO_URL);
@@ -148,10 +135,10 @@ describe("kafka integration", () => {
   });
   after(async () => {
     await Promise.all([
-      startedMongoContainer?.stop(),
-      startedElasticsearchContainer?.stop(),
-      startedRollcallContainer?.stop(),
-      startedKafkaContainer?.stop(),
+      mongoContainer?.stop(),
+      elasticsearchContainer?.stop(),
+      rollcallContainer?.stop(),
+      kafkaContainer?.stop(),
     ]);
   });
   beforeEach(async function () {
