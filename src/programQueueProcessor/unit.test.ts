@@ -168,7 +168,7 @@ describe("kafka integration", () => {
         aliasName: ALIAS_NAME,
       });
       kafkaClient = new Kafka({
-        clientId: `donor-submission-aggregator-test`,
+        clientId: `donor-submission-aggregator-test-${Math.random()}`,
         brokers: [KAFKA_HOST],
       });
       const kafkaAdmin = kafkaClient.admin();
