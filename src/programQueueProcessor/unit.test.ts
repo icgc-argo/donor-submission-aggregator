@@ -45,10 +45,6 @@ describe("kafka integration", () => {
   let startedKafkaContainer: StartedTestContainer;
   /***************************/
 
-  /** container log streams **/
-  let kafkaContainerLogStream;
-  /***************************/
-
   /******** Clients *********/
   let esClient: Client;
   let rollcallClient: RollCallClient;
@@ -89,11 +85,11 @@ describe("kafka integration", () => {
       [
         startedMongoContainer,
         startedElasticsearchContainer,
-        startedZookeeperContainer,
+        // startedZookeeperContainer,
       ] = await Promise.all([
         mongoContainer.start(),
         elasticsearchContainer.start(),
-        zookeeperContainer.start(),
+        // zookeeperContainer.start(),
       ]);
 
       const ES_MAPPED_HOST = `http://${startedElasticsearchContainer.getContainerIpAddress()}`;
@@ -114,30 +110,33 @@ describe("kafka integration", () => {
         .withEnv("ROLLCALL_ALIASES_0_ENTITY", `${RESOLVED_INDEX_PARTS.entity}`)
         .withEnv("ROLLCALL_ALIASES_0_TYPE", `${RESOLVED_INDEX_PARTS.type}`)
         .withWaitStrategy(Wait.forLogMessage("Started RollcallApplication"));
-      const kafkaContainer = new GenericContainer(
-        "confluentinc/cp-kafka",
-        "5.2.1"
-      )
+      // const kafkaContainer = new GenericContainer(
+      //   "confluentinc/cp-kafka",
+      //   "5.2.1"
+      // )
+      //   .withNetworkMode(NETOWRK_MODE)
+      //   .withExposedPorts(29092, KAFKA_PORT)
+      //   .withEnv("KAFKA_BROKER_ID", "1")
+      //   .withEnv("KAFKA_ZOOKEEPER_CONNECT", ZOOKEEPER_HOST)
+      //   .withEnv(
+      //     "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP",
+      //     "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      //   )
+      //   .withEnv(
+      //     "KAFKA_ADVERTISED_LISTENERS",
+      //     `PLAINTEXT://localhost:29092,PLAINTEXT_HOST://localhost:${KAFKA_PORT}`
+      //   )
+      //   .withEnv("KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR", "1")
+      //   .withEnv("KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS", "0")
+      //   .withEnv(
+      //     "CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS",
+      //     "localhost:29092"
+      //   )
+      //   .withEnv("CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT", ZOOKEEPER_HOST)
+      //   .withWaitStrategy(Wait.forLogMessage("Startup complete"));
+      const kafkaContainer = new GenericContainer("spotify/kafka", "latest")
         .withNetworkMode(NETOWRK_MODE)
-        .withExposedPorts(29092, KAFKA_PORT)
-        .withEnv("KAFKA_BROKER_ID", "1")
-        .withEnv("KAFKA_ZOOKEEPER_CONNECT", ZOOKEEPER_HOST)
-        .withEnv(
-          "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP",
-          "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
-        )
-        .withEnv(
-          "KAFKA_ADVERTISED_LISTENERS",
-          `PLAINTEXT://localhost:29092,PLAINTEXT_HOST://localhost:${KAFKA_PORT}`
-        )
-        .withEnv("KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR", "1")
-        .withEnv("KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS", "0")
-        .withEnv(
-          "CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS",
-          "localhost:29092"
-        )
-        .withEnv("CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT", ZOOKEEPER_HOST)
-        .withWaitStrategy(Wait.forLogMessage("Startup complete"));
+        .withExposedPorts(KAFKA_PORT);
 
       console.log("ZOOKEEPER_HOST: ", ZOOKEEPER_HOST);
       console.log("ES_HOST: ", ES_HOST);
