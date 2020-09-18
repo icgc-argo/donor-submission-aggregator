@@ -4,7 +4,7 @@ import path from "path";
 export const APP_DIR = __dirname;
 
 dotenv.config({
-  path: path.resolve(APP_DIR, "../.env")
+  path: path.resolve(APP_DIR, "../.env"),
 });
 
 export const MONGO_URL =
@@ -18,7 +18,8 @@ export const ES_CLIENT_TRUST_SSL_CERT =
 
 export const ROLLCALL_SERVICE_ROOT =
   process.env.ROLLCALL_SERVICE_ROOT || "http://localhost:9001";
-export const ROLLCALL_ALIAS_NAME = process.env.ROLLCALL_ALIAS_NAME || "donor_submission_summary"
+export const ROLLCALL_ALIAS_NAME =
+  process.env.ROLLCALL_ALIAS_NAME || "donor_submission_summary";
 export const ROLLCALL_INDEX_ENTITY =
   process.env.ROLLCALL_INDEX_ENTITY || "donor";
 export const ROLLCALL_INDEX_TYPE = process.env.ROLLCALL_INDEX_TYPE || "centric";
@@ -30,13 +31,18 @@ export const STREAM_CHUNK_SIZE = Number(process.env.STREAM_CHUNK_SIZE) || 1000;
 export const CLINICAL_PROGRAM_UPDATE_TOPIC =
   process.env.CLINICAL_PROGRAM_UPDATE_TOPIC || "PROGRAM_UPDATE";
 
+export const KAFKA_PROGRAM_QUEUE_TOPIC =
+  process.env.KAFKA_PROGRAM_QUEUE_TOPIC || "donor_aggregator_program_queues";
+export const KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP =
+  process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP ||
+  "program-queue-donor-processor";
 export const KAFKA_CONSUMER_GROUP =
   process.env.KAFKA_CONSUMER_GROUP || "donor-submission-aggregator";
 
 const kafkaBrokers = process.env.KAFKA_BROKERS
   ? String(process.env.KAFKA_BROKERS)
       .split(",")
-      .map(str => str.trim())
+      .map((str) => str.trim())
   : [];
 export const KAFKA_BROKERS = kafkaBrokers.length
   ? kafkaBrokers
@@ -45,6 +51,9 @@ export const PARTITIONS_CONSUMED_CONCURRENTLY = process.env
   .PARTITIONS_CONSUMED_CONCURRENTLY
   ? Number(process.env.PARTITIONS_CONSUMED_CONCURRENTLY)
   : 10;
+export const KAFKA_PROGRAM_QUEUE_TOPIC_PARTITIONS = Number(
+  process.env.KAFKA_PROGRAM_QUEUE_TOPIC_PARTITIONS || 5
+);
 export const PORT = Number(process.env.PORT || 7000);
 
 export const ENABLED = process.env.ENABLED === "true";
@@ -67,7 +76,7 @@ const REQUIRED_VAULT_CONFIGS = {
   VAULT_URL,
   VAULT_ROLE,
   VAULT_MONGO_SECRET_PATH,
-  VAULT_ES_SECRET_PATH
+  VAULT_ES_SECRET_PATH,
 };
 const missingValue = ([key, value]: [string, any]) => !value;
 if (USE_VAULT && Object.entries(REQUIRED_VAULT_CONFIGS).some(missingValue)) {
@@ -81,7 +90,7 @@ if (USE_VAULT && Object.entries(REQUIRED_VAULT_CONFIGS).some(missingValue)) {
   throw error;
 }
 const REQUIRED_K8_CONFIGS = {
-  VAULT_ROLE
+  VAULT_ROLE,
 };
 if (USE_VAULT && VAULT_AUTH_METHOD === "kubernetes") {
   if (Object.entries(REQUIRED_K8_CONFIGS).some(missingValue)) {

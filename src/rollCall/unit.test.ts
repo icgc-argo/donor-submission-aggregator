@@ -1,15 +1,15 @@
 import { expect } from "chai";
-import applyRollcallClient from "./index";
+import createRollcallClient from "./index";
 import { GenericContainer, StartedTestContainer, Wait } from "testcontainers";
 import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
-import { RollcallClient } from "./types";
+import { RollCallClient } from "./types";
 
 describe("rollcall integration", () => {
   let elasticsearchContainer: StartedTestContainer;
   let rollcallContainer: StartedTestContainer;
   let esClient: Client;
-  let rollcallClient: RollcallClient;
+  let rollcallClient: RollCallClient;
 
   const ES_PORT = 10092;
   const ROLLCALL_PORT = 10091;
@@ -22,7 +22,7 @@ describe("rollcall integration", () => {
     entity: "file",
     type: "centric",
     shardPrefix: "pgm",
-    releasePrefix: "re"
+    releasePrefix: "re",
   };
 
   const aliasName = "file_centric";
@@ -43,7 +43,7 @@ describe("rollcall integration", () => {
           startPeriod: new Duration(2, TemporalUnit.SECONDS),
           retries: 2,
           interval: new Duration(1, TemporalUnit.SECONDS),
-          timeout: new Duration(5, TemporalUnit.SECONDS)
+          timeout: new Duration(5, TemporalUnit.SECONDS),
         })
         .withWaitStrategy(Wait.forHealthCheck())
         .start();
@@ -53,14 +53,14 @@ describe("rollcall integration", () => {
 
       rollcallContainer = await new GenericContainer(
         "overture/rollcall",
-        "2.0.0"
+        "2.4.0"
       )
         .withNetworkMode(NETOWRK_MODE)
         .withExposedPorts(ROLLCALL_PORT)
         .withEnv("SPRING_PROFILES_ACTIVE", "test")
         .withEnv("SERVER_PORT", `${ROLLCALL_PORT}`)
-        .withEnv("ELASTICSEARCH_HOST", `${ES_MAPPED_HOST}`)
-        .withEnv("ELASTICSEARCH_PORT", `${ES_PORT}`)
+        .withEnv("SPRING_CLOUD_VAULT_ENABLED", `${false}`)
+        .withEnv("ELASTICSEARCH_NODE", `${ES_HOST}`)
         .withEnv(
           "ROLLCALL_ALIASES_0_ALIAS",
           `${RESOLVED_INDEX_PARTS.entity}_${RESOLVED_INDEX_PARTS.type}`
@@ -74,10 +74,10 @@ describe("rollcall integration", () => {
 
       // ***** start relevant clients *****
       esClient = new Client({ node: ES_HOST });
-      rollcallClient = applyRollcallClient({
+      rollcallClient = createRollcallClient({
         url: `${ROLLCALL_HOST}`,
         ...RESOLVED_INDEX_PARTS,
-        aliasName
+        aliasName,
       });
     } catch (err) {
       console.log(`before >>>>>>>>>>>`, err);
@@ -95,16 +95,15 @@ describe("rollcall integration", () => {
       TEST_PROGRAM
     );
     const newIndexName = newResolvedIndex.indexName;
-
     expect(newResolvedIndex).to.contain({
       ...RESOLVED_INDEX_PARTS,
       shard: "testca",
-      release: "1"
+      release: "1",
     });
 
     // check elastic search has new index
     const { body: exists } = await esClient.indices.exists({
-      index: newIndexName
+      index: newIndexName,
     });
     expect(exists).to.be.true;
 
@@ -116,7 +115,7 @@ describe("rollcall integration", () => {
     const { body } = await esClient.cat.aliases({
       name: aliasName,
       format: "JSON",
-      h: ["alias", "index"]
+      h: ["alias", "index"],
     });
     expect(body).to.deep.include({ alias: aliasName, index: newIndexName });
   });

@@ -3,18 +3,18 @@ import {
   IndexReleaseRequest,
   CreateResolvableIndexRequest,
   ResolvedIndex,
-  RollcallClient
+  RollCallClient,
 } from "./types";
 import urljoin from "url-join";
 import logger from "logger";
 
 export default (configData: {
   url: string;
-  aliasName?: string
+  aliasName?: string;
   entity?: string;
   type?: string;
   shardPrefix?: string;
-}): RollcallClient => {
+}): RollCallClient => {
   const rootUrl = configData.url;
   const aliasName = configData.aliasName || "donor_submission_summary";
   const indexEntity = configData?.entity || "donor";
@@ -32,20 +32,22 @@ export default (configData: {
       shard: await formatProgramShortName(programShortName),
       entity: indexEntity,
       type: indexType,
-      cloneFromReleasedIndex: cloneFromReleasedIndex || false
+      cloneFromReleasedIndex: cloneFromReleasedIndex || false,
     };
 
     const newResolvedIndex = (await fetch(url, {
       method: "POST",
       body: JSON.stringify(req),
-      headers: { "Content-Type": "application/json" }
-    }).then(res => res.json())) as ResolvedIndex;
+      headers: { "Content-Type": "application/json" },
+    }).then((res) => res.json())) as ResolvedIndex;
 
     return newResolvedIndex;
   };
 
   const release = async (resovledIndex: ResolvedIndex): Promise<boolean> => {
-    logger.info(`releasing index ${resovledIndex.indexName}`);
+    logger.info(
+      `releasing index ${resovledIndex.indexName} to alias ${aliasName}`
+    );
     const url = urljoin(`${rootUrl}`, `/aliases/release`);
 
     const req = await convertResolvedIndexToIndexReleaseRequest(resovledIndex);
@@ -53,8 +55,8 @@ export default (configData: {
     const acknowledged = (await fetch(url, {
       method: "POST",
       body: JSON.stringify(req),
-      headers: { "Content-Type": "application/json" }
-    }).then(res => res.json())) as boolean;
+      headers: { "Content-Type": "application/json" },
+    }).then((res) => res.json())) as boolean;
 
     return acknowledged;
   };
@@ -70,14 +72,11 @@ export default (configData: {
   };
 
   const formatProgramShortName = async (programShortName: string) => {
-    return programShortName
-      .replace("-", "")
-      .trim()
-      .toLowerCase();
+    return programShortName.replace("-", "").trim().toLowerCase();
   };
 
   return {
     createNewResolvableIndex,
-    release
+    release,
   };
 };
