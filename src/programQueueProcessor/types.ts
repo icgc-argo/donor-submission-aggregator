@@ -19,7 +19,7 @@ export enum KnownEventType {
   SYNC = "SNC",
 }
 export type ProgramQueueProcessor = {
-  knownEventType: {
+  knownEventTypes: {
     CLINICAL: KnownEventType.CLINICAL;
     RDPC: KnownEventType.RDPC;
     SYNC: KnownEventType.SYNC;

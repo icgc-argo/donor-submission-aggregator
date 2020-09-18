@@ -57,7 +57,7 @@ const createProgramQueueProcessor = async ({
   logger.info(`queue pipeline setup complete with topic ${programQueueTopic}`);
 
   return {
-    knownEventType: {
+    knownEventTypes: {
       CLINICAL: KnownEventType.CLINICAL as KnownEventType.CLINICAL,
       RDPC: KnownEventType.RDPC as KnownEventType.RDPC,
       SYNC: KnownEventType.SYNC as KnownEventType.SYNC,
