@@ -14,23 +14,27 @@ export type QueuedRdpcEvent = {
   rdpcGatewayUrl: string;
 };
 export type QueuedProgramEventPayload = QueuedClinicalEvent | QueuedRdpcEvent;
-export type ProgramQueueEvent = {
-  programId: string;
-  changes: Array<QueuedProgramEventPayload>;
-};
+export type QueueRecord = { programId: string } & (
+  | {
+      reason: KnownDataReason.CLINICAL;
+    }
+  | {
+      reason: KnownDataReason.RDPC | KnownDataReason.SYNC;
+      rdpcGatewayUrls: Array<string>;
+    }
+);
 
-export type TestEventProcessedPayload = {
-  queuedEvent: ProgramQueueEvent;
-  targetIndex: ResolvedIndex;
-};
+export enum KnownDataReason {
+  CLINICAL = "CLINICAL",
+  RDPC = "RDPC",
+  SYNC = "SNC",
+}
 export type ProgramQueueProcessor = {
-  knownEventSource: {
-    CLINICAL: KnownEventSource.CLINICAL;
-    RDPC: KnownEventSource.RDPC;
+  knownDataReason: {
+    CLINICAL: KnownDataReason.CLINICAL;
+    RDPC: KnownDataReason.RDPC;
+    SYNC: KnownDataReason.SYNC;
   };
-  enqueueEvent: (event: {
-    changes: Array<QueuedProgramEventPayload>;
-    programId: string;
-  }) => Promise<void>;
+  enqueueEvent: (event: QueueRecord) => Promise<void>;
   destroy: () => Promise<void>;
 };

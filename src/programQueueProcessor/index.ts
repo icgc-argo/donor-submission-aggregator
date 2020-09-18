@@ -9,30 +9,16 @@ import { StatusReporter } from "statusReport";
 import { RollCallClient } from "rollCall/types";
 import logger from "logger";
 import initializeProgramQueueTopic from "./initializeProgramQueueTopic";
-import {
-  QueuedProgramEventPayload,
-  ProgramQueueEvent,
-  KnownEventSource,
-  ProgramQueueProcessor,
-} from "./types";
+import { ProgramQueueProcessor, QueueRecord, KnownDataReason } from "./types";
 import createEventProcessor from "./eventProcessor";
 
-const createProgramQueueRecord = ({
-  changes,
-  programId,
-}: {
-  changes: QueuedProgramEventPayload[];
-  programId: string;
-}): ProducerRecord => {
+const createProgramQueueRecord = (record: QueueRecord): ProducerRecord => {
   return {
     topic: KAFKA_PROGRAM_QUEUE_TOPIC,
     messages: [
       {
-        key: programId,
-        value: JSON.stringify({
-          programId,
-          changes,
-        } as ProgramQueueEvent),
+        key: record.programId,
+        value: JSON.stringify(record),
       },
     ],
   };
@@ -71,24 +57,14 @@ const createProgramQueueProcessor = async ({
   logger.info(`queue pipeline setup complete with topic ${programQueueTopic}`);
 
   return {
-    knownEventSource: {
-      CLINICAL: KnownEventSource.CLINICAL as KnownEventSource.CLINICAL,
-      RDPC: KnownEventSource.RDPC as KnownEventSource.RDPC,
+    knownDataReason: {
+      CLINICAL: KnownDataReason.CLINICAL as KnownDataReason.CLINICAL,
+      RDPC: KnownDataReason.RDPC as KnownDataReason.RDPC,
+      SYNC: KnownDataReason.SYNC as KnownDataReason.SYNC,
     },
-    enqueueEvent: async ({
-      changes,
-      programId,
-    }: {
-      changes: Array<QueuedProgramEventPayload>;
-      programId: string;
-    }) => {
-      await producer.send(
-        createProgramQueueRecord({
-          changes,
-          programId,
-        })
-      );
-      logger.info(`enqueued event for program ${programId}`);
+    enqueueEvent: async (event) => {
+      await producer.send(createProgramQueueRecord(event));
+      logger.info(`enqueued event for program ${event.programId}`);
     },
     destroy: async () => {
       await consumer.stop();

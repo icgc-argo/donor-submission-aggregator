@@ -83,12 +83,13 @@ import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUp
             );
             await programQueueProcessor.enqueueEvent({
               programId,
-              changes: [
-                {
-                  source: programQueueProcessor.knownEventSource.CLINICAL,
-                },
-              ],
+              reason: programQueueProcessor.knownDataReason.CLINICAL,
             });
+            // programQueueProcessor.enqueueEvent({
+            //   programId,
+            //   reason: programQueueProcessor.knownDataReason.RDPC,
+            //   rdpcGatewayUrl: [""],
+            // });
             break;
 
           default:
