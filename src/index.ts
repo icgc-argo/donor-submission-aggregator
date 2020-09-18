@@ -1,38 +1,35 @@
-import indexProgram from "indexProgram";
-import createRollcallClient from "rollCall";
+import createRollCallClient from "rollCall";
 
-import { createEsClient, initIndexMapping } from "elasticsearch";
+import { createEsClient } from "elasticsearch";
 import connectMongo from "clinicalMongo";
 import { Kafka } from "kafkajs";
 import * as swaggerUi from "swagger-ui-express";
 import path from "path";
 import yaml from "yamljs";
 import express from "express";
-import withRetry from "promise-retry";
-
-import toProgramUpdateEvent from "toProgramUpdateEvent";
 import {
   CLINICAL_PROGRAM_UPDATE_TOPIC,
   KAFKA_CONSUMER_GROUP,
   KAFKA_BROKERS,
   PARTITIONS_CONSUMED_CONCURRENTLY,
   PORT,
-  ENABLED,
   ROLLCALL_SERVICE_ROOT,
   ROLLCALL_INDEX_ENTITY,
   ROLLCALL_INDEX_SHARDPREFIX,
   ROLLCALL_INDEX_TYPE,
-  ROLLCALL_ALIAS_NAME
+  ROLLCALL_ALIAS_NAME,
 } from "config";
-import applyStatusRepor from "./statusReport";
+import applyStatusReport from "./statusReport";
 import logger from "logger";
+import createProgramQueueProcessor from "programQueueProcessor";
+import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUpdateEvent";
 
 (async () => {
   /**
    * Express app to host status reports and other interface for interacting with this app
    */
   const expressApp = express();
-  const statusReporter = applyStatusRepor(expressApp)("/status");
+  const statusReporter = applyStatusReport(expressApp)("/status");
   expressApp.use(
     "/",
     swaggerUi.serve,
@@ -42,79 +39,65 @@ import logger from "logger";
   await connectMongo();
   const esClient = await createEsClient();
 
-  const rollCallClient = createRollcallClient({
+  const rollCallClient = createRollCallClient({
     url: ROLLCALL_SERVICE_ROOT,
     aliasName: ROLLCALL_ALIAS_NAME,
     entity: ROLLCALL_INDEX_ENTITY,
     type: ROLLCALL_INDEX_TYPE,
-    shardPrefix: ROLLCALL_INDEX_SHARDPREFIX
+    shardPrefix: ROLLCALL_INDEX_SHARDPREFIX,
   });
 
   const kafka = new Kafka({
     clientId: `donor-submission-aggregator`,
-    brokers: KAFKA_BROKERS
+    brokers: KAFKA_BROKERS,
   });
   const consumer = kafka.consumer({
-    groupId: KAFKA_CONSUMER_GROUP
+    groupId: KAFKA_CONSUMER_GROUP,
   });
-  await consumer.connect();
 
-  expressApp.listen(7000, () => {
-    logger.info(`Start readiness check at :${PORT}/status`);
+  const programQueueProcessor = await createProgramQueueProcessor({
+    kafka,
+    esClient,
+    rollCallClient,
+    statusReporter,
   });
 
   /**
-   * The main Kafka subscription
+   * The main Kafka subscription to source events
    */
-  if (ENABLED) {
-    await consumer.subscribe({
-      topic: CLINICAL_PROGRAM_UPDATE_TOPIC
-    });
-    await consumer.run({
-      partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
-      eachMessage: async ({ message }) => {
-        const { programId } = toProgramUpdateEvent(message.value.toString());
-        statusReporter.startProcessingProgram(programId);
-        const retryConfig = {
-          factor: 2,
-          retries: 100,
-          minTimeout: 1000,
-          maxTimeout: Infinity
-        };
-        await withRetry(async (retry, attemptIndex) => {
-          const newResolvedIndex = await rollCallClient.createNewResolvableIndex(
-            programId.toLowerCase()
-          );
-          logger.info(`obtained new index name: ${newResolvedIndex.indexName}`);
-          try {
-            await initIndexMapping(newResolvedIndex.indexName, esClient);
-            await indexProgram(programId, newResolvedIndex.indexName, esClient);
-            await rollCallClient.release(newResolvedIndex);
-          } catch (err) {
-            await esClient.indices
-              .delete({
-                index: newResolvedIndex.indexName
-              })
-              .catch(err => {
-                logger.warn(
-                  `could not delete index ${newResolvedIndex.indexName}: ${err}`
-                );
-              });
-            logger.warn(
-              `failed to index program ${programId} on attempt #${attemptIndex}: ${err}`
+  await Promise.all([
+    consumer.subscribe({
+      topic: CLINICAL_PROGRAM_UPDATE_TOPIC,
+    }),
+  ]);
+  logger.info(`subscribed to source events ${CLINICAL_PROGRAM_UPDATE_TOPIC}`);
+  await consumer.run({
+    partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
+    eachMessage: async ({ topic, message }) => {
+      logger.info(`received event from topic ${topic}`);
+      if (message && message.value) {
+        switch (topic) {
+          case CLINICAL_PROGRAM_UPDATE_TOPIC:
+            const { programId } = parseClinicalProgramUpdateEvent(
+              message.value.toString()
             );
-            logger.warn(`index ${newResolvedIndex.indexName} was removed`);
-            retry(err);
-          }
-        }, retryConfig).catch(err => {
-          logger.error(
-            `FAILED TO INDEX PROGRAM ${programId} after ${retryConfig.retries} attempts: ${err}`
-          );
-          throw err;
-        });
-        statusReporter.endProcessingProgram(programId);
+            await programQueueProcessor.enqueueEvent({
+              programId,
+              type: programQueueProcessor.knownEventTypes.CLINICAL,
+            });
+            break;
+
+          default:
+            break;
+        }
+      } else {
+        throw new Error(`missing message from a ${topic} event`);
       }
-    });
-  }
+    },
+  });
+  logger.info("pipeline is ready!");
+  expressApp.listen(7000, () => {
+    logger.info(`Start readiness check at :${PORT}/status`);
+  });
   statusReporter.setReady(true);
 })();
