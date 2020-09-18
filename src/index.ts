@@ -83,11 +83,7 @@ import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUp
             );
             await programQueueProcessor.enqueueEvent({
               programId,
-              changes: [
-                {
-                  source: programQueueProcessor.knownEventSource.CLINICAL,
-                },
-              ],
+              type: programQueueProcessor.knownEventTypes.CLINICAL,
             });
             break;
 

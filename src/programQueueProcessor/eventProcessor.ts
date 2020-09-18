@@ -5,12 +5,34 @@ import { RollCallClient, ResolvedIndex } from "rollCall/types";
 import indexClinicalProgram from "indexProgram";
 import { initIndexMapping } from "elasticsearch";
 import withRetry from "promise-retry";
-import handleIndexingFailure from "programQueueProcessor/handleIndexingFailure";
 import logger from "logger";
-import { ProgramQueueEvent, KnownEventSource } from "./types";
+import { KnownEventType, QueueRecord } from "./types";
 
-const parseProgramQueueEvent = (message: string): ProgramQueueEvent =>
+const indexRdpcData = (programId: string, rdpcUrl: string) => {
+  console.log(
+    `processing program ${programId} from ${rdpcUrl}, to be implemented`
+  );
+};
+
+const parseProgramQueueEvent = (message: string): QueueRecord =>
   JSON.parse(message);
+
+const handleIndexingFailure = async ({
+  esClient,
+  rollCallIndex,
+}: {
+  esClient: Client;
+  rollCallIndex: ResolvedIndex;
+}) => {
+  await esClient.indices
+    .delete({
+      index: rollCallIndex.indexName,
+    })
+    .catch((err) => {
+      logger.warn(`could not delete index ${rollCallIndex.indexName}: ${err}`);
+    });
+  logger.warn(`index ${rollCallIndex.indexName} was removed`);
+};
 
 export default (configs: {
   rollCallClient: RollCallClient;
@@ -30,9 +52,7 @@ export default (configs: {
       const queuedEvent = parseProgramQueueEvent(message.value.toString());
       const { programId } = queuedEvent;
       logger.info(
-        `starts processing event for program ${programId} with changes from ${queuedEvent.changes
-          .map((c) => c.source)
-          .join(", ")}`
+        `starts processing ${queuedEvent.type} event for program ${programId}`
       );
       const retryConfig = {
         factor: 2,
@@ -48,20 +68,26 @@ export default (configs: {
         logger.info(`obtained new index name: ${newResolvedIndex.indexName}`);
         try {
           await initIndexMapping(newResolvedIndex.indexName, esClient);
-          for (const change of queuedEvent.changes) {
-            if (change.source === KnownEventSource.CLINICAL) {
-              await indexClinicalProgram(
-                programId,
-                newResolvedIndex.indexName,
-                esClient
-              );
-            } else if (change.source === KnownEventSource.RDPC) {
-              logger.info(
-                `RDPC event received for analysis ${change.analysisId}`
-              );
+          if (queuedEvent.type === KnownEventType.CLINICAL) {
+            await indexClinicalProgram(
+              queuedEvent.programId,
+              newResolvedIndex.indexName,
+              esClient
+            );
+          } else if (queuedEvent.type === KnownEventType.RDPC) {
+            for (const rdpcUrls in queuedEvent.rdpcGatewayUrls) {
+              await indexRdpcData(programId, rdpcUrls);
+            }
+          } else {
+            await indexClinicalProgram(
+              queuedEvent.programId,
+              newResolvedIndex.indexName,
+              esClient
+            );
+            for (const rdpcUrls in queuedEvent.rdpcGatewayUrls) {
+              await indexRdpcData(programId, rdpcUrls);
             }
           }
-
           await rollCallClient.release(newResolvedIndex);
         } catch (err) {
           logger.warn(
