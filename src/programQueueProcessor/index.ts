@@ -9,7 +9,7 @@ import { StatusReporter } from "statusReport";
 import { RollCallClient } from "rollCall/types";
 import logger from "logger";
 import initializeProgramQueueTopic from "./initializeProgramQueueTopic";
-import { ProgramQueueProcessor, QueueRecord, KnownDataReason } from "./types";
+import { ProgramQueueProcessor, QueueRecord, KnownEventType } from "./types";
 import createEventProcessor from "./eventProcessor";
 
 const createProgramQueueRecord = (record: QueueRecord): ProducerRecord => {
@@ -57,10 +57,10 @@ const createProgramQueueProcessor = async ({
   logger.info(`queue pipeline setup complete with topic ${programQueueTopic}`);
 
   return {
-    knownDataReason: {
-      CLINICAL: KnownDataReason.CLINICAL as KnownDataReason.CLINICAL,
-      RDPC: KnownDataReason.RDPC as KnownDataReason.RDPC,
-      SYNC: KnownDataReason.SYNC as KnownDataReason.SYNC,
+    knownEventType: {
+      CLINICAL: KnownEventType.CLINICAL as KnownEventType.CLINICAL,
+      RDPC: KnownEventType.RDPC as KnownEventType.RDPC,
+      SYNC: KnownEventType.SYNC as KnownEventType.SYNC,
     },
     enqueueEvent: async (event) => {
       await producer.send(createProgramQueueRecord(event));

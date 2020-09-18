@@ -1,39 +1,28 @@
-import { ResolvedIndex } from "rollCall/types";
-
 export enum KnownEventSource {
   CLINICAL = "CLINICAL",
   RDPC = "RDPC",
 }
-export type QueuedClinicalEvent = {
-  source: KnownEventSource.CLINICAL;
-};
-export type QueuedRdpcEvent = {
-  source: KnownEventSource.RDPC;
-  programId: string;
-  analysisId: string;
-  rdpcGatewayUrl: string;
-};
-export type QueuedProgramEventPayload = QueuedClinicalEvent | QueuedRdpcEvent;
+
 export type QueueRecord = { programId: string } & (
   | {
-      reason: KnownDataReason.CLINICAL;
+      type: KnownEventType.CLINICAL;
     }
   | {
-      reason: KnownDataReason.RDPC | KnownDataReason.SYNC;
+      type: KnownEventType.RDPC | KnownEventType.SYNC;
       rdpcGatewayUrls: Array<string>;
     }
 );
 
-export enum KnownDataReason {
+export enum KnownEventType {
   CLINICAL = "CLINICAL",
   RDPC = "RDPC",
   SYNC = "SNC",
 }
 export type ProgramQueueProcessor = {
-  knownDataReason: {
-    CLINICAL: KnownDataReason.CLINICAL;
-    RDPC: KnownDataReason.RDPC;
-    SYNC: KnownDataReason.SYNC;
+  knownEventType: {
+    CLINICAL: KnownEventType.CLINICAL;
+    RDPC: KnownEventType.RDPC;
+    SYNC: KnownEventType.SYNC;
   };
   enqueueEvent: (event: QueueRecord) => Promise<void>;
   destroy: () => Promise<void>;

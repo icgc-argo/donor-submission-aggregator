@@ -162,7 +162,7 @@ describe("kafka integration", () => {
       });
       await programQueueProcessor.enqueueEvent({
         programId: TEST_PROGRAM_SHORT_NAME,
-        reason: programQueueProcessor.knownDataReason.CLINICAL,
+        type: programQueueProcessor.knownEventType.CLINICAL,
       });
       // wait for indexing to complete
       await new Promise((resolve) => {
