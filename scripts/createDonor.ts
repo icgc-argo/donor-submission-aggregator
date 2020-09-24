@@ -1,5 +1,5 @@
 import uuid from "uuid";
-import { MongoDonorDocument } from "../src/donorModel";
+import { MongoDonorDocument } from "../src/indexClinicalData/clinicalMongo/donorModel";
 
 export default (programShortName: string) => {
   const submitterId = uuid();
@@ -14,11 +14,11 @@ export default (programShortName: string) => {
       isValid: true,
       lastValidSchemaVersion: "",
       originalSchemaVersion: "",
-      lastMigrationId: uuid()
+      lastMigrationId: uuid(),
     },
     clinicalInfo: {},
     primaryDiagnosis: {
-      clinicalInfo: {}
+      clinicalInfo: {},
     },
     completionStats: {
       coreCompletion: {
@@ -38,12 +38,12 @@ export default (programShortName: string) => {
           { sampleType: "", submitterId: submitterId, sampleId: 2 },
           { sampleType: "", submitterId: submitterId, sampleId: 2 },
           { sampleType: "", submitterId: submitterId, sampleId: 2 },
-          { sampleType: "", submitterId: submitterId, sampleId: 2 }
+          { sampleType: "", submitterId: submitterId, sampleId: 2 },
         ],
         specimenTissueSource: "",
         specimenType: "",
         submitterId: submitterId,
-        tumourNormalDesignation: "Normal"
+        tumourNormalDesignation: "Normal",
       },
       {
         clinicalInfo: {},
@@ -52,12 +52,12 @@ export default (programShortName: string) => {
           { sampleType: "", submitterId: submitterId, sampleId: 2 },
           { sampleType: "", submitterId: submitterId, sampleId: 2 },
           { sampleType: "", submitterId: submitterId, sampleId: 2 },
-          { sampleType: "", submitterId: submitterId, sampleId: 2 }
+          { sampleType: "", submitterId: submitterId, sampleId: 2 },
         ],
         specimenTissueSource: "",
         specimenType: "",
         submitterId: submitterId,
-        tumourNormalDesignation: "Tumour"
+        tumourNormalDesignation: "Tumour",
       },
       {
         clinicalInfo: {},
@@ -66,18 +66,18 @@ export default (programShortName: string) => {
           { sampleType: "", submitterId: submitterId, sampleId: 2 },
           { sampleType: "", submitterId: submitterId, sampleId: 2 },
           { sampleType: "", submitterId: submitterId, sampleId: 2 },
-          { sampleType: "", submitterId: submitterId, sampleId: 2 }
+          { sampleType: "", submitterId: submitterId, sampleId: 2 },
         ],
         specimenTissueSource: "",
         specimenType: "",
         submitterId: submitterId,
-        tumourNormalDesignation: "Tumour"
-      }
+        tumourNormalDesignation: "Tumour",
+      },
     ],
     followUps: [
       {
-        clinicalInfo: {}
-      }
+        clinicalInfo: {},
+      },
     ],
     treatments: [
       {
@@ -86,9 +86,9 @@ export default (programShortName: string) => {
           { clinicalInfo: {}, therapyType: "" },
           { clinicalInfo: {}, therapyType: "" },
           { clinicalInfo: {}, therapyType: "" },
-          { clinicalInfo: {}, therapyType: "" }
-        ]
-      }
-    ]
+          { clinicalInfo: {}, therapyType: "" },
+        ],
+      },
+    ],
   } as MongoDonorDocument;
 };
