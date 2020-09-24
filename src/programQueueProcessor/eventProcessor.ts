@@ -2,7 +2,7 @@ import { EachMessagePayload } from "kafkajs";
 import { Client } from "@elastic/elasticsearch";
 import { StatusReporter } from "statusReport";
 import { RollCallClient, ResolvedIndex } from "rollCall/types";
-import indexClinicalProgram from "indexProgram";
+import indexClinicalProgram from "indexClinicalData";
 import { initIndexMapping } from "elasticsearch";
 import withRetry from "promise-retry";
 import logger from "logger";

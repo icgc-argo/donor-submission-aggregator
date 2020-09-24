@@ -1,7 +1,7 @@
 import createRollCallClient from "rollCall";
 
 import { createEsClient } from "elasticsearch";
-import connectMongo from "indexProgram/clinicalMongo";
+import connectMongo from "indexClinicalData/clinicalMongo";
 import { Kafka } from "kafkajs";
 import * as swaggerUi from "swagger-ui-express";
 import path from "path";

@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import indexProgram from "indexProgram";
+import indexProgram from "indexClinicalData";
 import transformToEsDonor from "./transformToEsDonor";
 import programDonorStream from "./programDonorStream";
 import { GenericContainer } from "testcontainers";
