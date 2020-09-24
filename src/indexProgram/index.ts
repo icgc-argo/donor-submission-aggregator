@@ -50,7 +50,7 @@ export default async (
     const preExistingDonorIds = esHits.map((hit) => hit._source.donorId);
 
     const esDocuments: Array<EsDonorDocument> = [];
-    for await (const donor of chunk) {
+    for (const donor of chunk) {
       if (preExistingDonorIds.includes(`DO${donor.donorId}`)) {
         // keep all NON donor (mongo doc) data, combine that with the most up to date donor info
         const existingEsDoc = esHits?.find(
