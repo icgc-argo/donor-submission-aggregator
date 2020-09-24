@@ -78,6 +78,5 @@ export default (configData: {
   return {
     createNewResolvableIndex,
     release,
-    aliasName,
   };
 };

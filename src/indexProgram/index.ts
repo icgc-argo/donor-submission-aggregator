@@ -10,7 +10,6 @@ import esb from "elastic-builder";
 export default async (
   programShortName: string,
   targetIndexName: string,
-  aliasName: string,
   esClient: Client
 ) => {
   const donorStream = programDonorStream(programShortName, {
@@ -32,10 +31,8 @@ export default async (
     const esHits: Array<EsHit> = await esClient
       .search({
         // providing an index results in inablity to detect preixsting donors
-        // providing the alias results in index not found error
         //
         // index: targetIndexName,
-        // index: aliasName,
         body: esQuery,
       })
       .then((res) => res.body.hits.hits)
