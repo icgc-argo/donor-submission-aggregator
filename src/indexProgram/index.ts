@@ -52,13 +52,10 @@ export default async (
     const esDocuments: Array<EsDonorDocument> = [];
     for await (const donor of chunk) {
       if (preExistingDonorIds.includes(`DO${donor.donorId}`)) {
-        console.log("FOUND PRE-EXISTING", donor);
         // keep all NON donor (mongo doc) data, combine that with the most up to date donor info
         const existingEsDoc = esHits?.find(
           (hit) => hit._source.donorId === `DO${donor.donorId}`
         );
-        console.log("THIS WAS ITS DOC", existingEsDoc);
-
         esDocuments.push(
           await transformToEsDonor(donor, existingEsDoc?._source)
         );
