@@ -4,12 +4,13 @@ import { toEsBulkIndexActions } from "elasticsearch";
 import { STREAM_CHUNK_SIZE } from "config";
 import { Client } from "@elastic/elasticsearch";
 import logger from "logger";
-import { EsDonorDocument } from "./types";
+import { EsDonorDocument, EsHit } from "./types";
 import esb from "elastic-builder";
 
 export default async (
   programShortName: string,
   targetIndexName: string,
+  aliasName: string,
   esClient: Client
 ) => {
   const donorStream = programDonorStream(programShortName, {
@@ -28,10 +29,12 @@ export default async (
       .requestBodySearch()
       .query(esb.termsQuery("donorId", donorIds));
 
-    const esHits: Array<any> = await esClient
+    const esHits: Array<EsHit> = await esClient
       .search({
         // providing an index results in inablity to detect preixsting donors
         // providing the alias results in index not found error
+        //
+        // index: targetIndexName,
         // index: aliasName,
         body: esQuery,
       })
@@ -44,19 +47,25 @@ export default async (
         return [];
       });
 
-    // can add a type for esHit in types
     const preExistingDonorIds = esHits.map((hit) => hit._source.donorId);
 
     const esDocuments: Array<EsDonorDocument> = [];
     for await (const donor of chunk) {
       if (preExistingDonorIds.includes(`DO${donor.donorId}`)) {
-        // keep all NON mongo doc data, combine that with the most up to date mongo doc data
+        console.log("FOUND PRE-EXISTING", donor);
+        // keep all NON donor (mongo doc) data, combine that with the most up to date donor info
+        const existingEsDoc = esHits?.find(
+          (hit) => hit._source.donorId === `DO${donor.donorId}`
+        );
+        console.log("THIS WAS ITS DOC", existingEsDoc);
+
+        esDocuments.push(
+          await transformToEsDonor(donor, existingEsDoc?._source)
+        );
       } else {
         esDocuments.push(await transformToEsDonor(donor));
       }
     }
-
-    // const esDocuments = await Promise.all(chunk.map(transformToEsDonor));
 
     await esClient.bulk({
       body: toEsBulkIndexActions(targetIndexName)(esDocuments),

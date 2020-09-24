@@ -72,6 +72,7 @@ export default (configs: {
             await indexClinicalProgram(
               queuedEvent.programId,
               newResolvedIndex.indexName,
+              rollCallClient.aliasName,
               esClient
             );
           } else if (queuedEvent.type === KnownEventType.RDPC) {
@@ -82,6 +83,7 @@ export default (configs: {
             await indexClinicalProgram(
               queuedEvent.programId,
               newResolvedIndex.indexName,
+              rollCallClient.aliasName,
               esClient
             );
             for (const rdpcUrls in queuedEvent.rdpcGatewayUrls) {

@@ -33,4 +33,5 @@ export type RollCallClient = {
     cloneFromReleasedIndex?: boolean
   ) => Promise<ResolvedIndex>;
   release: (indexName: ResolvedIndex) => Promise<boolean>;
+  aliasName: string;
 };

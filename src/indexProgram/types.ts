@@ -8,23 +8,7 @@ export type DonorMolecularDataProcessingStatus =
   | "PROCESSING"
   | "REGISTERED";
 
-export type EsDonorDocument = {
-  programId: string;
-
-  validWithCurrentDictionary: boolean;
-
-  releaseStatus: DonorMolecularDataReleaseStatus;
-
-  donorId: string;
-  submitterDonorId: string;
-
-  submittedCoreDataPercent: number;
-
-  submittedExtendedDataPercent: number;
-
-  registeredNormalSamples: number;
-  registeredTumourSamples: number;
-
+export type RdpcDonorInfo = {
   publishedNormalAnalysis: number;
   publishedTumourAnalysis: number;
 
@@ -36,11 +20,31 @@ export type EsDonorDocument = {
   sangerVcsRunning: number;
   sangerVcsFailed: number;
 
-  processingStatus: DonorMolecularDataProcessingStatus;
-
   totalFilesCount: number;
   filesToQcCount: number;
 
+  releaseStatus: DonorMolecularDataReleaseStatus;
+  processingStatus: DonorMolecularDataProcessingStatus;
+};
+
+export type MongoDonorInfo = {
+  submittedCoreDataPercent: number;
+  submittedExtendedDataPercent: number;
+  validWithCurrentDictionary: boolean;
+  donorId: string;
+  submitterDonorId: string;
+  programId: string;
+  registeredNormalSamples: number;
+  registeredTumourSamples: number;
   updatedAt: Date;
   createdAt: Date;
+};
+export type EsDonorDocument = RdpcDonorInfo & MongoDonorInfo;
+
+export type EsHit = {
+  _index: string;
+  _type: string;
+  _id: string;
+  _score: number;
+  _source: EsDonorDocument;
 };
