@@ -1,5 +1,5 @@
-import donorModel, { MongoDonorDocument } from "../donorModel";
-import { toJson } from "donorModel";
+import donorModel, { MongoDonorDocument } from "./clinicalMongo/donorModel";
+import { toJson } from "indexClinicalData/clinicalMongo/donorModel";
 
 type StreamState = {
   currentPage: number;

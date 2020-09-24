@@ -1,4 +1,4 @@
-import { MongoDonorDocument } from "donorModel";
+import { MongoDonorDocument } from "indexClinicalData/clinicalMongo/donorModel";
 import { EsDonorDocument, MongoDonorInfo } from "./types";
 import { mean } from "lodash";
 
