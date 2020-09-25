@@ -43,6 +43,9 @@ spec:
 """
         }
     }
+    options {
+      timeout(time: 15, unit: 'MINUTES') 
+    }
     stages {
       stage('Prepare') {
         steps {
@@ -58,9 +61,6 @@ spec:
       stage('Test') {
         steps {
           container('node') {
-            options {
-              timeout(time: 10, unit: 'MINUTES') 
-            }
             sh "npm ci"
             sh "npm run test"
           }
