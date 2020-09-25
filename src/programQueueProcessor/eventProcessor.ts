@@ -2,7 +2,7 @@ import { EachMessagePayload } from "kafkajs";
 import { Client } from "@elastic/elasticsearch";
 import { StatusReporter } from "statusReport";
 import { RollCallClient, ResolvedIndex } from "rollCall/types";
-import indexClinicalProgram from "indexProgram";
+import indexClinicalData from "indexClinicalData";
 import { initIndexMapping } from "elasticsearch";
 import withRetry from "promise-retry";
 import logger from "logger";
@@ -69,7 +69,7 @@ export default (configs: {
         try {
           await initIndexMapping(newResolvedIndex.indexName, esClient);
           if (queuedEvent.type === KnownEventType.CLINICAL) {
-            await indexClinicalProgram(
+            await indexClinicalData(
               queuedEvent.programId,
               newResolvedIndex.indexName,
               esClient
@@ -79,7 +79,7 @@ export default (configs: {
               await indexRdpcData(programId, rdpcUrls);
             }
           } else {
-            await indexClinicalProgram(
+            await indexClinicalData(
               queuedEvent.programId,
               newResolvedIndex.indexName,
               esClient

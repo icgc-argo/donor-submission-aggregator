@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import indexProgram from "indexProgram";
+import indexProgram from "indexClinicalData";
 import transformToEsDonor from "./transformToEsDonor";
 import programDonorStream from "./programDonorStream";
 import { GenericContainer } from "testcontainers";
@@ -7,7 +7,9 @@ import { StartedTestContainer } from "testcontainers/dist/test-container";
 import { promisify } from "util";
 import { exec } from "child_process";
 import uuid from "uuid";
-import DonorSchema, { MongoDonorDocument } from "donorModel";
+import DonorSchema, {
+  MongoDonorDocument,
+} from "indexClinicalData/clinicalMongo/donorModel";
 import mongoose from "mongoose";
 import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
