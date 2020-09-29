@@ -43,6 +43,9 @@ spec:
 """
         }
     }
+    options {
+      timeout(time: 15, unit: 'MINUTES') 
+    }
     stages {
       stage('Prepare') {
         steps {
