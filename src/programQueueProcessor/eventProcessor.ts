@@ -8,6 +8,7 @@ import withRetry from "promise-retry";
 import logger from "logger";
 import { KnownEventType, QueueRecord } from "./types";
 
+// todo
 const indexRdpcData = (programId: string, rdpcUrl: string) => {
   console.log(
     `processing program ${programId} from ${rdpcUrl}, to be implemented`
@@ -76,6 +77,7 @@ export default (configs: {
             );
           } else if (queuedEvent.type === KnownEventType.RDPC) {
             for (const rdpcUrls in queuedEvent.rdpcGatewayUrls) {
+              // todo
               await indexRdpcData(programId, rdpcUrls);
             }
           } else {

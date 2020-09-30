@@ -9,7 +9,8 @@
     "start::dev": "ts-node-dev -r tsconfig-paths/register --respawn src/index.ts",
     "test": "npm run build && NODE_PATH=./dist nyc -- mocha --timeout 240000 dist/**/*.test.js && npm run cover",
     "createMongoDonors": "ts-node ./scripts/createMongoDonors.ts",
-    "cover": "nyc report  --reporter=lcov --reporter=text"
+    "cover": "nyc report  --reporter=lcov --reporter=text",
+    "alexis": "ts-node src/rdpc/debug.ts"
   },
   "nyc": {
     "extension": [
@@ -76,6 +77,7 @@
     "husky": "^4.3.0",
     "kafkajs": "^1.13.0",
     "lodash": "^4.17.19",
+    "logger": "0.0.1",
     "mongoose": "^5.8.11",
     "node-vault": "^0.9.13",
     "path": "^0.12.7",
