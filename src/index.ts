@@ -23,7 +23,6 @@ import applyStatusReport from "./statusReport";
 import logger from "logger";
 import createProgramQueueProcessor from "programQueueProcessor";
 import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUpdateEvent";
-import fetchRDPC from "./rdpc/index";
 
 (async () => {
   /**

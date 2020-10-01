@@ -2,7 +2,7 @@ import fetch from "node-fetch";
 import { Runs, Run } from "./types";
 import logger from "logger";
 
-const url = "https://api.rdpc.cancercollaboratory.org/graphql";
+const url = "https://api.rdpc-qa.cancercollaboratory.org/graphql";
 
 const buildQuery = (from: number, size: number): string => {
   const query = `
@@ -39,9 +39,13 @@ export const fetchRDPC = async (from: number, size: number): Promise<Runs> => {
       },
     });
 
-    const { data } = await response.json();
-    // const runs = data.data.runs;
-    // const { data }  = await response.json();
+    const respnseData = await response.json();
+    let data;
+    if (respnseData) {
+      data = respnseData.data as Runs;
+    } else {
+      throw Error("Failed to fetch RDPC data, no response data.");
+    }
     return data;
   } catch (error) {
     return error.message;
@@ -55,16 +59,16 @@ type StreamState = {
 export const workflowStream = async function* (config?: {
   chunkSize?: number;
   state?: StreamState;
-}): AsyncGenerator<Runs> {
+}): AsyncGenerator<Run[]> {
   const chunkSize = config?.chunkSize || 1000;
   const streamState: StreamState = {
     currentPage: config?.state?.currentPage || 0,
   };
   while (true) {
     const page = await fetchRDPC(streamState.currentPage, chunkSize);
-    streamState.currentPage++;
+    streamState.currentPage = streamState.currentPage + chunkSize;
     if (page.runs.length > 0) {
-      yield page;
+      yield page.runs;
     } else {
       break;
     }

@@ -10,7 +10,7 @@
     "test": "npm run build && NODE_PATH=./dist nyc -- mocha --timeout 240000 dist/**/*.test.js && npm run cover",
     "createMongoDonors": "ts-node ./scripts/createMongoDonors.ts",
     "cover": "nyc report  --reporter=lcov --reporter=text",
-    "alexis": "ts-node src/rdpc/debug.ts"
+    "debug": "ts-node src/rdpc/debug.ts"
   },
   "nyc": {
     "extension": [

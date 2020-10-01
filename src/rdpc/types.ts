@@ -1,3 +1,4 @@
+// Run centric types:
 export type Runs = {
   runs: Run[];
 };
@@ -18,3 +19,20 @@ export type InputAnalysis = {
 export type Donor = {
   donorId: string;
 };
+
+// Donor centric types:
+export class Analysis {
+  analysisId: string;
+  analysisType: string;
+}
+
+export class DonorCentricRun {
+  runId: string;
+  state: string;
+  repository: string;
+}
+
+export class DonorDoc {
+  donorId: string;
+  runs: Run[];
+}
