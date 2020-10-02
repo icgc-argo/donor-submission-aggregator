@@ -357,7 +357,10 @@ const writeEsDocumentsToIndex = async (
   documents: Array<EsDonorDocument>
 ) => {
   await client.bulk({
-    body: toEsBulkIndexActions(index, "donorId")(documents),
+    body: toEsBulkIndexActions<EsDonorDocument>(
+      index,
+      (donor) => donor.donorId
+    )(documents),
     refresh: "true",
   });
 };
