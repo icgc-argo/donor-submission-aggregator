@@ -58,20 +58,16 @@ export default async (
       (hit) => [hit._source.donorId, hit] as [string, EsHit]
     );
 
-    const preExistingDonors = Object.fromEntries(donorIdDocumentPairs);
-
-    const preExistingDonorDocumentIds = donorIdDocumentPairs.reduce<{
-      [donorId: string]: string;
-    }>((acc, [donorId, esHit]) => {
-      acc[donorId] = esHit._id;
-      return acc;
-    }, {});
+    const preExistingDonorHits = Object.fromEntries(donorIdDocumentPairs);
 
     const esDocuments = await Promise.all(
       chunk.map((donor) => {
         const donorId = esDonorId(donor);
-        if (preExistingDonors.hasOwnProperty(donorId)) {
-          return transformToEsDonor(donor, preExistingDonors[donorId]._source);
+        if (preExistingDonorHits.hasOwnProperty(donorId)) {
+          return transformToEsDonor(
+            donor,
+            preExistingDonorHits[donorId]._source
+          );
         } else return transformToEsDonor(donor);
       })
     );
@@ -79,7 +75,7 @@ export default async (
     await esClient.bulk({
       body: toEsBulkIndexActions<EsDonorDocument>(
         targetIndexName,
-        (donor) => preExistingDonorDocumentIds[donor.donorId]
+        (donor) => preExistingDonorHits[donor.donorId]._id
       )(esDocuments),
       refresh: "true",
     });
