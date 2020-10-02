@@ -139,7 +139,7 @@ describe("indexing programs", () => {
     });
   });
 
-  describe.only("mergeIndexedData", () => {
+  describe("mergeIndexedData", () => {
     it("must sucessfully clone previously indexed RDPC data when a donor is updated", async function () {
       // manually create and insert a donor into ES with notable RDPC data
 
@@ -357,7 +357,10 @@ const writeEsDocumentsToIndex = async (
   documents: Array<EsDonorDocument>
 ) => {
   await client.bulk({
-    body: toEsBulkIndexActions(index, "donorId")(documents),
+    body: toEsBulkIndexActions<EsDonorDocument>(
+      index,
+      (donor) => donor.donorId
+    )(documents),
     refresh: "true",
   });
 };
