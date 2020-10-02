@@ -139,7 +139,7 @@ describe("indexing programs", () => {
     });
   });
 
-  describe.only("mergeIndexedData", () => {
+  describe("mergeIndexedData", () => {
     it("must sucessfully clone previously indexed RDPC data when a donor is updated", async function () {
       // manually create and insert a donor into ES with notable RDPC data
 
