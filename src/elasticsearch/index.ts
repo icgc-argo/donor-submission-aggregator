@@ -71,7 +71,7 @@ export const initIndexMapping = async (index: string, esClient: Client) => {
 
 export const toEsBulkIndexActions = <T = {}>(
   indexName: string,
-  getDocumentId: (document: T) => string
+  getDocumentId: (document: T) => string | undefined
 ) => (docs: Array<T>) =>
   flatMap(docs, (doc) => {
     const documentId = getDocumentId(doc);

@@ -75,7 +75,7 @@ export default async (
     await esClient.bulk({
       body: toEsBulkIndexActions<EsDonorDocument>(
         targetIndexName,
-        (donor) => preExistingDonorHits[donor.donorId]._id
+        (donor) => preExistingDonorHits[donor.donorId]?._id
       )(esDocuments),
       refresh: "true",
     });
