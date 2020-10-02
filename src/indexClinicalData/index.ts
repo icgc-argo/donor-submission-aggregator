@@ -16,8 +16,7 @@ export const queryDocumentsByDonorIds = async (
   const esQuery = esb
     .requestBodySearch()
     .size(donorIds.length)
-    // appending .keyword is required when using termquery/termsquery on a field that's been declared as type keyword in the mapping!
-    .query(esb.termsQuery("donorId.keyword", donorIds));
+    .query(esb.termsQuery("donorId", donorIds));
 
   const esHits: Array<EsHit> = await client
     .search({

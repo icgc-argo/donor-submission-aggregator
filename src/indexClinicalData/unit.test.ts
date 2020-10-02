@@ -19,7 +19,7 @@ import {
   DonorMolecularDataReleaseStatus,
   RdpcDonorInfo,
 } from "./types";
-import { toEsBulkIndexActions } from "elasticsearch";
+import { initIndexMapping, toEsBulkIndexActions } from "elasticsearch";
 import { esDonorId } from "./utils";
 import { mean, range, random } from "lodash";
 
@@ -102,6 +102,7 @@ describe("indexing programs", () => {
     await esClient.indices.create({
       index: TARGET_ES_INDEX,
     });
+    await initIndexMapping(TARGET_ES_INDEX, esClient);
   });
   afterEach(async function () {
     await DonorSchema().deleteMany({});
