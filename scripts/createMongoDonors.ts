@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 import { MONGO_URL } from "../src/config";
 import range from "lodash/range";
 
-import { Donor } from "../src/donorModel/types";
-import donorModel from "../src/donorModel";
+import { Donor } from "../src/indexClinicalData/clinicalMongo/donorModel/types";
+import donorModel from "../src/indexClinicalData/clinicalMongo/donorModel";
 import createDonor from "./createDonor";
 
 const PROGRAM_SHORT_NAME = process.env.PROGRAM_SHORT_NAME || "TEST-CA";
@@ -24,7 +24,7 @@ const donors: Donor[] = range(0, COLLECTION_SIZE).map(() =>
     bufferCommands: false,
     bufferMaxEntries: 0,
     useNewUrlParser: true,
-    useFindAndModify: false
+    useFindAndModify: false,
   });
   console.log(`connected to mongo at ${MONGO_URL}`);
   await donorModel().insertMany(donors);

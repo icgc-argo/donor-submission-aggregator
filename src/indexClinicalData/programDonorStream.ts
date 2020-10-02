@@ -1,10 +1,11 @@
-import donorModel, { MongoDonorDocument } from "../donorModel";
+import donorModel, { MongoDonorDocument } from "./clinicalMongo/donorModel";
+import { toJson } from "indexClinicalData/clinicalMongo/donorModel";
 
 type StreamState = {
   currentPage: number;
 };
 
-const programDonorStream = async function*(
+const programDonorStream = async function* (
   programShortName: string,
   config?: {
     chunkSize?: number;
@@ -13,7 +14,7 @@ const programDonorStream = async function*(
 ): AsyncGenerator<MongoDonorDocument[]> {
   const chunkSize = config?.chunkSize || 1000;
   const streamState: StreamState = {
-    currentPage: config?.state?.currentPage || 0
+    currentPage: config?.state?.currentPage || 0,
   };
   while (true) {
     const page = await donorModel()
@@ -23,7 +24,7 @@ const programDonorStream = async function*(
       .exec();
     streamState.currentPage++;
     if (page.length) {
-      yield page;
+      yield page.map(toJson);
     } else {
       break;
     }

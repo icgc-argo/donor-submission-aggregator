@@ -2,7 +2,7 @@ import {
   ES_HOST,
   VAULT_ES_SECRET_PATH,
   USE_VAULT,
-  ES_CLIENT_TRUST_SSL_CERT
+  ES_CLIENT_TRUST_SSL_CERT,
 } from "config";
 import flatMap from "lodash/flatMap";
 import esMapping from "./donorIndexMapping.json";
@@ -23,7 +23,7 @@ export const createEsClient = async (): Promise<Client> => {
   let esClient: Client;
   if (USE_VAULT) {
     const secretData = await loadVaultSecret()(VAULT_ES_SECRET_PATH).catch(
-      err => {
+      (err) => {
         logger.error(
           `could not read Elasticsearch secret at path ${VAULT_ES_SECRET_PATH}`
         );
@@ -34,12 +34,12 @@ export const createEsClient = async (): Promise<Client> => {
       esClient = new Client({
         node: ES_HOST,
         ssl: {
-          rejectUnauthorized: !ES_CLIENT_TRUST_SSL_CERT
+          rejectUnauthorized: !ES_CLIENT_TRUST_SSL_CERT,
         },
         auth: {
           username: secretData.user,
-          password: secretData.pass
-        }
+          password: secretData.pass,
+        },
       });
     } else {
       throw new Error(
@@ -48,7 +48,7 @@ export const createEsClient = async (): Promise<Client> => {
     }
   } else {
     esClient = new Client({
-      node: ES_HOST
+      node: ES_HOST,
     });
   }
   try {
@@ -65,10 +65,22 @@ export const initIndexMapping = async (index: string, esClient: Client) => {
   const serializedIndexName = index.toLowerCase();
   await esClient.indices.putMapping({
     index: serializedIndexName,
-    body: esMapping.mappings
+    body: esMapping.mappings,
   });
 };
 
-export const toEsBulkIndexActions = (indexName: string) => <T>(
-  docs: Array<T>
-) => flatMap(docs, doc => [{ index: { _index: indexName } }, doc]);
+export const toEsBulkIndexActions = <T = {}>(
+  indexName: string,
+  getDocumentId: (document: T) => string | undefined
+) => (docs: Array<T>) =>
+  flatMap(docs, (doc) => {
+    const documentId = getDocumentId(doc);
+    return [
+      {
+        index: documentId
+          ? { _index: indexName, _id: documentId }
+          : { _index: indexName },
+      },
+      doc,
+    ];
+  });
