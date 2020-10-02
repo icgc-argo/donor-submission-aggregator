@@ -31,7 +31,7 @@ const asyncExec = promisify(exec);
 describe("transformToEsDonor", () => {
   it("must transform properly", async () => {
     const mongoDoc = createDonor(TEST_PROGRAM_SHORT_NAME);
-    const esDoc = await transformToEsDonor(mongoDoc);
+    const esDoc = transformToEsDonor(mongoDoc);
     expect(esDoc).to.deep.equal({
       validWithCurrentDictionary: true,
       releaseStatus: "NO_RELEASE",
@@ -155,7 +155,7 @@ describe("indexing programs", () => {
       };
 
       const preExistingEsDonor: EsDonorDocument = {
-        ...(await transformToEsDonor(existingDonor)),
+        ...transformToEsDonor(existingDonor),
         ...uniqueRDPCinfo,
       };
 
@@ -222,7 +222,7 @@ describe("indexing programs", () => {
             rdpcInfoKeys.map((prop) => [prop, random(0, 100)])
           );
           return {
-            ...(await transformToEsDonor(createDonor(TEST_PROGRAM_SHORT_NAME))),
+            ...transformToEsDonor(createDonor(TEST_PROGRAM_SHORT_NAME)),
             ...randomRDCPNumbers,
           };
         })
@@ -247,11 +247,9 @@ describe("indexing programs", () => {
       );
 
       // dates wont match up because ES formats them differently
-      const {
-        createdAt,
-        updatedAt,
-        ...otherDetails
-      } = await transformToEsDonor(newDonor);
+      const { createdAt, updatedAt, ...otherDetails } = transformToEsDonor(
+        newDonor
+      );
 
       expect(esHits.length).to.equal(1);
       // ensure the new donor remains unchanged (besides date)

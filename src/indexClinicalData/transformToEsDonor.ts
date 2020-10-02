@@ -3,10 +3,10 @@ import { EsDonorDocument, ClinicalDonorInfo } from "./types";
 import { mean } from "lodash";
 import { esDonorId } from "./utils";
 
-export default async (
+export default (
   mongoDoc: MongoDonorDocument,
   existingEsData?: EsDonorDocument
-): Promise<EsDonorDocument> => {
+): EsDonorDocument => {
   const submittedCoreDataPercent =
     mean(Object.values(mongoDoc?.completionStats?.coreCompletion || {})) || 0;
 

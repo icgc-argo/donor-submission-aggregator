@@ -59,17 +59,12 @@ export default async (
 
     const preExistingDonorHits = Object.fromEntries(donorIdDocumentPairs);
 
-    const esDocuments = await Promise.all(
-      chunk.map((donor) => {
-        const donorId = esDonorId(donor);
-        if (preExistingDonorHits.hasOwnProperty(donorId)) {
-          return transformToEsDonor(
-            donor,
-            preExistingDonorHits[donorId]._source
-          );
-        } else return transformToEsDonor(donor);
-      })
-    );
+    const esDocuments = chunk.map((donor) => {
+      const donorId = esDonorId(donor);
+      if (preExistingDonorHits.hasOwnProperty(donorId)) {
+        return transformToEsDonor(donor, preExistingDonorHits[donorId]._source);
+      } else return transformToEsDonor(donor);
+    });
 
     await esClient.bulk({
       body: toEsBulkIndexActions<EsDonorDocument>(
