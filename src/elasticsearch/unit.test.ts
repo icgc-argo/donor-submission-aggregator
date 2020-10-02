@@ -9,7 +9,11 @@ const TEST_INDEX = "test_index";
 describe("toEsBulkIndexActions", () => {
   it("must transform properly", () => {
     const docs = [{ id: 1 }, { id: 2 }, { id: 3 }];
-    expect(toEsBulkIndexActions(TEST_INDEX, "id")(docs)).to.deep.equal([
+    expect(
+      toEsBulkIndexActions<typeof docs[0]>(TEST_INDEX, (doc) => String(doc.id))(
+        docs
+      )
+    ).to.deep.equal([
       { index: { _index: TEST_INDEX } },
       { id: 1 },
       { index: { _index: TEST_INDEX } },
