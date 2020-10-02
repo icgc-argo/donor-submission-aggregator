@@ -14,11 +14,11 @@ describe("toEsBulkIndexActions", () => {
         docs
       )
     ).to.deep.equal([
-      { index: { _index: TEST_INDEX, _id: 1 } },
+      { index: { _index: TEST_INDEX, _id: "1" } },
       { id: 1 },
-      { index: { _index: TEST_INDEX, _id: 2 } },
+      { index: { _index: TEST_INDEX, _id: "2" } },
       { id: 2 },
-      { index: { _index: TEST_INDEX, _id: 3 } },
+      { index: { _index: TEST_INDEX, _id: "3" } },
       { id: 3 },
     ]);
   });
