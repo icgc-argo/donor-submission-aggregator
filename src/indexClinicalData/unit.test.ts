@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import indexProgram from "indexClinicalData";
+import indexProgram, { queryDocumentsByDonorIds } from "indexClinicalData";
 import transformToEsDonor from "./transformToEsDonor";
 import programDonorStream from "./programDonorStream";
 import { GenericContainer } from "testcontainers";
@@ -13,7 +13,15 @@ import DonorSchema, {
 import mongoose from "mongoose";
 import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
-import { EsDonorDocument } from "./types";
+
+import {
+  EsDonorDocument,
+  DonorMolecularDataReleaseStatus,
+  RdpcDonorInfo,
+} from "./types";
+import { toEsBulkIndexActions } from "elasticsearch";
+import { esDonorId } from "./utils";
+import { mean, range, random } from "lodash";
 
 const TEST_PROGRAM_SHORT_NAME = "TESTPROG-CA";
 const DB_COLLECTION_SIZE = 10010;
@@ -130,6 +138,125 @@ describe("indexing programs", () => {
       expect(totalEsDocuments).to.equal(DB_COLLECTION_SIZE);
     });
   });
+
+  describe.only("mergeIndexedData", () => {
+    it("must sucessfully clone previously indexed RDPC data when a donor is updated", async function () {
+      // manually create and insert a donor into ES with notable RDPC data
+
+      const existingDonor = createDonor(TEST_PROGRAM_SHORT_NAME);
+
+      const uniqueRDPCinfo = {
+        publishedNormalAnalysis: 22,
+        alignmentsCompleted: 44,
+        sangerVcsCompleted: 55,
+        totalFilesCount: 66,
+        releaseStatus: "PARTIALLY_RELEASED" as DonorMolecularDataReleaseStatus,
+      };
+
+      const preExistingEsDonor: EsDonorDocument = {
+        ...(await transformToEsDonor(existingDonor)),
+        ...uniqueRDPCinfo,
+      };
+
+      await writeEsDocumentsToIndex(esClient, TARGET_ES_INDEX, [
+        preExistingEsDonor,
+      ]);
+
+      // simulate the modification of the donor and its insertion into mongo
+
+      const newCoreCompletionStats = {
+        donor: 200,
+        specimens: 200,
+        primaryDiagnosis: 100,
+        followUps: 500,
+        treatments: 0,
+      };
+
+      const modifiedDonor: MongoDonorDocument = {
+        ...existingDonor,
+        completionStats: {
+          coreCompletion: newCoreCompletionStats,
+          overriddenCoreCompletion: [],
+        },
+      };
+      const modifiedSubmittedCoreValue = mean(
+        Object.values(newCoreCompletionStats)
+      );
+
+      await DonorSchema().create(modifiedDonor);
+
+      // mimic the program being re-indexed with updated donor
+      await indexProgram(TEST_PROGRAM_SHORT_NAME, TARGET_ES_INDEX, esClient);
+
+      // query for the donor and test that it merged the new clinical data with the old RDPC data
+      const esHits = await queryDocumentsByDonorIds(
+        [esDonorId(modifiedDonor)],
+        esClient,
+        TARGET_ES_INDEX
+      );
+      expect(esHits.length).to.equal(1);
+      expect(esHits[0]._source).to.deep.include({
+        submittedCoreDataPercent: modifiedSubmittedCoreValue,
+        ...uniqueRDPCinfo,
+      });
+    });
+
+    it("must not incorrectly merge any old data for a new unrelated donor", async function () {
+      const rdpcInfoKeys: Array<keyof RdpcDonorInfo> = [
+        "publishedTumourAnalysis",
+        "publishedTumourAnalysis",
+        "alignmentsCompleted",
+        "alignmentsRunning",
+        "alignmentsFailed",
+        "sangerVcsCompleted",
+        "sangerVcsRunning",
+        "sangerVcsFailed",
+        "totalFilesCount",
+        "filesToQcCount",
+      ];
+      const preExistingEsDonors: Array<EsDonorDocument> = await Promise.all(
+        // load in some preExisting donors with random RDPC data
+        range(0, 20).map(async () => {
+          const randomRDCPNumbers = Object.fromEntries(
+            rdpcInfoKeys.map((prop) => [prop, random(0, 100)])
+          );
+          return {
+            ...(await transformToEsDonor(createDonor(TEST_PROGRAM_SHORT_NAME))),
+            ...randomRDCPNumbers,
+          };
+        })
+      );
+
+      await writeEsDocumentsToIndex(
+        esClient,
+        TARGET_ES_INDEX,
+        preExistingEsDonors
+      );
+
+      // add a new unrelated donor
+      const newDonor = createDonor(TEST_PROGRAM_SHORT_NAME);
+
+      await DonorSchema().create(newDonor);
+      await indexProgram(TEST_PROGRAM_SHORT_NAME, TARGET_ES_INDEX, esClient);
+
+      const esHits = await queryDocumentsByDonorIds(
+        [esDonorId(newDonor)],
+        esClient,
+        TARGET_ES_INDEX
+      );
+
+      // dates wont match up because ES formats them differently
+      const {
+        createdAt,
+        updatedAt,
+        ...otherDetails
+      } = await transformToEsDonor(newDonor);
+
+      expect(esHits.length).to.equal(1);
+      // ensure the new donor remains unchanged (besides date)
+      expect(esHits[0]._source).to.deep.include(otherDetails);
+    });
+  });
 });
 
 const createDonor = (programShortName: string) => {
@@ -222,4 +349,15 @@ const createDonor = (programShortName: string) => {
       },
     ],
   } as MongoDonorDocument;
+};
+
+const writeEsDocumentsToIndex = async (
+  client: Client,
+  index: string,
+  documents: Array<EsDonorDocument>
+) => {
+  await client.bulk({
+    body: toEsBulkIndexActions(index, "donorId")(documents),
+    refresh: "true",
+  });
 };

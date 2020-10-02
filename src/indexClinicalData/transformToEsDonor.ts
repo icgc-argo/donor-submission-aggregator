@@ -1,6 +1,7 @@
 import { MongoDonorDocument } from "indexClinicalData/clinicalMongo/donorModel";
-import { EsDonorDocument, MongoDonorInfo } from "./types";
+import { EsDonorDocument, ClinicalDonorInfo } from "./types";
 import { mean } from "lodash";
+import { esDonorId } from "./utils";
 
 export default async (
   mongoDoc: MongoDonorDocument,
@@ -11,10 +12,9 @@ export default async (
 
   const submittedExtendedDataPercent = 0; // this calcualtion is not yet defined
 
-  const mongoData: MongoDonorInfo = {
+  const clinicalData: ClinicalDonorInfo = {
     validWithCurrentDictionary: mongoDoc.schemaMetadata.isValid,
-
-    donorId: `DO${mongoDoc.donorId}`,
+    donorId: esDonorId(mongoDoc),
     submitterDonorId: mongoDoc.submitterId,
     programId: mongoDoc.programId,
 
@@ -35,10 +35,10 @@ export default async (
   };
 
   if (existingEsData) {
-    return { ...existingEsData, ...mongoData };
+    return { ...existingEsData, ...clinicalData };
   } else {
     return {
-      ...mongoData,
+      ...clinicalData,
       publishedNormalAnalysis: 0,
       publishedTumourAnalysis: 0,
 

@@ -63,7 +63,8 @@ export default (configs: {
       let newResolvedIndex: ResolvedIndex | null = null;
       await withRetry(async (retry, attemptIndex) => {
         newResolvedIndex = await rollCallClient.createNewResolvableIndex(
-          programId.toLowerCase()
+          programId.toLowerCase(),
+          true
         );
         logger.info(`obtained new index name: ${newResolvedIndex.indexName}`);
         try {

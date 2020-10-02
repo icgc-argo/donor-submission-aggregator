@@ -27,7 +27,7 @@ export type RdpcDonorInfo = {
   processingStatus: DonorMolecularDataProcessingStatus;
 };
 
-export type MongoDonorInfo = {
+export type ClinicalDonorInfo = {
   submittedCoreDataPercent: number;
   submittedExtendedDataPercent: number;
   validWithCurrentDictionary: boolean;
@@ -39,7 +39,7 @@ export type MongoDonorInfo = {
   updatedAt: Date;
   createdAt: Date;
 };
-export type EsDonorDocument = RdpcDonorInfo & MongoDonorInfo;
+export type EsDonorDocument = RdpcDonorInfo & ClinicalDonorInfo;
 
 export type EsHit = {
   _index: string;

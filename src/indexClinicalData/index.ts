@@ -1,3 +1,4 @@
+import { esDonorId } from "./utils";
 import transformToEsDonor from "./transformToEsDonor";
 import programDonorStream from "./programDonorStream";
 import { toEsBulkIndexActions } from "elasticsearch";
@@ -6,6 +7,31 @@ import { Client } from "@elastic/elasticsearch";
 import logger from "logger";
 import { EsDonorDocument, EsHit } from "./types";
 import esb from "elastic-builder";
+
+export const queryDocumentsByDonorIds = async (
+  donorIds: Array<string>,
+  client: Client,
+  indexName: string
+) => {
+  const esQuery = esb
+    .requestBodySearch()
+    .size(donorIds.length)
+    // appending .keyword is required when using termquery/termsquery on a field that's been declared as type keyword in the mapping!
+    .query(esb.termsQuery("donorId.keyword", donorIds));
+
+  const esHits: Array<EsHit> = await client
+    .search({
+      index: indexName,
+      body: esQuery,
+    })
+    .then((res) => res.body.hits.hits)
+    .catch((err) => {
+      logger.error("error in grabbing donors by id from Elasticsearch: ", err);
+      return [];
+    });
+
+  return esHits;
+};
 
 export default async (
   programShortName: string,
@@ -22,47 +48,32 @@ export default async (
     } donor(s) from chunk #${chunksCount++} of program ${programShortName}`;
     logger.profile(timer);
 
-    const donorIds = chunk.map((donor) => `DO${donor.donorId}`);
+    const esHits = await queryDocumentsByDonorIds(
+      chunk.map(esDonorId),
+      esClient,
+      targetIndexName
+    );
 
-    const esQuery = esb
-      .requestBodySearch()
-      .query(esb.termsQuery("donorId", donorIds));
+    const donorIdDocumentPairs = esHits.map((hit) => [
+      hit._source.donorId,
+      hit._source,
+    ]);
 
-    const esHits: Array<EsHit> = await esClient
-      .search({
-        // providing an index results in inablity to detect preixsting donors
-        //
-        // index: targetIndexName,
-        body: esQuery,
+    const preExistingDonors: {
+      [donorId: string]: EsDonorDocument;
+    } = Object.fromEntries(donorIdDocumentPairs);
+
+    const esDocuments = await Promise.all(
+      chunk.map((donor) => {
+        const donorId = esDonorId(donor);
+        if (preExistingDonors.hasOwnProperty(donorId)) {
+          return transformToEsDonor(donor, preExistingDonors[donorId]);
+        } else return transformToEsDonor(donor);
       })
-      .then((res) => res.body.hits.hits)
-      .catch((err) => {
-        logger.error(
-          "error in grabbing donors by id from Elasticsearch: ",
-          err
-        );
-        return [];
-      });
-
-    const preExistingDonorIds = esHits.map((hit) => hit._source.donorId);
-
-    const esDocuments: Array<EsDonorDocument> = [];
-    for (const donor of chunk) {
-      if (preExistingDonorIds.includes(`DO${donor.donorId}`)) {
-        // keep all NON donor (mongo doc) data, combine that with the most up to date donor info
-        const existingEsDoc = esHits?.find(
-          (hit) => hit._source.donorId === `DO${donor.donorId}`
-        );
-        esDocuments.push(
-          await transformToEsDonor(donor, existingEsDoc?._source)
-        );
-      } else {
-        esDocuments.push(await transformToEsDonor(donor));
-      }
-    }
+    );
 
     await esClient.bulk({
-      body: toEsBulkIndexActions(targetIndexName)(esDocuments),
+      body: toEsBulkIndexActions(targetIndexName, "donorId")(esDocuments),
       refresh: "true",
     });
     logger.profile(timer);
