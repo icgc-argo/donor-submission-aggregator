@@ -6,10 +6,25 @@ import {
   Donor,
   DonorCentricRun,
   DonorDoc,
+  DonorDocMap,
   InputAnalysis,
   Run,
 } from "./types";
-import { SSL_OP_CISCO_ANYCONNECT } from "constants";
+import _ from "lodash";
+
+const mergeMaps = (map: DonorDocMap, toMerge: DonorDocMap): DonorDocMap => {
+  for (const key in map) {
+    for (const mergeKey in toMerge) {
+      if (map[mergeKey]) {
+        const newRuns = _.union(map[mergeKey].runs, toMerge[mergeKey].runs);
+        map[mergeKey].runs = newRuns;
+      } else {
+        map[mergeKey] = toMerge[mergeKey];
+      }
+    }
+  }
+  return map;
+};
 
 const run = async () => {
   // Test 1:
@@ -27,6 +42,9 @@ const run = async () => {
           donors: [
             {
               donorId: "DO250183",
+            },
+            {
+              donorId: "DO250184",
             },
           ],
         },
@@ -68,44 +86,52 @@ const run = async () => {
     },
   ];
 
-  const result = runs.reduce<{ [key: string]: DonorDoc }>((acc, run) => {
-    const donors = run.inputAnalyses.map((analysis: { donors: Donor[] }) => {
-      return analysis.donors.map((donor) => {
-        return {
-          donorId: donor.donorId,
-          runs: [run],
-        };
-      });
-    });
+  const result = runs.reduce<DonorDocMap>((acc, run) => {
+    const donorsForCurrentRun = run.inputAnalyses.map(
+      (analysis: { donors: Donor[] }) => {
+        return analysis.donors.map((donor) => {
+          return {
+            donorId: donor.donorId,
+            runs: [run],
+          };
+        });
+      }
+    );
 
-    // console.log('donors ----'+ donors);
+    console.log(
+      "donorsForCurrentRun ----" + JSON.stringify(donorsForCurrentRun)
+    );
 
-    const flattenedDonors = donors.reduce<DonorDoc[]>((_acc, donors) => {
-      return [..._acc, ...donors];
-    }, []);
+    const flattenedDonors = donorsForCurrentRun.reduce<DonorDoc[]>(
+      (_acc, donors) => {
+        return [..._acc, ...donors];
+      },
+      []
+    );
 
-    // console.log('flattenedDonors donors ====== '+ JSON.stringify(flattenedDonors));
+    console.log(
+      "flattenedDonors donors ====== " + JSON.stringify(flattenedDonors)
+    );
 
     const furtherReduced = flattenedDonors.reduce<{ [key: string]: DonorDoc }>(
-      (acc, donor) => {
-        const previousRuns = acc[donor.donorId] ? acc[donor.donorId].runs : [];
-        acc[donor.donorId] = {
+      (_acc, donor) => {
+        const previousRuns = _acc[donor.donorId]
+          ? _acc[donor.donorId].runs
+          : [];
+        _acc[donor.donorId] = {
           ...donor,
-          runs: [...previousRuns, ...donor.runs],
+          runs: _.union([...previousRuns, ...donor.runs]),
         };
-        return acc;
+        return _acc;
       },
       {}
     );
+    console.log("Further reduced: ----- " + JSON.stringify(furtherReduced));
 
-    // console.log('Further reduced: ----- ' + JSON.stringify(furtherReduced));
-
-    return furtherReduced;
+    return mergeMaps(acc, furtherReduced);
   }, {});
 
-  console.log("result: ", JSON.stringify(result));
-
-  // console.log(result);
+  console.log("result +++++++++++++++++++++ ", JSON.stringify(result));
 
   // Test 2:
   // const config = { chunkSize: 2};

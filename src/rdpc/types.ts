@@ -36,3 +36,7 @@ export class DonorDoc {
   donorId: string;
   runs: Run[];
 }
+
+export type DonorDocMap = {
+  [donorId: string]: DonorDoc;
+};
