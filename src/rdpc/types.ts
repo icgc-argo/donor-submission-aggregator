@@ -1,24 +1,24 @@
 // Run centric types:
-export type Runs = {
+export class Runs {
   runs: Run[];
-};
+}
 
-export type Run = {
+export class Run {
   runId: string;
   state: string;
   repository: string;
   inputAnalyses: InputAnalysis[];
-};
+}
 
-export type InputAnalysis = {
+export class InputAnalysis {
   analysisId: string;
   analysisType: string;
   donors: Donor[];
-};
+}
 
-export type Donor = {
+export class Donor {
   donorId: string;
-};
+}
 
 // Donor centric types:
 export class Analysis {
@@ -32,11 +32,17 @@ export class DonorCentricRun {
   repository: string;
 }
 
-export class DonorDoc {
-  donorId: string;
-  runs: Run[];
+export class SimpleRun {
+  runId: string;
+  state: string;
+  repository: string;
 }
 
-export type DonorDocMap = {
+export class DonorDoc {
+  donorId: string;
+  runs: SimpleRun[];
+}
+
+export class DonorDocMap {
   [donorId: string]: DonorDoc;
-};
+}
