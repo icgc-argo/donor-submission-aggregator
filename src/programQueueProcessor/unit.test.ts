@@ -4,7 +4,7 @@ import { GenericContainer } from "testcontainers";
 import { StartedTestContainer, Wait } from "testcontainers";
 import { promisify } from "util";
 import { exec } from "child_process";
-import DonorSchema from "donorModel";
+import DonorSchema from "indexClinicalData/clinicalMongo/donorModel";
 import mongoose from "mongoose";
 import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
