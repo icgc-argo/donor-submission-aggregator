@@ -53,10 +53,12 @@ export default async (
       targetIndexName
     );
 
+    // transfer to a index array
     const donorIdDocumentPairs = esHits.map(
       (hit) => [hit._source.donorId, hit] as [string, EsHit]
     );
 
+    // convets index array to a map
     const preExistingDonorHits = Object.fromEntries(donorIdDocumentPairs);
 
     const esDocuments = chunk.map((donor) => {

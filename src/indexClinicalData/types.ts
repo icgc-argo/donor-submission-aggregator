@@ -9,22 +9,22 @@ export type DonorMolecularDataProcessingStatus =
   | "REGISTERED";
 
 export type RdpcDonorInfo = {
-  publishedNormalAnalysis: number;
-  publishedTumourAnalysis: number;
+  publishedNormalAnalysis?: number;
+  publishedTumourAnalysis?: number;
 
   alignmentsCompleted: number;
   alignmentsRunning: number;
   alignmentsFailed: number;
 
-  sangerVcsCompleted: number;
-  sangerVcsRunning: number;
-  sangerVcsFailed: number;
+  sangerVcsCompleted?: number;
+  sangerVcsRunning?: number;
+  sangerVcsFailed?: number;
 
-  totalFilesCount: number;
-  filesToQcCount: number;
+  totalFilesCount?: number;
+  filesToQcCount?: number;
 
-  releaseStatus: DonorMolecularDataReleaseStatus;
-  processingStatus: DonorMolecularDataProcessingStatus;
+  releaseStatus?: DonorMolecularDataReleaseStatus;
+  processingStatus?: DonorMolecularDataProcessingStatus;
 };
 
 export type ClinicalDonorInfo = {

@@ -7,13 +7,14 @@ import { initIndexMapping } from "elasticsearch";
 import withRetry from "promise-retry";
 import logger from "logger";
 import { KnownEventType, QueueRecord } from "./types";
+import { indexRdpcData } from "rdpc/index";
 
 // todo
-const indexRdpcData = (programId: string, rdpcUrl: string) => {
-  console.log(
-    `processing program ${programId} from ${rdpcUrl}, to be implemented`
-  );
-};
+// const indexRdpcData = (programId: string, rdpcUrl: string) => {
+//   console.log(
+//     `processing program ${programId} from ${rdpcUrl}, to be implemented`
+//   );
+// };
 
 const parseProgramQueueEvent = (message: string): QueueRecord =>
   JSON.parse(message);
@@ -78,8 +79,12 @@ export default (configs: {
             );
           } else if (queuedEvent.type === KnownEventType.RDPC) {
             for (const rdpcUrls in queuedEvent.rdpcGatewayUrls) {
-              // todo
-              await indexRdpcData(programId, rdpcUrls);
+              await indexRdpcData(
+                programId,
+                rdpcUrls,
+                newResolvedIndex.indexName,
+                esClient
+              );
             }
           } else {
             await indexClinicalData(
@@ -88,7 +93,12 @@ export default (configs: {
               esClient
             );
             for (const rdpcUrls in queuedEvent.rdpcGatewayUrls) {
-              await indexRdpcData(programId, rdpcUrls);
+              await indexRdpcData(
+                programId,
+                rdpcUrls,
+                newResolvedIndex.indexName,
+                esClient
+              );
             }
           }
           await rollCallClient.release(newResolvedIndex);

@@ -1,3 +1,5 @@
+import { RdpcDonorInfo } from "indexClinicalData/types";
+
 export class RDPCAnalyses {
   sequencingExperimentAnalyses: Analysis[];
   sequencingAlignmentAnalyses: Analysis[];
@@ -43,6 +45,6 @@ export class RunState {
   sangerVcsFailed: number = 0;
 }
 
-export class DonorRunStateMap {
-  [donorId: string]: RunState;
-}
+export type DonorRunStateMap = {
+  [donorId: string]: RdpcDonorInfo;
+};
