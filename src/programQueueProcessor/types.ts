@@ -3,13 +3,15 @@ export enum KnownEventSource {
   RDPC = "RDPC",
 }
 
+type NonEmptyArray<T> = [T, ...Array<T>];
+
 export type QueueRecord = { programId: string } & (
   | {
       type: KnownEventType.CLINICAL;
     }
   | {
       type: KnownEventType.RDPC | KnownEventType.SYNC;
-      rdpcGatewayUrls: Array<string>;
+      rdpcGatewayUrls: NonEmptyArray<string>;
     }
 );
 
