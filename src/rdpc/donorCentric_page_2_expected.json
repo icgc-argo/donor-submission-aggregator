@@ -1,0 +1,26 @@
+{
+  "DO35198": {
+    "runs": [
+      {
+        "runId": "wes-1c19f8cb06dd4b8ea29b296ad9679517",
+        "state": "COMPLETE",
+        "repository": "https://github.com/icgc-argo/dna-seq-processing-wfs.git",
+        "inputAnalyses": [
+          { "analysisId": "17297f22-3397-420c-a97f-223397220c2f" }
+        ]
+      }
+    ]
+  },
+  "DO35222": {
+    "runs": [
+      {
+        "runId": "wes-4b90558cd2a54592bb1dfce7310d8f6b",
+        "state": "COMPLETE",
+        "repository": "https://github.com/icgc-argo/dna-seq-processing-wfs.git",
+        "inputAnalyses": [
+          { "analysisId": "e5c7894c-6490-46cf-8789-4c6490b6cf03" }
+        ]
+      }
+    ]
+  }
+}

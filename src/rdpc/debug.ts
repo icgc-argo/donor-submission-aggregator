@@ -1,159 +1,73 @@
-import { fetchRDPC, workflowStream, indexRdpc, toDonorCentric } from "./index";
+import {
+  analysisStream,
+  indexRdpc,
+  toDonorCentric,
+  mergeDonorMaps,
+  fetchSeqExpAnalyses,
+  getAllMergedDonor,
+  donorStateMap,
+} from "./index";
 import { STREAM_CHUNK_SIZE } from "config";
 import logger from "logger";
 import {
   Analysis,
   Donor,
-  DonorCentricRun,
   DonorDoc,
   DonorDocMap,
-  InputAnalysis,
+  DonorRunStateMap,
   Run,
 } from "./types";
 import _ from "lodash";
+import {
+  seqExpAnalysesWithMultipleRuns_page_1,
+  seqExpAnalysesWithMultipleRuns_page_2,
+} from "./testData";
 
 const run = async () => {
-  const page_1 = [
-    {
-      runId: "wes-318285aaea584b0c935c8a7989757038",
-      state: "EXECUTOR_ERROR",
-      repository: "https://github.com/icgc-argo/sanger-wgs-variant-calling.git",
-      inputAnalyses: [
-        {
-          analysisId: "916b95a5-42d7-46a8-ab95-a542d7a6a81e",
-          analysisType: "sequencing_alignment",
-          donors: [
-            {
-              donorId: "DO250183",
-            },
-            {
-              donorId: "DO250184",
-            },
-          ],
-        },
-        {
-          analysisId: "94c862ca-8055-4794-8862-ca8055479490",
-          analysisType: "sequencing_alignment",
-          donors: [
-            {
-              donorId: "DO250183",
-            },
-            {
-              donorId: "DO250185",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      runId: "wes-331cd527841e444091aaabf405335c8b",
-      state: "COMPLETE",
-      repository: "https://github.com/icgc-argo/sanger-wgs-variant-calling.git",
-      inputAnalyses: [
-        {
-          analysisId: "ce2a49b2-2bda-4ded-aa49-b22bdaadedb3",
-          analysisType: "sequencing_alignment",
-          donors: [
-            {
-              donorId: "DO250183",
-            },
-            {
-              donorId: "DO250186",
-            },
-          ],
-        },
-        {
-          analysisId: "ad7e2df1-03ea-4dae-be2d-f103ea7dae3a",
-          analysisType: "sequencing_alignment",
-          donors: [
-            {
-              donorId: "DO250183",
-            },
-            {
-              donorId: "DO250187",
-            },
-          ],
-        },
-      ],
-    },
-  ];
+  // test 1
+  // const data = await fetchSeqExpAnalyses('PACA-CA', 0, 10);
+  // console.log(data);
 
-  const page_2 = [
-    {
-      runId: "wes-448285aaea584b0c935c8a7989757038",
-      state: "EXECUTOR_ERROR",
-      repository: "https://github.com/icgc-argo/sanger-wgs-variant-calling.git",
-      inputAnalyses: [
-        {
-          analysisId: "916b95a5-42d7-46a8-ab95-a542d7a6a81e",
-          analysisType: "sequencing_alignment",
-          donors: [
-            {
-              donorId: "DO250183",
-            },
-          ],
-        },
-        {
-          analysisId: "94c862ca-8055-4794-8862-ca8055479490",
-          analysisType: "sequencing_alignment",
-          donors: [
-            {
-              donorId: "DO250183",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      runId: "wes-771cd527841e444091aaabf405335c8b",
-      state: "COMPLETE",
-      repository: "https://github.com/icgc-argo/sanger-wgs-variant-calling.git",
-      inputAnalyses: [
-        {
-          analysisId: "ce2a49b2-2bda-4ded-aa49-b22bdaadedb3",
-          analysisType: "sequencing_alignment",
-          donors: [
-            {
-              donorId: "DO250186",
-            },
-          ],
-        },
-        {
-          analysisId: "ad7e2df1-03ea-4dae-be2d-f103ea7dae3a",
-          analysisType: "sequencing_alignment",
-          donors: [
-            {
-              donorId: "DO250187",
-            },
-          ],
-        },
-      ],
-    },
-  ];
+  // test 2:
+  // const config = { chunkSize: 10};
+  // const stream = await analysisStream('PACA-CA',config);
 
-  const runs = [page_1, page_2];
+  // for await (const page of stream) {
+  //   const donorAlignmentRunsMap = toDonorCentric(page);
 
-  const donorDoc = toDonorCentric(page_1);
-  console.log("Donor centric ============" + JSON.stringify(donorDoc));
+  //   // console.log(`streaming ${chunk.sequencingAlignmentAnalyses.length} RDPC sequencingAlignmentAnalyses: ----------` +
+  //     // chunk.sequencingAlignmentAnalyses);
 
-  // for(const page of runs) {
-  //   const donorDoc = toDonorCentric(page);
-  //   console.log('Donor centric ============' + JSON.stringify(donorDoc));
+  //     // console.log(`streaming ${chunk.sequencingExperimentAnalyses.length } RDPC sequencingExperimentAnalyses: -----------` +
+  //     // chunk.sequencingExperimentAnalyses)
+  //   console.log('converted alignment donors map : ' + JSON.stringify(donorAlignmentRunsMap));
+  //   console.log('------------------------');
   // }
 
-  // const config = { chunkSize: 2 };
-  // const stream = workflowStream(config);
-  // let chunksCount = 0;
-  // for await (const runs of stream) {
-  //   const timer = `streaming ${ runs.length} workflow runs...`
-  //   //   logger.profile(timer);
-  //   console.log(
-  //       `streaming ${runs.length} runs }`)
+  // test 3:
+  const donorCentric_page_1 = toDonorCentric(
+    seqExpAnalysesWithMultipleRuns_page_1
+  );
 
-  //   const donorDoc = toDonorCentric(runs);
+  // console.log("donor centric page 1 --------" + JSON.stringify(donorCentric_page_1));
 
-  //   console.log('Donor centric ============' + JSON.stringify(donorDoc));
-  // } ;
+  const donorCentric_page_2 = toDonorCentric(
+    seqExpAnalysesWithMultipleRuns_page_2
+  );
+  // console.log("donor centric page 2 --------" + JSON.stringify(donorCentric_page_2));
+
+  // test 4: test mergeDonorMaps;
+
+  const mergedMap = mergeDonorMaps(donorCentric_page_1, donorCentric_page_2);
+  // console.log('merged page ------' + JSON.stringify(mergedMap));
+
+  // test getAllMergedDonor
+  const config = { chunkSize: 10 };
+  const allMerged = await getAllMergedDonor("PACA-CA", config);
+  // console.log('all merged map ---------' + JSON.stringify(allMerged));
+
+  const donorState = donorStateMap(allMerged);
+  console.log(JSON.stringify(donorState));
 };
 
 run();
