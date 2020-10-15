@@ -1,10 +1,5 @@
 import { RdpcDonorInfo } from "indexClinicalData/types";
 
-export class RDPCAnalyses {
-  sequencingExperimentAnalyses: Analysis[];
-  sequencingAlignmentAnalyses: Analysis[];
-}
-
 export class Analysis {
   analysisId: string;
   analysisType: string;
@@ -34,15 +29,6 @@ export class DonorDoc {
 
 export class DonorDocMap {
   [donorId: string]: DonorDoc;
-}
-
-export class RunState {
-  alignmentsCompleted: number = 0;
-  alignmentsRunning: number = 0;
-  alignmentsFailed: number = 0;
-  sangerVcsCompleted: number = 0;
-  sangerVcsRunning: number = 0;
-  sangerVcsFailed: number = 0;
 }
 
 export type DonorRunStateMap = {

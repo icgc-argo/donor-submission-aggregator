@@ -41,7 +41,7 @@ describe("RDPC data processing", () => {
     );
   });
 
-  it.only("counts and group the latest runs state for each donor", async () => {
+  it("counts and group the latest runs state for each donor", async () => {
     const donorState = donorStateMap(mergedPagesDonorStateMap);
     expect(JSON.stringify(donorState)).to.equal(
       JSON.stringify(donorStateMap_expected)

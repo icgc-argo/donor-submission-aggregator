@@ -9,13 +9,6 @@ import logger from "logger";
 import { KnownEventType, QueueRecord } from "./types";
 import { indexRdpcData } from "rdpc/index";
 
-// todo
-// const indexRdpcData = (programId: string, rdpcUrl: string) => {
-//   console.log(
-//     `processing program ${programId} from ${rdpcUrl}, to be implemented`
-//   );
-// };
-
 const parseProgramQueueEvent = (message: string): QueueRecord =>
   JSON.parse(message);
 

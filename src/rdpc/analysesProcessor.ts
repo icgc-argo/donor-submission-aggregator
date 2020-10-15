@@ -1,20 +1,7 @@
 import fetch from "node-fetch";
-import {
-  Run,
-  DonorDocMap,
-  Donor,
-  DonorDoc,
-  RDPCAnalyses,
-  Analysis,
-  DonorRunStateMap,
-  RunState,
-} from "./types";
+import { Run, DonorDocMap, Analysis, DonorRunStateMap } from "./types";
+import _ from "lodash";
 import logger from "logger";
-import _, { merge } from "lodash";
-import { stat } from "fs";
-import { RdpcDonorInfo } from "indexClinicalData/types";
-
-const url = "https://api.rdpc.cancercollaboratory.org/graphql";
 
 const buildQuery = (studyId: string, from: number, size: number): string => {
   const query = `
@@ -53,12 +40,13 @@ const buildQuery = (studyId: string, from: number, size: number): string => {
 
 export const fetchSeqExpAnalyses = async (
   studyId: string,
+  url: string,
   from: number,
   size: number
 ): Promise<Analysis[]> => {
   const query = buildQuery(studyId, from, size);
   try {
-    // logger.info("Fetching analyses from rdpc.....");
+    logger.info("Fetching analyses from rdpc.....");
     const response = await fetch(url, {
       method: "POST",
       body: JSON.stringify({ query }),
@@ -90,6 +78,7 @@ type StreamState = {
 
 export const analysisStream = async function* (
   studyId: string,
+  url: string,
   config?: {
     chunkSize?: number;
     state?: StreamState;
@@ -102,6 +91,7 @@ export const analysisStream = async function* (
   while (true) {
     const page = await fetchSeqExpAnalyses(
       studyId,
+      url,
       streamState.currentPage,
       chunkSize
     );
@@ -121,15 +111,6 @@ export const analysisStream = async function* (
  */
 export const toDonorCentric = (analyses: Analysis[]): DonorDocMap => {
   const result = analyses.reduce<DonorDocMap>((acc, analysis) => {
-    // const donorsForCurrentRun = analysis.donors.map( donor => {
-    //   return {
-    //     donorId: donor.donorId,
-    //     runs: analysis.runs,
-    //   };
-    // });
-
-    // console.log(JSON.stringify('donors for current run ------- '+donorsForCurrentRun));
-
     const reducedDonors_1 = analysis.donors.reduce<DonorDocMap>(
       (_acc, donor) => {
         const existingRuns = _acc[donor.donorId]
@@ -147,23 +128,6 @@ export const toDonorCentric = (analyses: Analysis[]): DonorDocMap => {
       {}
     );
 
-    console.log(
-      "reduced donors _ 1 --------- " + JSON.stringify(reducedDonors_1)
-    );
-
-    // const reducedDonors = donorsForCurrentRun.reduce<DonorDocMap> (
-    //   (_acc, donor) => {
-    //     const existingRuns = _acc[donor.donorId] ? _acc[donor.donorId].runs : [];
-    //     const mergedRuns = _.union([...existingRuns], [...donor.runs]);
-    //     _acc[donor.donorId] = {
-    //       ...donor,
-    //       runs: mergedRuns,
-    //     };
-    //     return _acc;
-    // }, {})
-
-    // console.log('reduced donors -----------' + JSON.stringify(reducedDonors));
-    // // merge reducedDonors with acc:
     Object.entries(reducedDonors_1).forEach(([donorId, donorDoc]) => {
       const existingRuns = acc[donorId] ? acc[donorId].runs : [];
       const mergedRuns = _.union(existingRuns, donorDoc.runs);
@@ -174,7 +138,6 @@ export const toDonorCentric = (analyses: Analysis[]): DonorDocMap => {
       };
     });
 
-    console.log("acc -----------" + JSON.stringify(acc));
     return acc;
   }, {});
 
@@ -228,26 +191,21 @@ export const mergeDonorMaps = (
 
 export const getAllMergedDonor = async (
   studyId: string,
+  url: string,
   config?: {
     chunkSize?: number;
     state?: StreamState;
   }
 ): Promise<DonorDocMap> => {
-  const stream = analysisStream(studyId, config);
+  const stream = analysisStream(studyId, url, config);
   let mergedDonorsWithAlignmentRuns = new DonorDocMap();
 
   for await (const page of stream) {
-    console.log(`Streaming ${page.length} sequencing experiment analyses...`);
-
-    // logger.profile(timer);
+    logger.info(`Streaming ${page.length} sequencing experiment analyses...`);
     const donorPerPage = toDonorCentric(page);
     mergedDonorsWithAlignmentRuns = mergeDonorMaps(
       mergedDonorsWithAlignmentRuns,
       donorPerPage
-    );
-
-    console.log(
-      "page result ----- " + JSON.stringify(mergedDonorsWithAlignmentRuns)
     );
   }
   return mergedDonorsWithAlignmentRuns;
@@ -290,20 +248,17 @@ export const donorStateMap = (donorMap: DonorDocMap): DonorRunStateMap => {
 
 const initializeEntry = (result: DonorRunStateMap, donorId: string): void => {
   result[donorId] = {
-    // publishedNormalAnalysis: 0,
-    // publishedTumourAnalysis: 0,
+    publishedNormalAnalysis: 0,
+    publishedTumourAnalysis: 0,
     alignmentsCompleted: 0,
     alignmentsRunning: 0,
     alignmentsFailed: 0,
-
-    // sangerVcsCompleted: 0,
-    // sangerVcsRunning: 0,
-    // sangerVcsFailed: 0,
-
-    // totalFilesCount: 0,
-    // filesToQcCount: 0,
-
-    // releaseStatus: 'NO_RELEASE',
-    // processingStatus: 'REGISTERED'
+    sangerVcsCompleted: 0,
+    sangerVcsRunning: 0,
+    sangerVcsFailed: 0,
+    totalFilesCount: 0,
+    filesToQcCount: 0,
+    releaseStatus: "NO_RELEASE",
+    processingStatus: "REGISTERED",
   };
 };
