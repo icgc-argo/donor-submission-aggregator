@@ -1,36 +1,36 @@
 import { RdpcDonorInfo } from "indexClinicalData/types";
 
-export class Analysis {
+export interface Analysis {
   analysisId: string;
   analysisType: string;
   donors: Donor[];
   runs: Run[];
 }
 
-export class SimpleAnalysis {
+export interface SimpleAnalysis {
   analysisId: string;
 }
 
-export class Donor {
+export interface Donor {
   donorId: string;
 }
 
-export class Run {
+export interface Run {
   runId: string;
   state: string;
+  sessionId: string;
   repository: string;
   inputAnalyses?: SimpleAnalysis[];
 }
 
-export class DonorDoc {
-  donorId: string;
-  runs: Run[];
+export interface SessionRunMap {
+  [sessionId: string]: Run[];
 }
 
-export class DonorDocMap {
-  [donorId: string]: DonorDoc;
+export interface DonorDocMap {
+  [donorId: string]: SessionRunMap;
 }
 
-export type DonorRunStateMap = {
+export interface DonorRunStateMap {
   [donorId: string]: RdpcDonorInfo;
-};
+}
