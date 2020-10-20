@@ -4,11 +4,12 @@ import {
   DonorDocMap,
   Analysis,
   DonorRunStateMap,
-  SessionRunMap,
+  InputAnalysesRunMap,
 } from "./types";
 import _ from "lodash";
 import logger from "logger";
 import promiseRetry from "promise-retry";
+import HashCode from "ts-hashcode";
 
 const buildQuery = (studyId: string, from: number, size: number): string => {
   const query = `
@@ -122,26 +123,31 @@ export const analysisStream = async function* (
 
 /**
  * Extracts donor-run relation from analysis, this is done by the following steps:
- * Creates session-run map for each donor by grouping runs by sessionId,
- * creates donor-session-run map by determining the latest run for each session,
- * aggregates donor-session-run map by donor id.
+ * Creates inputAnalyses-run map for each donor by grouping runs by inputAnalyses,
+ * creates donor-inputAnalyses-run map by determining the latest run for each inputAnalyses,
+ * aggregates donor-inputAnalyses-run map by donor id.
  * @param analyses RDPC analysis array
  */
 export const toDonorCentric = (analyses: Analysis[]): DonorDocMap => {
   const result = analyses.reduce<DonorDocMap>((acc, analysis) => {
     const donorWithLatestRun = analysis.donors.reduce<DonorDocMap>(
       (_acc, donor) => {
-        const sessionMap = _(analysis.runs)
-          .groupBy("sessionId")
-          .value() as SessionRunMap;
+        const inputAnalysesMap = _(analysis.runs)
+          .groupBy((run) => {
+            return (
+              HashCode(run.inputAnalyses[0].analysisId) +
+              HashCode(run.inputAnalyses[1]?.analysisId)
+            );
+          })
+          .value() as InputAnalysesRunMap;
 
-        Object.entries(sessionMap).forEach(([sessionId, runs]) => {
+        Object.entries(inputAnalysesMap).forEach(([inputId, runs]) => {
           const latestRun = getLatestRun(runs);
           const run = latestRun === undefined ? [] : [latestRun];
-          const existingSessionMap = _acc[donor.donorId];
+          const existingMap = _acc[donor.donorId];
           _acc[donor.donorId] = {
-            ...existingSessionMap,
-            [sessionId]: run,
+            ...existingMap,
+            [inputId]: run,
           };
         });
 
@@ -150,14 +156,16 @@ export const toDonorCentric = (analyses: Analysis[]): DonorDocMap => {
       {}
     );
 
-    // merge donor-session-run map by donorId, in case same donors appear under multiple analyses
-    Object.entries(donorWithLatestRun).forEach(([donorId, sessionMap]) => {
-      const existingSessionMap = acc[donorId] ? acc[donorId] : {};
-      acc[donorId] = {
-        ...sessionMap,
-        ...existingSessionMap,
-      };
-    });
+    // merge donor-inputAnalyses-run map by donorId, in case same donors appear under multiple analyses
+    Object.entries(donorWithLatestRun).forEach(
+      ([donorId, inputAnalysesMap]) => {
+        const existingMap = acc[donorId] ? acc[donorId] : {};
+        acc[donorId] = {
+          ...inputAnalysesMap,
+          ...existingMap,
+        };
+      }
+    );
 
     return acc;
   }, {});
@@ -180,14 +188,15 @@ export const mergeDonorMaps = (
   mergedMap: DonorDocMap,
   toMerge: DonorDocMap
 ): DonorDocMap => {
-  Object.entries(toMerge).forEach(([donorId, sessionMap]) => {
-    const existingSessionMap = mergedMap[donorId] ? mergedMap[donorId] : {};
-    const mergedSessionMap = {
-      ...existingSessionMap,
-      ...sessionMap,
+  Object.entries(toMerge).forEach(([donorId, inputAnalysesMap]) => {
+    const existingMap = mergedMap[donorId] ? mergedMap[donorId] : {};
+    const mergedInputAnalysesMap = {
+      ...existingMap,
+      ...inputAnalysesMap,
     };
-    mergedMap[donorId] = { ...mergedSessionMap };
+    mergedMap[donorId] = { ...mergedInputAnalysesMap };
   });
+
   return mergedMap;
 };
 
@@ -215,8 +224,8 @@ export const getAllMergedDonor = async (
 
 export const donorStateMap = (donorMap: DonorDocMap): DonorRunStateMap => {
   let result: DonorRunStateMap = {};
-  Object.entries(donorMap).forEach(([donorId, sessionMap]) => {
-    Object.entries(sessionMap).forEach(([sessionId, runs]) => {
+  Object.entries(donorMap).forEach(([donorId, map]) => {
+    Object.entries(map).forEach(([inputAnalysesId, runs]) => {
       runs.forEach((run) => {
         if (run.state === "COMPLETE") {
           if (result[donorId]) {

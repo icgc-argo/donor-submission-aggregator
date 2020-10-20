@@ -71,6 +71,8 @@ export const indexRdpcData = async (
     }
   });
 
+  logger.info(`Begin indexing program ${programId}...`);
+
   await esClient.bulk({
     body: toEsBulkIndexActions<EsDonorDocument>(
       targetIndexName,
@@ -78,4 +80,6 @@ export const indexRdpcData = async (
     )(esDocuments),
     refresh: "true",
   });
+
+  logger.info(`Successfully indexed program ${programId}.`);
 };

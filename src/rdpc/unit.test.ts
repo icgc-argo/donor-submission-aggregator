@@ -12,12 +12,13 @@ import {
 } from "./fixtures/expectedResults";
 import {
   mergedPagesDonorStateMap,
+  seqAlignAnalysesWithMultipleTNPairs_page_1,
   seqExpAnalysesWithMultipleRuns_page_1,
   seqExpAnalysesWithMultipleRuns_page_2,
 } from "./fixtures/testData";
 
 describe("RDPC data processing", () => {
-  it("converts and merges anlignment analyses to a donor document map", async () => {
+  it("converts and merges sequencing experiment analyses to a donor document map", async () => {
     const donorCentric_page_1 = toDonorCentric(
       seqExpAnalysesWithMultipleRuns_page_1
     );
@@ -41,7 +42,13 @@ describe("RDPC data processing", () => {
     );
   });
 
-  it("should count the latest run state for each donor", async () => {
+  it("converts and merges sequencing alignment analyses to a donor document map", async () => {
+    const donorCentric_page_1 = toDonorCentric(
+      seqAlignAnalysesWithMultipleTNPairs_page_1
+    );
+  });
+
+  it.only("should count the latest run state for each donor", async () => {
     const donorState = donorStateMap(mergedPagesDonorStateMap);
     expect(JSON.stringify(donorState)).to.equal(
       JSON.stringify(donorStateMap_expected)

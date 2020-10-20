@@ -18,17 +18,16 @@ export interface Donor {
 export interface Run {
   runId: string;
   state: string;
-  sessionId: string;
   repository: string;
-  inputAnalyses?: SimpleAnalysis[];
+  inputAnalyses: SimpleAnalysis[];
 }
 
-export interface SessionRunMap {
-  [sessionId: string]: Run[];
+export interface InputAnalysesRunMap {
+  [inputAnalyses: string]: Run[];
 }
 
 export interface DonorDocMap {
-  [donorId: string]: SessionRunMap;
+  [donorId: string]: InputAnalysesRunMap;
 }
 
 export interface DonorRunStateMap {
