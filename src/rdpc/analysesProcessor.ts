@@ -1,10 +1,10 @@
 import fetch from "node-fetch";
 import {
   Run,
-  DonorDocMap,
+  RunsByAnalysesByDonors,
   Analysis,
   DonorRunStateMap,
-  InputAnalysesRunMap,
+  RunsByInputAnalyses,
 } from "./types";
 import _ from "lodash";
 import logger from "logger";
@@ -128,18 +128,22 @@ export const analysisStream = async function* (
  * aggregates donor-inputAnalyses-run map by donor id.
  * @param analyses RDPC analysis array
  */
-export const toDonorCentric = (analyses: Analysis[]): DonorDocMap => {
-  const result = analyses.reduce<DonorDocMap>((acc, analysis) => {
-    const donorWithLatestRun = analysis.donors.reduce<DonorDocMap>(
+export const toDonorCentric = (
+  analyses: Analysis[]
+): RunsByAnalysesByDonors => {
+  const result = analyses.reduce<RunsByAnalysesByDonors>((acc, analysis) => {
+    const donorWithLatestRun = analysis.donors.reduce<RunsByAnalysesByDonors>(
       (_acc, donor) => {
         const inputAnalysesMap = _(analysis.runs)
-          .groupBy((run) => {
-            return (
-              HashCode(run.inputAnalyses[0].analysisId) +
-              HashCode(run.inputAnalyses[1]?.analysisId)
-            );
-          })
-          .value() as InputAnalysesRunMap;
+          .groupBy((run) =>
+            HashCode(
+              _(run.inputAnalyses)
+                .map((a) => a.analysisId)
+                .orderBy()
+                .join("-")
+            )
+          )
+          .value() as RunsByInputAnalyses;
 
         Object.entries(inputAnalysesMap).forEach(([inputId, runs]) => {
           const latestRun = getLatestRun(runs);
@@ -173,28 +177,25 @@ export const toDonorCentric = (analyses: Analysis[]): DonorDocMap => {
   return result;
 };
 
-const getLatestRun = (runs: Run[]): Run | undefined => {
+export const getLatestRun = (runs: Run[]): Run | undefined => {
   return _(runs)
     .sortBy(
-      (run) =>
-        (({ COMPLETE: 1, RUNNING: 2, EXECUTOR_ERROR: 3 } as {
-          [k: string]: number;
-        })[run.state])
+      (run) => ({ COMPLETE: 1, RUNNING: 2, EXECUTOR_ERROR: 3 }[run.state])
     )
     .head();
 };
 
-export const mergeDonorMaps = (
-  mergedMap: DonorDocMap,
-  toMerge: DonorDocMap
-): DonorDocMap => {
+export const getAllRunsByAnalysesByDonors = (
+  mergedMap: RunsByAnalysesByDonors,
+  toMerge: RunsByAnalysesByDonors
+): RunsByAnalysesByDonors => {
   Object.entries(toMerge).forEach(([donorId, inputAnalysesMap]) => {
     const existingMap = mergedMap[donorId] ? mergedMap[donorId] : {};
     const mergedInputAnalysesMap = {
       ...existingMap,
       ...inputAnalysesMap,
     };
-    mergedMap[donorId] = { ...mergedInputAnalysesMap };
+    mergedMap[donorId] = mergedInputAnalysesMap;
   });
 
   return mergedMap;
@@ -207,22 +208,21 @@ export const getAllMergedDonor = async (
     chunkSize?: number;
     state?: StreamState;
   }
-): Promise<DonorDocMap> => {
+): Promise<RunsByAnalysesByDonors> => {
   const stream = analysisStream(studyId, url, config);
-  let mergedDonorsWithAlignmentRuns: DonorDocMap = {};
+  const mergedDonorsWithAlignmentRuns: RunsByAnalysesByDonors = {};
 
   for await (const page of stream) {
     logger.info(`Streaming ${page.length} sequencing experiment analyses...`);
     const donorPerPage = toDonorCentric(page);
-    mergedDonorsWithAlignmentRuns = mergeDonorMaps(
-      mergedDonorsWithAlignmentRuns,
-      donorPerPage
-    );
+    getAllRunsByAnalysesByDonors(mergedDonorsWithAlignmentRuns, donorPerPage);
   }
   return mergedDonorsWithAlignmentRuns;
 };
 
-export const donorStateMap = (donorMap: DonorDocMap): DonorRunStateMap => {
+export const donorStateMap = (
+  donorMap: RunsByAnalysesByDonors
+): DonorRunStateMap => {
   let result: DonorRunStateMap = {};
   Object.entries(donorMap).forEach(([donorId, map]) => {
     Object.entries(map).forEach(([inputAnalysesId, runs]) => {

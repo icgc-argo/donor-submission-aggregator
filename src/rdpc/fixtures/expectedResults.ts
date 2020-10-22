@@ -137,3 +137,74 @@ export const donorStateMap_expected = {
     processingStatus: "REGISTERED",
   },
 };
+
+export const latestRun_expected_1 = {
+  runId: "wes-9982753860a7434198a733e9992192ba",
+  sessionId: "335663bc-cb5d-45a7-b414-5431869617b5",
+  state: "COMPLETE",
+  repository: "https://github.com/icgc-argo/sanger-wgs-variant-calling.git",
+  inputAnalyses: [
+    {
+      analysisId: "99b3593d-174d-4617-b359-3d174d861714",
+    },
+    {
+      analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e",
+    },
+  ],
+};
+
+export const latestRun_expected_2 = {
+  runId: "wes-9982753860a7434198a733e9992192ba",
+  sessionId: "335663bc-cb5d-45a7-b414-5431869617b5",
+  state: "RUNNING",
+  repository: "https://github.com/icgc-argo/sanger-wgs-variant-calling.git",
+  inputAnalyses: [
+    {
+      analysisId: "99b3593d-174d-4617-b359-3d174d861714",
+    },
+    {
+      analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e",
+    },
+  ],
+};
+
+export const donorCentricWithMultipleTNPairs_page_1 = {
+  DO50339: {
+    "820885243": [
+      {
+        runId: "wes-80a14eef2b2d47c48e08bbf5dbdce09d",
+        state: "RUNNING",
+        repository:
+          "https://github.com/icgc-argo/sanger-wgs-variant-calling.git",
+        inputAnalyses: [
+          { analysisId: "2cb3593d-174d-4617-b359-3d174d861714" },
+          { analysisId: "990fd411-1cab-4bff-8fd4-111cabebff9e" },
+        ],
+      },
+    ],
+    "-582135718": [
+      {
+        runId: "wes-310c2500a5b54e6a925ddb922812d580",
+        state: "COMPLETE",
+        repository:
+          "https://github.com/icgc-argo/sanger-wgs-variant-calling.git",
+        inputAnalyses: [
+          { analysisId: "2cb3593d-174d-4617-b359-3d174d861714" },
+          { analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e" },
+        ],
+      },
+    ],
+    "-1768359391": [
+      {
+        runId: "wes-9e31b9a4564444cd8eba0996ae4ee542",
+        state: "EXECUTOR_ERROR",
+        repository:
+          "https://github.com/icgc-argo/sanger-wgs-variant-calling.git",
+        inputAnalyses: [
+          { analysisId: "2cb3593d-174d-4617-b359-3d174d861714" },
+          { analysisId: "110fd411-1cab-4bff-8fd4-111cabebff9e" },
+        ],
+      },
+    ],
+  },
+};

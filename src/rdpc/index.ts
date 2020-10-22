@@ -7,28 +7,11 @@ import { toEsBulkIndexActions } from "elasticsearch";
 import logger from "logger";
 
 const convertToEsDocument = (
-  rdpcInfo: RdpcDonorInfo,
-  donorId: string,
-  programId: string,
-  existingEsHits?: EsDonorDocument
+  existingEsHit: EsDonorDocument,
+  rdpcInfo?: RdpcDonorInfo
 ): EsDonorDocument => {
-  if (existingEsHits) {
-    return { ...existingEsHits, ...rdpcInfo };
-  } else {
-    return {
-      ...rdpcInfo,
-      submittedCoreDataPercent: 0,
-      submittedExtendedDataPercent: 0,
-      validWithCurrentDictionary: false,
-      donorId: donorId,
-      submitterDonorId: "",
-      programId: programId,
-      registeredNormalSamples: 0,
-      registeredTumourSamples: 0,
-      updatedAt: new Date(),
-      createdAt: new Date(),
-    };
-  }
+  existingEsHit.updatedAt = new Date();
+  return { ...existingEsHit, ...rdpcInfo };
 };
 
 export const indexRdpcData = async (
@@ -58,18 +41,12 @@ export const indexRdpcData = async (
 
   const preExistingDonorHits = Object.fromEntries(donorIdDocumentPairs);
 
-  const esDocuments = Object.entries(rdpcDocsMap).map(([donorId, rdpcInfo]) => {
-    if (preExistingDonorHits.hasOwnProperty(donorId)) {
-      return convertToEsDocument(
-        rdpcInfo,
-        donorId,
-        programId,
-        preExistingDonorHits[donorId]._source
-      );
-    } else {
-      return convertToEsDocument(rdpcInfo, donorId, programId);
+  const esDocuments = Object.entries(preExistingDonorHits).map(
+    ([donorId, esHit]) => {
+      const newRdpcInfo = rdpcDocsMap[donorId];
+      return convertToEsDocument(esHit._source, newRdpcInfo);
     }
-  });
+  );
 
   logger.info(`Begin indexing program ${programId}...`);
 

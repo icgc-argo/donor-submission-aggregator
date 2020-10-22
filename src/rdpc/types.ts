@@ -17,17 +17,23 @@ export interface Donor {
 
 export interface Run {
   runId: string;
-  state: string;
+  state: RunState;
   repository: string;
   inputAnalyses: SimpleAnalysis[];
 }
 
-export interface InputAnalysesRunMap {
+export enum RunState {
+  COMPLETE = "COMPLETE",
+  RUNNING = "RUNNING",
+  EXECUTOR_ERROR = "EXECUTOR_ERROR",
+}
+
+export interface RunsByInputAnalyses {
   [inputAnalyses: string]: Run[];
 }
 
-export interface DonorDocMap {
-  [donorId: string]: InputAnalysesRunMap;
+export interface RunsByAnalysesByDonors {
+  [donorId: string]: RunsByInputAnalyses;
 }
 
 export interface DonorRunStateMap {

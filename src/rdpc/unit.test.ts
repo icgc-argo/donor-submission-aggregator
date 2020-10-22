@@ -1,18 +1,23 @@
 import { expect } from "chai";
 import {
   donorStateMap,
-  mergeDonorMaps,
+  getLatestRun,
+  getAllRunsByAnalysesByDonors,
   toDonorCentric,
 } from "rdpc/analysesProcessor";
 import {
+  donorCentricWithMultipleTNPairs_page_1,
   donorCentric_page_1_exptected,
   donorCentric_page_2_exptected,
   donorStateMap_expected,
+  latestRun_expected_1,
   mergedPage_expected,
 } from "./fixtures/expectedResults";
 import {
   mergedPagesDonorStateMap,
-  seqAlignAnalysesWithMultipleTNPairs_page_1,
+  runsWithMultipleStates_1,
+  runsWithMultipleStates_2,
+  seqAlignAnalysesWithMultiTNPairs_page_1,
   seqExpAnalysesWithMultipleRuns_page_1,
   seqExpAnalysesWithMultipleRuns_page_2,
 } from "./fixtures/testData";
@@ -33,7 +38,7 @@ describe("RDPC data processing", () => {
       JSON.stringify(donorCentric_page_2_exptected)
     );
 
-    const allMerged = await mergeDonorMaps(
+    const allMerged = await getAllRunsByAnalysesByDonors(
       donorCentric_page_1,
       donorCentric_page_2
     );
@@ -42,16 +47,29 @@ describe("RDPC data processing", () => {
     );
   });
 
-  it("converts and merges sequencing alignment analyses to a donor document map", async () => {
-    const donorCentric_page_1 = toDonorCentric(
-      seqAlignAnalysesWithMultipleTNPairs_page_1
+  it("should return the latest run", async () => {
+    const latestRun_1 = getLatestRun(runsWithMultipleStates_1);
+    expect(JSON.stringify(latestRun_1)).to.equal(
+      JSON.stringify(latestRun_expected_1)
     );
+
+    const latestRun_2 = getLatestRun(runsWithMultipleStates_2);
+    expect(JSON.stringify(latestRun_2)).to.equal(JSON.stringify(latestRun_2));
   });
 
-  it.only("should count the latest run state for each donor", async () => {
+  it("should count the latest run state for each donor", async () => {
     const donorState = donorStateMap(mergedPagesDonorStateMap);
     expect(JSON.stringify(donorState)).to.equal(
       JSON.stringify(donorStateMap_expected)
+    );
+  });
+
+  it("should convert sequencing alignment analyses to donor centric map", async () => {
+    const donorCentric_page_1 = toDonorCentric(
+      seqAlignAnalysesWithMultiTNPairs_page_1
+    );
+    expect(JSON.stringify(donorCentric_page_1)).to.equal(
+      JSON.stringify(donorCentricWithMultipleTNPairs_page_1)
     );
   });
 });
