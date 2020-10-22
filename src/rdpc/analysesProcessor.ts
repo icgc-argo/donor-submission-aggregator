@@ -16,7 +16,6 @@ const buildQuery = (studyId: string, from: number, size: number): string => {
   fragment AnalysisData on Analysis {
     analysisId
     analysisType
-    studyId
     donors {
       donorId
     }
@@ -34,7 +33,6 @@ const buildQuery = (studyId: string, from: number, size: number): string => {
       runs: inputForRuns {
         runId
         state
-        sessionId
         repository
         inputAnalyses {
           analysisId
