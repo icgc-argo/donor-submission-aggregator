@@ -36,6 +36,7 @@
       "publishedTumourAnalysis": {
         "type": "byte"
       },
+
       "alignmentsCompleted": {
         "type": "byte"
       },
@@ -54,6 +55,7 @@
       "sangerVcsFailed": {
         "type": "byte"
       },
+
       "processingStatus": {
         "type": "keyword"
       },
