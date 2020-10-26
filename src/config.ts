@@ -28,6 +28,14 @@ export const ROLLCALL_INDEX_SHARDPREFIX =
 
 export const STREAM_CHUNK_SIZE = Number(process.env.STREAM_CHUNK_SIZE) || 1000;
 
+export const SEQ_ALIGN_REPO_URL =
+  process.env.SEQ_ALIGN_REPO_URL ||
+  "https://github.com/icgc-argo/dna-seq-processing-wfs.git";
+
+export const SANGER_VC_REPO_URL =
+  process.env.SANGER_VC_REPO_URL ||
+  "https://github.com/icgc-argo/sanger-variant-calling.git";
+
 export const CLINICAL_PROGRAM_UPDATE_TOPIC =
   process.env.CLINICAL_PROGRAM_UPDATE_TOPIC || "PROGRAM_UPDATE";
 
