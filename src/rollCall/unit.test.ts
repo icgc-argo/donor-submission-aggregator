@@ -89,7 +89,7 @@ describe("rollcall integration", () => {
     await rollcallContainer.stop();
   });
 
-  it.only("should create new indices and release them", async () => {
+  it("should create new indices and release them", async () => {
     // ask rollcall to create a new index in elasticsearch for TEST_PROGRAM
     const newResolvedIndex = await rollcallClient.createNewResolvableIndex(
       TEST_PROGRAM
