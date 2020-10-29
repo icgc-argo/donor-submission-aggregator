@@ -7,6 +7,7 @@ import {
 } from "./types";
 import urljoin from "url-join";
 import logger from "logger";
+import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 
 export default (configData: {
   url: string;
@@ -33,6 +34,7 @@ export default (configData: {
       entity: indexEntity,
       type: indexType,
       cloneFromReleasedIndex: cloneFromReleasedIndex || false,
+      indexSetting: JSON.stringify(donorIndexMapping.settings),
     };
 
     const newResolvedIndex = (await fetch(url, {
