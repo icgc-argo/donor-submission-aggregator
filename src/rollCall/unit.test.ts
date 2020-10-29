@@ -112,10 +112,14 @@ describe("rollcall integration", () => {
       index: newIndexName,
     });
 
-    const shards = indexInfo[newIndexName].settings.index.number_of_shards;
+    const shards = Number(
+      indexInfo[newIndexName].settings.index.number_of_shards
+    );
     expect(shards).to.equal(3);
 
-    const replicas = indexInfo[newIndexName].settings.index.number_of_replicas;
+    const replicas = Number(
+      indexInfo[newIndexName].settings.index.number_of_replicas
+    );
     expect(replicas).to.equal(2);
 
     // ask rollcall to reelase the new index
