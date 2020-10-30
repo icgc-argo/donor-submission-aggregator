@@ -66,12 +66,14 @@ describe("initIndexMapping", () => {
     const { body: exists } = await esClient.indices.exists({
       index: TEST_INDEX,
     });
+    expect(exists).to.be.true;
+
     const mappingResponse = await esClient.indices.getMapping({
       index: TEST_INDEX,
     });
-    expect(mappingResponse.body).to.deep.equal({
-      [TEST_INDEX]: donorIndexMapping,
-    });
-    expect(exists).to.be.true;
+
+    expect(mappingResponse.body[TEST_INDEX].mappings).to.deep.equal(
+      donorIndexMapping.mappings
+    );
   });
 });

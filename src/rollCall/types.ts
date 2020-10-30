@@ -6,7 +6,7 @@ export type CreateResolvableIndexRequest = {
   shardPrefix: string;
   type: string;
   releasePrefix?: string;
-  indexSettings?: string;
+  indexSetting?: string;
   cloneFromReleasedIndex?: boolean; // used to clone previously released index with similar parameters
 };
 

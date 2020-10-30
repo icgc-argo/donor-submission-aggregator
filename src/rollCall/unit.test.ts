@@ -53,7 +53,7 @@ describe("rollcall integration", () => {
 
       rollcallContainer = await new GenericContainer(
         "overture/rollcall",
-        "2.4.0"
+        "2.5.0"
       )
         .withNetworkMode(NETOWRK_MODE)
         .withExposedPorts(ROLLCALL_PORT)
@@ -106,6 +106,21 @@ describe("rollcall integration", () => {
       index: newIndexName,
     });
     expect(exists).to.be.true;
+
+    // check if index settings correct:
+    const { body: indexInfo } = await esClient.indices.get_settings({
+      index: newIndexName,
+    });
+
+    const shards = Number(
+      indexInfo[newIndexName].settings.index.number_of_shards
+    );
+    expect(shards).to.equal(3);
+
+    const replicas = Number(
+      indexInfo[newIndexName].settings.index.number_of_replicas
+    );
+    expect(replicas).to.equal(2);
 
     // ask rollcall to reelase the new index
     const releasedNewIndex = await rollcallClient.release(newResolvedIndex);
