@@ -26,25 +26,26 @@ export const indexRdpcData = async (
   rdpcUrl: string,
   targetIndexName: string,
   esClient: Client,
-  mergedAlignmentDonorFetcher = getAllMergedDonor,
-  mergedSangerDonorFetcher = getAllMergedDonor
+  analysisFetcher = fetchAnalyses
 ) => {
   logger.info(`Processing program: ${programId} from ${rdpcUrl}.`);
 
   const config = { chunkSize: STREAM_CHUNK_SIZE };
 
-  const mergedAlignmentDonors = await mergedAlignmentDonorFetcher(
+  const mergedAlignmentDonors = await getAllMergedDonor(
     programId,
     rdpcUrl,
     AnalysisType.SEQ_EXPERIMENT,
-    config
+    config,
+    analysisFetcher
   );
 
-  const mergedVCDonors = await mergedSangerDonorFetcher(
+  const mergedVCDonors = await getAllMergedDonor(
     programId,
     rdpcUrl,
     AnalysisType.SEQ_ALIGNMENT,
-    config
+    config,
+    analysisFetcher
   );
 
   const rdpcInfoByDonor_alignment = countAlignmentRunState(
