@@ -1,6 +1,7 @@
 import {
   countAlignmentRunState,
   countVCRunState,
+  fetchAnalyses,
   getAllMergedDonor,
   mergeDonorStateMaps,
 } from "./analysesProcessor";
@@ -24,20 +25,22 @@ export const indexRdpcData = async (
   programId: string,
   rdpcUrl: string,
   targetIndexName: string,
-  esClient: Client
+  esClient: Client,
+  mergedAlignmentDonorFetcher = getAllMergedDonor,
+  mergedSangerDonorFetcher = getAllMergedDonor
 ) => {
   logger.info(`Processing program: ${programId} from ${rdpcUrl}.`);
 
   const config = { chunkSize: STREAM_CHUNK_SIZE };
 
-  const mergedAlignmentDonors = await getAllMergedDonor(
+  const mergedAlignmentDonors = await mergedAlignmentDonorFetcher(
     programId,
     rdpcUrl,
     AnalysisType.SEQ_EXPERIMENT,
     config
   );
 
-  const mergedVCDonors = await getAllMergedDonor(
+  const mergedVCDonors = await mergedSangerDonorFetcher(
     programId,
     rdpcUrl,
     AnalysisType.SEQ_ALIGNMENT,

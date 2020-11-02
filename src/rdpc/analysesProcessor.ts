@@ -109,25 +109,21 @@ export const analysisStream = async function* (
   config?: {
     chunkSize?: number;
     state?: StreamState;
-  }
+  },
+  analysesFetcher = fetchAnalyses
 ): AsyncGenerator<Analysis[]> {
   const chunkSize = config?.chunkSize || 1000;
   const streamState: StreamState = {
     currentPage: config?.state?.currentPage || 0,
   };
 
-  let workflowRepoUrl = "";
-
-  if (analysisType === AnalysisType.SEQ_ALIGNMENT) {
-    workflowRepoUrl = SANGER_VC_REPO_URL;
-  }
-
-  if (analysisType === AnalysisType.SEQ_EXPERIMENT) {
-    workflowRepoUrl = SEQ_ALIGN_REPO_URL;
-  }
+  const workflowRepoUrl =
+    analysisType === AnalysisType.SEQ_ALIGNMENT
+      ? SANGER_VC_REPO_URL
+      : SEQ_ALIGN_REPO_URL;
 
   while (true) {
-    const page = await fetchAnalyses(
+    const page = await analysesFetcher(
       studyId,
       rdpcUrl,
       workflowRepoUrl,
@@ -233,9 +229,16 @@ export const getAllMergedDonor = async (
   config?: {
     chunkSize?: number;
     state?: StreamState;
-  }
+  },
+  analysesFetcher = fetchAnalyses
 ): Promise<RunsByAnalysesByDonors> => {
-  const stream = analysisStream(studyId, url, analysisType, config);
+  const stream = analysisStream(
+    studyId,
+    url,
+    analysisType,
+    config,
+    analysesFetcher
+  );
   let mergedDonors: RunsByAnalysesByDonors = {};
 
   for await (const page of stream) {
