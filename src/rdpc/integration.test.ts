@@ -64,7 +64,7 @@ describe.only("should index RDPC analyses to donor index", () => {
 
   afterEach(async () => {
     await esClient.indices.delete({
-      index: TEST_PROGRAM,
+      index: INDEX_NAME,
     });
   });
 
@@ -83,8 +83,15 @@ describe.only("should index RDPC analyses to donor index", () => {
       body,
       refresh: "true",
     });
-    const { body: count } = await esClient.count({ index: INDEX_NAME });
-    expect(count).to.equal(10);
+
+    const indexedClinicalDocuments = (
+      await esClient.search({
+        index: INDEX_NAME,
+        track_total_hits: true,
+      })
+    ).body?.hits?.total?.value;
+
+    expect(indexedClinicalDocuments).to.equal(dataset.length);
 
     const mockAnalysisFetcher: typeof fetchAnalyses = async (
       studyId: string,
