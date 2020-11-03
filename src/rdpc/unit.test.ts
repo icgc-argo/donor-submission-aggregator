@@ -1,17 +1,10 @@
 import { expect } from "chai";
-import { SANGER_VC_REPO_URL, SEQ_ALIGN_REPO_URL } from "config";
-import { createEsClient } from "elasticsearch";
-import { url } from "inspector";
-import { indexRdpcData } from "rdpc";
 import {
   getLatestRun,
   getAllRunsByAnalysesByDonors,
   toDonorCentric,
   countAlignmentRunState,
   countVCRunState,
-  analysisStream,
-  fetchAnalyses,
-  getAllMergedDonor,
 } from "rdpc/analysesProcessor";
 import {
   donorByVCRunState,
@@ -40,8 +33,6 @@ import {
   seqExpAnalysesWithMultipleRuns_page_1,
   seqExpAnalysesWithMultipleRuns_page_2,
 } from "./fixtures/SeqExpAnalyses/testData";
-import { Analysis, AnalysisType, RunState } from "./types";
-
 describe("RDPC sequencing experiment analyses processing", () => {
   it("converts and merges sequencing experiment analyses to a donor document map", async () => {
     const donorCentric_page_1 = toDonorCentric(
@@ -127,58 +118,5 @@ describe("RDPC sequencing alignment analyses processing", () => {
     expect(JSON.stringify(donorState)).to.equal(
       JSON.stringify(donorByVCRunState)
     );
-  });
-});
-
-describe("should index RDPC analyses to donor index", () => {
-  it("should index ", async () => {
-    const mockSeqExpAnalyses: Analysis[] = [
-      {
-        analysisId: "ab784c58-39bd-4441-b84c-5839bdf4410f",
-        analysisType: "sequencing_experiment",
-        donors: [
-          {
-            donorId: "DO35152",
-          },
-        ],
-        runs: [
-          {
-            runId: "wes-7c5957c2765e485a9fe28e662dd0921c",
-            state: RunState.COMPLETE,
-            repository:
-              "https://github.com/icgc-argo/dna-seq-processing-wfs.git",
-            inputAnalyses: [
-              {
-                analysisId: "ab784c58-39bd-4441-b84c-5839bdf4410f",
-              },
-            ],
-          },
-        ],
-      },
-    ];
-
-    const mockAnalysisFetcher: typeof fetchAnalyses = async (
-      studyId: string,
-      rdpcUrl: string,
-      workflowRepoUrl: string,
-      analysisType: string,
-      from: number,
-      size: number
-    ): Promise<Analysis[]> => {
-      return Promise.resolve(
-        analysisType === AnalysisType.SEQ_EXPERIMENT
-          ? mockSeqExpAnalyses
-          : seqAlignAnalysesWithMultiTNPairs_page_1
-      );
-    };
-
-    const studyId = "PACA-CA";
-    const url = "https://api.rdpc-qa.cancercollaboratory.org/graphql";
-    const analysisType = AnalysisType.SEQ_EXPERIMENT;
-    const config = { chunkSize: 10 };
-    const indexName = "test";
-    const client = await createEsClient();
-
-    indexRdpcData(studyId, url, indexName, client, mockAnalysisFetcher);
   });
 });
