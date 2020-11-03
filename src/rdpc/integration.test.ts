@@ -56,6 +56,7 @@ describe.only("should index RDPC analyses to donor index", () => {
       index: INDEX_NAME,
     });
     initIndexMapping(INDEX_NAME, esClient);
+    console.log("Initializing index mapping is complete >>>>>>>>>");
   });
 
   after(async () => {
