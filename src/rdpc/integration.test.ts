@@ -1,6 +1,6 @@
 import { Client } from "@elastic/elasticsearch";
 import { expect } from "chai";
-import { createEsClient, initIndexMapping } from "elasticsearch";
+import { initIndexMapping } from "elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
 import { indexRdpcData } from "rdpc";
 import { GenericContainer, StartedTestContainer, Wait } from "testcontainers";
@@ -79,6 +79,9 @@ describe.only("should index RDPC analyses to donor index", () => {
       { index: { _index: INDEX_NAME } },
       doc,
     ]);
+
+    console.log("Indexing clinical data....");
+
     const { body: bulkResponse } = await esClient.bulk({
       body,
       refresh: "true",
@@ -90,6 +93,8 @@ describe.only("should index RDPC analyses to donor index", () => {
         track_total_hits: true,
       })
     ).body?.hits?.total?.value;
+
+    console.log("total indexed clinical data: " + indexedClinicalDocuments);
 
     expect(indexedClinicalDocuments).to.equal(dataset.length);
 
@@ -107,6 +112,8 @@ describe.only("should index RDPC analyses to donor index", () => {
           : mockSeqAlignmentAnalyses.slice(from, from + size)
       );
     };
+
+    console.log("Begin indexing RDPC analyses....");
     indexRdpcData(TEST_PROGRAM, url, INDEX_NAME, esClient, mockAnalysisFetcher);
 
     const totalEsDocuments = (
@@ -115,6 +122,7 @@ describe.only("should index RDPC analyses to donor index", () => {
         track_total_hits: true,
       })
     ).body?.hits?.total?.value;
+    console.log("Total donor indexed: " + totalEsDocuments);
     expect(totalEsDocuments).to.equal(mockSeqExpAnalyses.length);
   });
 });
