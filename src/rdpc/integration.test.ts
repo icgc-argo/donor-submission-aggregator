@@ -95,7 +95,7 @@ describe.only("should index RDPC analyses to donor index", () => {
       })
     ).body?.hits?.total;
 
-    console.log("total indexed clinical data: " + indexedClinicalDocuments);
+    console.log("total indexed clinical data: ", indexedClinicalDocuments);
 
     expect(indexedClinicalDocuments.value).to.equal(dataset.length);
 
