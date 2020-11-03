@@ -93,11 +93,11 @@ describe.only("should index RDPC analyses to donor index", () => {
         index: INDEX_NAME,
         track_total_hits: true,
       })
-    ).body?.hits?.total?.value;
+    ).body?.hits?.total;
 
     console.log("total indexed clinical data: " + indexedClinicalDocuments);
 
-    expect(indexedClinicalDocuments).to.equal(dataset.length);
+    expect(indexedClinicalDocuments.value).to.equal(dataset.length);
 
     const mockAnalysisFetcher: typeof fetchAnalyses = async (
       studyId: string,
