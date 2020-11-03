@@ -85,7 +85,7 @@ describe.only("should index RDPC analyses to donor index", () => {
 
     const { body: bulkResponse } = await esClient.bulk({
       body,
-      refresh: "true",
+      refresh: "wait_for",
     });
 
     const indexedClinicalDocuments = (
