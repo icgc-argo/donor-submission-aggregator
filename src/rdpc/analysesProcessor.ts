@@ -8,11 +8,11 @@ import {
   RunState,
   AnalysisType,
 } from "./types";
-import _ from "lodash";
 import logger from "logger";
 import promiseRetry from "promise-retry";
 import HashCode from "ts-hashcode";
 import { SANGER_VC_REPO_URL, SEQ_ALIGN_REPO_URL } from "config";
+import _ from "lodash";
 
 const buildQuery = (
   studyId: string,
@@ -383,7 +383,7 @@ export const mergeDonorStateMaps = (
       };
       return acc;
     },
-    { ...map }
+    _.clone(map)
   );
   return result;
 };
