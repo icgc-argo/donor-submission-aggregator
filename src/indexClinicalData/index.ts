@@ -12,7 +12,7 @@ export const queryDocumentsByDonorIds = async (
   donorIds: Array<string>,
   client: Client,
   indexName: string
-) => {
+): Promise<EsHit[]> => {
   const esQuery = esb
     .requestBodySearch()
     .size(donorIds.length)

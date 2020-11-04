@@ -5,13 +5,22 @@ import {
   Analysis,
   DonorRunStateMap,
   RunsByInputAnalyses,
+  RunState,
+  AnalysisType,
 } from "./types";
-import _ from "lodash";
 import logger from "logger";
 import promiseRetry from "promise-retry";
 import HashCode from "ts-hashcode";
+import { SANGER_VC_REPO_URL, SEQ_ALIGN_REPO_URL } from "config";
+import _ from "lodash";
 
-const buildQuery = (studyId: string, from: number, size: number): string => {
+const buildQuery = (
+  studyId: string,
+  analysisType: string,
+  repoUrl: string,
+  from: number,
+  size: number
+): string => {
   const query = `
   fragment AnalysisData on Analysis {
     analysisId
@@ -22,15 +31,19 @@ const buildQuery = (studyId: string, from: number, size: number): string => {
   }
 
   query {
-    SequencingExperimentAnalyses: analyses(
+    analyses(
       filter: {
-        analysisType: "sequencing_experiment"
+        analysisType: "${analysisType}"
         studyId: "${studyId}"
       },
       page: {from: ${from}, size: ${size}}
     ) {
       ...AnalysisData
-      runs: inputForRuns {
+      runs: inputForRuns(
+        filter: {
+          repository: "${repoUrl}"
+        }
+      ) {
         runId
         state
         repository
@@ -52,35 +65,34 @@ const retryConfig = {
   maxTimeout: Infinity,
 };
 
-export const fetchSeqExpAnalyses = async (
+export const fetchAnalyses = async (
   studyId: string,
-  url: string,
+  rdpcUrl: string,
+  workflowRepoUrl: string,
+  analysisType: string,
   from: number,
   size: number
 ): Promise<Analysis[]> => {
-  const query = buildQuery(studyId, from, size);
+  const query = buildQuery(studyId, analysisType, workflowRepoUrl, from, size);
 
   return await promiseRetry<Analysis[]>(async (retry) => {
     try {
-      logger.info("Fetching sequencing experiment analyses from rdpc.....");
-      const response = await fetch(url, {
+      logger.info(`Fetching ${analysisType} analyses from rdpc.....`);
+      const response = await fetch(rdpcUrl, {
         method: "POST",
         body: JSON.stringify({ query }),
         headers: {
           "Content-type": "application/json",
         },
       });
-      return (await response.json()).data
-        .SequencingExperimentAnalyses as Analysis[];
+      return (await response.json()).data.analyses as Analysis[];
     } catch (err) {
-      logger.warn(
-        `Failed to fetch sequencing experiment analyses: ${err}, retrying...`
-      );
+      logger.warn(`Failed to fetch analyses: ${err}, retrying...`);
       return retry(err);
     }
   }, retryConfig).catch((err) => {
     logger.error(
-      `Failed to fetch sequencing experiment analyses of program: ${studyId} from RDPC ${url} after ${retryConfig.retries} attempts: ${err}`
+      `Failed to fetch analyses of program: ${studyId} from RDPC ${rdpcUrl} after ${retryConfig.retries} attempts: ${err}`
     );
     throw err;
   });
@@ -92,23 +104,34 @@ type StreamState = {
 
 export const analysisStream = async function* (
   studyId: string,
-  url: string,
+  rdpcUrl: string,
+  analysisType: string,
   config?: {
     chunkSize?: number;
     state?: StreamState;
-  }
+  },
+  analysesFetcher = fetchAnalyses
 ): AsyncGenerator<Analysis[]> {
   const chunkSize = config?.chunkSize || 1000;
   const streamState: StreamState = {
     currentPage: config?.state?.currentPage || 0,
   };
+
+  const workflowRepoUrl =
+    analysisType === AnalysisType.SEQ_ALIGNMENT
+      ? SANGER_VC_REPO_URL
+      : SEQ_ALIGN_REPO_URL;
+
   while (true) {
-    const page = await fetchSeqExpAnalyses(
+    const page = await analysesFetcher(
       studyId,
-      url,
+      rdpcUrl,
+      workflowRepoUrl,
+      analysisType,
       streamState.currentPage,
       chunkSize
     );
+
     streamState.currentPage = streamState.currentPage + chunkSize;
 
     if (page && page.length > 0) {
@@ -202,30 +225,38 @@ export const getAllRunsByAnalysesByDonors = (
 export const getAllMergedDonor = async (
   studyId: string,
   url: string,
+  analysisType: string,
   config?: {
     chunkSize?: number;
     state?: StreamState;
-  }
+  },
+  analysesFetcher = fetchAnalyses
 ): Promise<RunsByAnalysesByDonors> => {
-  const stream = analysisStream(studyId, url, config);
-  const mergedDonorsWithAlignmentRuns: RunsByAnalysesByDonors = {};
+  const stream = analysisStream(
+    studyId,
+    url,
+    analysisType,
+    config,
+    analysesFetcher
+  );
+  let mergedDonors: RunsByAnalysesByDonors = {};
 
   for await (const page of stream) {
-    logger.info(`Streaming ${page.length} sequencing experiment analyses...`);
+    logger.info(`Streaming ${page.length} of ${analysisType} analyses...`);
     const donorPerPage = toDonorCentric(page);
-    getAllRunsByAnalysesByDonors(mergedDonorsWithAlignmentRuns, donorPerPage);
+    getAllRunsByAnalysesByDonors(mergedDonors, donorPerPage);
   }
-  return mergedDonorsWithAlignmentRuns;
+  return mergedDonors;
 };
 
-export const donorStateMap = (
+export const countAlignmentRunState = (
   donorMap: RunsByAnalysesByDonors
 ): DonorRunStateMap => {
   let result: DonorRunStateMap = {};
   Object.entries(donorMap).forEach(([donorId, map]) => {
     Object.entries(map).forEach(([inputAnalysesId, runs]) => {
       runs.forEach((run) => {
-        if (run.state === "COMPLETE") {
+        if (run.state === RunState.COMPLETE) {
           if (result[donorId]) {
             result[donorId].alignmentsCompleted += 1;
           } else {
@@ -234,7 +265,7 @@ export const donorStateMap = (
           }
         }
 
-        if (run.state === "RUNNING") {
+        if (run.state === RunState.RUNNING) {
           if (result[donorId]) {
             result[donorId].alignmentsRunning += 1;
           } else {
@@ -243,7 +274,7 @@ export const donorStateMap = (
           }
         }
 
-        if (run.state === "EXECUTOR_ERROR") {
+        if (run.state === RunState.EXECUTOR_ERROR) {
           if (result[donorId]) {
             result[donorId].alignmentsFailed += 1;
           } else {
@@ -258,7 +289,46 @@ export const donorStateMap = (
   return result;
 };
 
-const initializeRdpcInfo = (
+export const countVCRunState = (
+  donorMap: RunsByAnalysesByDonors
+): DonorRunStateMap => {
+  let result: DonorRunStateMap = {};
+  Object.entries(donorMap).forEach(([donorId, map]) => {
+    Object.entries(map).forEach(([inputAnalysesId, runs]) => {
+      runs.forEach((run) => {
+        if (run.state === RunState.COMPLETE) {
+          if (result[donorId]) {
+            result[donorId].sangerVcsCompleted += 1;
+          } else {
+            initializeRdpcInfo(result, donorId);
+            result[donorId].sangerVcsCompleted += 1;
+          }
+        }
+
+        if (run.state === RunState.RUNNING) {
+          if (result[donorId]) {
+            result[donorId].sangerVcsRunning += 1;
+          } else {
+            initializeRdpcInfo(result, donorId);
+            result[donorId].sangerVcsRunning += 1;
+          }
+        }
+
+        if (run.state === RunState.EXECUTOR_ERROR) {
+          if (result[donorId]) {
+            result[donorId].sangerVcsFailed += 1;
+          } else {
+            initializeRdpcInfo(result, donorId);
+            result[donorId].sangerVcsFailed += 1;
+          }
+        }
+      });
+    });
+  });
+  return result;
+};
+
+export const initializeRdpcInfo = (
   result: DonorRunStateMap,
   donorId: string
 ): void => {
@@ -276,4 +346,44 @@ const initializeRdpcInfo = (
     releaseStatus: "NO_RELEASE",
     processingStatus: "REGISTERED",
   };
+};
+
+export const mergeDonorStateMaps = (
+  map: DonorRunStateMap,
+  mergeWith: DonorRunStateMap
+): DonorRunStateMap => {
+  const result = Object.entries(mergeWith).reduce<DonorRunStateMap>(
+    (acc, [donorId, rdpcInfo]) => {
+      acc[donorId] = {
+        publishedNormalAnalysis:
+          (acc[donorId]?.publishedNormalAnalysis || 0) +
+          rdpcInfo.publishedNormalAnalysis,
+        publishedTumourAnalysis:
+          (acc[donorId]?.publishedTumourAnalysis || 0) +
+          rdpcInfo.publishedTumourAnalysis,
+        alignmentsCompleted:
+          (acc[donorId]?.alignmentsCompleted || 0) +
+          rdpcInfo.alignmentsCompleted,
+        alignmentsRunning:
+          (acc[donorId]?.alignmentsRunning || 0) + rdpcInfo.alignmentsRunning,
+        alignmentsFailed:
+          (acc[donorId]?.alignmentsFailed || 0) + rdpcInfo.alignmentsFailed,
+        sangerVcsCompleted:
+          (acc[donorId]?.sangerVcsCompleted || 0) + rdpcInfo.sangerVcsCompleted,
+        sangerVcsRunning:
+          (acc[donorId]?.sangerVcsRunning || 0) + rdpcInfo.sangerVcsRunning,
+        sangerVcsFailed:
+          (acc[donorId]?.sangerVcsFailed || 0) + rdpcInfo.sangerVcsFailed,
+        totalFilesCount:
+          (acc[donorId]?.totalFilesCount || 0) + rdpcInfo.totalFilesCount,
+        filesToQcCount:
+          (acc[donorId]?.filesToQcCount || 0) + rdpcInfo.filesToQcCount,
+        releaseStatus: "NO_RELEASE",
+        processingStatus: "REGISTERED",
+      };
+      return acc;
+    },
+    _.clone(map)
+  );
+  return result;
 };

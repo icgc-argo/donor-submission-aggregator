@@ -28,6 +28,11 @@ export enum RunState {
   EXECUTOR_ERROR = "EXECUTOR_ERROR",
 }
 
+export enum AnalysisType {
+  SEQ_ALIGNMENT = "sequencing_alignment",
+  SEQ_EXPERIMENT = "sequencing_experiment",
+}
+
 export interface RunsByInputAnalyses {
   [inputAnalyses: string]: Run[];
 }
