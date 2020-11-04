@@ -95,11 +95,11 @@ describe.only("should index RDPC analyses to donor index", () => {
       refresh: "wait_for",
     });
 
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, 10000);
-    });
+    // await new Promise((resolve) => {
+    //   setTimeout(() => {
+    //     resolve();
+    //   }, 10000);
+    // });
 
     const indexedClinicalDocuments = (
       await esClient.search({
@@ -131,7 +131,13 @@ describe.only("should index RDPC analyses to donor index", () => {
     };
 
     console.log("Begin indexing RDPC analyses....");
-    indexRdpcData(TEST_PROGRAM, url, INDEX_NAME, esClient, mockAnalysisFetcher);
+    await indexRdpcData(
+      TEST_PROGRAM,
+      url,
+      INDEX_NAME,
+      esClient,
+      mockAnalysisFetcher
+    );
 
     const totalEsDocumentsCount = (
       await esClient.search({
