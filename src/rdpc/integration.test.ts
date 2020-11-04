@@ -64,19 +64,7 @@ describe.only("should index RDPC analyses to donor index", () => {
     console.log(
       "beforeEach >>>>>>>>>>> Initializing index mapping is complete"
     );
-  });
 
-  after(async () => {
-    await elasticsearchContainer.stop();
-  });
-
-  afterEach(async () => {
-    await esClient.indices.delete({
-      index: INDEX_NAME,
-    });
-  });
-
-  it("should index sequencing experiment and sequencing alignment analyses", async () => {
     const { body: exists } = await esClient.indices.exists({
       index: INDEX_NAME,
     });
@@ -100,7 +88,19 @@ describe.only("should index RDPC analyses to donor index", () => {
         resolve();
       }, 10000);
     });
+  });
 
+  after(async () => {
+    await elasticsearchContainer.stop();
+  });
+
+  afterEach(async () => {
+    await esClient.indices.delete({
+      index: INDEX_NAME,
+    });
+  });
+
+  it("should index sequencing experiment and sequencing alignment analyses", async () => {
     const indexedClinicalDocuments = (
       await esClient.search({
         index: INDEX_NAME,
