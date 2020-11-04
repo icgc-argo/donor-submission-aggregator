@@ -60,7 +60,7 @@ describe.only("should index RDPC analyses to donor index", () => {
     await esClient.indices.create({
       index: INDEX_NAME,
     });
-    initIndexMapping(INDEX_NAME, esClient);
+    await initIndexMapping(INDEX_NAME, esClient);
     console.log(
       "beforeEach >>>>>>>>>>> Initializing index mapping is complete"
     );
