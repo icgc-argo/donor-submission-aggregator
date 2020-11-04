@@ -92,7 +92,7 @@ describe.only("should index RDPC analyses to donor index", () => {
 
     const { body: bulkResponse } = await esClient.bulk({
       body,
-      refresh: "wait_for",
+      refresh: "true",
     });
 
     const indexedClinicalDocuments = (
@@ -104,7 +104,7 @@ describe.only("should index RDPC analyses to donor index", () => {
 
     console.log(
       "Total numer of indexed clinical documents: ",
-      indexedClinicalDocuments
+      indexedClinicalDocuments.value
     );
 
     expect(indexedClinicalDocuments.value).to.equal(clinicalDataset.length);
