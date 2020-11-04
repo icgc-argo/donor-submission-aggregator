@@ -95,6 +95,8 @@ describe.only("should index RDPC analyses to donor index", () => {
       refresh: "wait_for",
     });
 
+    await esClient.indices.refresh({ index: INDEX_NAME });
+
     console.log("bulkResponse: ", bulkResponse);
 
     await new Promise((resolve) => {
