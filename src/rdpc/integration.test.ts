@@ -17,7 +17,7 @@ import {
 } from "./fixtures/integrationTest/mockAnalyses";
 import { Analysis, AnalysisType } from "./types";
 
-describe.only("should index RDPC analyses to donor index", () => {
+describe("should index RDPC analyses to donor index", () => {
   let elasticsearchContainer: StartedTestContainer;
   let esClient: Client;
   const ES_PORT = 10092;
@@ -94,12 +94,6 @@ describe.only("should index RDPC analyses to donor index", () => {
       body,
       refresh: "wait_for",
     });
-
-    // await new Promise((resolve) => {
-    //   setTimeout(() => {
-    //     resolve();
-    //   }, 10000);
-    // });
 
     const indexedClinicalDocuments = (
       await esClient.search({
