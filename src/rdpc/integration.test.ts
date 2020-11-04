@@ -95,6 +95,8 @@ describe.only("should index RDPC analyses to donor index", () => {
       refresh: "wait_for",
     });
 
+    console.log("bulkResponse: ", bulkResponse);
+
     await new Promise((resolve) => {
       setTimeout(() => {
         resolve();
