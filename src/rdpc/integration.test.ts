@@ -14,7 +14,7 @@ import {
 import {
   mockSeqAlignmentAnalyses,
   mockSeqExpAnalyses,
-} from "./fixtures/integrationTest/mockAnlyses";
+} from "./fixtures/integrationTest/mockAnalyses";
 import { Analysis, AnalysisType } from "./types";
 
 describe.only("should index RDPC analyses to donor index", () => {
@@ -98,7 +98,7 @@ describe.only("should index RDPC analyses to donor index", () => {
     await new Promise((resolve) => {
       setTimeout(() => {
         resolve();
-      }, 30000);
+      }, 10000);
     });
 
     const indexedClinicalDocuments = (
