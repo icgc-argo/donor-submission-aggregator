@@ -1,6 +1,6 @@
 import { EsDonorDocument } from "indexClinicalData/types";
 
-export const dataset: EsDonorDocument[] = [
+export const clinicalDataset: EsDonorDocument[] = [
   {
     validWithCurrentDictionary: true,
     releaseStatus: "NO_RELEASE",
@@ -242,3 +242,95 @@ export const dataset: EsDonorDocument[] = [
     createdAt: new Date(),
   },
 ];
+
+type TestFields = {
+  alignmentsCompleted: Number;
+  alignmentsRunning: Number;
+  alignmentsFailed: Number;
+  sangerVcsCompleted: Number;
+  sangerVcsRunning: Number;
+  sangerVcsFailed: Number;
+};
+
+export const expectedRDPCData: { [k: string]: TestFields } = {
+  ["DO35082"]: {
+    alignmentsCompleted: 1,
+    alignmentsRunning: 0,
+    alignmentsFailed: 0,
+    sangerVcsCompleted: 2,
+    sangerVcsRunning: 0,
+    sangerVcsFailed: 0,
+  },
+  ["DO35083"]: {
+    alignmentsCompleted: 0,
+    alignmentsRunning: 0,
+    alignmentsFailed: 1,
+    sangerVcsCompleted: 1,
+    sangerVcsRunning: 0,
+    sangerVcsFailed: 0,
+  },
+  ["DO35084"]: {
+    alignmentsCompleted: 0,
+    alignmentsRunning: 1,
+    alignmentsFailed: 0,
+    sangerVcsCompleted: 1,
+    sangerVcsRunning: 0,
+    sangerVcsFailed: 0,
+  },
+  ["DO35085"]: {
+    alignmentsCompleted: 1,
+    alignmentsRunning: 0,
+    alignmentsFailed: 0,
+    sangerVcsCompleted: 1,
+    sangerVcsRunning: 0,
+    sangerVcsFailed: 0,
+  },
+  ["DO35086"]: {
+    alignmentsCompleted: 1,
+    alignmentsRunning: 0,
+    alignmentsFailed: 0,
+    sangerVcsCompleted: 1,
+    sangerVcsRunning: 0,
+    sangerVcsFailed: 0,
+  },
+  ["DO35087"]: {
+    alignmentsCompleted: 1,
+    alignmentsRunning: 0,
+    alignmentsFailed: 0,
+    sangerVcsCompleted: 1,
+    sangerVcsRunning: 0,
+    sangerVcsFailed: 0,
+  },
+  ["DO35088"]: {
+    alignmentsCompleted: 1,
+    alignmentsRunning: 0,
+    alignmentsFailed: 0,
+    sangerVcsCompleted: 1,
+    sangerVcsRunning: 0,
+    sangerVcsFailed: 0,
+  },
+  ["DO35089"]: {
+    alignmentsCompleted: 1,
+    alignmentsRunning: 0,
+    alignmentsFailed: 0,
+    sangerVcsCompleted: 1,
+    sangerVcsRunning: 0,
+    sangerVcsFailed: 0,
+  },
+  ["DO35090"]: {
+    alignmentsCompleted: 1,
+    alignmentsRunning: 0,
+    alignmentsFailed: 0,
+    sangerVcsCompleted: 1,
+    sangerVcsRunning: 0,
+    sangerVcsFailed: 0,
+  },
+  ["DO35091"]: {
+    alignmentsCompleted: 1,
+    alignmentsRunning: 0,
+    alignmentsFailed: 0,
+    sangerVcsCompleted: 1,
+    sangerVcsRunning: 0,
+    sangerVcsFailed: 0,
+  },
+};

@@ -1,11 +1,16 @@
 import { Client } from "@elastic/elasticsearch";
 import { expect } from "chai";
+import esb from "elastic-builder";
 import { initIndexMapping } from "elasticsearch";
+import { EsHit } from "indexClinicalData/types";
 import { Duration, TemporalUnit } from "node-duration";
 import { indexRdpcData } from "rdpc";
 import { GenericContainer, StartedTestContainer, Wait } from "testcontainers";
 import { fetchAnalyses } from "./analysesProcessor";
-import { dataset } from "./fixtures/integrationTest/dataset";
+import {
+  clinicalDataset,
+  expectedRDPCData,
+} from "./fixtures/integrationTest/dataset";
 import {
   mockSeqAlignmentAnalyses,
   mockSeqExpAnalyses,
@@ -56,7 +61,9 @@ describe.only("should index RDPC analyses to donor index", () => {
       index: INDEX_NAME,
     });
     initIndexMapping(INDEX_NAME, esClient);
-    console.log("Initializing index mapping is complete >>>>>>>>>");
+    console.log(
+      "beforeEach >>>>>>>>>>> Initializing index mapping is complete"
+    );
   });
 
   after(async () => {
@@ -76,7 +83,7 @@ describe.only("should index RDPC analyses to donor index", () => {
     expect(exists).to.be.true;
 
     // index testing clinical data
-    const body = dataset.flatMap((doc) => [
+    const body = clinicalDataset.flatMap((doc) => [
       { index: { _index: INDEX_NAME } },
       doc,
     ]);
@@ -96,11 +103,11 @@ describe.only("should index RDPC analyses to donor index", () => {
     ).body?.hits?.total;
 
     console.log(
-      "Total indexed clinical documents count: ",
+      "Total numer of indexed clinical documents: ",
       indexedClinicalDocuments
     );
 
-    expect(indexedClinicalDocuments.value).to.equal(dataset.length);
+    expect(indexedClinicalDocuments.value).to.equal(clinicalDataset.length);
 
     const mockAnalysisFetcher: typeof fetchAnalyses = async (
       studyId: string,
@@ -120,13 +127,55 @@ describe.only("should index RDPC analyses to donor index", () => {
     console.log("Begin indexing RDPC analyses....");
     indexRdpcData(TEST_PROGRAM, url, INDEX_NAME, esClient, mockAnalysisFetcher);
 
-    const totalEsDocuments = (
+    const totalEsDocumentsCount = (
       await esClient.search({
         index: INDEX_NAME,
         track_total_hits: true,
       })
     ).body?.hits?.total?.value;
-    console.log("Total donor indexed: " + totalEsDocuments);
-    expect(totalEsDocuments).to.equal(mockSeqExpAnalyses.length);
+    console.log("Total donors indexed: ", totalEsDocumentsCount);
+    expect(totalEsDocumentsCount).to.equal(mockSeqExpAnalyses.length);
+
+    // Verify if es documents have correct RDPC info:
+    const donorIds = clinicalDataset.map((doc) => {
+      return doc.donorId;
+    });
+
+    donorIds.forEach(async (donorId) => {
+      const esQuery = esb
+        .requestBodySearch()
+        .size(donorIds.length)
+        .query(esb.termQuery("donorId", donorId));
+
+      const esHits: EsHit[] = await esClient
+        .search({
+          index: INDEX_NAME,
+          body: esQuery,
+        })
+        .then((res) => res.body.hits.hits)
+        .catch((err) => {
+          return [];
+        });
+
+      expect(esHits.length).to.equal(1);
+      expect(esHits[0]._source.alignmentsCompleted).to.equal(
+        expectedRDPCData[donorId].alignmentsCompleted
+      );
+      expect(esHits[0]._source.alignmentsFailed).to.equal(
+        expectedRDPCData[donorId].alignmentsFailed
+      );
+      expect(esHits[0]._source.alignmentsRunning).to.equal(
+        expectedRDPCData[donorId].alignmentsRunning
+      );
+      expect(esHits[0]._source.sangerVcsCompleted).to.equal(
+        expectedRDPCData[donorId].sangerVcsCompleted
+      );
+      expect(esHits[0]._source.sangerVcsFailed).to.equal(
+        expectedRDPCData[donorId].sangerVcsFailed
+      );
+      expect(esHits[0]._source.sangerVcsRunning).to.equal(
+        expectedRDPCData[donorId].sangerVcsRunning
+      );
+    });
   });
 });
