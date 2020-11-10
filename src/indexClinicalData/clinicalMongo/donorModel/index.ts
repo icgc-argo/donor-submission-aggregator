@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Donor } from "./types";
+import { Donor, Donor_new } from "./types";
 
 const MONGO_DONOR_MODEL_NAME = "Donor";
 
@@ -10,6 +10,17 @@ export type MongoDonorDocument = Omit<Donor, "specimens"> & {
   updatedAt: NonNullable<Donor["updatedAt"]>;
   specimens: Array<
     Donor["specimens"][0] & {
+      tumourNormalDesignation: TumourNormalDesignation;
+    }
+  >;
+};
+
+export type LocalMongoDonorDocument = Omit<Donor_new, "specimens"> & {
+  donorId: NonNullable<Donor_new["donorId"]>;
+  createdAt: NonNullable<Donor_new["createdAt"]>;
+  updatedAt: NonNullable<Donor_new["updatedAt"]>;
+  specimens: Array<
+    Donor_new["specimens"][0] & {
       tumourNormalDesignation: TumourNormalDesignation;
     }
   >;

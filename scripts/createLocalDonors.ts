@@ -1,7 +1,7 @@
 import uuid from "uuid";
-import { MongoDonorDocument } from "../src/indexClinicalData/clinicalMongo/donorModel";
+import { LocalMongoDonorDocument } from "../src/indexClinicalData/clinicalMongo/donorModel";
 
-export default (programShortName: string) => {
+export default (programShortName: string, donorId: string) => {
   const submitterId = uuid();
   return {
     programId: programShortName,
@@ -9,7 +9,7 @@ export default (programShortName: string) => {
     submitterId: submitterId,
     createdAt: new Date().toString(),
     updatedAt: new Date().toString(),
-    donorId: Math.floor(100000 + Math.random() * 900000),
+    donorId: donorId,
     schemaMetadata: {
       isValid: true,
       lastValidSchemaVersion: "",
@@ -90,5 +90,5 @@ export default (programShortName: string) => {
         ],
       },
     ],
-  } as MongoDonorDocument;
+  } as LocalMongoDonorDocument;
 };

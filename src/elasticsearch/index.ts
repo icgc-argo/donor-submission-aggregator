@@ -75,7 +75,7 @@ export const toEsBulkIndexActions = <T = {}>(
 ) => (docs: Array<T>) =>
   flatMap(docs, (doc) => {
     const documentId = getDocumentId(doc);
-    return [
+    const result = [
       {
         index: documentId
           ? { _index: indexName, _id: documentId }
@@ -83,4 +83,7 @@ export const toEsBulkIndexActions = <T = {}>(
       },
       doc,
     ];
+
+    // console.log(JSON.stringify(result))
+    return result;
   });

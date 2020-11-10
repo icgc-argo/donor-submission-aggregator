@@ -71,10 +71,10 @@ export default (configs: {
               esClient
             );
           } else if (queuedEvent.type === KnownEventType.RDPC) {
-            for (const rdpcUrls in queuedEvent.rdpcGatewayUrls) {
+            for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
               await indexRdpcData(
                 programId,
-                rdpcUrls,
+                rdpcUrl,
                 newResolvedIndex.indexName,
                 esClient
               );
@@ -85,10 +85,10 @@ export default (configs: {
               newResolvedIndex.indexName,
               esClient
             );
-            for (const rdpcUrls in queuedEvent.rdpcGatewayUrls) {
+            for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
               await indexRdpcData(
                 programId,
-                rdpcUrls,
+                rdpcUrl,
                 newResolvedIndex.indexName,
                 esClient
               );

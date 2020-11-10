@@ -10,23 +10,23 @@ services:
     volumes:
       - ./docker/volumes/mongo/data:/data/db
 
-  elasticsearch:
-    image: "elasticsearch:7.5.0"
-    ports:
-      - 9200:9200
-    volumes:
-      - es_data:/usr/share/elasticsearch/data
-    environment:
-      - discovery.type=single-node
-      - cluster.name=workflow.elasticsearch
-      - "ES_JAVA_OPTS=-Xms512m -Xmx2048m"
+  # elasticsearch:
+  #   image: "elasticsearch:7.5.0"
+  #   ports:
+  #     - 9200:9200
+  #   volumes:
+  #     - es_data:/usr/share/elasticsearch/data
+  #   environment:
+  #     - discovery.type=single-node
+  #     - cluster.name=workflow.elasticsearch
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx2048m"
 
-  kibana:
-    image: "kibana:7.5.0"
-    depends_on:
-      - elasticsearch
-    ports:
-      - 5601:5601
+  # kibana:
+  #   image: "kibana:7.5.0"
+  #   depends_on:
+  #     - elasticsearch
+  #   ports:
+  #     - 5601:5601
 
   zookeeper:
     image: wurstmeister/zookeeper
@@ -55,6 +55,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./docker/volumes/kafka:/kafka
+
   rest-proxy:
     image: confluentinc/cp-kafka-rest:5.2.1
     depends_on:
@@ -92,13 +93,14 @@ services:
       PORT: 9021
 
   rollcall:
-    image: overture/rollcall:2.4.0
-    depends_on:
-      - elasticsearch
+    image: overture/rollcall:2.5.0
+    # depends_on:
+    # - elasticsearch
     ports:
       - "9001:9001"
     environment:
-      ELASTICSEARCH_NODE: http://elasticsearch:9200
+      ELASTICSEARCH_NODE: http://host.docker.internal:9200
+      # ELASTICSEARCH_NODE: http://localhost:9200
       SPRING_PROFILES_ACTIVE: test
       SERVER_PORT: 9001
       ROLLCALL_ALIASES_0_ALIAS: donor_submission_summary

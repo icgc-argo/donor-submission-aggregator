@@ -7,6 +7,9 @@ dotenv.config({
   path: path.resolve(APP_DIR, "../.env"),
 });
 
+export const RDPC_URL =
+  process.env.RDPC_URL || "https://api.rdpc-qa.cancercollaboratory.org/graphql";
+
 export const MONGO_URL =
   process.env.MONGO_URL || "mongodb://localhost:27017/clinical";
 export const MONGO_USER = process.env.MONG_OUSER;
@@ -38,6 +41,9 @@ export const SANGER_VC_REPO_URL =
 
 export const CLINICAL_PROGRAM_UPDATE_TOPIC =
   process.env.CLINICAL_PROGRAM_UPDATE_TOPIC || "PROGRAM_UPDATE";
+
+export const RDPC_PROGRAM_UPDATE_TOPIC =
+  process.env.RDPC_PROGRAM_UPDATE_TOPIC || "song_analysis";
 
 export const KAFKA_PROGRAM_QUEUE_TOPIC =
   process.env.KAFKA_PROGRAM_QUEUE_TOPIC || "donor_aggregator_program_queues";

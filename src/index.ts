@@ -18,11 +18,15 @@ import {
   ROLLCALL_INDEX_SHARDPREFIX,
   ROLLCALL_INDEX_TYPE,
   ROLLCALL_ALIAS_NAME,
+  RDPC_PROGRAM_UPDATE_TOPIC,
+  RDPC_URL,
 } from "config";
 import applyStatusReport from "./statusReport";
 import logger from "logger";
 import createProgramQueueProcessor from "programQueueProcessor";
 import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUpdateEvent";
+import parseRdpcProgramUpdateEvent from "eventParsers/parseRdpcProgramUpdateEvent";
+import { config } from "dotenv/types";
 
 (async () => {
   /**
@@ -69,6 +73,9 @@ import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUp
     consumer.subscribe({
       topic: CLINICAL_PROGRAM_UPDATE_TOPIC,
     }),
+    consumer.subscribe({
+      topic: RDPC_PROGRAM_UPDATE_TOPIC,
+    }),
   ]);
   logger.info(`subscribed to source events ${CLINICAL_PROGRAM_UPDATE_TOPIC}`);
   await consumer.run({
@@ -84,6 +91,18 @@ import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUp
             await programQueueProcessor.enqueueEvent({
               programId,
               type: programQueueProcessor.knownEventTypes.CLINICAL,
+            });
+            break;
+
+          // default:
+          // break;
+
+          case RDPC_PROGRAM_UPDATE_TOPIC:
+            const event = parseRdpcProgramUpdateEvent(message.value.toString());
+            await programQueueProcessor.enqueueEvent({
+              programId: event.studyId,
+              type: programQueueProcessor.knownEventTypes.RDPC,
+              rdpcGatewayUrls: [RDPC_URL],
             });
             break;
 
