@@ -85,7 +85,7 @@ describe("kafka integration", () => {
 
       rollcallContainer = await new GenericContainer(
         "overture/rollcall",
-        "2.4.0"
+        "2.5.0"
       )
         .withNetworkMode(NETOWRK_MODE)
         .withExposedPorts(ROLLCALL_PORT)

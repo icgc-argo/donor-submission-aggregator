@@ -1,4 +1,8 @@
 {
+  "settings": {
+    "index.number_of_shards": 3,
+    "index.number_of_replicas": 2
+  },
   "mappings": {
     "properties": {
       "programId": {
@@ -36,6 +40,7 @@
       "publishedTumourAnalysis": {
         "type": "byte"
       },
+
       "alignmentsCompleted": {
         "type": "byte"
       },
@@ -54,6 +59,7 @@
       "sangerVcsFailed": {
         "type": "byte"
       },
+
       "processingStatus": {
         "type": "keyword"
       },
