@@ -11,6 +11,7 @@ const parseRdpcProgramUpdateEvent = (
 
 type RdpcProgramUpdateEvent = {
   studyId: string;
+  state: string;
   rdpcGatewayUrls: Array<string>;
 };
 

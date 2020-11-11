@@ -26,7 +26,6 @@ import logger from "logger";
 import createProgramQueueProcessor from "programQueueProcessor";
 import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUpdateEvent";
 import parseRdpcProgramUpdateEvent from "eventParsers/parseRdpcProgramUpdateEvent";
-import { config } from "dotenv/types";
 
 (async () => {
   /**
@@ -93,9 +92,6 @@ import { config } from "dotenv/types";
               type: programQueueProcessor.knownEventTypes.CLINICAL,
             });
             break;
-
-          // default:
-          // break;
 
           case RDPC_PROGRAM_UPDATE_TOPIC:
             const event = parseRdpcProgramUpdateEvent(message.value.toString());

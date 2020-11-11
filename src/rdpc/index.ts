@@ -82,14 +82,7 @@ export const indexRdpcData = async (
 
   logger.info(`Begin bulk indexing donors of program ${programId}...`);
 
-  const bodies = toEsBulkIndexActions<EsDonorDocument>(
-    targetIndexName,
-    (donor) => preExistingDonorHits[donor.donorId]?._id
-  )(esDocuments);
-
-  console.log(JSON.stringify(bodies));
-
-  const result = await esClient.bulk(
+  await esClient.bulk(
     {
       body: toEsBulkIndexActions<EsDonorDocument>(
         targetIndexName,
@@ -99,14 +92,10 @@ export const indexRdpcData = async (
     },
     (error, response) => {
       if (error) {
-        console.log(
-          "error: bulk index rdpc donors -----: " + JSON.stringify(response)
-        );
+        logger.error(response);
       }
     }
   );
-
-  console.log("result---------" + JSON.stringify(result));
 
   logger.info(
     `Successfully indexed all donors of program ${programId} to index: ${targetIndexName}`

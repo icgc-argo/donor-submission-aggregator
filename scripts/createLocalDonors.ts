@@ -1,5 +1,5 @@
 import uuid from "uuid";
-import { LocalMongoDonorDocument } from "../src/indexClinicalData/clinicalMongo/donorModel";
+import { MongoDonorDocument } from "../src/indexClinicalData/clinicalMongo/donorModel";
 
 export default (programShortName: string, donorId: string) => {
   const submitterId = uuid();
@@ -9,7 +9,7 @@ export default (programShortName: string, donorId: string) => {
     submitterId: submitterId,
     createdAt: new Date().toString(),
     updatedAt: new Date().toString(),
-    donorId: donorId,
+    donorId: parseInt(donorId),
     schemaMetadata: {
       isValid: true,
       lastValidSchemaVersion: "",
@@ -90,5 +90,5 @@ export default (programShortName: string, donorId: string) => {
         ],
       },
     ],
-  } as LocalMongoDonorDocument;
+  } as MongoDonorDocument;
 };

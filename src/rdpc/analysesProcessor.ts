@@ -33,8 +33,9 @@ const buildQuery = (
   query {
     analyses(
       filter: {
-        analysisType: "${analysisType}"
-        studyId: "${studyId}"
+        analysisType: "${analysisType}",
+        analysisState: PUBLISHED,
+        studyId: "${studyId}",
       },
       page: {from: ${from}, size: ${size}}
     ) {

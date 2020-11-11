@@ -1,17 +1,20 @@
 import mongoose from "mongoose";
 import { MONGO_URL } from "../src/config";
-import range from "lodash/range";
-
-import {
-  Donor,
-  Donor_new,
-} from "../src/indexClinicalData/clinicalMongo/donorModel/types";
+import { Donor } from "../src/indexClinicalData/clinicalMongo/donorModel/types";
 import donorModel from "../src/indexClinicalData/clinicalMongo/donorModel";
 import createLocalDonors from "./createLocalDonors";
 import { donorIds } from "../src/rdpc/fixtures/PACA-CA_donorIds";
+import { testDonorIds } from "../src/rdpc/fixtures/integrationTest/dataset";
 
 const PROGRAM_SHORT_NAME = process.env.PROGRAM_SHORT_NAME || "TEST-CA";
-const donors: Donor_new[] = donorIds.map((donorId) =>
+
+// integration testing donors:
+const testingDonors: Donor[] = testDonorIds.map((donorId) =>
+  createLocalDonors(PROGRAM_SHORT_NAME, donorId)
+);
+
+// rdpc prod paca-ca donors:
+const devDonors: Donor[] = donorIds.map((donorId) =>
   createLocalDonors(PROGRAM_SHORT_NAME, donorId)
 );
 
@@ -30,7 +33,7 @@ const donors: Donor_new[] = donorIds.map((donorId) =>
     useFindAndModify: false,
   });
   console.log(`connected to mongo at ${MONGO_URL}`);
-  await donorModel().insertMany(donors);
+  await donorModel().insertMany(devDonors);
   const written = await donorModel().find({});
   console.log(`finished creating ${written.length} local donors`);
 })().then(() => {

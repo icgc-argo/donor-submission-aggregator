@@ -8,6 +8,7 @@ import withRetry from "promise-retry";
 import logger from "logger";
 import { KnownEventType, QueueRecord } from "./types";
 import { indexRdpcData } from "rdpc/index";
+import { fetchAnalyses } from "rdpc/analysesProcessor";
 
 const parseProgramQueueEvent = (message: string): QueueRecord =>
   JSON.parse(message);
@@ -33,12 +34,14 @@ export default (configs: {
   rollCallClient: RollCallClient;
   esClient: Client;
   programQueueTopic: string;
+  analysisFetcher?: typeof fetchAnalyses;
   statusReporter?: StatusReporter;
 }) => {
   const {
     rollCallClient,
     esClient,
     programQueueTopic,
+    analysisFetcher,
     statusReporter,
   } = configs;
 
@@ -64,6 +67,18 @@ export default (configs: {
         logger.info(`obtained new index name: ${newResolvedIndex.indexName}`);
         try {
           await initIndexMapping(newResolvedIndex.indexName, esClient);
+
+          await esClient.indices.putSettings({
+            index: newResolvedIndex.indexName.toLowerCase(),
+            body: {
+              settings: {
+                "index.blocks.write": "false",
+              },
+            },
+          });
+
+          logger.info(`Enabled write to index : ${newResolvedIndex.indexName}`);
+
           if (queuedEvent.type === KnownEventType.CLINICAL) {
             await indexClinicalData(
               queuedEvent.programId,
@@ -76,7 +91,8 @@ export default (configs: {
                 programId,
                 rdpcUrl,
                 newResolvedIndex.indexName,
-                esClient
+                esClient,
+                analysisFetcher
               );
             }
           } else {
@@ -90,7 +106,8 @@ export default (configs: {
                 programId,
                 rdpcUrl,
                 newResolvedIndex.indexName,
-                esClient
+                esClient,
+                analysisFetcher
               );
             }
           }
