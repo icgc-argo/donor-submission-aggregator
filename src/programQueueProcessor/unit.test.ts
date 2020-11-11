@@ -1,4 +1,4 @@
-import { CLINICAL_PROGRAM_UPDATE_TOPIC } from "config";
+import { CLINICAL_PROGRAM_UPDATE_TOPIC, RDPC_URL } from "config";
 import { expect } from "chai";
 import { GenericContainer } from "testcontainers";
 import { StartedTestContainer, Wait } from "testcontainers";
@@ -13,6 +13,13 @@ import { RollCallClient } from "../rollCall/types";
 import createRollCallClient from "../rollCall";
 import { Kafka } from "kafkajs";
 import { ProgramQueueProcessor } from "./types";
+import { testDonorIds } from "rdpc/fixtures/integrationTest/dataset";
+import { fetchAnalyses } from "rdpc/analysesProcessor";
+import { Analysis, AnalysisType } from "rdpc/types";
+import {
+  mockSeqAlignmentAnalyses,
+  mockSeqExpAnalyses,
+} from "rdpc/fixtures/integrationTest/mockAnalyses";
 
 const TEST_PROGRAM_SHORT_NAME = "TESTPROG-CA";
 const DB_COLLECTION_SIZE = 10010;
@@ -141,12 +148,12 @@ describe("kafka integration", () => {
       kafkaContainer?.stop(),
     ]);
   });
-  beforeEach(async function () {
-    const { stdout } = await asyncExec(
-      `PROGRAM_SHORT_NAME=${TEST_PROGRAM_SHORT_NAME} COLLECTION_SIZE=${DB_COLLECTION_SIZE} MONGO_URL=${MONGO_URL} npm run createMongoDonors`
-    );
-    console.log("beforeEach >>>>>>>>>>>", stdout);
-  });
+  // beforeEach(async function () {
+  //   const { stdout } = await asyncExec(
+  //     `PROGRAM_SHORT_NAME=${TEST_PROGRAM_SHORT_NAME} COLLECTION_SIZE=${DB_COLLECTION_SIZE} MONGO_URL=${MONGO_URL} npm run createMongoDonors`
+  //   );
+  //   console.log("beforeEach >>>>>>>>>>>", stdout);
+  // });
   afterEach(async function () {
     await DonorSchema().deleteMany({});
     console.log("programQueueProcessor: ", programQueueProcessor);
@@ -154,7 +161,12 @@ describe("kafka integration", () => {
   });
 
   describe("programQueueProcessor", () => {
-    it("must index all data into Elasticsearch", async function () {
+    it.only("must index all clinical data into Elasticsearch", async function () {
+      const { stdout } = await asyncExec(
+        `PROGRAM_SHORT_NAME=${TEST_PROGRAM_SHORT_NAME} COLLECTION_SIZE=${DB_COLLECTION_SIZE} MONGO_URL=${MONGO_URL} npm run createMongoDonors`
+      );
+      console.log(stdout);
+
       programQueueProcessor = await createProgramQueueProcessor({
         kafka: kafkaClient,
         esClient,
@@ -178,5 +190,75 @@ describe("kafka integration", () => {
       ).body?.hits?.total?.value;
       expect(totalEsDocuments).to.equal(DB_COLLECTION_SIZE);
     });
+  });
+
+  it("must index all clnical and RDPC data into Elasticsearch", async () => {
+    const programId = "TEST-CA";
+    const { stdout } = await asyncExec(
+      `COLLECTION_SIZE=${testDonorIds.length} MONGO_URL=${MONGO_URL} npm run createIntegrationTestMongoDonors`
+    );
+    console.log(stdout);
+
+    const mockAnalysisFetcher: typeof fetchAnalyses = async (
+      studyId: string,
+      rdpcUrl: string,
+      workflowRepoUrl: string,
+      analysisType: string,
+      from: number,
+      size: number
+    ): Promise<Analysis[]> => {
+      return Promise.resolve(
+        analysisType === AnalysisType.SEQ_EXPERIMENT
+          ? mockSeqExpAnalyses.slice(from, from + size)
+          : mockSeqAlignmentAnalyses.slice(from, from + size)
+      );
+    };
+
+    programQueueProcessor = await createProgramQueueProcessor({
+      kafka: kafkaClient,
+      esClient,
+      rollCallClient: rollcallClient,
+      analysisFetcher: mockAnalysisFetcher,
+    });
+
+    await programQueueProcessor.enqueueEvent({
+      programId: programId,
+      type: programQueueProcessor.knownEventTypes.CLINICAL,
+    });
+
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 30000);
+    });
+
+    const totalClinicalEsDocuments = (
+      await esClient.search({
+        index: ALIAS_NAME,
+        track_total_hits: true,
+      })
+    ).body?.hits?.total?.value;
+    expect(totalClinicalEsDocuments).to.equal(testDonorIds.length);
+
+    await programQueueProcessor.enqueueEvent({
+      programId: programId,
+      type: programQueueProcessor.knownEventTypes.RDPC,
+      rdpcGatewayUrls: [RDPC_URL],
+    });
+
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 30000);
+    });
+
+    const totalEsDocuments = (
+      await esClient.search({
+        index: ALIAS_NAME,
+        track_total_hits: true,
+      })
+    ).body?.hits?.total?.value;
+
+    expect(totalEsDocuments).to.equal(testDonorIds.length);
   });
 });
