@@ -9,7 +9,7 @@ export default (programShortName: string) => {
     submitterId: submitterId,
     createdAt: new Date().toString(),
     updatedAt: new Date().toString(),
-    donorId: Math.floor(100000 + Math.random() * 900000),
+    donorId: Math.random(),
     schemaMetadata: {
       isValid: true,
       lastValidSchemaVersion: "",

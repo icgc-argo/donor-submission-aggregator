@@ -20,23 +20,6 @@ export interface Donor {
   completionStats?: CompeletionStats;
 }
 
-export interface Donor_new {
-  _id?: string;
-  schemaMetadata: SchemaMetadata;
-  donorId?: string;
-  gender: string;
-  submitterId: string;
-  programId: string;
-  specimens: Array<Specimen>;
-  clinicalInfo?: ClinicalInfo;
-  primaryDiagnosis?: ClinicalEntity | undefined;
-  followUps?: Array<FollowUp>;
-  treatments?: Array<Treatment>;
-  createdAt?: string;
-  updatedAt?: string;
-  completionStats?: CompeletionStats;
-}
-
 export interface CompeletionStats {
   coreCompletion: CoreCompletionStats;
   overriddenCoreCompletion: CoreClinicalEntites[];
