@@ -33,7 +33,7 @@ const devDonors: Donor[] = donorIds.map((donorId) =>
     useFindAndModify: false,
   });
   console.log(`connected to mongo at ${MONGO_URL}`);
-  await donorModel().insertMany(devDonors);
+  await donorModel().insertMany(testingDonors);
   const written = await donorModel().find({});
   console.log(`finished creating ${written.length} local donors`);
 })().then(() => {
