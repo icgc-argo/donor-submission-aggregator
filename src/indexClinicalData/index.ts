@@ -68,20 +68,13 @@ export default async (
       } else return transformToEsDonor(donor);
     });
 
-    await esClient.bulk(
-      {
-        body: toEsBulkIndexActions<EsDonorDocument>(
-          targetIndexName,
-          (donor) => preExistingDonorHits[donor.donorId]?._id
-        )(esDocuments),
-        refresh: "true",
-      },
-      (error, response) => {
-        if (error) {
-          logger.error(response);
-        }
-      }
-    );
+    await esClient.bulk({
+      body: toEsBulkIndexActions<EsDonorDocument>(
+        targetIndexName,
+        (donor) => preExistingDonorHits[donor.donorId]?._id
+      )(esDocuments),
+      refresh: "true",
+    });
 
     logger.profile(timer);
   }
