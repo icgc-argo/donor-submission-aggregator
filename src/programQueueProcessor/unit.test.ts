@@ -148,12 +148,6 @@ describe("kafka integration", () => {
       kafkaContainer?.stop(),
     ]);
   });
-  // beforeEach(async function () {
-  //   const { stdout } = await asyncExec(
-  //     `PROGRAM_SHORT_NAME=${TEST_PROGRAM_SHORT_NAME} COLLECTION_SIZE=${DB_COLLECTION_SIZE} MONGO_URL=${MONGO_URL} npm run createMongoDonors`
-  //   );
-  //   console.log("beforeEach >>>>>>>>>>>", stdout);
-  // });
   afterEach(async function () {
     await DonorSchema().deleteMany({});
     console.log("programQueueProcessor: ", programQueueProcessor);
@@ -192,7 +186,7 @@ describe("kafka integration", () => {
     });
   });
 
-  it.only("must index all clnical and RDPC data into Elasticsearch", async () => {
+  it("must index all clnical and RDPC data into Elasticsearch", async () => {
     const programId = "TEST-CA";
 
     // inserts testing donors into mongo:
