@@ -5,18 +5,13 @@ import { Donor } from "../src/indexClinicalData/clinicalMongo/donorModel/types";
 import donorModel from "../src/indexClinicalData/clinicalMongo/donorModel";
 import createDonor from "./createDonor";
 
-const createMongoDonors = async () => {
-  const PROGRAM_SHORT_NAME = process.env.PROGRAM_SHORT_NAME || "TEST-CA";
-  const COLLECTION_SIZE = Number(process.env.COLLECTION_SIZE) || 10000;
+const PROGRAM_SHORT_NAME = process.env.PROGRAM_SHORT_NAME || "TEST-CA";
+const COLLECTION_SIZE = Number(process.env.COLLECTION_SIZE) || 10000;
+const donors: Donor[] = range(0, COLLECTION_SIZE).map(() =>
+  createDonor(PROGRAM_SHORT_NAME, Math.random())
+);
 
-  const donors: Donor[] = range(0, COLLECTION_SIZE).map(() =>
-    createDonor(PROGRAM_SHORT_NAME, Math.random())
-  );
-
-  await insertDonors(donors);
-};
-
-export const insertDonors = async (donors: Donor[]) => {
+(async () => {
   await mongoose.connect(MONGO_URL, {
     autoReconnect: true,
     // http://mongodb.github.io/node-mongodb-native/3.1/reference/faq/
@@ -34,7 +29,6 @@ export const insertDonors = async (donors: Donor[]) => {
   await donorModel().insertMany(donors);
   const written = await donorModel().find({});
   console.log(`finished writing ${written.length} donors`);
-  await mongoose.disconnect();
-};
-
-createMongoDonors();
+})().then(() => {
+  mongoose.disconnect();
+});
