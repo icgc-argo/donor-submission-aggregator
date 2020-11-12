@@ -186,7 +186,7 @@ describe("kafka integration", () => {
     });
   });
 
-  it.only("must index all clnical and RDPC data into Elasticsearch", async () => {
+  it("must index all clnical and RDPC data into Elasticsearch", async () => {
     const programId = "TEST-CA";
 
     // inserts testing donors into mongo:
