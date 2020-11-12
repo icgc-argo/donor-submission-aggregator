@@ -155,7 +155,7 @@ describe("kafka integration", () => {
   });
 
   describe("programQueueProcessor", () => {
-    it.only("must index all clinical data into Elasticsearch", async function () {
+    it("must index all clinical data into Elasticsearch", async function () {
       const { stdout } = await asyncExec(
         `PROGRAM_SHORT_NAME=${TEST_PROGRAM_SHORT_NAME} COLLECTION_SIZE=${DB_COLLECTION_SIZE} MONGO_URL=${MONGO_URL} npm run createMongoDonors`
       );
@@ -186,7 +186,7 @@ describe("kafka integration", () => {
     });
   });
 
-  it("must index all clnical and RDPC data into Elasticsearch", async () => {
+  it.only("must index all clnical and RDPC data into Elasticsearch", async () => {
     const programId = "TEST-CA";
 
     // inserts testing donors into mongo:

@@ -1,19 +1,35 @@
 import mongoose from "mongoose";
 import { MONGO_URL } from "../src/config";
 import { Donor } from "../src/indexClinicalData/clinicalMongo/donorModel/types";
+import donorModel from "../src/indexClinicalData/clinicalMongo/donorModel";
 import { testDonorIds } from "../src/rdpc/fixtures/integrationTest/dataset";
-import { insertDonors } from "./createMongoDonors";
 import createDonor from "./createDonor";
 
-const createTestDonors = async () => {
-  const PROGRAM_SHORT_NAME = process.env.PROGRAM_SHORT_NAME || "TEST-CA";
+const PROGRAM_SHORT_NAME = process.env.PROGRAM_SHORT_NAME || "TEST-CA";
 
-  // integration testing donors:
-  const testingDonors: Donor[] = testDonorIds.map((donorId) =>
-    createDonor(PROGRAM_SHORT_NAME, parseInt(donorId))
-  );
+// integration testing donors:
+const testingDonors: Donor[] = testDonorIds.map((donorId) =>
+  createDonor(PROGRAM_SHORT_NAME, parseInt(donorId))
+);
 
-  await insertDonors(testingDonors);
-};
-
-createTestDonors();
+(async () => {
+  await mongoose.connect(MONGO_URL, {
+    autoReconnect: true,
+    // http://mongodb.github.io/node-mongodb-native/3.1/reference/faq/
+    socketTimeoutMS: 10000,
+    connectTimeoutMS: 30000,
+    keepAlive: true,
+    reconnectTries: 10,
+    reconnectInterval: 3000,
+    bufferCommands: false,
+    bufferMaxEntries: 0,
+    useNewUrlParser: true,
+    useFindAndModify: false,
+  });
+  console.log(`connected to mongo at ${MONGO_URL}`);
+  await donorModel().insertMany(testingDonors);
+  const written = await donorModel().find({});
+  console.log(`finished creating ${written.length} local donors`);
+})().then(() => {
+  mongoose.disconnect();
+});
