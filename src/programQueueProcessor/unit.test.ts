@@ -25,7 +25,7 @@ const TEST_PROGRAM_SHORT_NAME = "TESTPROG-CA";
 const DB_COLLECTION_SIZE = 10010;
 const asyncExec = promisify(exec);
 
-describe("kafka integration", () => {
+describe.only("kafka integration", () => {
   /******** Cooonfigs *********/
   const RESOLVED_INDEX_PARTS = {
     entity: "donor",
@@ -186,7 +186,7 @@ describe("kafka integration", () => {
     });
   });
 
-  it("must index all clnical and RDPC data into Elasticsearch", async () => {
+  it("must index all clinical and RDPC data into Elasticsearch", async () => {
     const programId = "TEST-CA";
 
     // inserts testing donors into mongo:
