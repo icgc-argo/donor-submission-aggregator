@@ -219,7 +219,11 @@ describe.only("kafka integration", () => {
         analysisFetcher: mockAnalysisFetcher,
       });
 
-      // 2. update TEST-CA by publishing RDPC event:
+      // 2. update TEST-CA by publishing a clinical event and a RDPC event:
+      await programQueueProcessor.enqueueEvent({
+        programId: TEST_CA,
+        type: programQueueProcessor.knownEventTypes.CLINICAL,
+      });
       await programQueueProcessor.enqueueEvent({
         programId: TEST_CA,
         type: programQueueProcessor.knownEventTypes.RDPC,
