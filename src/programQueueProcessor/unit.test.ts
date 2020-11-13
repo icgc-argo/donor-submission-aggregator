@@ -258,6 +258,7 @@ describe.only("kafka integration", () => {
         await esClient.search({
           index: ALIAS_NAME,
           body: query_test_us,
+          track_total_hits: true,
         })
       ).body?.hits?.total?.value;
       expect(test_us_documents).to.equal(DB_COLLECTION_SIZE);
