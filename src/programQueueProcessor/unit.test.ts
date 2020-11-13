@@ -174,7 +174,7 @@ describe("kafka integration", () => {
       await new Promise((resolve) => {
         setTimeout(() => {
           resolve();
-        }, 30000);
+        }, 40000);
       });
       const totalEsDocuments = (
         await esClient.search({
