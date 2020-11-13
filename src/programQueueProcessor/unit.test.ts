@@ -154,108 +154,106 @@ describe("kafka integration", () => {
     await programQueueProcessor?.destroy();
   });
 
-  describe.only("programQueueProcessor", () => {
-    it("must index all clinical data into Elasticsearch", async function () {
-      const { stdout } = await asyncExec(
-        `PROGRAM_SHORT_NAME=${TEST_PROGRAM_SHORT_NAME} COLLECTION_SIZE=${DB_COLLECTION_SIZE} MONGO_URL=${MONGO_URL} npm run createMongoDonors`
-      );
-      console.log(stdout);
+  it("must index all clinical data into Elasticsearch", async function () {
+    const { stdout } = await asyncExec(
+      `PROGRAM_SHORT_NAME=${TEST_PROGRAM_SHORT_NAME} COLLECTION_SIZE=${DB_COLLECTION_SIZE} MONGO_URL=${MONGO_URL} npm run createMongoDonors`
+    );
+    console.log(stdout);
 
-      programQueueProcessor = await createProgramQueueProcessor({
-        kafka: kafkaClient,
-        esClient,
-        rollCallClient: rollcallClient,
-      });
-      await programQueueProcessor.enqueueEvent({
-        programId: TEST_PROGRAM_SHORT_NAME,
-        type: programQueueProcessor.knownEventTypes.CLINICAL,
-      });
-      // wait for indexing to complete
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, 40000);
-      });
-      const totalEsDocuments = (
-        await esClient.search({
-          index: ALIAS_NAME,
-          track_total_hits: true,
-        })
-      ).body?.hits?.total?.value;
-      expect(totalEsDocuments).to.equal(DB_COLLECTION_SIZE);
+    programQueueProcessor = await createProgramQueueProcessor({
+      kafka: kafkaClient,
+      esClient,
+      rollCallClient: rollcallClient,
+    });
+    await programQueueProcessor.enqueueEvent({
+      programId: TEST_PROGRAM_SHORT_NAME,
+      type: programQueueProcessor.knownEventTypes.CLINICAL,
+    });
+    // wait for indexing to complete
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 40000);
+    });
+    const totalEsDocuments = (
+      await esClient.search({
+        index: ALIAS_NAME,
+        track_total_hits: true,
+      })
+    ).body?.hits?.total?.value;
+    expect(totalEsDocuments).to.equal(DB_COLLECTION_SIZE);
+  });
+
+  it("must index all clnical and RDPC data into Elasticsearch", async () => {
+    const programId = "TEST-CA";
+
+    // inserts testing donors into mongo:
+    const { stdout } = await asyncExec(
+      `COLLECTION_SIZE=${testDonorIds.length} MONGO_URL=${MONGO_URL} npm run createIntegrationTestMongoDonors`
+    );
+
+    console.log(stdout);
+
+    const mockAnalysisFetcher: typeof fetchAnalyses = async (
+      studyId: string,
+      rdpcUrl: string,
+      workflowRepoUrl: string,
+      analysisType: string,
+      from: number,
+      size: number
+    ): Promise<Analysis[]> => {
+      return Promise.resolve(
+        analysisType === AnalysisType.SEQ_EXPERIMENT
+          ? mockSeqExpAnalyses.slice(from, from + size)
+          : mockSeqAlignmentAnalyses.slice(from, from + size)
+      );
+    };
+
+    programQueueProcessor = await createProgramQueueProcessor({
+      kafka: kafkaClient,
+      esClient,
+      rollCallClient: rollcallClient,
+      analysisFetcher: mockAnalysisFetcher,
     });
 
-    it("must index all clnical and RDPC data into Elasticsearch", async () => {
-      const programId = "TEST-CA";
-
-      // inserts testing donors into mongo:
-      const { stdout } = await asyncExec(
-        `COLLECTION_SIZE=${testDonorIds.length} MONGO_URL=${MONGO_URL} npm run createIntegrationTestMongoDonors`
-      );
-
-      console.log(stdout);
-
-      const mockAnalysisFetcher: typeof fetchAnalyses = async (
-        studyId: string,
-        rdpcUrl: string,
-        workflowRepoUrl: string,
-        analysisType: string,
-        from: number,
-        size: number
-      ): Promise<Analysis[]> => {
-        return Promise.resolve(
-          analysisType === AnalysisType.SEQ_EXPERIMENT
-            ? mockSeqExpAnalyses.slice(from, from + size)
-            : mockSeqAlignmentAnalyses.slice(from, from + size)
-        );
-      };
-
-      programQueueProcessor = await createProgramQueueProcessor({
-        kafka: kafkaClient,
-        esClient,
-        rollCallClient: rollcallClient,
-        analysisFetcher: mockAnalysisFetcher,
-      });
-
-      await programQueueProcessor.enqueueEvent({
-        programId: programId,
-        type: programQueueProcessor.knownEventTypes.CLINICAL,
-      });
-
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, 30000);
-      });
-
-      const totalClinicalEsDocuments = (
-        await esClient.search({
-          index: ALIAS_NAME,
-          track_total_hits: true,
-        })
-      ).body?.hits?.total?.value;
-      expect(totalClinicalEsDocuments).to.equal(testDonorIds.length);
-
-      await programQueueProcessor.enqueueEvent({
-        programId: programId,
-        type: programQueueProcessor.knownEventTypes.RDPC,
-        rdpcGatewayUrls: [RDPC_URL],
-      });
-
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, 30000);
-      });
-
-      const totalEsDocuments = (
-        await esClient.search({
-          index: ALIAS_NAME,
-          track_total_hits: true,
-        })
-      ).body?.hits?.total?.value;
-
-      expect(totalEsDocuments).to.equal(testDonorIds.length);
+    await programQueueProcessor.enqueueEvent({
+      programId: programId,
+      type: programQueueProcessor.knownEventTypes.CLINICAL,
     });
+
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 30000);
+    });
+
+    const totalClinicalEsDocuments = (
+      await esClient.search({
+        index: ALIAS_NAME,
+        track_total_hits: true,
+      })
+    ).body?.hits?.total?.value;
+    expect(totalClinicalEsDocuments).to.equal(testDonorIds.length);
+
+    await programQueueProcessor.enqueueEvent({
+      programId: programId,
+      type: programQueueProcessor.knownEventTypes.RDPC,
+      rdpcGatewayUrls: [RDPC_URL],
+    });
+
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 30000);
+    });
+
+    const totalEsDocuments = (
+      await esClient.search({
+        index: ALIAS_NAME,
+        track_total_hits: true,
+      })
+    ).body?.hits?.total?.value;
+
+    expect(totalEsDocuments).to.equal(testDonorIds.length);
   });
 });
