@@ -77,6 +77,7 @@ import parseRdpcProgramUpdateEvent from "eventParsers/parseRdpcProgramUpdateEven
     }),
   ]);
   logger.info(`subscribed to source events ${CLINICAL_PROGRAM_UPDATE_TOPIC}`);
+  logger.info(`subscribed to source events ${RDPC_PROGRAM_UPDATE_TOPIC}`);
   await consumer.run({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: async ({ topic, message }) => {

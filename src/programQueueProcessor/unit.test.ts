@@ -1,4 +1,8 @@
-import { CLINICAL_PROGRAM_UPDATE_TOPIC, RDPC_URL } from "config";
+import {
+  CLINICAL_PROGRAM_UPDATE_TOPIC,
+  RDPC_PROGRAM_UPDATE_TOPIC,
+  RDPC_URL,
+} from "config";
 import { expect } from "chai";
 import { GenericContainer } from "testcontainers";
 import { StartedTestContainer, Wait } from "testcontainers";
@@ -128,6 +132,10 @@ describe.only("kafka integration", () => {
         topics: [
           {
             topic: CLINICAL_PROGRAM_UPDATE_TOPIC,
+            numPartitions: 1,
+          },
+          {
+            topic: RDPC_PROGRAM_UPDATE_TOPIC,
             numPartitions: 1,
           },
         ],
