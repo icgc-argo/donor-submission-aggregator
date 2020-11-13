@@ -154,7 +154,7 @@ describe("kafka integration", () => {
     await programQueueProcessor?.destroy();
   });
 
-  describe("programQueueProcessor", () => {
+  describe.only("programQueueProcessor", () => {
     it("must index all clinical data into Elasticsearch", async function () {
       const { stdout } = await asyncExec(
         `PROGRAM_SHORT_NAME=${TEST_PROGRAM_SHORT_NAME} COLLECTION_SIZE=${DB_COLLECTION_SIZE} MONGO_URL=${MONGO_URL} npm run createMongoDonors`
