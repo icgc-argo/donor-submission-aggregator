@@ -145,13 +145,13 @@ describe.only("kafka integration", () => {
   beforeEach(async () => {
     // inserts testing donors for TEST-CA:
     const result_1 = await asyncExec(
-      `PROGRAM_SHORT_NAME = ${TEST_CA} COLLECTION_SIZE=${testDonorIds.length} MONGO_URL=${MONGO_URL} npm run createIntegrationTestMongoDonors`
+      `COLLECTION_SIZE=${testDonorIds.length} MONGO_URL=${MONGO_URL} npm run createIntegrationTestMongoDonors`
     );
     console.log("beforeEach >>>>>>>>>>> " + result_1.stdout);
 
     // inserts testing donors for TEST-US:
     const result_2 = await asyncExec(
-      `PROGRAM_SHORT_NAME = ${TEST_US} COLLECTION_SIZE=${DB_COLLECTION_SIZE} MONGO_URL=${MONGO_URL} npm run createMongoDonors`
+      `PROGRAM_SHORT_NAME=${TEST_US} COLLECTION_SIZE=${DB_COLLECTION_SIZE} MONGO_URL=${MONGO_URL} npm run createMongoDonors`
     );
     console.log("beforeEach >>>>>>>>>> " + result_2.stdout);
   });
