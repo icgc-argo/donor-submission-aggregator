@@ -180,11 +180,27 @@ describe.only("kafka integration", () => {
 
   describe("programQueueProcessor", () => {
     it("must index all clinical and RDPC data into Elasticsearch", async () => {
+      const mockAnalysisFetcher: typeof fetchAnalyses = async (
+        studyId: string,
+        rdpcUrl: string,
+        workflowRepoUrl: string,
+        analysisType: string,
+        from: number,
+        size: number
+      ): Promise<Analysis[]> => {
+        return Promise.resolve(
+          analysisType === AnalysisType.SEQ_EXPERIMENT
+            ? mockSeqExpAnalyses.slice(from, from + size)
+            : mockSeqAlignmentAnalyses.slice(from, from + size)
+        );
+      };
+
       // 1. update program TEST-US by publishing clinical event:
       programQueueProcessor = await createProgramQueueProcessor({
         kafka: kafkaClient,
         esClient,
         rollCallClient: rollcallClient,
+        analysisFetcher: mockAnalysisFetcher,
       });
 
       await programQueueProcessor.enqueueEvent({
@@ -204,28 +220,6 @@ describe.only("kafka integration", () => {
         })
       ).body?.hits?.total?.value;
       expect(totalEsDocuments_1).to.equal(DB_COLLECTION_SIZE);
-
-      const mockAnalysisFetcher: typeof fetchAnalyses = async (
-        studyId: string,
-        rdpcUrl: string,
-        workflowRepoUrl: string,
-        analysisType: string,
-        from: number,
-        size: number
-      ): Promise<Analysis[]> => {
-        return Promise.resolve(
-          analysisType === AnalysisType.SEQ_EXPERIMENT
-            ? mockSeqExpAnalyses.slice(from, from + size)
-            : mockSeqAlignmentAnalyses.slice(from, from + size)
-        );
-      };
-
-      programQueueProcessor = await createProgramQueueProcessor({
-        kafka: kafkaClient,
-        esClient,
-        rollCallClient: rollcallClient,
-        analysisFetcher: mockAnalysisFetcher,
-      });
 
       // 2. update TEST-CA by publishing a clinical event and a RDPC event:
       await programQueueProcessor.enqueueEvent({
