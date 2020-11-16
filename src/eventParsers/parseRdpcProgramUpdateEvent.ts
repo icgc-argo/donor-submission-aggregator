@@ -9,9 +9,15 @@ const parseRdpcProgramUpdateEvent = (
   }
 };
 
+enum RDPC_EVENT_STATE {
+  PUBLISHED = "PUBLISHED",
+  UNPUBLISHED = "UNPUBLISHED",
+  SUPPRESSED = "SUPPRESSED",
+}
+
 type RdpcProgramUpdateEvent = {
   studyId: string;
-  state: string;
+  state: RDPC_EVENT_STATE;
   rdpcGatewayUrls: Array<string>;
 };
 
