@@ -8,7 +8,12 @@ export type QueueRecord = { programId: string } & (
       type: KnownEventType.CLINICAL;
     }
   | {
-      type: KnownEventType.RDPC | KnownEventType.SYNC;
+      type: KnownEventType.RDPC;
+      rdpcGatewayUrls: Array<string>;
+      analysisId: string;
+    }
+  | {
+      type: KnownEventType.SYNC;
       rdpcGatewayUrls: Array<string>;
     }
 );

@@ -92,7 +92,8 @@ export default (configs: {
                 rdpcUrl,
                 newResolvedIndex.indexName,
                 esClient,
-                analysisFetcher
+                analysisFetcher,
+                queuedEvent.analysisId
               );
             }
           } else {

@@ -17,7 +17,8 @@ enum RDPC_EVENT_STATE {
 
 type RdpcProgramUpdateEvent = {
   studyId: string;
-  state: RDPC_EVENT_STATE;
+  state: string;
+  analysisId: string;
   rdpcGatewayUrls: Array<string>;
 };
 

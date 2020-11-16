@@ -1,7 +1,6 @@
 import {
   countAlignmentRunState,
   countVCRunState,
-  fetchAnalyses,
   getAllMergedDonor,
   mergeDonorStateMaps,
 } from "./analysesProcessor";
@@ -12,6 +11,8 @@ import { EsDonorDocument, EsHit, RdpcDonorInfo } from "indexClinicalData/types";
 import { toEsBulkIndexActions } from "elasticsearch";
 import logger from "logger";
 import { AnalysisType } from "./types";
+import fetchAnalyses from "./fetchAnalyses";
+import fetchDonorIdsByAnalysis from "./fetchDonorIdsByAnalysis";
 
 const convertToEsDocument = (
   existingEsHit: EsDonorDocument,
@@ -26,27 +27,37 @@ export const indexRdpcData = async (
   rdpcUrl: string,
   targetIndexName: string,
   esClient: Client,
-  analysisFetcher = fetchAnalyses
+  analysesFetcher = fetchAnalyses,
+  analysisId?: string
 ) => {
   logger.info(`Processing program: ${programId} from ${rdpcUrl}.`);
 
   const config = { chunkSize: STREAM_CHUNK_SIZE };
 
-  const mergedAlignmentDonors = await getAllMergedDonor(
-    programId,
-    rdpcUrl,
-    AnalysisType.SEQ_EXPERIMENT,
-    config,
-    analysisFetcher
-  );
+  const donorIdsToFilterBy = analysisId
+    ? await fetchDonorIdsByAnalysis({
+        rdpcUrl,
+        analysisId,
+      })
+    : undefined;
 
-  const mergedVCDonors = await getAllMergedDonor(
-    programId,
-    rdpcUrl,
-    AnalysisType.SEQ_ALIGNMENT,
+  const mergedAlignmentDonors = await getAllMergedDonor({
+    studyId: programId,
+    url: rdpcUrl,
+    donorIds: donorIdsToFilterBy,
+    analysisType: AnalysisType.SEQ_EXPERIMENT,
     config,
-    analysisFetcher
-  );
+    analysesFetcher,
+  });
+
+  const mergedVCDonors = await getAllMergedDonor({
+    studyId: programId,
+    url: rdpcUrl,
+    donorIds: donorIdsToFilterBy,
+    analysisType: AnalysisType.SEQ_ALIGNMENT,
+    config,
+    analysesFetcher,
+  });
 
   const rdpcInfoByDonor_alignment = countAlignmentRunState(
     mergedAlignmentDonors
