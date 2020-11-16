@@ -30,21 +30,19 @@ const handleIndexingFailure = async ({
   logger.warn(`index ${rollCallIndex.indexName} was removed`);
 };
 
-export default (configs: {
+export default ({
+  rollCallClient,
+  esClient,
+  programQueueTopic,
+  analysisFetcher = fetchAnalyses,
+  statusReporter,
+}: {
   rollCallClient: RollCallClient;
   esClient: Client;
   programQueueTopic: string;
   analysisFetcher?: typeof fetchAnalyses;
   statusReporter?: StatusReporter;
 }) => {
-  const {
-    rollCallClient,
-    esClient,
-    programQueueTopic,
-    analysisFetcher,
-    statusReporter,
-  } = configs;
-
   return async ({ message }: EachMessagePayload) => {
     if (message && message.value) {
       const queuedEvent = parseProgramQueueEvent(message.value.toString());
@@ -87,14 +85,14 @@ export default (configs: {
             );
           } else if (queuedEvent.type === KnownEventType.RDPC) {
             for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
-              await indexRdpcData(
+              await indexRdpcData({
                 programId,
                 rdpcUrl,
-                newResolvedIndex.indexName,
+                targetIndexName: newResolvedIndex.indexName,
                 esClient,
-                analysisFetcher,
-                queuedEvent.analysisId
-              );
+                analysesFetcher: analysisFetcher,
+                analysisId: queuedEvent.analysisId,
+              });
             }
           } else {
             await indexClinicalData(
@@ -103,13 +101,13 @@ export default (configs: {
               esClient
             );
             for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
-              await indexRdpcData(
+              await indexRdpcData({
                 programId,
                 rdpcUrl,
-                newResolvedIndex.indexName,
+                targetIndexName: newResolvedIndex.indexName,
                 esClient,
-                analysisFetcher
-              );
+                analysesFetcher: analysisFetcher,
+              });
             }
           }
           await rollCallClient.release(newResolvedIndex);

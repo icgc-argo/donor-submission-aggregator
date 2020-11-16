@@ -22,14 +22,21 @@ const convertToEsDocument = (
   return { ...existingEsHit, ...rdpcInfo };
 };
 
-export const indexRdpcData = async (
-  programId: string,
-  rdpcUrl: string,
-  targetIndexName: string,
-  esClient: Client,
+export const indexRdpcData = async ({
+  programId,
+  rdpcUrl,
+  targetIndexName,
+  esClient,
   analysesFetcher = fetchAnalyses,
-  analysisId?: string
-) => {
+  analysisId,
+}: {
+  programId: string;
+  rdpcUrl: string;
+  targetIndexName: string;
+  esClient: Client;
+  analysesFetcher: typeof fetchAnalyses;
+  analysisId?: string;
+}) => {
   logger.info(`Processing program: ${programId} from ${rdpcUrl}.`);
 
   const config = { chunkSize: STREAM_CHUNK_SIZE };

@@ -125,13 +125,13 @@ describe("should index RDPC analyses to donor index", () => {
     };
 
     console.log("Begin indexing RDPC analyses....");
-    await indexRdpcData(
-      TEST_PROGRAM,
-      url,
-      INDEX_NAME,
+    await indexRdpcData({
+      programId: TEST_PROGRAM,
+      rdpcUrl: url,
+      targetIndexName: INDEX_NAME,
       esClient,
-      mockAnalysisFetcher
-    );
+      analysesFetcher: mockAnalysisFetcher,
+    });
 
     const totalEsDocumentsCount = (
       await esClient.search({
