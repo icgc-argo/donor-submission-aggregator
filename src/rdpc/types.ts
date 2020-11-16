@@ -33,6 +33,11 @@ export enum AnalysisType {
   SEQ_EXPERIMENT = "sequencing_experiment",
 }
 
+export enum AnalysisState {
+  PUBLISHED = "PUBLISHED",
+  UNPUBLISHED = "UNPUBLISHED",
+}
+
 export interface RunsByInputAnalyses {
   [inputAnalyses: string]: Run[];
 }

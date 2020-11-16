@@ -1,4 +1,8 @@
-import { CLINICAL_PROGRAM_UPDATE_TOPIC } from "config";
+import {
+  CLINICAL_PROGRAM_UPDATE_TOPIC,
+  RDPC_PROGRAM_UPDATE_TOPIC,
+  RDPC_URL,
+} from "config";
 import { expect } from "chai";
 import { GenericContainer } from "testcontainers";
 import { StartedTestContainer, Wait } from "testcontainers";
@@ -13,8 +17,21 @@ import { RollCallClient } from "../rollCall/types";
 import createRollCallClient from "../rollCall";
 import { Kafka } from "kafkajs";
 import { ProgramQueueProcessor } from "./types";
+import {
+  expectedRDPCData,
+  testDonorIds,
+} from "rdpc/fixtures/integrationTest/dataset";
+import { fetchAnalyses } from "rdpc/analysesProcessor";
+import { Analysis, AnalysisType } from "rdpc/types";
+import {
+  mockSeqAlignmentAnalyses,
+  mockSeqExpAnalyses,
+} from "rdpc/fixtures/integrationTest/mockAnalyses";
+import esb from "elastic-builder";
+import { EsHit } from "indexClinicalData/types";
 
-const TEST_PROGRAM_SHORT_NAME = "TESTPROG-CA";
+const TEST_US = "TEST-US";
+const TEST_CA = "TEST-CA";
 const DB_COLLECTION_SIZE = 10010;
 const asyncExec = promisify(exec);
 
@@ -121,6 +138,10 @@ describe("kafka integration", () => {
             topic: CLINICAL_PROGRAM_UPDATE_TOPIC,
             numPartitions: 1,
           },
+          {
+            topic: RDPC_PROGRAM_UPDATE_TOPIC,
+            numPartitions: 1,
+          },
         ],
       });
       await kafkaAdmin.disconnect();
@@ -133,6 +154,20 @@ describe("kafka integration", () => {
       throw err;
     }
   });
+  beforeEach(async () => {
+    // inserts testing donors for TEST-CA:
+    const result_1 = await asyncExec(
+      `COLLECTION_SIZE=${testDonorIds.length} MONGO_URL=${MONGO_URL} npm run createIntegrationTestMongoDonors`
+    );
+    console.log("beforeEach >>>>>>>>>>> " + result_1.stdout);
+
+    // inserts testing donors for TEST-US:
+    const result_2 = await asyncExec(
+      `PROGRAM_SHORT_NAME=${TEST_US} COLLECTION_SIZE=${DB_COLLECTION_SIZE} MONGO_URL=${MONGO_URL} npm run createMongoDonors`
+    );
+    console.log("beforeEach >>>>>>>>>> " + result_2.stdout);
+  });
+
   after(async () => {
     await Promise.all([
       mongoContainer?.stop(),
@@ -141,12 +176,6 @@ describe("kafka integration", () => {
       kafkaContainer?.stop(),
     ]);
   });
-  beforeEach(async function () {
-    const { stdout } = await asyncExec(
-      `PROGRAM_SHORT_NAME=${TEST_PROGRAM_SHORT_NAME} COLLECTION_SIZE=${DB_COLLECTION_SIZE} MONGO_URL=${MONGO_URL} npm run createMongoDonors`
-    );
-    console.log("beforeEach >>>>>>>>>>>", stdout);
-  });
   afterEach(async function () {
     await DonorSchema().deleteMany({});
     console.log("programQueueProcessor: ", programQueueProcessor);
@@ -154,14 +183,32 @@ describe("kafka integration", () => {
   });
 
   describe("programQueueProcessor", () => {
-    it("must index all data into Elasticsearch", async function () {
+    it("must index all clinical and RDPC data into Elasticsearch", async () => {
+      const mockAnalysisFetcher: typeof fetchAnalyses = async (
+        studyId: string,
+        rdpcUrl: string,
+        workflowRepoUrl: string,
+        analysisType: string,
+        from: number,
+        size: number
+      ): Promise<Analysis[]> => {
+        return Promise.resolve(
+          analysisType === AnalysisType.SEQ_EXPERIMENT
+            ? mockSeqExpAnalyses.slice(from, from + size)
+            : mockSeqAlignmentAnalyses.slice(from, from + size)
+        );
+      };
+
+      // 1. update program TEST-US by publishing clinical event:
       programQueueProcessor = await createProgramQueueProcessor({
         kafka: kafkaClient,
         esClient,
         rollCallClient: rollcallClient,
+        analysisFetcher: mockAnalysisFetcher,
       });
+
       await programQueueProcessor.enqueueEvent({
-        programId: TEST_PROGRAM_SHORT_NAME,
+        programId: TEST_US,
         type: programQueueProcessor.knownEventTypes.CLINICAL,
       });
       // wait for indexing to complete
@@ -170,13 +217,117 @@ describe("kafka integration", () => {
           resolve();
         }, 30000);
       });
+      const totalEsDocuments_1 = (
+        await esClient.search({
+          index: ALIAS_NAME,
+          track_total_hits: true,
+        })
+      ).body?.hits?.total?.value;
+      expect(totalEsDocuments_1).to.equal(DB_COLLECTION_SIZE);
+
+      // 2. update TEST-CA by publishing a clinical event and a RDPC event:
+      await programQueueProcessor.enqueueEvent({
+        programId: TEST_CA,
+        type: programQueueProcessor.knownEventTypes.CLINICAL,
+      });
+      await programQueueProcessor.enqueueEvent({
+        programId: TEST_CA,
+        type: programQueueProcessor.knownEventTypes.RDPC,
+        rdpcGatewayUrls: [RDPC_URL],
+      });
+
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, 30000);
+      });
+
+      // check if number of TEST-CA documents is expected:
+      const query_test_ca = esb
+        .requestBodySearch()
+        .query(esb.termQuery("programId", TEST_CA));
+
+      const test_ca_documents = (
+        await esClient.search({
+          index: ALIAS_NAME,
+          body: query_test_ca,
+        })
+      ).body?.hits?.total?.value;
+      expect(test_ca_documents).to.equal(testDonorIds.length);
+
+      // check if new rdpc data is relfected in TEST-CA
+      const hits = await Promise.all(
+        testDonorIds.map(async (donorId) => {
+          const esQuery = esb
+            .requestBodySearch()
+            .size(testDonorIds.length)
+            .query(esb.termQuery("donorId", "DO" + donorId));
+          const test_ca_hits: EsHit[] = await esClient
+            .search({
+              index: ALIAS_NAME,
+              body: esQuery,
+            })
+            .then((res) => res.body.hits.hits)
+            .catch((err) => {
+              return [];
+            });
+          return { donorId: donorId, hits: test_ca_hits } as {
+            donorId: string;
+            hits: EsHit[];
+          };
+        })
+      );
+
+      for (const test_ca_hit of hits) {
+        const donorId = test_ca_hit.donorId;
+        console.log(
+          `expecting TEST-CA donor id = ${donorId} to have 1 es hit...`
+        );
+
+        expect(test_ca_hit.hits.length).to.equal(1);
+        expect(test_ca_hit.hits[0]._source.alignmentsCompleted).to.equal(
+          expectedRDPCData["DO" + donorId].alignmentsCompleted
+        );
+        expect(test_ca_hit.hits[0]._source.alignmentsFailed).to.equal(
+          expectedRDPCData["DO" + donorId].alignmentsFailed
+        );
+        expect(test_ca_hit.hits[0]._source.alignmentsRunning).to.equal(
+          expectedRDPCData["DO" + donorId].alignmentsRunning
+        );
+        expect(test_ca_hit.hits[0]._source.sangerVcsCompleted).to.equal(
+          expectedRDPCData["DO" + donorId].sangerVcsCompleted
+        );
+        expect(test_ca_hit.hits[0]._source.sangerVcsFailed).to.equal(
+          expectedRDPCData["DO" + donorId].sangerVcsFailed
+        );
+        expect(test_ca_hit.hits[0]._source.sangerVcsRunning).to.equal(
+          expectedRDPCData["DO" + donorId].sangerVcsRunning
+        );
+      }
+
+      // check if the number of TEST-US documents is expected:
+      const query_test_us = esb
+        .requestBodySearch()
+        .query(esb.termQuery("programId", TEST_US));
+
+      const test_us_documents = (
+        await esClient.search({
+          index: ALIAS_NAME,
+          body: query_test_us,
+          track_total_hits: true,
+        })
+      ).body?.hits?.total?.value;
+      expect(test_us_documents).to.equal(DB_COLLECTION_SIZE);
+
       const totalEsDocuments = (
         await esClient.search({
           index: ALIAS_NAME,
           track_total_hits: true,
         })
       ).body?.hits?.total?.value;
-      expect(totalEsDocuments).to.equal(DB_COLLECTION_SIZE);
+      expect(totalEsDocuments).to.equal(
+        testDonorIds.length + DB_COLLECTION_SIZE
+      );
     });
   });
 });

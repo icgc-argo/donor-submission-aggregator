@@ -18,11 +18,15 @@ import {
   ROLLCALL_INDEX_SHARDPREFIX,
   ROLLCALL_INDEX_TYPE,
   ROLLCALL_ALIAS_NAME,
+  RDPC_PROGRAM_UPDATE_TOPIC,
+  RDPC_URL,
+  FEATURE_RDPC_INDEXING_ENABLED,
 } from "config";
 import applyStatusReport from "./statusReport";
 import logger from "logger";
 import createProgramQueueProcessor from "programQueueProcessor";
 import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUpdateEvent";
+import parseRdpcProgramUpdateEvent from "eventParsers/parseRdpcProgramUpdateEvent";
 
 (async () => {
   /**
@@ -69,8 +73,12 @@ import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUp
     consumer.subscribe({
       topic: CLINICAL_PROGRAM_UPDATE_TOPIC,
     }),
+    consumer.subscribe({
+      topic: RDPC_PROGRAM_UPDATE_TOPIC,
+    }),
   ]);
   logger.info(`subscribed to source events ${CLINICAL_PROGRAM_UPDATE_TOPIC}`);
+  logger.info(`subscribed to source events ${RDPC_PROGRAM_UPDATE_TOPIC}`);
   await consumer.run({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: async ({ topic, message }) => {
@@ -85,6 +93,19 @@ import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUp
               programId,
               type: programQueueProcessor.knownEventTypes.CLINICAL,
             });
+            break;
+
+          case RDPC_PROGRAM_UPDATE_TOPIC:
+            if (FEATURE_RDPC_INDEXING_ENABLED) {
+              const event = parseRdpcProgramUpdateEvent(
+                message.value.toString()
+              );
+              await programQueueProcessor.enqueueEvent({
+                programId: event.studyId,
+                type: programQueueProcessor.knownEventTypes.RDPC,
+                rdpcGatewayUrls: [RDPC_URL],
+              });
+            }
             break;
 
           default:
