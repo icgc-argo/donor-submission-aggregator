@@ -147,40 +147,45 @@ describe("should index RDPC analyses to donor index", () => {
       return doc.donorId;
     });
 
-    for (const donorId of donorIds) {
-      const esQuery = esb
-        .requestBodySearch()
-        .size(donorIds.length)
-        .query(esb.termQuery("donorId", donorId));
+    const esHits = await Promise.all(
+      donorIds.map(async (donorId) => {
+        const esQuery = esb
+          .requestBodySearch()
+          .size(donorIds.length)
+          .query(esb.termQuery("donorId", donorId));
 
-      const esHits: EsHit[] = await esClient
-        .search({
-          index: INDEX_NAME,
-          body: esQuery,
-        })
-        .then((res) => res.body.hits.hits)
-        .catch((err) => {
-          return [];
-        });
+        const esHits: EsHit = await esClient
+          .search({
+            index: INDEX_NAME,
+            body: esQuery,
+          })
+          .then((res) => res.body.hits.hits[0])
+          .catch((err) => {
+            return null;
+          });
+        return esHits;
+      })
+    );
 
-      expect(esHits.length).to.equal(1);
-      expect(esHits[0]._source.alignmentsCompleted).to.equal(
-        expectedRDPCData[donorId].alignmentsCompleted
+    for (const hit of esHits) {
+      // expect(esHits.length).to.equal(1);
+      expect(hit._source.alignmentsCompleted).to.equal(
+        expectedRDPCData[hit._source.donorId].alignmentsCompleted
       );
-      expect(esHits[0]._source.alignmentsFailed).to.equal(
-        expectedRDPCData[donorId].alignmentsFailed
+      expect(hit._source.alignmentsFailed).to.equal(
+        expectedRDPCData[hit._source.donorId].alignmentsFailed
       );
-      expect(esHits[0]._source.alignmentsRunning).to.equal(
-        expectedRDPCData[donorId].alignmentsRunning
+      expect(hit._source.alignmentsRunning).to.equal(
+        expectedRDPCData[hit._source.donorId].alignmentsRunning
       );
-      expect(esHits[0]._source.sangerVcsCompleted).to.equal(
-        expectedRDPCData[donorId].sangerVcsCompleted
+      expect(hit._source.sangerVcsCompleted).to.equal(
+        expectedRDPCData[hit._source.donorId].sangerVcsCompleted
       );
-      expect(esHits[0]._source.sangerVcsFailed).to.equal(
-        expectedRDPCData[donorId].sangerVcsFailed
+      expect(hit._source.sangerVcsFailed).to.equal(
+        expectedRDPCData[hit._source.donorId].sangerVcsFailed
       );
-      expect(esHits[0]._source.sangerVcsRunning).to.equal(
-        expectedRDPCData[donorId].sangerVcsRunning
+      expect(hit._source.sangerVcsRunning).to.equal(
+        expectedRDPCData[hit._source.donorId].sangerVcsRunning
       );
     }
   });
