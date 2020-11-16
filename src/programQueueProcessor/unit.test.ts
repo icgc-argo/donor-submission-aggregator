@@ -183,7 +183,7 @@ describe("kafka integration", () => {
   });
 
   describe("programQueueProcessor", () => {
-    it.only("must index all clinical and RDPC data into Elasticsearch", async () => {
+    it("must index all clinical and RDPC data into Elasticsearch", async () => {
       const mockAnalysisFetcher: typeof fetchAnalyses = async (
         studyId: string,
         rdpcUrl: string,
@@ -281,8 +281,6 @@ describe("kafka integration", () => {
         `expecting total hits of TEST-CA to be ${testDonorIds.length}`
       );
       expect(totalHits.length).to.equal(testDonorIds.length);
-
-      console.log(">>>>>>>>> " + JSON.stringify(totalHits));
 
       for (const test_ca_hit of await Promise.all(hits)) {
         const donorId = test_ca_hit.donorId;
