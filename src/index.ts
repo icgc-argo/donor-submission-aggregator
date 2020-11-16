@@ -20,6 +20,7 @@ import {
   ROLLCALL_ALIAS_NAME,
   RDPC_PROGRAM_UPDATE_TOPIC,
   RDPC_URL,
+  FEATURE_RDPC_INDEXING_ENABLED,
 } from "config";
 import applyStatusReport from "./statusReport";
 import logger from "logger";
@@ -95,12 +96,16 @@ import parseRdpcProgramUpdateEvent from "eventParsers/parseRdpcProgramUpdateEven
             break;
 
           case RDPC_PROGRAM_UPDATE_TOPIC:
-            const event = parseRdpcProgramUpdateEvent(message.value.toString());
-            await programQueueProcessor.enqueueEvent({
-              programId: event.studyId,
-              type: programQueueProcessor.knownEventTypes.RDPC,
-              rdpcGatewayUrls: [RDPC_URL],
-            });
+            if (FEATURE_RDPC_INDEXING_ENABLED) {
+              const event = parseRdpcProgramUpdateEvent(
+                message.value.toString()
+              );
+              await programQueueProcessor.enqueueEvent({
+                programId: event.studyId,
+                type: programQueueProcessor.knownEventTypes.RDPC,
+                rdpcGatewayUrls: [RDPC_URL],
+              });
+            }
             break;
 
           default:
