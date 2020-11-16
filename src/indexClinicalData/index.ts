@@ -75,6 +75,7 @@ export default async (
       )(esDocuments),
       refresh: "true",
     });
+
     logger.profile(timer);
   }
 };

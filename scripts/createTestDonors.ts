@@ -1,14 +1,15 @@
 import mongoose from "mongoose";
 import { MONGO_URL } from "../src/config";
-import range from "lodash/range";
 import { Donor } from "../src/indexClinicalData/clinicalMongo/donorModel/types";
 import donorModel from "../src/indexClinicalData/clinicalMongo/donorModel";
+import { testDonorIds } from "../src/rdpc/fixtures/integrationTest/dataset";
 import createDonor from "./createDonor";
 
 const PROGRAM_SHORT_NAME = process.env.PROGRAM_SHORT_NAME || "TEST-CA";
-const COLLECTION_SIZE = Number(process.env.COLLECTION_SIZE) || 10000;
-const donors: Donor[] = range(0, COLLECTION_SIZE).map(() =>
-  createDonor(PROGRAM_SHORT_NAME, Math.random())
+
+// integration testing donors:
+const testingDonors: Donor[] = testDonorIds.map((donorId) =>
+  createDonor(PROGRAM_SHORT_NAME, parseInt(donorId))
 );
 
 (async () => {
@@ -26,9 +27,9 @@ const donors: Donor[] = range(0, COLLECTION_SIZE).map(() =>
     useFindAndModify: false,
   });
   console.log(`connected to mongo at ${MONGO_URL}`);
-  await donorModel().insertMany(donors);
+  await donorModel().insertMany(testingDonors);
   const written = await donorModel().find({});
-  console.log(`finished writing ${written.length} donors`);
+  console.log(`finished creating ${written.length} local donors`);
 })().then(() => {
   mongoose.disconnect();
 });

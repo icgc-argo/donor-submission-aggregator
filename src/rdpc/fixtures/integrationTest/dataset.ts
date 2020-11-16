@@ -1,5 +1,19 @@
 import { EsDonorDocument } from "indexClinicalData/types";
 
+// DonorIds of clinicalDataset
+export const testDonorIds = [
+  "35082",
+  "35083",
+  "35084",
+  "35085",
+  "35086",
+  "35087",
+  "35088",
+  "35089",
+  "35090",
+  "35091",
+];
+
 export const clinicalDataset: EsDonorDocument[] = [
   {
     validWithCurrentDictionary: true,
