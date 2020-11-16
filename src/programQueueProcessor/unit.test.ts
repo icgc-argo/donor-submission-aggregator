@@ -17,7 +17,10 @@ import { RollCallClient } from "../rollCall/types";
 import createRollCallClient from "../rollCall";
 import { Kafka } from "kafkajs";
 import { ProgramQueueProcessor } from "./types";
-import { testDonorIds } from "rdpc/fixtures/integrationTest/dataset";
+import {
+  expectedRDPCData,
+  testDonorIds,
+} from "rdpc/fixtures/integrationTest/dataset";
 import { fetchAnalyses } from "rdpc/analysesProcessor";
 import { Analysis, AnalysisType } from "rdpc/types";
 import {
@@ -25,6 +28,7 @@ import {
   mockSeqExpAnalyses,
 } from "rdpc/fixtures/integrationTest/mockAnalyses";
 import esb from "elastic-builder";
+import { EsHit } from "indexClinicalData/types";
 
 const TEST_US = "TEST-US";
 const TEST_CA = "TEST-CA";
@@ -179,7 +183,7 @@ describe("kafka integration", () => {
   });
 
   describe("programQueueProcessor", () => {
-    it("must index all clinical and RDPC data into Elasticsearch", async () => {
+    it.only("must index all clinical and RDPC data into Elasticsearch", async () => {
       const mockAnalysisFetcher: typeof fetchAnalyses = async (
         studyId: string,
         rdpcUrl: string,
@@ -250,6 +254,44 @@ describe("kafka integration", () => {
         })
       ).body?.hits?.total?.value;
       expect(test_ca_documents).to.equal(testDonorIds.length);
+
+      // check if new rdpc data is relfected in TEST-CA
+      testDonorIds.forEach(async (donorId) => {
+        const esQuery = esb
+          .requestBodySearch()
+          .size(testDonorIds.length)
+          .query(esb.termQuery("donorId", donorId));
+
+        const test_ca_hits: EsHit[] = await esClient
+          .search({
+            index: ALIAS_NAME,
+            body: esQuery,
+          })
+          .then((res) => res.body.hits.hits)
+          .catch((err) => {
+            return [];
+          });
+
+        expect(test_ca_hits.length).to.equal(1);
+        expect(test_ca_hits[0]._source.alignmentsCompleted).to.equal(
+          expectedRDPCData[donorId].alignmentsCompleted
+        );
+        expect(test_ca_hits[0]._source.alignmentsFailed).to.equal(
+          expectedRDPCData[donorId].alignmentsFailed
+        );
+        expect(test_ca_hits[0]._source.alignmentsRunning).to.equal(
+          expectedRDPCData[donorId].alignmentsRunning
+        );
+        expect(test_ca_hits[0]._source.sangerVcsCompleted).to.equal(
+          expectedRDPCData[donorId].sangerVcsCompleted
+        );
+        expect(test_ca_hits[0]._source.sangerVcsFailed).to.equal(
+          expectedRDPCData[donorId].sangerVcsFailed
+        );
+        expect(test_ca_hits[0]._source.sangerVcsRunning).to.equal(
+          expectedRDPCData[donorId].sangerVcsRunning
+        );
+      });
 
       // check if the number of TEST-US documents is expected:
       const query_test_us = esb
