@@ -183,7 +183,7 @@ describe("kafka integration", () => {
   });
 
   describe("programQueueProcessor", () => {
-    it("must index all clinical and RDPC data into Elasticsearch", async () => {
+    it.only("must index all clinical and RDPC data into Elasticsearch", async () => {
       const mockAnalysisFetcher: typeof fetchAnalyses = async (
         studyId: string,
         rdpcUrl: string,
@@ -256,44 +256,48 @@ describe("kafka integration", () => {
       expect(test_ca_documents).to.equal(testDonorIds.length);
 
       // check if new rdpc data is relfected in TEST-CA
-      async () => {
-        for await (const donorId of testDonorIds) {
-          const esQuery = esb
-            .requestBodySearch()
-            .size(testDonorIds.length)
-            .query(esb.termQuery("donorId", donorId));
+      const hits = testDonorIds.map(async (donorId) => {
+        const esQuery = esb
+          .requestBodySearch()
+          .size(testDonorIds.length)
+          .query(esb.termQuery("donorId", donorId));
+        const test_ca_hits: EsHit[] = await esClient
+          .search({
+            index: ALIAS_NAME,
+            body: esQuery,
+          })
+          .then((res) => res.body.hits.hits)
+          .catch((err) => {
+            return [];
+          });
+        return { donorId: donorId, hits: test_ca_hits } as {
+          donorId: string;
+          hits: EsHit[];
+        };
+      });
 
-          const test_ca_hits: EsHit[] = await esClient
-            .search({
-              index: ALIAS_NAME,
-              body: esQuery,
-            })
-            .then((res) => res.body.hits.hits)
-            .catch((err) => {
-              return [];
-            });
-
-          expect(test_ca_hits.length).to.equal(1);
-          expect(test_ca_hits[0]._source.alignmentsCompleted).to.equal(
-            expectedRDPCData[donorId].alignmentsCompleted
-          );
-          expect(test_ca_hits[0]._source.alignmentsFailed).to.equal(
-            expectedRDPCData[donorId].alignmentsFailed
-          );
-          expect(test_ca_hits[0]._source.alignmentsRunning).to.equal(
-            expectedRDPCData[donorId].alignmentsRunning
-          );
-          expect(test_ca_hits[0]._source.sangerVcsCompleted).to.equal(
-            expectedRDPCData[donorId].sangerVcsCompleted
-          );
-          expect(test_ca_hits[0]._source.sangerVcsFailed).to.equal(
-            expectedRDPCData[donorId].sangerVcsFailed
-          );
-          expect(test_ca_hits[0]._source.sangerVcsRunning).to.equal(
-            expectedRDPCData[donorId].sangerVcsRunning
-          );
-        }
-      };
+      for (const test_ca_hit of await Promise.all(hits)) {
+        const donorId = test_ca_hit.donorId;
+        expect(test_ca_hit.hits.length).to.equal(1);
+        expect(test_ca_hit.hits[0]._source.alignmentsCompleted).to.equal(
+          expectedRDPCData[donorId].alignmentsCompleted
+        );
+        expect(test_ca_hit.hits[0]._source.alignmentsFailed).to.equal(
+          expectedRDPCData[donorId].alignmentsFailed
+        );
+        expect(test_ca_hit.hits[0]._source.alignmentsRunning).to.equal(
+          expectedRDPCData[donorId].alignmentsRunning
+        );
+        expect(test_ca_hit.hits[0]._source.sangerVcsCompleted).to.equal(
+          expectedRDPCData[donorId].sangerVcsCompleted
+        );
+        expect(test_ca_hit.hits[0]._source.sangerVcsFailed).to.equal(
+          expectedRDPCData[donorId].sangerVcsFailed
+        );
+        expect(test_ca_hit.hits[0]._source.sangerVcsRunning).to.equal(
+          expectedRDPCData[donorId].sangerVcsRunning
+        );
+      }
 
       // check if the number of TEST-US documents is expected:
       const query_test_us = esb
