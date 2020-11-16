@@ -292,22 +292,22 @@ describe("kafka integration", () => {
 
         expect(test_ca_hit.hits.length).to.equal(1);
         expect(test_ca_hit.hits[0]._source.alignmentsCompleted).to.equal(
-          expectedRDPCData[donorId].alignmentsCompleted
+          expectedRDPCData["DO" + donorId].alignmentsCompleted
         );
         expect(test_ca_hit.hits[0]._source.alignmentsFailed).to.equal(
-          expectedRDPCData[donorId].alignmentsFailed
+          expectedRDPCData["DO" + donorId].alignmentsFailed
         );
         expect(test_ca_hit.hits[0]._source.alignmentsRunning).to.equal(
-          expectedRDPCData[donorId].alignmentsRunning
+          expectedRDPCData["DO" + donorId].alignmentsRunning
         );
         expect(test_ca_hit.hits[0]._source.sangerVcsCompleted).to.equal(
-          expectedRDPCData[donorId].sangerVcsCompleted
+          expectedRDPCData["DO" + donorId].sangerVcsCompleted
         );
         expect(test_ca_hit.hits[0]._source.sangerVcsFailed).to.equal(
-          expectedRDPCData[donorId].sangerVcsFailed
+          expectedRDPCData["DO" + donorId].sangerVcsFailed
         );
         expect(test_ca_hit.hits[0]._source.sangerVcsRunning).to.equal(
-          expectedRDPCData[donorId].sangerVcsRunning
+          expectedRDPCData["DO" + donorId].sangerVcsRunning
         );
       }
 
