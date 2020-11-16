@@ -183,7 +183,7 @@ describe("kafka integration", () => {
   });
 
   describe("programQueueProcessor", () => {
-    it("must index all clinical and RDPC data into Elasticsearch", async () => {
+    it.only("must index all clinical and RDPC data into Elasticsearch", async () => {
       const mockAnalysisFetcher: typeof fetchAnalyses = async (
         studyId: string,
         rdpcUrl: string,
@@ -256,33 +256,29 @@ describe("kafka integration", () => {
       expect(test_ca_documents).to.equal(testDonorIds.length);
 
       // check if new rdpc data is relfected in TEST-CA
-      const hits = testDonorIds.map(async (donorId) => {
-        const esQuery = esb
-          .requestBodySearch()
-          .size(testDonorIds.length)
-          .query(esb.termQuery("donorId", "DO" + donorId));
-        const test_ca_hits: EsHit[] = await esClient
-          .search({
-            index: ALIAS_NAME,
-            body: esQuery,
-          })
-          .then((res) => res.body.hits.hits)
-          .catch((err) => {
-            return [];
-          });
-        return { donorId: donorId, hits: test_ca_hits } as {
-          donorId: string;
-          hits: EsHit[];
-        };
-      });
-
-      const totalHits = await Promise.all(hits);
-      console.log(
-        `expecting total hits of TEST-CA to be ${testDonorIds.length}`
+      const hits = await Promise.all(
+        testDonorIds.map(async (donorId) => {
+          const esQuery = esb
+            .requestBodySearch()
+            .size(testDonorIds.length)
+            .query(esb.termQuery("donorId", "DO" + donorId));
+          const test_ca_hits: EsHit[] = await esClient
+            .search({
+              index: ALIAS_NAME,
+              body: esQuery,
+            })
+            .then((res) => res.body.hits.hits)
+            .catch((err) => {
+              return [];
+            });
+          return { donorId: donorId, hits: test_ca_hits } as {
+            donorId: string;
+            hits: EsHit[];
+          };
+        })
       );
-      expect(totalHits.length).to.equal(testDonorIds.length);
 
-      for (const test_ca_hit of await Promise.all(hits)) {
+      for (const test_ca_hit of hits) {
         const donorId = test_ca_hit.donorId;
         console.log(
           `expecting TEST-CA donor id = ${donorId} to have 1 es hit...`
