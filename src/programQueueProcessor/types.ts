@@ -10,7 +10,7 @@ export type QueueRecord = { programId: string } & (
   | {
       type: KnownEventType.RDPC;
       rdpcGatewayUrls: Array<string>;
-      analysisId: string;
+      analysisId?: string;
     }
   | {
       type: KnownEventType.SYNC;
