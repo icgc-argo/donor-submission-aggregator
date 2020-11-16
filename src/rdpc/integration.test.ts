@@ -147,7 +147,7 @@ describe("should index RDPC analyses to donor index", () => {
       return doc.donorId;
     });
 
-    donorIds.forEach(async (donorId) => {
+    for (const donorId of donorIds) {
       const esQuery = esb
         .requestBodySearch()
         .size(donorIds.length)
@@ -182,6 +182,6 @@ describe("should index RDPC analyses to donor index", () => {
       expect(esHits[0]._source.sangerVcsRunning).to.equal(
         expectedRDPCData[donorId].sangerVcsRunning
       );
-    });
+    }
   });
 });
