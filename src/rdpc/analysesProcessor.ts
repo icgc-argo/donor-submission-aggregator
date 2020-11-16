@@ -11,7 +11,7 @@ import logger from "logger";
 import HashCode from "ts-hashcode";
 import { SANGER_VC_REPO_URL, SEQ_ALIGN_REPO_URL } from "config";
 import _ from "lodash";
-import fetchAnalyses from "./fetchAnalyses";
+import fetchAnalyses from "rdpc/fetchAnalyses";
 
 type StreamState = {
   currentPage: number;

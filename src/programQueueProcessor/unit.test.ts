@@ -21,7 +21,7 @@ import {
   expectedRDPCData,
   testDonorIds,
 } from "rdpc/fixtures/integrationTest/dataset";
-import { fetchAnalyses } from "rdpc/analysesProcessor";
+import fetchAnalyses from "rdpc/fetchAnalyses";
 import { Analysis, AnalysisType } from "rdpc/types";
 import {
   mockSeqAlignmentAnalyses,

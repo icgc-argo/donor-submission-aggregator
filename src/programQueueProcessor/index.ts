@@ -11,7 +11,7 @@ import logger from "logger";
 import initializeProgramQueueTopic from "./initializeProgramQueueTopic";
 import { ProgramQueueProcessor, QueueRecord, KnownEventType } from "./types";
 import createEventProcessor from "./eventProcessor";
-import { fetchAnalyses } from "rdpc/analysesProcessor";
+import fetchAnalyses from "rdpc/fetchAnalyses";
 
 const createProgramQueueRecord = (record: QueueRecord): ProducerRecord => {
   return {

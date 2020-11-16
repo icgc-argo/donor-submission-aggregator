@@ -6,7 +6,7 @@ import { EsHit } from "indexClinicalData/types";
 import { Duration, TemporalUnit } from "node-duration";
 import { indexRdpcData } from "rdpc";
 import { GenericContainer, StartedTestContainer, Wait } from "testcontainers";
-import { fetchAnalyses } from "./analysesProcessor";
+import fetchAnalyses from "rdpc/fetchAnalyses";
 import {
   clinicalDataset,
   expectedRDPCData,

@@ -8,7 +8,7 @@ import withRetry from "promise-retry";
 import logger from "logger";
 import { KnownEventType, QueueRecord } from "./types";
 import { indexRdpcData } from "rdpc/index";
-import { fetchAnalyses } from "rdpc/analysesProcessor";
+import fetchAnalyses from "rdpc/fetchAnalyses";
 
 const parseProgramQueueEvent = (message: string): QueueRecord =>
   JSON.parse(message);
