@@ -118,3 +118,6 @@ if (USE_VAULT && VAULT_AUTH_METHOD === "kubernetes") {
     throw error;
   }
 }
+
+export const FEATURE_RDPC_INDEXING_ENABLED =
+  process.env.FEATURE_RDPC_INDEXING_ENABLED === "true";
