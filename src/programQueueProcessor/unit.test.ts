@@ -278,6 +278,8 @@ describe("kafka integration", () => {
 
       for (const test_ca_hit of await Promise.all(hits)) {
         const donorId = test_ca_hit.donorId;
+        console.log(`expecting TEST-CA ${donorId} to have 1 es hit...`);
+
         expect(test_ca_hit.hits.length).to.equal(1);
         expect(test_ca_hit.hits[0]._source.alignmentsCompleted).to.equal(
           expectedRDPCData[donorId].alignmentsCompleted
