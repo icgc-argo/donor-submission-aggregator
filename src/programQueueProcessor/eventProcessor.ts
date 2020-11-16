@@ -77,7 +77,7 @@ export default (configs: {
             },
           });
 
-          logger.info(`Enabled write to index : ${newResolvedIndex.indexName}`);
+          logger.info(`Enabled WRITE to index : ${newResolvedIndex.indexName}`);
 
           if (queuedEvent.type === KnownEventType.CLINICAL) {
             await indexClinicalData(

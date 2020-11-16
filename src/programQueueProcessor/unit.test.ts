@@ -282,10 +282,12 @@ describe("kafka integration", () => {
       );
       expect(totalHits.length).to.equal(testDonorIds.length);
 
+      console.log(">>>>>>>>> " + JSON.stringify(totalHits));
+
       for (const test_ca_hit of await Promise.all(hits)) {
         const donorId = test_ca_hit.donorId;
         console.log(
-          `expecting TEST-CA donor id =${donorId} to have 1 es hit...`
+          `expecting TEST-CA donor id = ${donorId} to have 1 es hit...`
         );
 
         expect(test_ca_hit.hits.length).to.equal(1);
