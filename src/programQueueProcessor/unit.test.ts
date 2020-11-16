@@ -260,7 +260,7 @@ describe("kafka integration", () => {
         const esQuery = esb
           .requestBodySearch()
           .size(testDonorIds.length)
-          .query(esb.termQuery("donorId", donorId));
+          .query(esb.termQuery("donorId", "DO" + donorId));
         const test_ca_hits: EsHit[] = await esClient
           .search({
             index: ALIAS_NAME,
@@ -276,9 +276,17 @@ describe("kafka integration", () => {
         };
       });
 
+      const totalHits = await Promise.all(hits);
+      console.log(
+        `expecting total hits of TEST-CA to be ${testDonorIds.length}`
+      );
+      expect(totalHits.length).to.equal(testDonorIds.length);
+
       for (const test_ca_hit of await Promise.all(hits)) {
         const donorId = test_ca_hit.donorId;
-        console.log(`expecting TEST-CA ${donorId} to have 1 es hit...`);
+        console.log(
+          `expecting TEST-CA donor id =${donorId} to have 1 es hit...`
+        );
 
         expect(test_ca_hit.hits.length).to.equal(1);
         expect(test_ca_hit.hits[0]._source.alignmentsCompleted).to.equal(
