@@ -76,7 +76,7 @@ describe("should index RDPC analyses to donor index", () => {
     });
   });
 
-  it("should index sequencing experiment and sequencing alignment analyses", async () => {
+  it.only("should index sequencing experiment and sequencing alignment analyses", async () => {
     const { body: exists } = await esClient.indices.exists({
       index: INDEX_NAME,
     });
@@ -167,7 +167,10 @@ describe("should index RDPC analyses to donor index", () => {
       })
     );
 
+    console.log("esHits: ", JSON.stringify(esHits));
+
     for (const hit of esHits) {
+      console.log("hit: ", JSON.stringify(hit));
       // expect(esHits.length).to.equal(1);
       expect(hit._source.alignmentsCompleted).to.equal(
         expectedRDPCData[hit._source.donorId].alignmentsCompleted
