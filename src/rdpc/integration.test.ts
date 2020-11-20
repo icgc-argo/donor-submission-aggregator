@@ -25,6 +25,29 @@ describe("should index RDPC analyses to donor index", () => {
   const INDEX_NAME = "test";
   const NETOWRK_MODE = "host";
   const url = "https://api.rdpc-qa.cancercollaboratory.org/graphql";
+  const donorIds = clinicalDataset.map((doc) => doc.donorId);
+
+  const mockAnalysisFetcher: typeof fetchAnalyses = async ({
+    studyId,
+    rdpcUrl,
+    workflowRepoUrl,
+    analysisType,
+    from,
+    size,
+    donorId,
+  }): Promise<Analysis[]> => {
+    const matchesDonorId = (donor: any) =>
+      donorId ? donor.donorId === donorId : true;
+    return Promise.resolve(
+      analysisType === AnalysisType.SEQ_EXPERIMENT
+        ? mockSeqExpAnalyses
+            .filter((analysis) => analysis.donors.some(matchesDonorId))
+            .slice(from, from + size)
+        : mockSeqAlignmentAnalyses
+            .filter((analysis) => analysis.donors.some(matchesDonorId))
+            .slice(from, from + size)
+    );
+  };
 
   before(async () => {
     try {
@@ -76,7 +99,7 @@ describe("should index RDPC analyses to donor index", () => {
     });
   });
 
-  it.only("should index sequencing experiment and sequencing alignment analyses", async () => {
+  it("should index sequencing experiment and sequencing alignment analyses", async () => {
     const { body: exists } = await esClient.indices.exists({
       index: INDEX_NAME,
     });
@@ -109,21 +132,6 @@ describe("should index RDPC analyses to donor index", () => {
 
     expect(indexedClinicalDocuments.value).to.equal(clinicalDataset.length);
 
-    const mockAnalysisFetcher: typeof fetchAnalyses = async ({
-      studyId,
-      rdpcUrl,
-      workflowRepoUrl,
-      analysisType,
-      from,
-      size,
-    }): Promise<Analysis[]> => {
-      return Promise.resolve(
-        analysisType === AnalysisType.SEQ_EXPERIMENT
-          ? mockSeqExpAnalyses.slice(from, from + size)
-          : mockSeqAlignmentAnalyses.slice(from, from + size)
-      );
-    };
-
     console.log("Begin indexing RDPC analyses....");
     await indexRdpcData({
       programId: TEST_PROGRAM,
@@ -143,8 +151,6 @@ describe("should index RDPC analyses to donor index", () => {
     expect(totalEsDocumentsCount).to.equal(mockSeqExpAnalyses.length);
 
     // Verify if es documents have correct RDPC info:
-    const donorIds = clinicalDataset.map((doc) => doc.donorId);
-
     const esHits = await Promise.all(
       donorIds.map(async (donorId) => {
         const esQuery = esb
@@ -165,10 +171,7 @@ describe("should index RDPC analyses to donor index", () => {
       })
     );
 
-    console.log("esHits: ", JSON.stringify(esHits));
-
     for (const hit of esHits) {
-      console.log("hit: ", JSON.stringify(hit));
       expect(hit._source.alignmentsCompleted).to.equal(
         expectedRDPCData[hit._source.donorId].alignmentsCompleted
       );
@@ -202,6 +205,69 @@ describe("should index RDPC analyses to donor index", () => {
       refresh: "wait_for",
     });
 
-    expect("1").to.equal("1");
+    const testDonorId = mockSeqAlignmentAnalyses[0].donors[0].donorId;
+
+    await indexRdpcData({
+      programId: TEST_PROGRAM,
+      rdpcUrl: url,
+      targetIndexName: INDEX_NAME,
+      esClient,
+      analysesFetcher: mockAnalysisFetcher,
+      fetchDonorIds: ({ analysisId, rdpcUrl }) =>
+        Promise.resolve([testDonorId]),
+    });
+
+    const esHits = await Promise.all(
+      donorIds.map(async (donorId) => {
+        const esQuery = esb
+          .requestBodySearch()
+          .size(donorIds.length)
+          .query(esb.termQuery("donorId", donorId));
+
+        const esHits: EsHit = await esClient
+          .search({
+            index: INDEX_NAME,
+            body: esQuery,
+          })
+          .then((res) => res.body.hits.hits[0])
+          .catch((err) => {
+            return null;
+          });
+        return esHits;
+      })
+    );
+
+    esHits.forEach((hit) => {
+      expect(hit._source.alignmentsCompleted).to.equal(
+        hit._source.donorId === testDonorId
+          ? expectedRDPCData[hit._source.donorId].alignmentsCompleted
+          : 0
+      );
+      expect(hit._source.alignmentsFailed).to.equal(
+        hit._source.donorId === testDonorId
+          ? expectedRDPCData[hit._source.donorId].alignmentsFailed
+          : 0
+      );
+      expect(hit._source.alignmentsRunning).to.equal(
+        hit._source.donorId === testDonorId
+          ? expectedRDPCData[hit._source.donorId].alignmentsRunning
+          : 0
+      );
+      expect(hit._source.sangerVcsCompleted).to.equal(
+        hit._source.donorId === testDonorId
+          ? expectedRDPCData[hit._source.donorId].sangerVcsCompleted
+          : 0
+      );
+      expect(hit._source.sangerVcsFailed).to.equal(
+        hit._source.donorId === testDonorId
+          ? expectedRDPCData[hit._source.donorId].sangerVcsFailed
+          : 0
+      );
+      expect(hit._source.sangerVcsRunning).to.equal(
+        hit._source.donorId === testDonorId
+          ? expectedRDPCData[hit._source.donorId].sangerVcsRunning
+          : 0
+      );
+    });
   });
 });
