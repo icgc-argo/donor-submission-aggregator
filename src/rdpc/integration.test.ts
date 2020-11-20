@@ -238,36 +238,57 @@ describe("should index RDPC analyses to donor index", () => {
     );
 
     esHits.forEach((hit) => {
-      expect(hit._source.alignmentsCompleted).to.equal(
+      expect([
+        hit._source.donorId,
+        hit._source.alignmentsCompleted,
+      ]).to.deep.equal([
+        hit._source.donorId,
         hit._source.donorId === testDonorId
           ? expectedRDPCData[hit._source.donorId].alignmentsCompleted
-          : 0
-      );
-      expect(hit._source.alignmentsFailed).to.equal(
+          : 0,
+      ]);
+      expect([
+        hit._source.donorId,
+        hit._source.alignmentsFailed,
+      ]).to.deep.equal([
+        hit._source.donorId,
         hit._source.donorId === testDonorId
           ? expectedRDPCData[hit._source.donorId].alignmentsFailed
-          : 0
-      );
-      expect(hit._source.alignmentsRunning).to.equal(
+          : 0,
+      ]);
+      expect([
+        hit._source.donorId,
+        hit._source.alignmentsRunning,
+      ]).to.deep.equal([
+        hit._source.donorId,
         hit._source.donorId === testDonorId
           ? expectedRDPCData[hit._source.donorId].alignmentsRunning
-          : 0
-      );
-      expect(hit._source.sangerVcsCompleted).to.equal(
+          : 0,
+      ]);
+      expect([
+        hit._source.donorId,
+        hit._source.sangerVcsCompleted,
+      ]).to.deep.equal([
+        hit._source.donorId,
         hit._source.donorId === testDonorId
           ? expectedRDPCData[hit._source.donorId].sangerVcsCompleted
-          : 0
-      );
-      expect(hit._source.sangerVcsFailed).to.equal(
+          : 0,
+      ]);
+      expect([hit._source.donorId, hit._source.sangerVcsFailed]).to.deep.equal([
+        hit._source.donorId,
         hit._source.donorId === testDonorId
           ? expectedRDPCData[hit._source.donorId].sangerVcsFailed
-          : 0
-      );
-      expect(hit._source.sangerVcsRunning).to.equal(
+          : 0,
+      ]);
+      expect([
+        hit._source.donorId,
+        hit._source.sangerVcsRunning,
+      ]).to.deep.equal([
+        hit._source.donorId,
         hit._source.donorId === testDonorId
           ? expectedRDPCData[hit._source.donorId].sangerVcsRunning
-          : 0
-      );
+          : 0,
+      ]);
     });
   });
 });
