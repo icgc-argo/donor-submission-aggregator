@@ -202,6 +202,6 @@ describe("should index RDPC analyses to donor index", () => {
       refresh: "wait_for",
     });
 
-    expect("1").to.be("1");
+    expect("1").to.equal("1");
   });
 });
