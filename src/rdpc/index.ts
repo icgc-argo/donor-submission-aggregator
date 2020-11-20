@@ -108,7 +108,7 @@ export const indexRdpcData = async ({
         targetIndexName,
         (donor) => preExistingDonorHits[donor.donorId]?._id
       )(esDocuments),
-      refresh: "true",
+      refresh: "wait_for",
     },
     (error, response) => {
       if (error) {

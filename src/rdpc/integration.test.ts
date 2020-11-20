@@ -143,9 +143,7 @@ describe("should index RDPC analyses to donor index", () => {
     expect(totalEsDocumentsCount).to.equal(mockSeqExpAnalyses.length);
 
     // Verify if es documents have correct RDPC info:
-    const donorIds = clinicalDataset.map((doc) => {
-      return doc.donorId;
-    });
+    const donorIds = clinicalDataset.map((doc) => doc.donorId);
 
     const esHits = await Promise.all(
       donorIds.map(async (donorId) => {
@@ -171,7 +169,6 @@ describe("should index RDPC analyses to donor index", () => {
 
     for (const hit of esHits) {
       console.log("hit: ", JSON.stringify(hit));
-      // expect(esHits.length).to.equal(1);
       expect(hit._source.alignmentsCompleted).to.equal(
         expectedRDPCData[hit._source.donorId].alignmentsCompleted
       );
