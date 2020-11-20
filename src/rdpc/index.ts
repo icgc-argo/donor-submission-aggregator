@@ -28,21 +28,23 @@ export const indexRdpcData = async ({
   targetIndexName,
   esClient,
   analysesFetcher = fetchAnalyses,
+  fetchDonorIds = fetchDonorIdsByAnalysis,
   analysisId,
 }: {
   programId: string;
   rdpcUrl: string;
   targetIndexName: string;
   esClient: Client;
-  analysesFetcher: typeof fetchAnalyses;
+  analysesFetcher?: typeof fetchAnalyses;
   analysisId?: string;
+  fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
 }) => {
   logger.info(`Processing program: ${programId} from ${rdpcUrl}.`);
 
   const config = { chunkSize: STREAM_CHUNK_SIZE };
 
   const donorIdsToFilterBy = analysisId
-    ? await fetchDonorIdsByAnalysis({
+    ? await fetchDonorIds({
         rdpcUrl,
         analysisId,
       })

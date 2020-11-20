@@ -90,7 +90,7 @@ describe("should index RDPC analyses to donor index", () => {
 
     console.log("Indexing clinical data....");
 
-    const { body: bulkResponse } = await esClient.bulk({
+    await esClient.bulk({
       body,
       refresh: "wait_for",
     });
@@ -188,5 +188,20 @@ describe("should index RDPC analyses to donor index", () => {
         expectedRDPCData[hit._source.donorId].sangerVcsRunning
       );
     }
+  });
+
+  it.only("should handle incremental rdpc indexing with studyId", async () => {
+    // index testing clinical data
+    const body = clinicalDataset.flatMap((doc) => [
+      { index: { _index: INDEX_NAME } },
+      doc,
+    ]);
+
+    await esClient.bulk({
+      body,
+      refresh: "wait_for",
+    });
+
+    expect("1").to.be("1");
   });
 });

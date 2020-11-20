@@ -7,7 +7,7 @@
     "build": "rm -rf dist && tsc && cp -r src/assets dist",
     "start::prod": "cd dist && NODE_PATH=. node index.js",
     "start::dev": "ts-node-dev -r tsconfig-paths/register --respawn src/index.ts",
-    "test": "npm run build && NODE_PATH=./dist nyc -- mocha --timeout 240000 dist/**/*.test.js && npm run cover",
+    "test": "npm run build && NODE_PATH=./dist nyc -- mocha -t 'should index RDPC analyses to donor index' --timeout 240000 dist/**/*.test.js && npm run cover",
     "createMongoDonors": "ts-node ./scripts/createMongoDonors.ts",
     "cover": "nyc report  --reporter=lcov --reporter=text",
     "createIntegrationTestMongoDonors": "ts-node ./scripts/createTestDonors.ts"
