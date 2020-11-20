@@ -184,14 +184,14 @@ describe("kafka integration", () => {
 
   describe("programQueueProcessor", () => {
     it("must index all clinical and RDPC data into Elasticsearch", async () => {
-      const mockAnalysisFetcher: typeof fetchAnalyses = async (
-        studyId: string,
-        rdpcUrl: string,
-        workflowRepoUrl: string,
-        analysisType: string,
-        from: number,
-        size: number
-      ): Promise<Analysis[]> => {
+      const mockAnalysisFetcher: typeof fetchAnalyses = async ({
+        studyId,
+        rdpcUrl,
+        workflowRepoUrl,
+        analysisType,
+        from,
+        size,
+      }): Promise<Analysis[]> => {
         return Promise.resolve(
           analysisType === AnalysisType.SEQ_EXPERIMENT
             ? mockSeqExpAnalyses.slice(from, from + size)

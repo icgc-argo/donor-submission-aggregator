@@ -45,15 +45,15 @@ export const analysisStream = async function* ({
       : SEQ_ALIGN_REPO_URL;
 
   while (true) {
-    const page = await analysesFetcher(
+    const page = await analysesFetcher({
       studyId,
       rdpcUrl,
       workflowRepoUrl,
       analysisType,
-      streamState.currentPage,
-      chunkSize,
-      donorId
-    );
+      from: streamState.currentPage,
+      size: chunkSize,
+      donorId,
+    });
 
     streamState.currentPage = streamState.currentPage + chunkSize;
 

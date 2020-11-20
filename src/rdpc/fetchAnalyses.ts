@@ -60,15 +60,23 @@ const retryConfig = {
   maxTimeout: Infinity,
 };
 
-const fetchAnalyses = async (
-  studyId: string,
-  rdpcUrl: string,
-  workflowRepoUrl: string,
-  analysisType: string,
-  from: number,
-  size: number,
-  donorId?: string
-): Promise<Analysis[]> => {
+const fetchAnalyses = async ({
+  studyId,
+  rdpcUrl,
+  workflowRepoUrl,
+  analysisType,
+  from,
+  size,
+  donorId,
+}: {
+  studyId: string;
+  rdpcUrl: string;
+  workflowRepoUrl: string;
+  analysisType: string;
+  from: number;
+  size: number;
+  donorId?: string;
+}): Promise<Analysis[]> => {
   return await promiseRetry<Analysis[]>(async (retry) => {
     try {
       logger.info(`Fetching ${analysisType} analyses from rdpc.....`);

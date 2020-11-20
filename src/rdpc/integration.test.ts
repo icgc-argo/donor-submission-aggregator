@@ -109,14 +109,14 @@ describe("should index RDPC analyses to donor index", () => {
 
     expect(indexedClinicalDocuments.value).to.equal(clinicalDataset.length);
 
-    const mockAnalysisFetcher: typeof fetchAnalyses = async (
-      studyId: string,
-      rdpcUrl: string,
-      workflowRepoUrl: string,
-      analysisType: string,
-      from: number,
-      size: number
-    ): Promise<Analysis[]> => {
+    const mockAnalysisFetcher: typeof fetchAnalyses = async ({
+      studyId,
+      rdpcUrl,
+      workflowRepoUrl,
+      analysisType,
+      from,
+      size,
+    }): Promise<Analysis[]> => {
       return Promise.resolve(
         analysisType === AnalysisType.SEQ_EXPERIMENT
           ? mockSeqExpAnalyses.slice(from, from + size)
