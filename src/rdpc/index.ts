@@ -102,7 +102,7 @@ export const indexRdpcData = async ({
 
   logger.info(`Begin bulk indexing donors of program ${programId}...`);
 
-  await esClient.bulk(
+  const bulkResult = await esClient.bulk(
     {
       body: toEsBulkIndexActions<EsDonorDocument>(
         targetIndexName,
@@ -116,6 +116,8 @@ export const indexRdpcData = async ({
       }
     }
   );
+
+  console.log("bulkResult: ", bulkResult);
 
   logger.info(
     `Successfully indexed all donors of program ${programId} to index: ${targetIndexName}`
