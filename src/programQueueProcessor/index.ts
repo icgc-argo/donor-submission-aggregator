@@ -12,6 +12,7 @@ import initializeProgramQueueTopic from "./initializeProgramQueueTopic";
 import { ProgramQueueProcessor, QueueRecord, KnownEventType } from "./types";
 import createEventProcessor from "./eventProcessor";
 import fetchAnalyses from "rdpc/fetchAnalyses";
+import fetchDonorIdsByAnalysis from "rdpc/fetchDonorIdsByAnalysis";
 
 const createProgramQueueRecord = (record: QueueRecord): ProducerRecord => {
   return {
@@ -31,12 +32,14 @@ const createProgramQueueProcessor = async ({
   rollCallClient,
   statusReporter,
   analysisFetcher = fetchAnalyses,
+  fetchDonorIds = fetchDonorIdsByAnalysis,
 }: {
   kafka: Kafka;
   esClient: Client;
   rollCallClient: RollCallClient;
   statusReporter?: StatusReporter;
   analysisFetcher?: typeof fetchAnalyses;
+  fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
 }): Promise<ProgramQueueProcessor> => {
   const consumer = kafka.consumer({
     groupId: KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP,
@@ -56,6 +59,7 @@ const createProgramQueueProcessor = async ({
       rollCallClient,
       analysisFetcher,
       statusReporter,
+      fetchDonorIds,
     }),
   });
   logger.info(`queue pipeline setup complete with topic ${programQueueTopic}`);

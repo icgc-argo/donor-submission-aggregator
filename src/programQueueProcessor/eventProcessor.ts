@@ -9,6 +9,7 @@ import logger from "logger";
 import { KnownEventType, QueueRecord } from "./types";
 import { indexRdpcData } from "rdpc/index";
 import fetchAnalyses from "rdpc/fetchAnalyses";
+import fetchDonorIdsByAnalysis from "rdpc/fetchDonorIdsByAnalysis";
 
 const parseProgramQueueEvent = (message: string): QueueRecord =>
   JSON.parse(message);
@@ -35,12 +36,14 @@ export default ({
   esClient,
   programQueueTopic,
   analysisFetcher = fetchAnalyses,
+  fetchDonorIds = fetchDonorIdsByAnalysis,
   statusReporter,
 }: {
   rollCallClient: RollCallClient;
   esClient: Client;
   programQueueTopic: string;
   analysisFetcher?: typeof fetchAnalyses;
+  fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
   statusReporter?: StatusReporter;
 }) => {
   return async ({ message }: EachMessagePayload) => {
@@ -91,6 +94,7 @@ export default ({
                 targetIndexName: newResolvedIndex.indexName,
                 esClient,
                 analysesFetcher: analysisFetcher,
+                fetchDonorIds,
                 analysisId: queuedEvent.analysisId,
               });
             }
@@ -107,6 +111,7 @@ export default ({
                 targetIndexName: newResolvedIndex.indexName,
                 esClient,
                 analysesFetcher: analysisFetcher,
+                fetchDonorIds,
               });
             }
           }
