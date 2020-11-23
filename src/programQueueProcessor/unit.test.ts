@@ -356,7 +356,7 @@ describe("kafka integration", () => {
       await programQueueProcessor.enqueueEvent({
         programId: TEST_CA,
         type: programQueueProcessor.knownEventTypes.RDPC,
-        rdpcGatewayUrls: [""],
+        rdpcGatewayUrls: [RDPC_URL],
         analysisId: testAnalysis.analysisId,
       });
 
