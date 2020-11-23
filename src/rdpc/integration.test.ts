@@ -213,8 +213,10 @@ describe("should index RDPC analyses to donor index", () => {
       targetIndexName: INDEX_NAME,
       esClient,
       analysesFetcher: mockAnalysisFetcher,
-      fetchDonorIds: ({ analysisId, rdpcUrl }) =>
-        Promise.resolve([testDonorId]),
+      fetchDonorIds: ({ analysisId, rdpcUrl }) => {
+        console.log("fetching donor ids!");
+        return Promise.resolve([testDonorId]);
+      },
     });
 
     const esHits = await Promise.all(
