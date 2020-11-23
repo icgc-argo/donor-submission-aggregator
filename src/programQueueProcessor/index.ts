@@ -72,7 +72,9 @@ const createProgramQueueProcessor = async ({
     },
     enqueueEvent: async (event) => {
       await producer.send(createProgramQueueRecord(event));
-      logger.info(`enqueued event for program ${event.programId}`);
+      logger.info(
+        `enqueued ${event.type} event for program ${event.programId}`
+      );
     },
     destroy: async () => {
       await consumer.stop();

@@ -359,7 +359,7 @@ describe("kafka integration", () => {
       await programQueueProcessor.enqueueEvent({
         programId: TEST_CA,
         type: programQueueProcessor.knownEventTypes.RDPC,
-        rdpcGatewayUrls: [], // the urls don't matter since we're mocking all the rdpc fetchers
+        rdpcGatewayUrls: [""], // the urls don't matter since we're mocking all the rdpc fetchers
         analysisId: testAnalysis.analysisId,
       });
 
