@@ -356,7 +356,7 @@ describe("kafka integration", () => {
       await programQueueProcessor.enqueueEvent({
         programId: TEST_CA,
         type: programQueueProcessor.knownEventTypes.RDPC,
-        rdpcGatewayUrls: [RDPC_URL],
+        rdpcGatewayUrls: [], // the urls don't matter since we're mocking all the rdpc fetchers
         analysisId: testAnalysis.analysisId,
       });
 
@@ -368,7 +368,7 @@ describe("kafka integration", () => {
       });
 
       const esHits = await Promise.all(
-        clinicalDataset.map(async ({ donorId }) => {
+        testDonorIds.map(async (donorId) => {
           const esQuery = esb
             .requestBodySearch()
             .size(testDonorIds.length)
