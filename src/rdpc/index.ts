@@ -50,6 +50,8 @@ export const indexRdpcData = async ({
       })
     : undefined;
 
+  console.log("donorIdsToFilterBy: ", donorIdsToFilterBy);
+
   const mergedAlignmentDonors = await getAllMergedDonor({
     studyId: programId,
     url: rdpcUrl,
