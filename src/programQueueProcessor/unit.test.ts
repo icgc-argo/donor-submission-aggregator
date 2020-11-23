@@ -384,6 +384,8 @@ describe("kafka integration", () => {
         })
       );
 
+      console.log("esHits: ", esHits);
+
       esHits.forEach((hit) => {
         expect([
           hit._source.donorId,
