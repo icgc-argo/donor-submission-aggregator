@@ -237,6 +237,8 @@ describe("should index RDPC analyses to donor index", () => {
       })
     );
 
+    console.log("esHits: ", JSON.stringify(esHits));
+
     esHits.forEach((hit) => {
       expect([
         hit._source.donorId,
