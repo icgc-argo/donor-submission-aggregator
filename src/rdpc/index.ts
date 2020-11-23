@@ -43,15 +43,12 @@ export const indexRdpcData = async ({
 
   const config = { chunkSize: STREAM_CHUNK_SIZE };
 
-  console.log(`handling event for analysis ${analysisId}`);
   const donorIdsToFilterBy = analysisId
     ? await fetchDonorIds({
         rdpcUrl,
         analysisId,
       })
     : undefined;
-
-  console.log("donorIdsToFilterBy: ", donorIdsToFilterBy);
 
   const mergedAlignmentDonors = await getAllMergedDonor({
     studyId: programId,

@@ -347,7 +347,6 @@ describe("kafka integration", () => {
         rollCallClient: rollcallClient,
         analysisFetcher: mockAnalysisFetcher,
         fetchDonorIds: () => {
-          console.log("mock fetchDonorIds!!!");
           return Promise.resolve([testDonorId]);
         },
       });
@@ -386,8 +385,6 @@ describe("kafka integration", () => {
           return esHit;
         })
       );
-
-      console.log("esHits: ", esHits);
 
       esHits.forEach((hit) => {
         expect([
