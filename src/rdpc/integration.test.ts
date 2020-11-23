@@ -242,51 +242,66 @@ describe("should index RDPC analyses to donor index", () => {
     esHits.forEach((hit) => {
       expect([
         hit._source.donorId,
+        "alignmentsCompleted",
         hit._source.alignmentsCompleted,
       ]).to.deep.equal([
         hit._source.donorId,
+        "alignmentsCompleted",
         hit._source.donorId === testDonorId
           ? expectedRDPCData[hit._source.donorId].alignmentsCompleted
           : 0,
       ]);
       expect([
         hit._source.donorId,
+        "alignmentsFailed",
         hit._source.alignmentsFailed,
       ]).to.deep.equal([
         hit._source.donorId,
+        "alignmentsFailed",
         hit._source.donorId === testDonorId
           ? expectedRDPCData[hit._source.donorId].alignmentsFailed
           : 0,
       ]);
       expect([
         hit._source.donorId,
+        "alignmentsRunning",
         hit._source.alignmentsRunning,
       ]).to.deep.equal([
         hit._source.donorId,
+        "alignmentsRunning",
         hit._source.donorId === testDonorId
           ? expectedRDPCData[hit._source.donorId].alignmentsRunning
           : 0,
       ]);
       expect([
         hit._source.donorId,
+        "sangerVcsCompleted",
         hit._source.sangerVcsCompleted,
       ]).to.deep.equal([
         hit._source.donorId,
+        "sangerVcsCompleted",
         hit._source.donorId === testDonorId
           ? expectedRDPCData[hit._source.donorId].sangerVcsCompleted
           : 0,
       ]);
-      expect([hit._source.donorId, hit._source.sangerVcsFailed]).to.deep.equal([
+      expect([
         hit._source.donorId,
+        "sangerVcsFailed",
+        hit._source.sangerVcsFailed,
+      ]).to.deep.equal([
+        hit._source.donorId,
+        "sangerVcsFailed",
         hit._source.donorId === testDonorId
           ? expectedRDPCData[hit._source.donorId].sangerVcsFailed
           : 0,
       ]);
       expect([
         hit._source.donorId,
+        "sangerVcsRunning",
         hit._source.sangerVcsRunning,
       ]).to.deep.equal([
         hit._source.donorId,
+        "sangerVcsRunning",
         hit._source.donorId === testDonorId
           ? expectedRDPCData[hit._source.donorId].sangerVcsRunning
           : 0,
