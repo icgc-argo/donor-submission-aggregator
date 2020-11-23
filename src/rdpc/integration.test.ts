@@ -205,18 +205,19 @@ describe("should index RDPC analyses to donor index", () => {
       refresh: "wait_for",
     });
 
-    const testDonorId = mockSeqAlignmentAnalyses[0].donors[0].donorId;
+    const testAnalysis = mockSeqAlignmentAnalyses[0];
+
+    const testDonorId = testAnalysis.donors[0].donorId;
 
     await indexRdpcData({
       programId: TEST_PROGRAM,
       rdpcUrl: url,
       targetIndexName: INDEX_NAME,
       esClient,
+      analysisId: testAnalysis.analysisId,
       analysesFetcher: mockAnalysisFetcher,
-      fetchDonorIds: ({ analysisId, rdpcUrl }) => {
-        console.log("fetching donor ids!");
-        return Promise.resolve([testDonorId]);
-      },
+      fetchDonorIds: ({ analysisId, rdpcUrl }) =>
+        Promise.resolve([testDonorId]),
     });
 
     const esHits = await Promise.all(
