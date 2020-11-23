@@ -364,7 +364,7 @@ describe("kafka integration", () => {
       await new Promise((resolve) => {
         setTimeout(() => {
           resolve();
-        }, 30000);
+        }, 50000);
       });
 
       const esHits = await Promise.all(
