@@ -338,7 +338,7 @@ describe("kafka integration", () => {
       );
     });
 
-    it("handles incremental analysis updates properly", async () => {
+    it.only("handles incremental analysis updates properly", async () => {
       const testAnalysis = mockSeqExpAnalyses[0];
       const testDonorId = testAnalysis.donors[0].donorId;
       programQueueProcessor = await createProgramQueueProcessor({
