@@ -18,6 +18,7 @@ import createRollCallClient from "../rollCall";
 import { Kafka } from "kafkajs";
 import { ProgramQueueProcessor } from "./types";
 import {
+  clinicalDataset,
   expectedRDPCData,
   testDonorIds,
 } from "rdpc/fixtures/integrationTest/dataset";
@@ -349,11 +350,11 @@ describe("kafka integration", () => {
       });
 
       await programQueueProcessor.enqueueEvent({
-        programId: TEST_US,
+        programId: TEST_CA,
         type: programQueueProcessor.knownEventTypes.CLINICAL,
       });
       await programQueueProcessor.enqueueEvent({
-        programId: TEST_US,
+        programId: TEST_CA,
         type: programQueueProcessor.knownEventTypes.RDPC,
         rdpcGatewayUrls: [""],
         analysisId: testAnalysis.analysisId,
@@ -367,7 +368,7 @@ describe("kafka integration", () => {
       });
 
       const esHits = await Promise.all(
-        testDonorIds.map(async (donorId) => {
+        clinicalDataset.map(async ({ donorId }) => {
           const esQuery = esb
             .requestBodySearch()
             .size(testDonorIds.length)
