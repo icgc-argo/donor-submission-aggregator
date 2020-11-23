@@ -96,6 +96,10 @@ import parseRdpcProgramUpdateEvent from "eventParsers/parseRdpcProgramUpdateEven
             break;
 
           case RDPC_PROGRAM_UPDATE_TOPIC:
+            console.log(
+              "FEATURE_RDPC_INDEXING_ENABLED: ",
+              FEATURE_RDPC_INDEXING_ENABLED
+            );
             if (FEATURE_RDPC_INDEXING_ENABLED) {
               const event = parseRdpcProgramUpdateEvent(
                 message.value.toString()
