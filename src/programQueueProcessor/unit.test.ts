@@ -346,7 +346,10 @@ describe("kafka integration", () => {
         esClient,
         rollCallClient: rollcallClient,
         analysisFetcher: mockAnalysisFetcher,
-        fetchDonorIds: () => Promise.resolve([testDonorId]),
+        fetchDonorIds: () => {
+          console.log("mock fetchDonorIds!!!");
+          return Promise.resolve([testDonorId]);
+        },
       });
 
       await programQueueProcessor.enqueueEvent({
@@ -364,7 +367,7 @@ describe("kafka integration", () => {
       await new Promise((resolve) => {
         setTimeout(() => {
           resolve();
-        }, 50000);
+        }, 30000);
       });
 
       const esHits = await Promise.all(
