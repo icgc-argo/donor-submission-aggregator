@@ -396,13 +396,8 @@ describe("kafka integration", () => {
       name: ALIAS_NAME,
     });
     const indices_1 = JSON.stringify(response_1.body);
-
-    console.log("body--------" + indices_1);
-
     const newIndexName_1 = generateIndexName(TEST_US) + "re_2";
     const regex_1 = new RegExp(newIndexName_1);
-
-    console.log("regex_1---------" + regex_1);
 
     const found_1 = indices_1.match(regex_1);
     expect(found_1).to.not.equal(null);
@@ -422,5 +417,14 @@ describe("kafka integration", () => {
     expect(currentNumOfShards_1).to.equal(
       donorIndexMapping.settings["index.number_of_shards"]
     );
+
+    // 3.second index should have all documents cloned from first idnex:
+    const test_us_documents = (
+      await esClient.search({
+        index: newIndexName_1,
+        track_total_hits: true,
+      })
+    ).body?.hits?.total?.value;
+    expect(test_us_documents).to.equal(DB_COLLECTION_SIZE);
   });
 });
