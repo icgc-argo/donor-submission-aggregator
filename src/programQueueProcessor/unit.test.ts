@@ -2,6 +2,7 @@ import {
   CLINICAL_PROGRAM_UPDATE_TOPIC,
   RDPC_PROGRAM_UPDATE_TOPIC,
   RDPC_URL,
+  ROLLCALL_ALIAS_NAME,
 } from "config";
 import { expect } from "chai";
 import { GenericContainer } from "testcontainers";
