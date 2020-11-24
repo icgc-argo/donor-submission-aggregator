@@ -359,8 +359,10 @@ describe("kafka integration", () => {
         name: ROLLCALL_ALIAS_NAME,
       });
       const indices = JSON.stringify(body);
+      console.log(indices);
       const newIndexName = generateIndexName(TEST_US) + "re_1";
       const regex = new RegExp(newIndexName);
+      console.log("regex-------" + regex);
       const found = indices.match(regex);
       expect(found).to.not.equal(null);
       expect(found?.length).to.equal(1);
