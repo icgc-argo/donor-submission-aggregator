@@ -356,9 +356,9 @@ describe("kafka integration", () => {
       });
 
       const { body } = await esClient.cat.aliases({
-        name: ROLLCALL_ALIAS_NAME,
+        name: ALIAS_NAME,
       });
-      const indices = JSON.stringify(body);
+      const indices = JSON.stringify("body----------------" + body);
       console.log(indices);
       const newIndexName = generateIndexName(TEST_US) + "re_1";
       const regex = new RegExp(newIndexName);
