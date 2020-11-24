@@ -334,53 +334,93 @@ describe("kafka integration", () => {
     });
   });
 
-  it.only(
-    "when a program has never been indexed before, newly created index settings " +
-      "should be the same as default index settings",
-    async () => {
-      programQueueProcessor = await createProgramQueueProcessor({
-        kafka: kafkaClient,
-        esClient,
-        rollCallClient: rollcallClient,
-      });
+  it.only("", async () => {
+    programQueueProcessor = await createProgramQueueProcessor({
+      kafka: kafkaClient,
+      esClient,
+      rollCallClient: rollcallClient,
+    });
 
-      await programQueueProcessor.enqueueEvent({
-        programId: TEST_US,
-        type: programQueueProcessor.knownEventTypes.CLINICAL,
-      });
+    // 1. when a program has never been indexed before, newly created index settings
+    // should be the same as default index settings
+    await programQueueProcessor.enqueueEvent({
+      programId: TEST_US,
+      type: programQueueProcessor.knownEventTypes.CLINICAL,
+    });
 
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, 30000);
-      });
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 30000);
+    });
 
-      const { body } = await esClient.cat.aliases({
-        name: ALIAS_NAME,
-      });
-      const indices = JSON.stringify("body----------------" + body);
-      console.log(indices);
-      const newIndexName = generateIndexName(TEST_US) + "re_1";
-      const regex = new RegExp(newIndexName);
-      console.log("regex-------" + regex);
-      const found = indices.match(regex);
-      expect(found).to.not.equal(null);
-      expect(found?.length).to.equal(1);
+    const { body } = await esClient.cat.aliases({
+      name: ALIAS_NAME,
+    });
+    const indices = JSON.stringify(body);
+    const newIndexName = generateIndexName(TEST_US) + "re_1";
+    const regex = new RegExp(newIndexName);
+    const found = indices.match(regex);
+    expect(found).to.not.equal(null);
+    expect(found?.length).to.equal(1);
 
-      const response = await esClient.indices.getSettings({
-        index: newIndexName,
-      });
+    const response = await esClient.indices.getSettings({
+      index: newIndexName,
+    });
 
-      const indexSettings = response.body[newIndexName].settings.index;
-      const currentNumOfShards = parseInt(indexSettings.number_of_shards);
-      const currentNumOfReplicas = parseInt(indexSettings.number_of_replicas);
+    const indexSettings = response.body[newIndexName].settings.index;
+    const currentNumOfShards = parseInt(indexSettings.number_of_shards);
+    const currentNumOfReplicas = parseInt(indexSettings.number_of_replicas);
 
-      expect(currentNumOfReplicas).to.equal(
-        donorIndexMapping.settings["index.number_of_replicas"]
-      );
-      expect(currentNumOfShards).to.equal(
-        donorIndexMapping.settings["index.number_of_shards"]
-      );
-    }
-  );
+    expect(currentNumOfReplicas).to.equal(
+      donorIndexMapping.settings["index.number_of_replicas"]
+    );
+    expect(currentNumOfShards).to.equal(
+      donorIndexMapping.settings["index.number_of_shards"]
+    );
+
+    // 2. if a new event is published to index the same program,
+    // a new index should be created and index settings should be equal to default settings.
+    await programQueueProcessor.enqueueEvent({
+      programId: TEST_US,
+      type: programQueueProcessor.knownEventTypes.CLINICAL,
+    });
+
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 30000);
+    });
+
+    const response_1 = await esClient.cat.aliases({
+      name: ALIAS_NAME,
+    });
+    const indices_1 = JSON.stringify(response_1.body);
+
+    console.log("body--------" + indices_1);
+
+    const newIndexName_1 = generateIndexName(TEST_US) + "re_2";
+    const regex_1 = new RegExp(newIndexName_1);
+
+    console.log("regex_1---------" + regex_1);
+
+    const found_1 = indices_1.match(regex_1);
+    expect(found_1).to.not.equal(null);
+    expect(found_1?.length).to.equal(1);
+
+    const response_2 = await esClient.indices.getSettings({
+      index: newIndexName_1,
+    });
+
+    const indexSettings_1 = response_2.body[newIndexName_1].settings.index;
+    const currentNumOfShards_1 = parseInt(indexSettings_1.number_of_shards);
+    const currentNumOfReplicas_1 = parseInt(indexSettings_1.number_of_replicas);
+
+    expect(currentNumOfReplicas_1).to.equal(
+      donorIndexMapping.settings["index.number_of_replicas"]
+    );
+    expect(currentNumOfShards_1).to.equal(
+      donorIndexMapping.settings["index.number_of_shards"]
+    );
+  });
 });
