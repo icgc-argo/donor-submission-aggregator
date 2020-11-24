@@ -9,6 +9,14 @@ import logger from "logger";
 import { KnownEventType, QueueRecord } from "./types";
 import { indexRdpcData } from "rdpc/index";
 import { fetchAnalyses } from "rdpc/analysesProcessor";
+import {
+  ROLLCALL_ALIAS_NAME,
+  ROLLCALL_INDEX_ENTITY,
+  ROLLCALL_INDEX_SHARDPREFIX,
+  ROLLCALL_INDEX_TYPE,
+} from "config";
+import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
+import { generateIndexName } from "./util";
 
 const parseProgramQueueEvent = (message: string): QueueRecord =>
   JSON.parse(message);
@@ -28,6 +36,21 @@ const handleIndexingFailure = async ({
       logger.warn(`could not delete index ${rollCallIndex.indexName}: ${err}`);
     });
   logger.warn(`index ${rollCallIndex.indexName} was removed`);
+};
+
+const newIndexAndInitializeMapping = async (
+  rollCallClient: RollCallClient,
+  esClient: Client,
+  programId: string,
+  cloneFromReleasedIndex: boolean
+): Promise<ResolvedIndex> => {
+  const newResolvedIndex = await rollCallClient.createNewResolvableIndex(
+    programId.toLowerCase(),
+    cloneFromReleasedIndex
+  );
+  logger.info(`obtained new index name: ${newResolvedIndex.indexName}`);
+  await initIndexMapping(newResolvedIndex.indexName, esClient);
+  return newResolvedIndex;
 };
 
 export default (configs: {
@@ -60,14 +83,85 @@ export default (configs: {
       };
       let newResolvedIndex: ResolvedIndex | null = null;
       await withRetry(async (retry, attemptIndex) => {
-        newResolvedIndex = await rollCallClient.createNewResolvableIndex(
-          programId.toLowerCase(),
-          true
-        );
-        logger.info(`obtained new index name: ${newResolvedIndex.indexName}`);
-        try {
-          await initIndexMapping(newResolvedIndex.indexName, esClient);
+        // check if existing latest index settings matches default settings
+        const { body } = await esClient.cat.aliases({
+          name: ROLLCALL_ALIAS_NAME,
+        });
 
+        const indices = JSON.stringify(body);
+        const regex = new RegExp(generateIndexName(programId) + "re_[0-9]+");
+
+        console.log("regex===========" + regex);
+        const found = indices.match(regex);
+
+        if (found) {
+          if (found.length !== 1) {
+            throw new Error(
+              `Multiple indices found for program ${programId}, unable to determin latest index name.`
+            );
+          }
+          const existingIndexName = found[0];
+          const response = await esClient.indices.getSettings({
+            index: existingIndexName,
+          });
+          const indexSettings = response.body[existingIndexName].settings.index;
+          const currentNumOfShards = parseInt(indexSettings.number_of_shards);
+          const currentNumOfReplicas = parseInt(
+            indexSettings.number_of_replicas
+          );
+
+          // compare existing index settings with default settings:
+          if (
+            currentNumOfReplicas ==
+              donorIndexMapping.settings["index.number_of_replicas"] &&
+            currentNumOfShards ==
+              donorIndexMapping.settings["index.number_of_shards"]
+          ) {
+            newResolvedIndex = await newIndexAndInitializeMapping(
+              rollCallClient,
+              esClient,
+              programId,
+              true
+            );
+          } else {
+            // because existing index settings do not match default settings, migrate this index
+            newResolvedIndex = await newIndexAndInitializeMapping(
+              rollCallClient,
+              esClient,
+              programId,
+              false
+            );
+
+            logger.info(
+              `Begin reindexing all documents from ${existingIndexName} to ${newResolvedIndex.indexName}`
+            );
+            await esClient.reindex({
+              body: {
+                source: {
+                  index: existingIndexName,
+                },
+                dest: {
+                  index: newResolvedIndex.indexName,
+                },
+              },
+              refresh: true,
+            });
+            logger.info(
+              `Reindexed all documents from ${existingIndexName} to ${newResolvedIndex.indexName}`
+            );
+          }
+        } else {
+          // if no index exists for program, get a new index name
+          newResolvedIndex = await newIndexAndInitializeMapping(
+            rollCallClient,
+            esClient,
+            programId,
+            false
+          );
+        }
+
+        try {
+          // await initIndexMapping(newResolvedIndex.indexName, esClient);
           await esClient.indices.putSettings({
             index: newResolvedIndex.indexName.toLowerCase(),
             body: {

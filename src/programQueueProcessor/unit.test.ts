@@ -29,6 +29,8 @@ import {
 } from "rdpc/fixtures/integrationTest/mockAnalyses";
 import esb from "elastic-builder";
 import { EsHit } from "indexClinicalData/types";
+import { generateIndexName } from "./util";
+import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 
 const TEST_US = "TEST-US";
 const TEST_CA = "TEST-CA";
@@ -330,4 +332,52 @@ describe("kafka integration", () => {
       );
     });
   });
+
+  it.only(
+    "when a program has never been indexed before, newly created index settings " +
+      "should be the same as default index settings",
+    async () => {
+      programQueueProcessor = await createProgramQueueProcessor({
+        kafka: kafkaClient,
+        esClient,
+        rollCallClient: rollcallClient,
+      });
+
+      await programQueueProcessor.enqueueEvent({
+        programId: TEST_US,
+        type: programQueueProcessor.knownEventTypes.CLINICAL,
+      });
+
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, 30000);
+      });
+
+      const { body } = await esClient.cat.aliases({
+        name: ROLLCALL_ALIAS_NAME,
+      });
+      const indices = JSON.stringify(body);
+      const newIndexName = generateIndexName(TEST_US) + "re_1";
+      const regex = new RegExp(newIndexName);
+      const found = indices.match(regex);
+      expect(found).to.not.equal(null);
+      expect(found?.length).to.equal(1);
+
+      const response = await esClient.indices.getSettings({
+        index: newIndexName,
+      });
+
+      const indexSettings = response.body[newIndexName].settings.index;
+      const currentNumOfShards = parseInt(indexSettings.number_of_shards);
+      const currentNumOfReplicas = parseInt(indexSettings.number_of_replicas);
+
+      expect(currentNumOfReplicas).to.equal(
+        donorIndexMapping.settings["index.number_of_replicas"]
+      );
+      expect(currentNumOfShards).to.equal(
+        donorIndexMapping.settings["index.number_of_shards"]
+      );
+    }
+  );
 });
