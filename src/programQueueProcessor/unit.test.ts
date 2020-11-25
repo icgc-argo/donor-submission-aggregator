@@ -485,7 +485,7 @@ describe("kafka integration", () => {
         });
         console.log("reponse -----------" + JSON.stringify(response));
         console.log(`expecting index ${newIndexName} to exist...`);
-        expect(response.body.exists).to.be.true;
+        expect(response.body).to.be.true;
 
         await esClient.indices.updateAliases({
           body: {
