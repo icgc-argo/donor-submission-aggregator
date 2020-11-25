@@ -84,14 +84,8 @@ export default (configs: {
         });
 
         const indices = JSON.stringify(body);
-        console.log("indices from eventprocessor ++++++++=" + indices);
-
         const regex = new RegExp(generateIndexName(programId) + "re_[0-9]+");
-
-        console.log("regex===========" + regex);
         const found = indices.match(regex);
-
-        console.log("found index----------" + found);
 
         if (found) {
           if (found.length !== 1) {
@@ -109,8 +103,6 @@ export default (configs: {
             indexSettings.number_of_replicas
           );
 
-          console.log("current shards--------" + currentNumOfShards);
-          console.log("current replicas--------" + currentNumOfReplicas);
           // compare existing index settings with default settings:
           if (
             currentNumOfReplicas ==
