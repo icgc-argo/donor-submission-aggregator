@@ -2,7 +2,6 @@ import {
   CLINICAL_PROGRAM_UPDATE_TOPIC,
   RDPC_PROGRAM_UPDATE_TOPIC,
   RDPC_URL,
-  ROLLCALL_ALIAS_NAME,
 } from "config";
 import { expect } from "chai";
 import { GenericContainer } from "testcontainers";
@@ -185,8 +184,8 @@ describe("kafka integration", () => {
     await programQueueProcessor?.destroy();
   });
 
-  describe.only("programQueueProcessor", () => {
-    it("must index all clinical and RDPC data into Elasticsearch", async () => {
+  describe("programQueueProcessor", () => {
+    it.only("must index all clinical and RDPC data into Elasticsearch", async () => {
       const mockAnalysisFetcher: typeof fetchAnalyses = async (
         studyId: string,
         rdpcUrl: string,
@@ -427,5 +426,10 @@ describe("kafka integration", () => {
       ).body?.hits?.total?.value;
       expect(test_us_documents).to.equal(DB_COLLECTION_SIZE);
     });
+    it(
+      "must not clone from an index when index settings do not equal to default settings," +
+        "it must create a new index with correct settings and reindex all documents from previous index",
+      async () => {}
+    );
   });
 });
