@@ -471,7 +471,7 @@ describe("kafka integration", () => {
       ).body?.hits?.total?.value;
       expect(test_us_documents).to.equal(DB_COLLECTION_SIZE);
     });
-    it.only(
+    it(
       "must not clone from an index when index settings do not equal to default settings," +
         "it must create a new index with correct settings and reindex all documents from previous index",
       async () => {
@@ -483,7 +483,6 @@ describe("kafka integration", () => {
         const response = await esClient.indices.exists({
           index: newIndexName,
         });
-        console.log("reponse -----------" + JSON.stringify(response));
         console.log(`expecting index ${newIndexName} to exist...`);
         expect(response.body).to.be.true;
 
