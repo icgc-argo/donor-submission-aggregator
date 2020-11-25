@@ -19,6 +19,7 @@ import createRollCallClient from "../rollCall";
 import { Kafka } from "kafkajs";
 import { ProgramQueueProcessor } from "./types";
 import {
+  clinicalDataset,
   expectedRDPCData,
   testDonorIds,
 } from "rdpc/fixtures/integrationTest/dataset";
@@ -196,7 +197,7 @@ describe("kafka integration", () => {
     }
   });
 
-  describe.only("programQueueProcessor", () => {
+  describe("programQueueProcessor", () => {
     it("must index all clinical and RDPC data into Elasticsearch", async () => {
       const mockAnalysisFetcher: typeof fetchAnalyses = async (
         studyId: string,
@@ -416,7 +417,7 @@ describe("kafka integration", () => {
         donorIndexMapping.settings["index.number_of_shards"]
       );
 
-      // 2. if a new event is published to index the same program,
+      // 2.if a new event is published to index the same program,
       // a new index should be created and index settings should be equal to default settings.
       await programQueueProcessor.enqueueEvent({
         programId: TEST_US,
@@ -469,10 +470,101 @@ describe("kafka integration", () => {
       ).body?.hits?.total?.value;
       expect(test_us_documents).to.equal(DB_COLLECTION_SIZE);
     });
-    it(
+    it.only(
       "must not clone from an index when index settings do not equal to default settings," +
         "it must create a new index with correct settings and reindex all documents from previous index",
-      async () => {}
+      async () => {
+        // prepare index by creating one with default replica and shard settings:
+        const newIndexName = generateIndexName("TEST-CA") + "re_1";
+        await esClient.indices.create({
+          index: newIndexName,
+        });
+        const response = await esClient.indices.exists({
+          index: newIndexName,
+        });
+        expect(response.body.exists).to.be.true;
+
+        await esClient.indices.updateAliases({
+          body: {
+            actions: {
+              add: { index: newIndexName, alias: ROLLCALL_ALIAS_NAME },
+            },
+          },
+        });
+
+        const response_1 = await esClient.cat.aliases({
+          name: ROLLCALL_ALIAS_NAME,
+          format: "JSON",
+          h: ["alias", "index"],
+        });
+        expect(response_1.body).to.deep.include({
+          alias: ROLLCALL_ALIAS_NAME,
+          index: newIndexName,
+        });
+
+        // bulk insert data:
+        const body = clinicalDataset.flatMap((doc) => [
+          { index: { _index: newIndexName } },
+          doc,
+        ]);
+        console.log(`Bulk indexing clinical data into ${newIndexName}....`);
+
+        await esClient.bulk({
+          body,
+          refresh: "wait_for",
+        });
+
+        // trigger indexing by publishing a clincial event:
+        await programQueueProcessor.enqueueEvent({
+          programId: "TEST-CA",
+          type: programQueueProcessor.knownEventTypes.CLINICAL,
+        });
+
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            resolve();
+          }, 30000);
+        });
+
+        // check migration index settings results:
+        const response_alias = await esClient.cat.aliases({
+          name: ROLLCALL_ALIAS_NAME,
+        });
+        const alias = JSON.stringify(response_alias.body);
+        const newIndexName_re_2 = generateIndexName("TEST-CA") + "re_2";
+        const regex = new RegExp(newIndexName_re_2);
+        const found = alias.match(regex);
+        console.log(
+          `expecting to find 1 index ${newIndexName_re_2} in indices ${alias}...`
+        );
+
+        expect(found).to.not.equal(null);
+        expect(found?.length).to.equal(1);
+
+        const settings = await esClient.indices.getSettings({
+          index: newIndexName_re_2,
+        });
+        const indexSettings = settings.body[newIndexName_re_2].settings.index;
+        const currentNumOfShards = parseInt(indexSettings.number_of_shards);
+        const currentNumOfReplicas = parseInt(indexSettings.number_of_replicas);
+
+        expect(currentNumOfReplicas).to.equal(
+          donorIndexMapping.settings["index.number_of_replicas"]
+        );
+        expect(currentNumOfShards).to.equal(
+          donorIndexMapping.settings["index.number_of_shards"]
+        );
+
+        // after migration, all documents from previous index should be reindexed to new index
+        const test_ca_re_2_documents = (
+          await esClient.search({
+            index: newIndexName_re_2,
+            track_total_hits: true,
+          })
+        ).body?.hits?.total?.value;
+
+        expect(test_ca_re_2_documents).to.equal(clinicalDataset.length);
+      }
     );
   });
 });
