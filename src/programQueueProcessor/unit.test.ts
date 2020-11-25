@@ -33,6 +33,7 @@ import esb from "elastic-builder";
 import { EsHit } from "indexClinicalData/types";
 import { generateIndexName } from "./util";
 import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
+import { repeat } from "lodash";
 
 const TEST_US = "TEST-US";
 const TEST_CA = "TEST-CA";
@@ -482,6 +483,8 @@ describe("kafka integration", () => {
         const response = await esClient.indices.exists({
           index: newIndexName,
         });
+        console.log("reponse -----------" + JSON.stringify(response));
+        console.log(`expecting index ${newIndexName} to exist...`);
         expect(response.body.exists).to.be.true;
 
         await esClient.indices.updateAliases({
