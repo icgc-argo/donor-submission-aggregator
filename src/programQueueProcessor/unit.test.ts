@@ -184,7 +184,7 @@ describe("kafka integration", () => {
     await programQueueProcessor?.destroy();
   });
 
-  describe("programQueueProcessor", () => {
+  describe.only("programQueueProcessor", () => {
     it("must index all clinical and RDPC data into Elasticsearch", async () => {
       const mockAnalysisFetcher: typeof fetchAnalyses = async (
         studyId: string,
@@ -244,15 +244,17 @@ describe("kafka integration", () => {
         .requestBodySearch()
         .query(esb.termQuery("programId", TEST_CA));
 
-      const test_ca_documents_1 = (
+      const test_ca_documents_clinical = (
         await esClient.search({
           index: ROLLCALL_ALIAS_NAME,
           body: query_test_ca,
           track_total_hits: true,
         })
       ).body?.hits?.total?.value;
-      console.log("expecting test_ca_documents_1 to be 10");
-      expect(test_ca_documents_1).to.equal(testDonorIds.length);
+      console.log(
+        `expecting test_ca_documents_clinical to be ${testDonorIds.length}`
+      );
+      expect(test_ca_documents_clinical).to.equal(testDonorIds.length);
 
       await programQueueProcessor.enqueueEvent({
         programId: TEST_CA,
@@ -266,22 +268,17 @@ describe("kafka integration", () => {
         }, 30000);
       });
 
-      // check if number of TEST-CA documents is expected:
-      const response_1 = await esClient.cat.aliases({
-        name: ROLLCALL_ALIAS_NAME,
-      });
-      const indices_1 = JSON.stringify(response_1.body);
-      console.log("indices-----------" + indices_1);
-
-      const test_ca_documents = (
+      const test_ca_documents_rdpc = (
         await esClient.search({
           index: ROLLCALL_ALIAS_NAME,
           body: query_test_ca,
           track_total_hits: true,
         })
       ).body?.hits?.total?.value;
-      console.log("expecting test_ca_documents to be 10");
-      expect(test_ca_documents).to.equal(testDonorIds.length);
+      console.log(
+        `expecting test_ca_documents_rdpc to be ${testDonorIds.length}`
+      );
+      expect(test_ca_documents_rdpc).to.equal(testDonorIds.length);
 
       // check if new rdpc data is relfected in TEST-CA
       const hits = await Promise.all(
@@ -345,6 +342,7 @@ describe("kafka integration", () => {
           track_total_hits: true,
         })
       ).body?.hits?.total?.value;
+      console.log(`expecting test_us_documents to equal ${DB_COLLECTION_SIZE}`);
       expect(test_us_documents).to.equal(DB_COLLECTION_SIZE);
 
       const totalEsDocuments = (
@@ -357,7 +355,7 @@ describe("kafka integration", () => {
         testDonorIds.length + DB_COLLECTION_SIZE
       );
     });
-    it("must create new index with correct settings", async () => {
+    it("must create new index with correct settings and index data", async () => {
       programQueueProcessor = await createProgramQueueProcessor({
         kafka: kafkaClient,
         esClient,
@@ -384,6 +382,10 @@ describe("kafka integration", () => {
       const newIndexName = generateIndexName(TEST_US) + "re_1";
       const regex = new RegExp(newIndexName);
       const found = indices.match(regex);
+
+      console.log(
+        `expecting to find 1 index ${newIndexName} in indices ${indices}----`
+      );
       expect(found).to.not.equal(null);
       expect(found?.length).to.equal(1);
 
@@ -423,6 +425,9 @@ describe("kafka integration", () => {
       const regex_1 = new RegExp(newIndexName_1);
 
       const found_1 = indices_1.match(regex_1);
+      console.log(
+        `expecting to find 1 index ${newIndexName_1} in indices ${indices_1}----`
+      );
       expect(found_1).to.not.equal(null);
       expect(found_1?.length).to.equal(1);
 
