@@ -232,6 +232,21 @@ describe("kafka integration", () => {
         programId: TEST_CA,
         type: programQueueProcessor.knownEventTypes.CLINICAL,
       });
+
+      const query_test_ca = esb
+        .requestBodySearch()
+        .query(esb.termQuery("programId", TEST_CA));
+
+      const test_ca_documents_1 = (
+        await esClient.search({
+          index: ALIAS_NAME,
+          body: query_test_ca,
+          track_total_hits: true,
+        })
+      ).body?.hits?.total?.value;
+      console.log("expecting test_ca_documents_1 to be 10");
+      expect(test_ca_documents_1).to.equal(testDonorIds.length);
+
       await programQueueProcessor.enqueueEvent({
         programId: TEST_CA,
         type: programQueueProcessor.knownEventTypes.RDPC,
@@ -245,16 +260,20 @@ describe("kafka integration", () => {
       });
 
       // check if number of TEST-CA documents is expected:
-      const query_test_ca = esb
-        .requestBodySearch()
-        .query(esb.termQuery("programId", TEST_CA));
+      const response_1 = await esClient.cat.aliases({
+        name: ALIAS_NAME,
+      });
+      const indices_1 = JSON.stringify(response_1.body);
+      console.log("indices-----------" + indices_1);
 
       const test_ca_documents = (
         await esClient.search({
           index: ALIAS_NAME,
           body: query_test_ca,
+          track_total_hits: true,
         })
       ).body?.hits?.total?.value;
+      console.log("expecting test_ca_documents to be 10");
       expect(test_ca_documents).to.equal(testDonorIds.length);
 
       // check if new rdpc data is relfected in TEST-CA
