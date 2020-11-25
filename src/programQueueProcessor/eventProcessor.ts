@@ -110,6 +110,8 @@ export default (configs: {
             indexSettings.number_of_replicas
           );
 
+          console.log("current shards--------" + currentNumOfShards);
+          console.log("current replicas--------" + currentNumOfReplicas);
           // compare existing index settings with default settings:
           if (
             currentNumOfReplicas ==
@@ -118,7 +120,7 @@ export default (configs: {
               donorIndexMapping.settings["index.number_of_shards"]
           ) {
             logger.info(
-              "Obtaining a new index name from rollcall, clone=true."
+              "Existing index settings match default settings, obtaining a new index name from rollcall, clone=true."
             );
             newResolvedIndex = await newIndexAndInitializeMapping(
               rollCallClient,
@@ -129,7 +131,7 @@ export default (configs: {
           } else {
             // because existing index settings do not match default settings, migrate this index
             logger.info(
-              "Obtaining a new index name from rollcall, clone=false."
+              "Existing index settings do not match default settings, obtaining a new index name from rollcall, clone=false."
             );
             newResolvedIndex = await newIndexAndInitializeMapping(
               rollCallClient,
