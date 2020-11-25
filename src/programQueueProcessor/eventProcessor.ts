@@ -117,6 +117,9 @@ export default (configs: {
             currentNumOfShards ==
               donorIndexMapping.settings["index.number_of_shards"]
           ) {
+            logger.info(
+              "Obtaining a new index name from rollcall, clone=true."
+            );
             newResolvedIndex = await newIndexAndInitializeMapping(
               rollCallClient,
               esClient,
@@ -125,6 +128,9 @@ export default (configs: {
             );
           } else {
             // because existing index settings do not match default settings, migrate this index
+            logger.info(
+              "Obtaining a new index name from rollcall, clone=false."
+            );
             newResolvedIndex = await newIndexAndInitializeMapping(
               rollCallClient,
               esClient,
@@ -152,6 +158,7 @@ export default (configs: {
           }
         } else {
           // if no index exists for program, get a new index name
+          logger.info("Obtaining a new index name from rollcall, clone=false.");
           newResolvedIndex = await newIndexAndInitializeMapping(
             rollCallClient,
             esClient,

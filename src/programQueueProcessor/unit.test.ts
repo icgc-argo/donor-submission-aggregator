@@ -219,6 +219,7 @@ describe("kafka integration", () => {
           resolve();
         }, 30000);
       });
+
       const totalEsDocuments_1 = (
         await esClient.search({
           index: ALIAS_NAME,
@@ -231,6 +232,12 @@ describe("kafka integration", () => {
       await programQueueProcessor.enqueueEvent({
         programId: TEST_CA,
         type: programQueueProcessor.knownEventTypes.CLINICAL,
+      });
+
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, 30000);
       });
 
       const query_test_ca = esb
