@@ -518,6 +518,12 @@ describe("kafka integration", () => {
         });
 
         // trigger indexing by publishing a clincial event:
+        programQueueProcessor = await createProgramQueueProcessor({
+          kafka: kafkaClient,
+          esClient,
+          rollCallClient: rollcallClient,
+        });
+
         await programQueueProcessor.enqueueEvent({
           programId: "TEST-CA",
           type: programQueueProcessor.knownEventTypes.CLINICAL,
