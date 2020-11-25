@@ -185,7 +185,7 @@ describe("kafka integration", () => {
   });
 
   describe("programQueueProcessor", () => {
-    it.only("must index all clinical and RDPC data into Elasticsearch", async () => {
+    it("must index all clinical and RDPC data into Elasticsearch", async () => {
       const mockAnalysisFetcher: typeof fetchAnalyses = async (
         studyId: string,
         rdpcUrl: string,
