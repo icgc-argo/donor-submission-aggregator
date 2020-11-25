@@ -179,9 +179,21 @@ describe("kafka integration", () => {
     ]);
   });
   afterEach(async function () {
-    await DonorSchema().deleteMany({});
-    console.log("programQueueProcessor: ", programQueueProcessor);
-    await programQueueProcessor?.destroy();
+    try {
+      console.log("afterEach >>>>>>>>>>> ");
+      await DonorSchema().deleteMany({});
+
+      console.log("programQueueProcessor: ", programQueueProcessor);
+      await programQueueProcessor?.destroy();
+
+      console.log("deleting all indices and alias from elasticsearch...");
+      await esClient.indices.delete({
+        index: "_all",
+      });
+    } catch (error) {
+      console.log("error in afterEach >>>>>>>" + error);
+      throw error;
+    }
   });
 
   describe.only("programQueueProcessor", () => {
