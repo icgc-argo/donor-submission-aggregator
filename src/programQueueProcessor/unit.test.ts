@@ -2,6 +2,7 @@ import {
   CLINICAL_PROGRAM_UPDATE_TOPIC,
   RDPC_PROGRAM_UPDATE_TOPIC,
   RDPC_URL,
+  ROLLCALL_ALIAS_NAME,
 } from "config";
 import { expect } from "chai";
 import { GenericContainer } from "testcontainers";
@@ -50,7 +51,6 @@ describe("kafka integration", () => {
   const MONGO_PORT = 27017;
   const KAFKA_PORT = 9092;
   const NETOWRK_MODE = "host";
-  const ALIAS_NAME = "donor_centric";
   let MONGO_URL: string;
   let KAFKA_HOST: string;
   /****************************/
@@ -112,7 +112,7 @@ describe("kafka integration", () => {
         .withEnv("SERVER_PORT", `${ROLLCALL_PORT}`)
         .withEnv("SPRING_CLOUD_VAULT_ENABLED", `${false}`)
         .withEnv("ELASTICSEARCH_NODE", `${ES_HOST}`)
-        .withEnv("ROLLCALL_ALIASES_0_ALIAS", `${ALIAS_NAME}`)
+        .withEnv("ROLLCALL_ALIASES_0_ALIAS", `${ROLLCALL_ALIAS_NAME}`)
         .withEnv("ROLLCALL_ALIASES_0_ENTITY", `${RESOLVED_INDEX_PARTS.entity}`)
         .withEnv("ROLLCALL_ALIASES_0_TYPE", `${RESOLVED_INDEX_PARTS.type}`)
         .withWaitStrategy(Wait.forLogMessage("Started RollcallApplication"))
@@ -126,7 +126,7 @@ describe("kafka integration", () => {
       rollcallClient = createRollCallClient({
         url: `${ROLLCALL_HOST}`,
         ...RESOLVED_INDEX_PARTS,
-        aliasName: ALIAS_NAME,
+        aliasName: ROLLCALL_ALIAS_NAME,
       });
       kafkaClient = new Kafka({
         clientId: `donor-submission-aggregator-test-${Math.random()}`,
@@ -222,7 +222,7 @@ describe("kafka integration", () => {
 
       const totalEsDocuments_1 = (
         await esClient.search({
-          index: ALIAS_NAME,
+          index: ROLLCALL_ALIAS_NAME,
           track_total_hits: true,
         })
       ).body?.hits?.total?.value;
@@ -246,7 +246,7 @@ describe("kafka integration", () => {
 
       const test_ca_documents_1 = (
         await esClient.search({
-          index: ALIAS_NAME,
+          index: ROLLCALL_ALIAS_NAME,
           body: query_test_ca,
           track_total_hits: true,
         })
@@ -268,14 +268,14 @@ describe("kafka integration", () => {
 
       // check if number of TEST-CA documents is expected:
       const response_1 = await esClient.cat.aliases({
-        name: ALIAS_NAME,
+        name: ROLLCALL_ALIAS_NAME,
       });
       const indices_1 = JSON.stringify(response_1.body);
       console.log("indices-----------" + indices_1);
 
       const test_ca_documents = (
         await esClient.search({
-          index: ALIAS_NAME,
+          index: ROLLCALL_ALIAS_NAME,
           body: query_test_ca,
           track_total_hits: true,
         })
@@ -292,7 +292,7 @@ describe("kafka integration", () => {
             .query(esb.termQuery("donorId", "DO" + donorId));
           const test_ca_hits: EsHit[] = await esClient
             .search({
-              index: ALIAS_NAME,
+              index: ROLLCALL_ALIAS_NAME,
               body: esQuery,
             })
             .then((res) => res.body.hits.hits)
@@ -340,7 +340,7 @@ describe("kafka integration", () => {
 
       const test_us_documents = (
         await esClient.search({
-          index: ALIAS_NAME,
+          index: ROLLCALL_ALIAS_NAME,
           body: query_test_us,
           track_total_hits: true,
         })
@@ -349,7 +349,7 @@ describe("kafka integration", () => {
 
       const totalEsDocuments = (
         await esClient.search({
-          index: ALIAS_NAME,
+          index: ROLLCALL_ALIAS_NAME,
           track_total_hits: true,
         })
       ).body?.hits?.total?.value;
@@ -378,7 +378,7 @@ describe("kafka integration", () => {
       });
 
       const { body } = await esClient.cat.aliases({
-        name: ALIAS_NAME,
+        name: ROLLCALL_ALIAS_NAME,
       });
       const indices = JSON.stringify(body);
       const newIndexName = generateIndexName(TEST_US) + "re_1";
@@ -416,7 +416,7 @@ describe("kafka integration", () => {
       });
 
       const response_1 = await esClient.cat.aliases({
-        name: ALIAS_NAME,
+        name: ROLLCALL_ALIAS_NAME,
       });
       const indices_1 = JSON.stringify(response_1.body);
       const newIndexName_1 = generateIndexName(TEST_US) + "re_2";

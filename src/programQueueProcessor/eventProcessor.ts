@@ -9,12 +9,7 @@ import logger from "logger";
 import { KnownEventType, QueueRecord } from "./types";
 import { indexRdpcData } from "rdpc/index";
 import { fetchAnalyses } from "rdpc/analysesProcessor";
-import {
-  ROLLCALL_ALIAS_NAME,
-  ROLLCALL_INDEX_ENTITY,
-  ROLLCALL_INDEX_SHARDPREFIX,
-  ROLLCALL_INDEX_TYPE,
-} from "config";
+import { ROLLCALL_ALIAS_NAME } from "config";
 import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 import { generateIndexName } from "./util";
 
