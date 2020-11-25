@@ -89,10 +89,14 @@ export default (configs: {
         });
 
         const indices = JSON.stringify(body);
+        console.log("indices from eventprocessor ++++++++=" + indices);
+
         const regex = new RegExp(generateIndexName(programId) + "re_[0-9]+");
 
         console.log("regex===========" + regex);
         const found = indices.match(regex);
+
+        console.log("found index----------" + found);
 
         if (found) {
           if (found.length !== 1) {
