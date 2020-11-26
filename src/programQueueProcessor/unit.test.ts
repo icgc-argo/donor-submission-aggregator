@@ -206,6 +206,9 @@ describe("kafka integration", () => {
     await DonorSchema().deleteMany({});
     console.log("programQueueProcessor: ", programQueueProcessor);
     await programQueueProcessor?.destroy();
+    await esClient.indices.delete({
+      index: "*",
+    });
   });
 
   describe("programQueueProcessor", () => {
