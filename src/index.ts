@@ -35,10 +35,35 @@ import parseRdpcProgramUpdateEvent from "eventParsers/parseRdpcProgramUpdateEven
   const expressApp = express();
   const statusReporter = applyStatusReport(expressApp)("/status");
   expressApp.use(
-    "/",
+    "/api-docs",
     swaggerUi.serve,
     swaggerUi.setup(yaml.load(path.join(__dirname, "./assets/swagger.yaml")))
   );
+
+  expressApp.post("/index/program/:program_id", async (req, res) => {
+    const programId = req.params.program_id;
+    logger.info(
+      `received request to index program ${programId}, validating program id...`
+    );
+    // validate programId:
+    const regex = new RegExp(
+      "^[A-Z0-9][-_A-Z0-9]{2,7}[-](([A-Z][A-Z])|(\bINTL\b))$"
+    );
+    const found = programId.match(regex);
+
+    if (!found) {
+      return res
+        .status(404)
+        .send("programId is invalid, please enter a valid programId.");
+    } else {
+      await programQueueProcessor.enqueueEvent({
+        programId: programId,
+        type: programQueueProcessor.knownEventTypes.SYNC,
+        rdpcGatewayUrls: [RDPC_URL],
+      });
+      return res.status(200).send(`program ${programId} has been indexed.`);
+    }
+  });
 
   await connectMongo();
   const esClient = await createEsClient();
