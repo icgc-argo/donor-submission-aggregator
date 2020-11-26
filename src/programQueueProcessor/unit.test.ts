@@ -80,15 +80,18 @@ describe("kafka integration", () => {
   }): Promise<Analysis[]> => {
     const matchesDonorId = (donor: any) =>
       donorId ? donor.donorId === donorId : true;
-    return Promise.resolve(
+
+    const output =
       analysisType === AnalysisType.SEQ_EXPERIMENT
         ? mockSeqExpAnalyses
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
         : mockSeqAlignmentAnalyses
             .filter((analysis) => analysis.donors.some(matchesDonorId))
-            .slice(from, from + size)
-    );
+            .slice(from, from + size);
+    console.log("analyses to process: ", output);
+
+    return Promise.resolve(output);
   };
 
   before(async () => {
