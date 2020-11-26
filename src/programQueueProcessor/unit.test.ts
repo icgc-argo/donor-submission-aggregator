@@ -89,7 +89,6 @@ describe("kafka integration", () => {
         : mockSeqAlignmentAnalyses
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size);
-    console.log("analyses to process: ", output);
 
     return Promise.resolve(output);
   };
@@ -348,7 +347,6 @@ describe("kafka integration", () => {
       const testAnalysis = mockSeqExpAnalyses[0];
       const testDonorId = testAnalysis.donors[0].donorId;
 
-      console.log("testDonorId: ", testDonorId);
       programQueueProcessor = await createProgramQueueProcessor({
         kafka: kafkaClient,
         esClient,
