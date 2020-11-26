@@ -341,14 +341,14 @@ describe("kafka integration", () => {
     it("handles incremental analysis updates properly", async () => {
       const testAnalysis = mockSeqExpAnalyses[0];
       const testDonorId = testAnalysis.donors[0].donorId;
+
+      console.log("testDonorId: ", testDonorId);
       programQueueProcessor = await createProgramQueueProcessor({
         kafka: kafkaClient,
         esClient,
         rollCallClient: rollcallClient,
         analysisFetcher: mockAnalysisFetcher,
-        fetchDonorIds: () => {
-          return Promise.resolve([testDonorId]);
-        },
+        fetchDonorIds: () => Promise.resolve([testDonorId]),
       });
 
       await programQueueProcessor.enqueueEvent({
