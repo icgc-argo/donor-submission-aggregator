@@ -8,7 +8,8 @@ import withRetry from "promise-retry";
 import logger from "logger";
 import { KnownEventType, QueueRecord } from "./types";
 import { indexRdpcData } from "rdpc/index";
-import { fetchAnalyses } from "rdpc/analysesProcessor";
+import fetchAnalyses from "rdpc/fetchAnalyses";
+import fetchDonorIdsByAnalysis from "rdpc/fetchDonorIdsByAnalysis";
 
 const parseProgramQueueEvent = (message: string): QueueRecord =>
   JSON.parse(message);
@@ -30,21 +31,21 @@ const handleIndexingFailure = async ({
   logger.warn(`index ${rollCallIndex.indexName} was removed`);
 };
 
-export default (configs: {
+export default ({
+  rollCallClient,
+  esClient,
+  programQueueTopic,
+  analysisFetcher = fetchAnalyses,
+  fetchDonorIds = fetchDonorIdsByAnalysis,
+  statusReporter,
+}: {
   rollCallClient: RollCallClient;
   esClient: Client;
   programQueueTopic: string;
   analysisFetcher?: typeof fetchAnalyses;
+  fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
   statusReporter?: StatusReporter;
 }) => {
-  const {
-    rollCallClient,
-    esClient,
-    programQueueTopic,
-    analysisFetcher,
-    statusReporter,
-  } = configs;
-
   return async ({ message }: EachMessagePayload) => {
     if (message && message.value) {
       const queuedEvent = parseProgramQueueEvent(message.value.toString());
@@ -87,13 +88,15 @@ export default (configs: {
             );
           } else if (queuedEvent.type === KnownEventType.RDPC) {
             for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
-              await indexRdpcData(
+              await indexRdpcData({
                 programId,
                 rdpcUrl,
-                newResolvedIndex.indexName,
+                targetIndexName: newResolvedIndex.indexName,
                 esClient,
-                analysisFetcher
-              );
+                analysesFetcher: analysisFetcher,
+                fetchDonorIds,
+                analysisId: queuedEvent.analysisId,
+              });
             }
           } else {
             await indexClinicalData(
@@ -102,13 +105,14 @@ export default (configs: {
               esClient
             );
             for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
-              await indexRdpcData(
+              await indexRdpcData({
                 programId,
                 rdpcUrl,
-                newResolvedIndex.indexName,
+                targetIndexName: newResolvedIndex.indexName,
                 esClient,
-                analysisFetcher
-              );
+                analysesFetcher: analysisFetcher,
+                fetchDonorIds,
+              });
             }
           }
           await rollCallClient.release(newResolvedIndex);
