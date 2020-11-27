@@ -6,7 +6,12 @@ import indexClinicalData from "indexClinicalData";
 import { initIndexMapping } from "elasticsearch";
 import withRetry from "promise-retry";
 import logger from "logger";
-import { KnownEventType, QueueRecord } from "./types";
+import {
+  AliasResponse,
+  KnownEventType,
+  QueueRecord,
+  SettingsResponse,
+} from "./types";
 import { indexRdpcData } from "rdpc/index";
 import { fetchAnalyses } from "rdpc/analysesProcessor";
 import { ROLLCALL_ALIAS_NAME } from "config";
@@ -77,37 +82,38 @@ export default (configs: {
         maxTimeout: Infinity,
       };
       let newResolvedIndex: ResolvedIndex | null = null;
+
       await withRetry(async (retry, attemptIndex) => {
-        // check if existing latest index settings matches default settings
-        const { body } = await esClient.cat.aliases({
+        // get the lastest index name:
+        const result = (await esClient.indices.getAlias({
           name: ROLLCALL_ALIAS_NAME,
-        });
+        })) as AliasResponse;
 
-        const indices = JSON.stringify(body);
-        const regex = new RegExp(generateIndexName(programId) + "re_[0-9]+");
-        const found = indices.match(regex);
-
-        if (found) {
-          if (found.length !== 1) {
-            throw new Error(
-              `Multiple indices found for program ${programId}, unable to determin latest index name.`
-            );
+        const indexNameList = Object.entries(result.body).map(
+          ([indexName, alias]) => {
+            return indexName;
           }
-          const existingIndexName = found[0];
-          const response = await esClient.indices.getSettings({
+        );
+
+        const existingIndexName = indexNameList.find((indexName) =>
+          indexName.includes(generateIndexName(programId))
+        );
+
+        if (existingIndexName) {
+          const response = (await esClient.indices.getSettings({
             index: existingIndexName,
-          });
+          })) as SettingsResponse;
           const indexSettings = response.body[existingIndexName].settings.index;
           const currentNumOfShards = parseInt(indexSettings.number_of_shards);
           const currentNumOfReplicas = parseInt(
             indexSettings.number_of_replicas
           );
 
-          // compare existing index settings with default settings:
+          // check if existing latest index settings match default settings
           if (
-            currentNumOfReplicas ==
+            currentNumOfReplicas ===
               donorIndexMapping.settings["index.number_of_replicas"] &&
-            currentNumOfShards ==
+            currentNumOfShards ===
               donorIndexMapping.settings["index.number_of_shards"]
           ) {
             logger.info(
@@ -120,7 +126,7 @@ export default (configs: {
               true
             );
           } else {
-            // because existing index settings do not match default settings, migrate this index
+            // because existing index settings do not match default, migrate this index
             logger.info(
               "Existing index settings do not match default settings, obtaining a new index name from rollcall, clone=false."
             );
@@ -161,7 +167,6 @@ export default (configs: {
         }
 
         try {
-          // await initIndexMapping(newResolvedIndex.indexName, esClient);
           await esClient.indices.putSettings({
             index: newResolvedIndex.indexName.toLowerCase(),
             body: {

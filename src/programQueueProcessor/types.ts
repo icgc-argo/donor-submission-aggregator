@@ -1,3 +1,5 @@
+import { ApiResponse } from "@elastic/elasticsearch";
+
 export enum KnownEventSource {
   CLINICAL = "CLINICAL",
   RDPC = "RDPC",
@@ -28,3 +30,22 @@ export type ProgramQueueProcessor = {
   enqueueEvent: (event: QueueRecord) => Promise<void>;
   destroy: () => Promise<void>;
 };
+
+export type AliasResponse = ApiResponse<{
+  [indexName: string]: {
+    aliases: {
+      [aliasName: string]: {};
+    };
+  };
+}>;
+
+export type SettingsResponse = ApiResponse<{
+  [indexName: string]: {
+    settings: {
+      index: {
+        number_of_shards: string;
+        number_of_replicas: string;
+      };
+    };
+  };
+}>;
