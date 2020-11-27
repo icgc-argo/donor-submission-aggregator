@@ -523,24 +523,15 @@ describe("kafka integration", () => {
         });
 
         // check migration index settings results:
-        const response_alias = await esClient.cat.aliases({
-          name: ROLLCALL_ALIAS_NAME,
-        });
-        const alias = JSON.stringify(response_alias.body);
-        const newIndexName_re_2 = generateIndexName("TEST-CA") + "re_2";
-        const regex = new RegExp(newIndexName_re_2);
-        const found = alias.match(regex);
-        console.log(
-          `expecting to find 1 index ${newIndexName_re_2} in indices ${alias}...`
-        );
+        const latestIndexName = await getLatestIndexName(esClient, "TEST-CA");
+        console.log(`expecting to find 1 index ${latestIndexName}...`);
 
-        expect(found).to.not.equal(null);
-        expect(found?.length).to.equal(1);
+        expect(latestIndexName).to.not.equal("");
 
         const settings = await esClient.indices.getSettings({
-          index: newIndexName_re_2,
+          index: latestIndexName,
         });
-        const indexSettings = settings.body[newIndexName_re_2].settings.index;
+        const indexSettings = settings.body[latestIndexName].settings.index;
         const currentNumOfShards = parseInt(indexSettings.number_of_shards);
         const currentNumOfReplicas = parseInt(indexSettings.number_of_replicas);
 
@@ -554,7 +545,7 @@ describe("kafka integration", () => {
         // after migration, all documents from previous index should be reindexed to new index
         const test_ca_re_2_documents = (
           await esClient.search({
-            index: newIndexName_re_2,
+            index: latestIndexName,
             track_total_hits: true,
           })
         ).body?.hits?.total?.value;
