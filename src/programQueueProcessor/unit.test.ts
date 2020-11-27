@@ -378,7 +378,7 @@ describe("kafka integration", () => {
         testDonorIds.length + DB_COLLECTION_SIZE
       );
     });
-    it.only("must create new index with correct settings and index data", async () => {
+    it("must create new index with correct settings and index data", async () => {
       // create an testing index and attatch it to alias:
       const firstIndexName = generateIndexName("TEST-CA") + "re_1";
       await esClient.indices.create({
@@ -489,7 +489,7 @@ describe("kafka integration", () => {
       ).body?.hits?.total?.value;
       expect(test_us_documents).to.equal(DB_COLLECTION_SIZE);
     });
-    it(
+    it.only(
       "must not clone from an index when index settings do not equal to default settings," +
         "it must create a new index with correct settings and reindex all documents from previous index",
       async () => {
