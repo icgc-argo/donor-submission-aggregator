@@ -17,25 +17,6 @@ type EsSecret = {
   pass: string;
 };
 
-export type AliasResponse = ApiResponse<{
-  [indexName: string]: {
-    aliases: {
-      [aliasName: string]: {};
-    };
-  };
-}>;
-
-export type SettingsResponse = ApiResponse<{
-  [indexName: string]: {
-    settings: {
-      index: {
-        number_of_shards: string;
-        number_of_replicas: string;
-      };
-    };
-  };
-}>;
-
 const isEsSecret = (data: { [k: string]: any }): data is EsSecret => {
   return typeof data["user"] === "string" && typeof data["pass"] === "string";
 };
@@ -105,6 +86,25 @@ export const toEsBulkIndexActions = <T = {}>(
       doc,
     ];
   });
+
+export type AliasResponse = ApiResponse<{
+  [indexName: string]: {
+    aliases: {
+      [aliasName: string]: {};
+    };
+  };
+}>;
+
+export type SettingsResponse = ApiResponse<{
+  [indexName: string]: {
+    settings: {
+      index: {
+        number_of_shards: string;
+        number_of_replicas: string;
+      };
+    };
+  };
+}>;
 
 export const getLatestIndexName = async (
   esClient: Client,

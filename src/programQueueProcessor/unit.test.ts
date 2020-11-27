@@ -464,20 +464,20 @@ describe("kafka integration", () => {
         "it must create a new index with correct settings and reindex all documents from previous index",
       async () => {
         // prepare index by creating one with default replica and shard settings:
-        const newIndexName = generateIndexName("TEST-CA") + "re_1";
+        const firstIndexName = generateIndexName("TEST-CA") + "re_1";
         await esClient.indices.create({
-          index: newIndexName,
+          index: firstIndexName,
         });
         const response = await esClient.indices.exists({
-          index: newIndexName,
+          index: firstIndexName,
         });
-        console.log(`expecting index ${newIndexName} to exist...`);
+        console.log(`expecting index ${firstIndexName} to exist...`);
         expect(response.body).to.be.true;
 
         await esClient.indices.updateAliases({
           body: {
             actions: {
-              add: { index: newIndexName, alias: ROLLCALL_ALIAS_NAME },
+              add: { index: firstIndexName, alias: ROLLCALL_ALIAS_NAME },
             },
           },
         });
@@ -489,15 +489,15 @@ describe("kafka integration", () => {
         });
         expect(response_1.body).to.deep.include({
           alias: ROLLCALL_ALIAS_NAME,
-          index: newIndexName,
+          index: firstIndexName,
         });
 
         // bulk insert data:
         const body = clinicalDataset.flatMap((doc) => [
-          { index: { _index: newIndexName } },
+          { index: { _index: firstIndexName } },
           doc,
         ]);
-        console.log(`Bulk indexing clinical data into ${newIndexName}....`);
+        console.log(`Bulk indexing clinical data into ${firstIndexName}....`);
 
         await esClient.bulk({
           body,
@@ -525,12 +525,12 @@ describe("kafka integration", () => {
         // check migration index settings results:
         const latestIndexName = await getLatestIndexName(esClient, "TEST-CA");
         console.log(`expecting to find 1 index ${latestIndexName}...`);
-
         expect(latestIndexName).to.not.equal("");
 
-        const settings = await esClient.indices.getSettings({
-          index: latestIndexName,
-        });
+        const secondIndexName = generateIndexName("TEST-CA") + "re_2";
+        expect(latestIndexName).to.equal(secondIndexName);
+
+        const settings = await getIndexSettings(esClient, latestIndexName);
         const indexSettings = settings.body[latestIndexName].settings.index;
         const currentNumOfShards = parseInt(indexSettings.number_of_shards);
         const currentNumOfReplicas = parseInt(indexSettings.number_of_replicas);
