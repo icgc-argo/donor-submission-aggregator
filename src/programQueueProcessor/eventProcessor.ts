@@ -4,19 +4,15 @@ import { StatusReporter } from "statusReport";
 import { RollCallClient, ResolvedIndex } from "rollCall/types";
 import indexClinicalData from "indexClinicalData";
 import {
-  AliasResponse,
   getIndexSettings,
   getLatestIndexName,
   initIndexMapping,
-  SettingsResponse,
 } from "elasticsearch";
 import withRetry from "promise-retry";
 import logger from "logger";
 import { KnownEventType, QueueRecord } from "./types";
 import { indexRdpcData } from "rdpc/index";
-import { ROLLCALL_ALIAS_NAME } from "config";
 import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
-import { generateIndexName } from "./util";
 import fetchAnalyses from "rdpc/fetchAnalyses";
 import fetchDonorIdsByAnalysis from "rdpc/fetchDonorIdsByAnalysis";
 

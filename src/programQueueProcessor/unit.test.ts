@@ -379,6 +379,35 @@ describe("kafka integration", () => {
       );
     });
     it.only("must create new index with correct settings and index data", async () => {
+      // create an testing index and attatch it to alias:
+      const firstIndexName = generateIndexName("TEST-CA") + "re_1";
+      await esClient.indices.create({
+        index: firstIndexName,
+      });
+      const response_exist = await esClient.indices.exists({
+        index: firstIndexName,
+      });
+      console.log(`expecting index ${firstIndexName} to exist...`);
+      expect(response_exist.body).to.be.true;
+
+      await esClient.indices.updateAliases({
+        body: {
+          actions: {
+            add: { index: firstIndexName, alias: ROLLCALL_ALIAS_NAME },
+          },
+        },
+      });
+
+      const response_1 = await esClient.cat.aliases({
+        name: ROLLCALL_ALIAS_NAME,
+        format: "JSON",
+        h: ["alias", "index"],
+      });
+      expect(response_1.body).to.deep.include({
+        alias: ROLLCALL_ALIAS_NAME,
+        index: firstIndexName,
+      });
+
       programQueueProcessor = await createProgramQueueProcessor({
         kafka: kafkaClient,
         esClient,
@@ -398,6 +427,7 @@ describe("kafka integration", () => {
         }, 30000);
       });
 
+      // verify results:
       const existingIndexName = await getLatestIndexName(esClient, TEST_US);
 
       console.log(`expecting to find 1 index ${existingIndexName}`);
