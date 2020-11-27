@@ -3,20 +3,22 @@ import { Client } from "@elastic/elasticsearch";
 import { StatusReporter } from "statusReport";
 import { RollCallClient, ResolvedIndex } from "rollCall/types";
 import indexClinicalData from "indexClinicalData";
-import { initIndexMapping } from "elasticsearch";
-import withRetry from "promise-retry";
-import logger from "logger";
 import {
   AliasResponse,
-  KnownEventType,
-  QueueRecord,
+  getIndexSettings,
+  getLatestIndexName,
+  initIndexMapping,
   SettingsResponse,
-} from "./types";
+} from "elasticsearch";
+import withRetry from "promise-retry";
+import logger from "logger";
+import { KnownEventType, QueueRecord } from "./types";
 import { indexRdpcData } from "rdpc/index";
-import { fetchAnalyses } from "rdpc/analysesProcessor";
 import { ROLLCALL_ALIAS_NAME } from "config";
 import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 import { generateIndexName } from "./util";
+import fetchAnalyses from "rdpc/fetchAnalyses";
+import fetchDonorIdsByAnalysis from "rdpc/fetchDonorIdsByAnalysis";
 
 const parseProgramQueueEvent = (message: string): QueueRecord =>
   JSON.parse(message);
@@ -53,21 +55,21 @@ const newIndexAndInitializeMapping = async (
   return newResolvedIndex;
 };
 
-export default (configs: {
+export default ({
+  rollCallClient,
+  esClient,
+  programQueueTopic,
+  analysisFetcher = fetchAnalyses,
+  fetchDonorIds = fetchDonorIdsByAnalysis,
+  statusReporter,
+}: {
   rollCallClient: RollCallClient;
   esClient: Client;
   programQueueTopic: string;
   analysisFetcher?: typeof fetchAnalyses;
+  fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
   statusReporter?: StatusReporter;
 }) => {
-  const {
-    rollCallClient,
-    esClient,
-    programQueueTopic,
-    analysisFetcher,
-    statusReporter,
-  } = configs;
-
   return async ({ message }: EachMessagePayload) => {
     if (message && message.value) {
       const queuedEvent = parseProgramQueueEvent(message.value.toString());
@@ -84,25 +86,9 @@ export default (configs: {
       let newResolvedIndex: ResolvedIndex | null = null;
 
       await withRetry(async (retry, attemptIndex) => {
-        // get the lastest index name:
-        const result = (await esClient.indices.getAlias({
-          name: ROLLCALL_ALIAS_NAME,
-        })) as AliasResponse;
-
-        const indexNameList = Object.entries(result.body).map(
-          ([indexName, alias]) => {
-            return indexName;
-          }
-        );
-
-        const existingIndexName = indexNameList.find((indexName) =>
-          indexName.includes(generateIndexName(programId))
-        );
-
+        const existingIndexName = await getLatestIndexName(esClient, programId);
         if (existingIndexName) {
-          const response = (await esClient.indices.getSettings({
-            index: existingIndexName,
-          })) as SettingsResponse;
+          const response = await getIndexSettings(esClient, existingIndexName);
           const indexSettings = response.body[existingIndexName].settings.index;
           const currentNumOfShards = parseInt(indexSettings.number_of_shards);
           const currentNumOfReplicas = parseInt(
@@ -186,13 +172,15 @@ export default (configs: {
             );
           } else if (queuedEvent.type === KnownEventType.RDPC) {
             for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
-              await indexRdpcData(
+              await indexRdpcData({
                 programId,
                 rdpcUrl,
-                newResolvedIndex.indexName,
+                targetIndexName: newResolvedIndex.indexName,
                 esClient,
-                analysisFetcher
-              );
+                analysesFetcher: analysisFetcher,
+                fetchDonorIds,
+                analysisId: queuedEvent.analysisId,
+              });
             }
           } else {
             await indexClinicalData(
@@ -201,13 +189,14 @@ export default (configs: {
               esClient
             );
             for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
-              await indexRdpcData(
+              await indexRdpcData({
                 programId,
                 rdpcUrl,
-                newResolvedIndex.indexName,
+                targetIndexName: newResolvedIndex.indexName,
                 esClient,
-                analysisFetcher
-              );
+                analysesFetcher: analysisFetcher,
+                fetchDonorIds,
+              });
             }
           }
           await rollCallClient.release(newResolvedIndex);

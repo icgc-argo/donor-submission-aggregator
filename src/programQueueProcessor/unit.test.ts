@@ -23,7 +23,7 @@ import {
   expectedRDPCData,
   testDonorIds,
 } from "rdpc/fixtures/integrationTest/dataset";
-import { fetchAnalyses } from "rdpc/analysesProcessor";
+import fetchAnalyses from "rdpc/fetchAnalyses";
 import { Analysis, AnalysisType } from "rdpc/types";
 import {
   mockSeqAlignmentAnalyses,
@@ -31,9 +31,9 @@ import {
 } from "rdpc/fixtures/integrationTest/mockAnalyses";
 import esb from "elastic-builder";
 import { EsHit } from "indexClinicalData/types";
-import { generateIndexName } from "./util";
 import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
-import { repeat } from "lodash";
+import { generateIndexName } from "./util";
+import { getIndexSettings, getLatestIndexName } from "elasticsearch";
 
 const TEST_US = "TEST-US";
 const TEST_CA = "TEST-CA";
@@ -71,6 +71,30 @@ describe("kafka integration", () => {
   /**************************/
 
   let programQueueProcessor: ProgramQueueProcessor;
+
+  const mockAnalysisFetcher: typeof fetchAnalyses = async ({
+    studyId,
+    rdpcUrl,
+    workflowRepoUrl,
+    analysisType,
+    from,
+    size,
+    donorId,
+  }): Promise<Analysis[]> => {
+    const matchesDonorId = (donor: any) =>
+      donorId ? donor.donorId === donorId : true;
+
+    const output =
+      analysisType === AnalysisType.SEQ_EXPERIMENT
+        ? mockSeqExpAnalyses
+            .filter((analysis) => analysis.donors.some(matchesDonorId))
+            .slice(from, from + size)
+        : mockSeqAlignmentAnalyses
+            .filter((analysis) => analysis.donors.some(matchesDonorId))
+            .slice(from, from + size);
+
+    return Promise.resolve(output);
+  };
 
   before(async () => {
     try {
@@ -200,21 +224,6 @@ describe("kafka integration", () => {
 
   describe("programQueueProcessor", () => {
     it("must index all clinical and RDPC data into Elasticsearch", async () => {
-      const mockAnalysisFetcher: typeof fetchAnalyses = async (
-        studyId: string,
-        rdpcUrl: string,
-        workflowRepoUrl: string,
-        analysisType: string,
-        from: number,
-        size: number
-      ): Promise<Analysis[]> => {
-        return Promise.resolve(
-          analysisType === AnalysisType.SEQ_EXPERIMENT
-            ? mockSeqExpAnalyses.slice(from, from + size)
-            : mockSeqAlignmentAnalyses.slice(from, from + size)
-        );
-      };
-
       // 1. update program TEST-US by publishing clinical event:
       programQueueProcessor = await createProgramQueueProcessor({
         kafka: kafkaClient,
@@ -369,7 +378,7 @@ describe("kafka integration", () => {
         testDonorIds.length + DB_COLLECTION_SIZE
       );
     });
-    it("must create new index with correct settings and index data", async () => {
+    it.only("must create new index with correct settings and index data", async () => {
       programQueueProcessor = await createProgramQueueProcessor({
         kafka: kafkaClient,
         esClient,
@@ -389,25 +398,14 @@ describe("kafka integration", () => {
         }, 30000);
       });
 
-      const { body } = await esClient.cat.aliases({
-        name: ROLLCALL_ALIAS_NAME,
-      });
-      const indices = JSON.stringify(body);
-      const newIndexName = generateIndexName(TEST_US) + "re_1";
-      const regex = new RegExp(newIndexName);
-      const found = indices.match(regex);
+      const existingIndexName = await getLatestIndexName(esClient, TEST_US);
 
-      console.log(
-        `expecting to find 1 index ${newIndexName} in indices ${indices}----`
-      );
-      expect(found).to.not.equal(null);
-      expect(found?.length).to.equal(1);
+      console.log(`expecting to find 1 index ${existingIndexName}`);
+      expect(existingIndexName).to.not.equal("");
 
-      const response = await esClient.indices.getSettings({
-        index: newIndexName,
-      });
+      const response = await getIndexSettings(esClient, existingIndexName);
 
-      const indexSettings = response.body[newIndexName].settings.index;
+      const indexSettings = response.body[existingIndexName].settings.index;
       const currentNumOfShards = parseInt(indexSettings.number_of_shards);
       const currentNumOfReplicas = parseInt(indexSettings.number_of_replicas);
 
@@ -431,25 +429,15 @@ describe("kafka integration", () => {
         }, 30000);
       });
 
-      const response_1 = await esClient.cat.aliases({
-        name: ROLLCALL_ALIAS_NAME,
-      });
-      const indices_1 = JSON.stringify(response_1.body);
-      const newIndexName_1 = generateIndexName(TEST_US) + "re_2";
-      const regex_1 = new RegExp(newIndexName_1);
+      const existingIndexName_1 = await getLatestIndexName(esClient, TEST_US);
 
-      const found_1 = indices_1.match(regex_1);
-      console.log(
-        `expecting to find 1 index ${newIndexName_1} in indices ${indices_1}----`
-      );
-      expect(found_1).to.not.equal(null);
-      expect(found_1?.length).to.equal(1);
+      console.log(`expecting to find 1 index ${existingIndexName_1}...`);
+      expect(existingIndexName_1).to.not.equal("");
 
-      const response_2 = await esClient.indices.getSettings({
-        index: newIndexName_1,
-      });
+      const response_2 = await getIndexSettings(esClient, existingIndexName_1);
 
-      const indexSettings_1 = response_2.body[newIndexName_1].settings.index;
+      const indexSettings_1 =
+        response_2.body[existingIndexName_1].settings.index;
       const currentNumOfShards_1 = parseInt(indexSettings_1.number_of_shards);
       const currentNumOfReplicas_1 = parseInt(
         indexSettings_1.number_of_replicas
@@ -465,7 +453,7 @@ describe("kafka integration", () => {
       // 3.second index should have all documents cloned from first idnex:
       const test_us_documents = (
         await esClient.search({
-          index: newIndexName_1,
+          index: existingIndexName_1,
           track_total_hits: true,
         })
       ).body?.hits?.total?.value;
@@ -574,5 +562,122 @@ describe("kafka integration", () => {
         expect(test_ca_re_2_documents).to.equal(clinicalDataset.length);
       }
     );
+
+    it("handles incremental analysis updates properly", async () => {
+      const testAnalysis = mockSeqExpAnalyses[0];
+      const testDonorId = testAnalysis.donors[0].donorId;
+
+      programQueueProcessor = await createProgramQueueProcessor({
+        kafka: kafkaClient,
+        esClient,
+        rollCallClient: rollcallClient,
+        analysisFetcher: mockAnalysisFetcher,
+        fetchDonorIds: () => Promise.resolve([testDonorId]),
+      });
+
+      await programQueueProcessor.enqueueEvent({
+        programId: TEST_CA,
+        type: programQueueProcessor.knownEventTypes.CLINICAL,
+      });
+      await programQueueProcessor.enqueueEvent({
+        programId: TEST_CA,
+        type: programQueueProcessor.knownEventTypes.RDPC,
+        rdpcGatewayUrls: [""], // the urls don't matter since we're mocking all the rdpc fetchers
+        analysisId: testAnalysis.analysisId,
+      });
+
+      // wait for indexing to complete
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, 30000);
+      });
+
+      const esHits = await Promise.all(
+        testDonorIds.map(async (donorId) => {
+          const esQuery = esb
+            .requestBodySearch()
+            .size(testDonorIds.length)
+            .query(esb.termQuery("donorId", `DO${donorId}`));
+          const esHit: EsHit = await esClient
+            .search({
+              index: ROLLCALL_ALIAS_NAME,
+              body: esQuery,
+            })
+            .then((res) => res.body.hits.hits[0])
+            .catch((err) => null);
+          return esHit;
+        })
+      );
+
+      esHits.forEach((hit) => {
+        expect([
+          hit._source.donorId,
+          "alignmentsCompleted",
+          hit._source.alignmentsCompleted,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "alignmentsCompleted",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].alignmentsCompleted
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "alignmentsFailed",
+          hit._source.alignmentsFailed,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "alignmentsFailed",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].alignmentsFailed
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "alignmentsRunning",
+          hit._source.alignmentsRunning,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "alignmentsRunning",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].alignmentsRunning
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "sangerVcsCompleted",
+          hit._source.sangerVcsCompleted,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "sangerVcsCompleted",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].sangerVcsCompleted
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "sangerVcsFailed",
+          hit._source.sangerVcsFailed,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "sangerVcsFailed",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].sangerVcsFailed
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "sangerVcsRunning",
+          hit._source.sangerVcsRunning,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "sangerVcsRunning",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].sangerVcsRunning
+            : 0,
+        ]);
+      });
+    });
   });
 });

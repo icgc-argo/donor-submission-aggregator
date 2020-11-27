@@ -10,7 +10,12 @@ export type QueueRecord = { programId: string } & (
       type: KnownEventType.CLINICAL;
     }
   | {
-      type: KnownEventType.RDPC | KnownEventType.SYNC;
+      type: KnownEventType.RDPC;
+      rdpcGatewayUrls: Array<string>;
+      analysisId?: string;
+    }
+  | {
+      type: KnownEventType.SYNC;
       rdpcGatewayUrls: Array<string>;
     }
 );
@@ -30,22 +35,3 @@ export type ProgramQueueProcessor = {
   enqueueEvent: (event: QueueRecord) => Promise<void>;
   destroy: () => Promise<void>;
 };
-
-export type AliasResponse = ApiResponse<{
-  [indexName: string]: {
-    aliases: {
-      [aliasName: string]: {};
-    };
-  };
-}>;
-
-export type SettingsResponse = ApiResponse<{
-  [indexName: string]: {
-    settings: {
-      index: {
-        number_of_shards: string;
-        number_of_replicas: string;
-      };
-    };
-  };
-}>;

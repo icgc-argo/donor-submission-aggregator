@@ -104,6 +104,7 @@ import parseRdpcProgramUpdateEvent from "eventParsers/parseRdpcProgramUpdateEven
                 programId: event.studyId,
                 type: programQueueProcessor.knownEventTypes.RDPC,
                 rdpcGatewayUrls: [RDPC_URL],
+                analysisId: event.analysisId,
               });
             }
             break;
