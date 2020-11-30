@@ -221,6 +221,9 @@ describe("kafka integration", () => {
       h: ["alias", "index"],
     });
 
+    console.log(
+      `expecting index ${firstIndexName} to have alias ${ROLLCALL_ALIAS_NAME}...`
+    );
     expect(response_alias.body).to.deep.include({
       alias: ROLLCALL_ALIAS_NAME,
       index: firstIndexName,
@@ -255,7 +258,8 @@ describe("kafka integration", () => {
 
   describe("programQueueProcessor", () => {
     it.only("must index all clinical and RDPC data into Elasticsearch", async () => {
-      Promise.all([createIndexAndAlias(TEST_US), createIndexAndAlias(TEST_CA)]);
+      // create a dummy index and attach it to alias, alias must exist for testing:
+      await createIndexAndAlias("DUM-CA");
 
       // 1. update program TEST-US by publishing clinical event:
       programQueueProcessor = await createProgramQueueProcessor({
@@ -412,8 +416,8 @@ describe("kafka integration", () => {
       );
     });
     it("must create new index with correct settings and index data", async () => {
-      // create an testing index and attatch it to alias:
-      await createIndexAndAlias("TEST-CA");
+      // make sure alias exist before test starts:
+      await createIndexAndAlias(TEST_CA);
 
       programQueueProcessor = await createProgramQueueProcessor({
         kafka: kafkaClient,
@@ -497,11 +501,11 @@ describe("kafka integration", () => {
       expect(test_us_documents).to.equal(DB_COLLECTION_SIZE);
     });
     it(
-      "must not clone from an index when index settings do not equal to default settings," +
+      "must not clone an index when index settings do not equal to default settings," +
         "it must create a new index with correct settings and reindex all documents from previous index",
       async () => {
-        await createIndexAndAlias("TEST-CA");
-        const firstIndexName = generateIndexName("TEST-CA") + "re_1";
+        await createIndexAndAlias(TEST_CA);
+        const firstIndexName = generateIndexName(TEST_CA) + "re_1";
 
         // bulk insert data:
         const body = clinicalDataset.flatMap((doc) => [
@@ -523,7 +527,7 @@ describe("kafka integration", () => {
         });
 
         await programQueueProcessor.enqueueEvent({
-          programId: "TEST-CA",
+          programId: TEST_CA,
           type: programQueueProcessor.knownEventTypes.CLINICAL,
         });
 
@@ -534,11 +538,11 @@ describe("kafka integration", () => {
         });
 
         // check migration index settings results:
-        const latestIndexName = await getLatestIndexName(esClient, "TEST-CA");
+        const latestIndexName = await getLatestIndexName(esClient, TEST_CA);
         console.log(`expecting to find 1 index ${latestIndexName}...`);
         expect(latestIndexName).to.not.equal("");
 
-        const secondIndexName = generateIndexName("TEST-CA") + "re_2";
+        const secondIndexName = generateIndexName(TEST_CA) + "re_2";
         expect(latestIndexName).to.equal(secondIndexName);
 
         const settings = await getIndexSettings(esClient, latestIndexName);
