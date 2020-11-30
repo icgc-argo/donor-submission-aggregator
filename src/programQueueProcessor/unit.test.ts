@@ -46,7 +46,7 @@ describe("kafka integration", () => {
   const RESOLVED_INDEX_PARTS = {
     entity: "donor",
     type: "centric",
-    shardPrefix: "pgm",
+    shardPrefix: "program",
     releasePrefix: "re",
   };
   const ES_PORT = 9200;
