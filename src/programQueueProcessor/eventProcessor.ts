@@ -59,7 +59,6 @@ const getNewResolvedIndex = async (
   let newResolvedIndex: ResolvedIndex | null = null;
   const existingIndexName = await getLatestIndexName(esClient, programId);
   console.log("existing index name = " + existingIndexName);
-
   if (existingIndexName) {
     const response = await getIndexSettings(esClient, existingIndexName);
     const indexSettings = response.body[existingIndexName].settings.index;
@@ -160,43 +159,6 @@ export default ({
           esClient,
           rollCallClient
         );
-        if (queuedEvent.type === KnownEventType.CLINICAL) {
-          await indexClinicalData(
-            queuedEvent.programId,
-            newResolvedIndex.indexName,
-            esClient
-          );
-        } else if (queuedEvent.type === KnownEventType.RDPC) {
-          for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
-            await indexRdpcData({
-              programId,
-              rdpcUrl,
-              targetIndexName: newResolvedIndex.indexName,
-              esClient,
-              analysesFetcher: analysisFetcher,
-              fetchDonorIds,
-              analysisId: queuedEvent.analysisId,
-            });
-          }
-        } else {
-          await indexClinicalData(
-            queuedEvent.programId,
-            newResolvedIndex.indexName,
-            esClient
-          );
-          for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
-            await indexRdpcData({
-              programId,
-              rdpcUrl,
-              targetIndexName: newResolvedIndex.indexName,
-              esClient,
-              analysesFetcher: analysisFetcher,
-              fetchDonorIds,
-            });
-          }
-        }
-        await rollCallClient.release(newResolvedIndex);
-
         try {
           await esClient.indices.putSettings({
             index: newResolvedIndex.indexName.toLowerCase(),
@@ -208,6 +170,43 @@ export default ({
           });
 
           logger.info(`Enabled WRITE to index : ${newResolvedIndex.indexName}`);
+
+          if (queuedEvent.type === KnownEventType.CLINICAL) {
+            await indexClinicalData(
+              queuedEvent.programId,
+              newResolvedIndex.indexName,
+              esClient
+            );
+          } else if (queuedEvent.type === KnownEventType.RDPC) {
+            for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
+              await indexRdpcData({
+                programId,
+                rdpcUrl,
+                targetIndexName: newResolvedIndex.indexName,
+                esClient,
+                analysesFetcher: analysisFetcher,
+                fetchDonorIds,
+                analysisId: queuedEvent.analysisId,
+              });
+            }
+          } else {
+            await indexClinicalData(
+              queuedEvent.programId,
+              newResolvedIndex.indexName,
+              esClient
+            );
+            for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
+              await indexRdpcData({
+                programId,
+                rdpcUrl,
+                targetIndexName: newResolvedIndex.indexName,
+                esClient,
+                analysesFetcher: analysisFetcher,
+                fetchDonorIds,
+              });
+            }
+          }
+          await rollCallClient.release(newResolvedIndex);
         } catch (err) {
           logger.warn(
             `failed to index program ${programId} on attempt #${attemptIndex}: ${err}`
