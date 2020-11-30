@@ -253,7 +253,7 @@ describe("kafka integration", () => {
     }
   });
 
-  describe.only("programQueueProcessor", () => {
+  describe("programQueueProcessor", () => {
     it("must index all clinical and RDPC data into Elasticsearch", async () => {
       await createIndexAndAlias(TEST_US);
       await createIndexAndAlias(TEST_CA);
