@@ -256,8 +256,8 @@ describe("kafka integration", () => {
     }
   });
 
-  describe("programQueueProcessor", () => {
-    it.only("must index all clinical and RDPC data into Elasticsearch", async () => {
+  describe.only("programQueueProcessor", () => {
+    it("must index all clinical and RDPC data into Elasticsearch", async () => {
       // create a dummy index and attach it to alias, alias must exist for testing:
       await createIndexAndAlias("DUM-CA");
 
