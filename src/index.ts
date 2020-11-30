@@ -54,7 +54,7 @@ import parseRdpcProgramUpdateEvent from "eventParsers/parseRdpcProgramUpdateEven
 
       if (!found) {
         return res
-          .status(404)
+          .status(400)
           .send("programId is invalid, please enter a valid programId.");
       } else {
         await programQueueProcessor.enqueueEvent({
@@ -134,6 +134,7 @@ import parseRdpcProgramUpdateEvent from "eventParsers/parseRdpcProgramUpdateEven
                 programId: event.studyId,
                 type: programQueueProcessor.knownEventTypes.RDPC,
                 rdpcGatewayUrls: [RDPC_URL],
+                analysisId: event.analysisId,
               });
             }
             break;

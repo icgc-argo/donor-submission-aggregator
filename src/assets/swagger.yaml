@@ -35,7 +35,7 @@ paths:
             application/json:
               schema:
                 type: object
-        "404":
+        "400":
           description: Program not found, please enter a valid program id
         "500":
           description: Internal Server Error

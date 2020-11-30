@@ -18,10 +18,11 @@ import createRollCallClient from "../rollCall";
 import { Kafka } from "kafkajs";
 import { ProgramQueueProcessor } from "./types";
 import {
+  clinicalDataset,
   expectedRDPCData,
   testDonorIds,
 } from "rdpc/fixtures/integrationTest/dataset";
-import { fetchAnalyses } from "rdpc/analysesProcessor";
+import fetchAnalyses from "rdpc/fetchAnalyses";
 import { Analysis, AnalysisType } from "rdpc/types";
 import {
   mockSeqAlignmentAnalyses,
@@ -67,6 +68,30 @@ describe("kafka integration", () => {
   /**************************/
 
   let programQueueProcessor: ProgramQueueProcessor;
+
+  const mockAnalysisFetcher: typeof fetchAnalyses = async ({
+    studyId,
+    rdpcUrl,
+    workflowRepoUrl,
+    analysisType,
+    from,
+    size,
+    donorId,
+  }): Promise<Analysis[]> => {
+    const matchesDonorId = (donor: any) =>
+      donorId ? donor.donorId === donorId : true;
+
+    const output =
+      analysisType === AnalysisType.SEQ_EXPERIMENT
+        ? mockSeqExpAnalyses
+            .filter((analysis) => analysis.donors.some(matchesDonorId))
+            .slice(from, from + size)
+        : mockSeqAlignmentAnalyses
+            .filter((analysis) => analysis.donors.some(matchesDonorId))
+            .slice(from, from + size);
+
+    return Promise.resolve(output);
+  };
 
   before(async () => {
     try {
@@ -180,25 +205,13 @@ describe("kafka integration", () => {
     await DonorSchema().deleteMany({});
     console.log("programQueueProcessor: ", programQueueProcessor);
     await programQueueProcessor?.destroy();
+    await esClient.indices.delete({
+      index: "*",
+    });
   });
 
   describe("programQueueProcessor", () => {
     it("must index all clinical and RDPC data into Elasticsearch", async () => {
-      const mockAnalysisFetcher: typeof fetchAnalyses = async (
-        studyId: string,
-        rdpcUrl: string,
-        workflowRepoUrl: string,
-        analysisType: string,
-        from: number,
-        size: number
-      ): Promise<Analysis[]> => {
-        return Promise.resolve(
-          analysisType === AnalysisType.SEQ_EXPERIMENT
-            ? mockSeqExpAnalyses.slice(from, from + size)
-            : mockSeqAlignmentAnalyses.slice(from, from + size)
-        );
-      };
-
       // 1. update program TEST-US by publishing clinical event:
       programQueueProcessor = await createProgramQueueProcessor({
         kafka: kafkaClient,
@@ -328,6 +341,123 @@ describe("kafka integration", () => {
       expect(totalEsDocuments).to.equal(
         testDonorIds.length + DB_COLLECTION_SIZE
       );
+    });
+
+    it("handles incremental analysis updates properly", async () => {
+      const testAnalysis = mockSeqExpAnalyses[0];
+      const testDonorId = testAnalysis.donors[0].donorId;
+
+      programQueueProcessor = await createProgramQueueProcessor({
+        kafka: kafkaClient,
+        esClient,
+        rollCallClient: rollcallClient,
+        analysisFetcher: mockAnalysisFetcher,
+        fetchDonorIds: () => Promise.resolve([testDonorId]),
+      });
+
+      await programQueueProcessor.enqueueEvent({
+        programId: TEST_CA,
+        type: programQueueProcessor.knownEventTypes.CLINICAL,
+      });
+      await programQueueProcessor.enqueueEvent({
+        programId: TEST_CA,
+        type: programQueueProcessor.knownEventTypes.RDPC,
+        rdpcGatewayUrls: [""], // the urls don't matter since we're mocking all the rdpc fetchers
+        analysisId: testAnalysis.analysisId,
+      });
+
+      // wait for indexing to complete
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, 30000);
+      });
+
+      const esHits = await Promise.all(
+        testDonorIds.map(async (donorId) => {
+          const esQuery = esb
+            .requestBodySearch()
+            .size(testDonorIds.length)
+            .query(esb.termQuery("donorId", `DO${donorId}`));
+          const esHit: EsHit = await esClient
+            .search({
+              index: ALIAS_NAME,
+              body: esQuery,
+            })
+            .then((res) => res.body.hits.hits[0])
+            .catch((err) => null);
+          return esHit;
+        })
+      );
+
+      esHits.forEach((hit) => {
+        expect([
+          hit._source.donorId,
+          "alignmentsCompleted",
+          hit._source.alignmentsCompleted,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "alignmentsCompleted",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].alignmentsCompleted
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "alignmentsFailed",
+          hit._source.alignmentsFailed,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "alignmentsFailed",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].alignmentsFailed
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "alignmentsRunning",
+          hit._source.alignmentsRunning,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "alignmentsRunning",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].alignmentsRunning
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "sangerVcsCompleted",
+          hit._source.sangerVcsCompleted,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "sangerVcsCompleted",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].sangerVcsCompleted
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "sangerVcsFailed",
+          hit._source.sangerVcsFailed,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "sangerVcsFailed",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].sangerVcsFailed
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "sangerVcsRunning",
+          hit._source.sangerVcsRunning,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "sangerVcsRunning",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].sangerVcsRunning
+            : 0,
+        ]);
+      });
     });
   });
 });
