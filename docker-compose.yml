@@ -92,7 +92,7 @@ services:
       PORT: 9021
 
   rollcall:
-    image: overture/rollcall:2.4.0
+    image: overture/rollcall:2.6.0
     depends_on:
       - elasticsearch
     ports:

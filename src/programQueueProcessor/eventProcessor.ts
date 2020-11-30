@@ -58,7 +58,6 @@ const getNewResolvedIndex = async (
 ): Promise<ResolvedIndex> => {
   let newResolvedIndex: ResolvedIndex | null = null;
   const existingIndexName = await getLatestIndexName(esClient, programId);
-  console.log("existing index name = " + existingIndexName);
   if (existingIndexName) {
     const response = await getIndexSettings(esClient, existingIndexName);
     const indexSettings = response.body[existingIndexName].settings.index;
