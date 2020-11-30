@@ -34,6 +34,7 @@ import { EsHit } from "indexClinicalData/types";
 import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 import { generateIndexName } from "./util";
 import { getIndexSettings, getLatestIndexName } from "elasticsearch";
+import { create } from "lodash";
 
 const TEST_US = "TEST-US";
 const TEST_CA = "TEST-CA";
@@ -252,8 +253,8 @@ describe("kafka integration", () => {
     }
   });
 
-  describe("programQueueProcessor", () => {
-    it.only("must index all clinical and RDPC data into Elasticsearch", async () => {
+  describe.only("programQueueProcessor", () => {
+    it("must index all clinical and RDPC data into Elasticsearch", async () => {
       await createIndexAndAlias(TEST_US);
       await createIndexAndAlias(TEST_CA);
 
@@ -413,33 +414,7 @@ describe("kafka integration", () => {
     });
     it("must create new index with correct settings and index data", async () => {
       // create an testing index and attatch it to alias:
-      const firstIndexName = generateIndexName("TEST-CA") + "re_1";
-      await esClient.indices.create({
-        index: firstIndexName,
-      });
-      const response_exist = await esClient.indices.exists({
-        index: firstIndexName,
-      });
-      console.log(`expecting index ${firstIndexName} to exist...`);
-      expect(response_exist.body).to.be.true;
-
-      await esClient.indices.updateAliases({
-        body: {
-          actions: {
-            add: { index: firstIndexName, alias: ROLLCALL_ALIAS_NAME },
-          },
-        },
-      });
-
-      const response_1 = await esClient.cat.aliases({
-        name: ROLLCALL_ALIAS_NAME,
-        format: "JSON",
-        h: ["alias", "index"],
-      });
-      expect(response_1.body).to.deep.include({
-        alias: ROLLCALL_ALIAS_NAME,
-        index: firstIndexName,
-      });
+      await createIndexAndAlias("TEST-CA");
 
       programQueueProcessor = await createProgramQueueProcessor({
         kafka: kafkaClient,
@@ -526,34 +501,8 @@ describe("kafka integration", () => {
       "must not clone from an index when index settings do not equal to default settings," +
         "it must create a new index with correct settings and reindex all documents from previous index",
       async () => {
-        // prepare index by creating one with default replica and shard settings:
+        await createIndexAndAlias("TEST-CA");
         const firstIndexName = generateIndexName("TEST-CA") + "re_1";
-        await esClient.indices.create({
-          index: firstIndexName,
-        });
-        const response = await esClient.indices.exists({
-          index: firstIndexName,
-        });
-        console.log(`expecting index ${firstIndexName} to exist...`);
-        expect(response.body).to.be.true;
-
-        await esClient.indices.updateAliases({
-          body: {
-            actions: {
-              add: { index: firstIndexName, alias: ROLLCALL_ALIAS_NAME },
-            },
-          },
-        });
-
-        const response_1 = await esClient.cat.aliases({
-          name: ROLLCALL_ALIAS_NAME,
-          format: "JSON",
-          h: ["alias", "index"],
-        });
-        expect(response_1.body).to.deep.include({
-          alias: ROLLCALL_ALIAS_NAME,
-          index: firstIndexName,
-        });
 
         // bulk insert data:
         const body = clinicalDataset.flatMap((doc) => [
@@ -618,6 +567,7 @@ describe("kafka integration", () => {
     );
 
     it("handles incremental analysis updates properly", async () => {
+      await createIndexAndAlias(TEST_CA);
       const testAnalysis = mockSeqExpAnalyses[0];
       const testDonorId = testAnalysis.donors[0].donorId;
 
