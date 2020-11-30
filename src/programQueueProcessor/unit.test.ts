@@ -255,8 +255,7 @@ describe("kafka integration", () => {
 
   describe("programQueueProcessor", () => {
     it("must index all clinical and RDPC data into Elasticsearch", async () => {
-      await createIndexAndAlias(TEST_US);
-      await createIndexAndAlias(TEST_CA);
+      Promise.all([createIndexAndAlias(TEST_US), createIndexAndAlias(TEST_CA)]);
 
       // 1. update program TEST-US by publishing clinical event:
       programQueueProcessor = await createProgramQueueProcessor({
