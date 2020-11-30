@@ -3,12 +3,14 @@ import {
   VAULT_ES_SECRET_PATH,
   USE_VAULT,
   ES_CLIENT_TRUST_SSL_CERT,
+  ROLLCALL_ALIAS_NAME,
 } from "config";
 import flatMap from "lodash/flatMap";
 import esMapping from "./donorIndexMapping.json";
-import { Client, Transport } from "@elastic/elasticsearch";
+import { ApiResponse, Client } from "@elastic/elasticsearch";
 import { loadVaultSecret } from "vault";
 import logger from "logger";
+import { generateIndexName } from "programQueueProcessor/util";
 
 type EsSecret = {
   user: string;
@@ -84,3 +86,55 @@ export const toEsBulkIndexActions = <T = {}>(
       doc,
     ];
   });
+
+export type AliasResponse = ApiResponse<{
+  [indexName: string]: {
+    aliases: {
+      [aliasName: string]: {};
+    };
+  };
+}>;
+
+export type SettingsResponse = ApiResponse<{
+  [indexName: string]: {
+    settings: {
+      index: {
+        number_of_shards: string;
+        number_of_replicas: string;
+      };
+    };
+  };
+}>;
+
+export const getLatestIndexName = async (
+  esClient: Client,
+  programId: string
+): Promise<string> => {
+  const result = (await esClient.indices.getAlias({
+    name: ROLLCALL_ALIAS_NAME,
+  })) as AliasResponse;
+
+  const indexNameList = Object.entries(result.body).map(
+    ([indexName, alias]) => {
+      return indexName;
+    }
+  );
+  console.log("indexNameList = " + JSON.stringify(indexNameList));
+
+  let latestIndexName = indexNameList.find((indexName) =>
+    indexName.includes(generateIndexName(programId))
+  );
+
+  latestIndexName = latestIndexName === undefined ? "" : latestIndexName;
+  return latestIndexName;
+};
+
+export const getIndexSettings = async (
+  esClient: Client,
+  indexName: string
+): Promise<SettingsResponse> => {
+  const response = (await esClient.indices.getSettings({
+    index: indexName,
+  })) as SettingsResponse;
+  return response;
+};

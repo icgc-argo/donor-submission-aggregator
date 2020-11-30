@@ -1,3 +1,5 @@
+import { ApiResponse } from "@elastic/elasticsearch";
+
 export enum KnownEventSource {
   CLINICAL = "CLINICAL",
   RDPC = "RDPC",
