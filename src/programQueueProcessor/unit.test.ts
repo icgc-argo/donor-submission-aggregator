@@ -196,6 +196,36 @@ describe("kafka integration", () => {
     console.log("beforeEach >>>>>>>>>> " + result_2.stdout);
   });
 
+  const createIndexAndAlias = async (programId: string) => {
+    const firstIndexName = generateIndexName(programId) + "re_1";
+    await esClient.indices.create({
+      index: firstIndexName,
+    });
+    const response_exist = await esClient.indices.exists({
+      index: firstIndexName,
+    });
+    console.log(`expecting index ${firstIndexName} to exist...`);
+    expect(response_exist.body).to.be.true;
+
+    await esClient.indices.updateAliases({
+      body: {
+        actions: {
+          add: { index: firstIndexName, alias: ROLLCALL_ALIAS_NAME },
+        },
+      },
+    });
+    const response_alias = await esClient.cat.aliases({
+      name: ROLLCALL_ALIAS_NAME,
+      format: "JSON",
+      h: ["alias", "index"],
+    });
+
+    expect(response_alias.body).to.deep.include({
+      alias: ROLLCALL_ALIAS_NAME,
+      index: firstIndexName,
+    });
+  };
+
   after(async () => {
     await Promise.all([
       mongoContainer?.stop(),
@@ -223,7 +253,10 @@ describe("kafka integration", () => {
   });
 
   describe("programQueueProcessor", () => {
-    it("must index all clinical and RDPC data into Elasticsearch", async () => {
+    it.only("must index all clinical and RDPC data into Elasticsearch", async () => {
+      createIndexAndAlias(TEST_US);
+      createIndexAndAlias(TEST_CA);
+
       // 1. update program TEST-US by publishing clinical event:
       programQueueProcessor = await createProgramQueueProcessor({
         kafka: kafkaClient,
