@@ -27,7 +27,7 @@ export const ROLLCALL_INDEX_ENTITY =
   process.env.ROLLCALL_INDEX_ENTITY || "donor";
 export const ROLLCALL_INDEX_TYPE = process.env.ROLLCALL_INDEX_TYPE || "centric";
 export const ROLLCALL_INDEX_SHARDPREFIX =
-  process.env.ROLLCALL_INDEX_SHARDPREFIX || "pgm";
+  process.env.ROLLCALL_INDEX_SHARDPREFIX || "program";
 
 export const STREAM_CHUNK_SIZE = Number(process.env.STREAM_CHUNK_SIZE) || 1000;
 

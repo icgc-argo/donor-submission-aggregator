@@ -20,7 +20,7 @@ export default (configData: {
   const aliasName = configData.aliasName || "donor_submission_summary";
   const indexEntity = configData?.entity || "donor";
   const indexType = configData?.type || "centric";
-  const shardPrefix = configData?.shardPrefix || "pgm";
+  const shardPrefix = configData?.shardPrefix || "program";
 
   const createNewResolvableIndex = async (
     programShortName: string,
