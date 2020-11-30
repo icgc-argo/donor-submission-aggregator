@@ -119,6 +119,7 @@ export const getLatestIndexName = async (
       return indexName;
     }
   );
+  console.log("indexNameList = " + JSON.stringify(indexNameList));
 
   let latestIndexName = indexNameList.find((indexName) =>
     indexName.includes(generateIndexName(programId))
