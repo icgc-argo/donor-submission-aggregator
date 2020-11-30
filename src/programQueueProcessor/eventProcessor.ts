@@ -51,6 +51,79 @@ const newIndexAndInitializeMapping = async (
   return newResolvedIndex;
 };
 
+const getNewResolvedIndex = async (
+  programId: string,
+  esClient: Client,
+  rollCallClient: RollCallClient
+): Promise<ResolvedIndex> => {
+  let newResolvedIndex: ResolvedIndex | null = null;
+  const existingIndexName = await getLatestIndexName(esClient, programId);
+
+  if (existingIndexName) {
+    const response = await getIndexSettings(esClient, existingIndexName);
+    const indexSettings = response.body[existingIndexName].settings.index;
+    const currentNumOfShards = parseInt(indexSettings.number_of_shards);
+    const currentNumOfReplicas = parseInt(indexSettings.number_of_replicas);
+
+    // check if existing latest index settings match default settings
+    if (
+      currentNumOfReplicas ===
+        donorIndexMapping.settings["index.number_of_replicas"] &&
+      currentNumOfShards ===
+        donorIndexMapping.settings["index.number_of_shards"]
+    ) {
+      logger.info(
+        "Existing index settings match default settings, obtaining a new index name from rollcall, clone=true."
+      );
+      newResolvedIndex = await newIndexAndInitializeMapping(
+        rollCallClient,
+        esClient,
+        programId,
+        true
+      );
+    } else {
+      // because existing index settings do not match default, migrate this index
+      logger.info(
+        "Existing index settings do not match default settings, obtaining a new index name from rollcall, clone=false."
+      );
+      newResolvedIndex = await newIndexAndInitializeMapping(
+        rollCallClient,
+        esClient,
+        programId,
+        false
+      );
+
+      logger.info(
+        `Begin reindexing all documents from ${existingIndexName} to ${newResolvedIndex.indexName}`
+      );
+      await esClient.reindex({
+        body: {
+          source: {
+            index: existingIndexName,
+          },
+          dest: {
+            index: newResolvedIndex.indexName,
+          },
+        },
+        refresh: true,
+      });
+      logger.info(
+        `Reindexed all documents from ${existingIndexName} to ${newResolvedIndex.indexName}`
+      );
+    }
+  } else {
+    // if no index exists for program, get a new index name
+    logger.info("Obtaining a new index name from rollcall, clone=false.");
+    newResolvedIndex = await newIndexAndInitializeMapping(
+      rollCallClient,
+      esClient,
+      programId,
+      false
+    );
+  }
+  return newResolvedIndex;
+};
+
 export default ({
   rollCallClient,
   esClient,
@@ -79,74 +152,49 @@ export default ({
         minTimeout: 1000,
         maxTimeout: Infinity,
       };
-      let newResolvedIndex: ResolvedIndex | null = null;
 
       await withRetry(async (retry, attemptIndex) => {
-        const existingIndexName = await getLatestIndexName(esClient, programId);
-        if (existingIndexName) {
-          const response = await getIndexSettings(esClient, existingIndexName);
-          const indexSettings = response.body[existingIndexName].settings.index;
-          const currentNumOfShards = parseInt(indexSettings.number_of_shards);
-          const currentNumOfReplicas = parseInt(
-            indexSettings.number_of_replicas
+        const newResolvedIndex = await getNewResolvedIndex(
+          programId,
+          esClient,
+          rollCallClient
+        );
+        if (queuedEvent.type === KnownEventType.CLINICAL) {
+          await indexClinicalData(
+            queuedEvent.programId,
+            newResolvedIndex.indexName,
+            esClient
           );
-
-          // check if existing latest index settings match default settings
-          if (
-            currentNumOfReplicas ===
-              donorIndexMapping.settings["index.number_of_replicas"] &&
-            currentNumOfShards ===
-              donorIndexMapping.settings["index.number_of_shards"]
-          ) {
-            logger.info(
-              "Existing index settings match default settings, obtaining a new index name from rollcall, clone=true."
-            );
-            newResolvedIndex = await newIndexAndInitializeMapping(
-              rollCallClient,
-              esClient,
+        } else if (queuedEvent.type === KnownEventType.RDPC) {
+          for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
+            await indexRdpcData({
               programId,
-              true
-            );
-          } else {
-            // because existing index settings do not match default, migrate this index
-            logger.info(
-              "Existing index settings do not match default settings, obtaining a new index name from rollcall, clone=false."
-            );
-            newResolvedIndex = await newIndexAndInitializeMapping(
-              rollCallClient,
+              rdpcUrl,
+              targetIndexName: newResolvedIndex.indexName,
               esClient,
-              programId,
-              false
-            );
-
-            logger.info(
-              `Begin reindexing all documents from ${existingIndexName} to ${newResolvedIndex.indexName}`
-            );
-            await esClient.reindex({
-              body: {
-                source: {
-                  index: existingIndexName,
-                },
-                dest: {
-                  index: newResolvedIndex.indexName,
-                },
-              },
-              refresh: true,
+              analysesFetcher: analysisFetcher,
+              fetchDonorIds,
+              analysisId: queuedEvent.analysisId,
             });
-            logger.info(
-              `Reindexed all documents from ${existingIndexName} to ${newResolvedIndex.indexName}`
-            );
           }
         } else {
-          // if no index exists for program, get a new index name
-          logger.info("Obtaining a new index name from rollcall, clone=false.");
-          newResolvedIndex = await newIndexAndInitializeMapping(
-            rollCallClient,
-            esClient,
-            programId,
-            false
+          await indexClinicalData(
+            queuedEvent.programId,
+            newResolvedIndex.indexName,
+            esClient
           );
+          for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
+            await indexRdpcData({
+              programId,
+              rdpcUrl,
+              targetIndexName: newResolvedIndex.indexName,
+              esClient,
+              analysesFetcher: analysisFetcher,
+              fetchDonorIds,
+            });
+          }
         }
+        await rollCallClient.release(newResolvedIndex);
 
         try {
           await esClient.indices.putSettings({
@@ -159,43 +207,6 @@ export default ({
           });
 
           logger.info(`Enabled WRITE to index : ${newResolvedIndex.indexName}`);
-
-          if (queuedEvent.type === KnownEventType.CLINICAL) {
-            await indexClinicalData(
-              queuedEvent.programId,
-              newResolvedIndex.indexName,
-              esClient
-            );
-          } else if (queuedEvent.type === KnownEventType.RDPC) {
-            for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
-              await indexRdpcData({
-                programId,
-                rdpcUrl,
-                targetIndexName: newResolvedIndex.indexName,
-                esClient,
-                analysesFetcher: analysisFetcher,
-                fetchDonorIds,
-                analysisId: queuedEvent.analysisId,
-              });
-            }
-          } else {
-            await indexClinicalData(
-              queuedEvent.programId,
-              newResolvedIndex.indexName,
-              esClient
-            );
-            for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
-              await indexRdpcData({
-                programId,
-                rdpcUrl,
-                targetIndexName: newResolvedIndex.indexName,
-                esClient,
-                analysesFetcher: analysisFetcher,
-                fetchDonorIds,
-              });
-            }
-          }
-          await rollCallClient.release(newResolvedIndex);
         } catch (err) {
           logger.warn(
             `failed to index program ${programId} on attempt #${attemptIndex}: ${err}`
