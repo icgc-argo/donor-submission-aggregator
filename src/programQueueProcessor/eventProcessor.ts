@@ -15,6 +15,7 @@ import { indexRdpcData } from "rdpc/index";
 import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 import fetchAnalyses from "rdpc/fetchAnalyses";
 import fetchDonorIdsByAnalysis from "rdpc/fetchDonorIdsByAnalysis";
+import { MAX_RETRIES } from "config";
 
 const parseProgramQueueEvent = (message: string): QueueRecord =>
   JSON.parse(message);
@@ -147,7 +148,7 @@ export default ({
       );
       const retryConfig = {
         factor: 2,
-        retries: 100,
+        retries: MAX_RETRIES,
         minTimeout: 1000,
         maxTimeout: Infinity,
       };
