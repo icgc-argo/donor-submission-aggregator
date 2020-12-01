@@ -51,6 +51,12 @@ const createProgramQueueProcessor = async ({
     topic: programQueueTopic,
   });
   logger.info(`subscribed to topic ${programQueueTopic} for queuing`);
+
+  const enqueueEvent = async (event: QueueRecord) => {
+    await producer.send(createProgramQueueRecord(event));
+    logger.info(`enqueued ${event.type} event for program ${event.programId}`);
+  };
+
   await consumer.run({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: createEventProcessor({
@@ -60,6 +66,7 @@ const createProgramQueueProcessor = async ({
       analysisFetcher,
       statusReporter,
       fetchDonorIds,
+      enqueueEvent,
     }),
   });
   logger.info(`queue pipeline setup complete with topic ${programQueueTopic}`);
@@ -70,12 +77,7 @@ const createProgramQueueProcessor = async ({
       RDPC: KnownEventType.RDPC as KnownEventType.RDPC,
       SYNC: KnownEventType.SYNC as KnownEventType.SYNC,
     },
-    enqueueEvent: async (event) => {
-      await producer.send(createProgramQueueRecord(event));
-      logger.info(
-        `enqueued ${event.type} event for program ${event.programId}`
-      );
-    },
+    enqueueEvent: enqueueEvent,
     destroy: async () => {
       await consumer.stop();
       await Promise.all([consumer.disconnect(), producer.disconnect()]);
