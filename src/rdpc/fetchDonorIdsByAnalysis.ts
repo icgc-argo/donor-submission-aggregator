@@ -51,7 +51,7 @@ const fetchDonorIdsByAnalysis = async ({
     .then((res: { data: QueryResponseData }) => {
       const { data } = res;
       console.log("res: ", res);
-      return data.analyses[0]?.donors.map(({ donorId }) => donorId);
+      return data.analyses[0]?.donors.map(({ donorId }) => donorId) || [];
     });
 
   console.log("output: ", output);
