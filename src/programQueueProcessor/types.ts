@@ -23,7 +23,7 @@ export type QueueRecord = { programId: string } & (
 export enum KnownEventType {
   CLINICAL = "CLINICAL",
   RDPC = "RDPC",
-  SYNC = "SNC",
+  SYNC = "SYNC",
 }
 
 export type ProgramQueueProcessor = {
