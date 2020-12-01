@@ -1,3 +1,4 @@
+import logger from "logger";
 import fetch from "node-fetch";
 
 const query = `
@@ -33,8 +34,8 @@ const fetchDonorIdsByAnalysis = async ({
 }: {
   analysisId: string;
   rdpcUrl: string;
-}) =>
-  fetch(rdpcUrl, {
+}) => {
+  const output = await fetch(rdpcUrl, {
     method: "POST",
     headers: {
       "Content-type": "application/json",
@@ -47,8 +48,12 @@ const fetchDonorIdsByAnalysis = async ({
     }),
   })
     .then((res) => res.json())
-    .then(({ data }: { data: QueryResponseData }) =>
-      data.analyses[0]?.donors.map(({ donorId }) => donorId)
-    );
+    .then((res: { data: QueryResponseData }) => {
+      const { data } = res;
+      logger.info("res: ", res);
+      return data.analyses[0]?.donors.map(({ donorId }) => donorId);
+    });
 
+  return output;
+};
 export default fetchDonorIdsByAnalysis;

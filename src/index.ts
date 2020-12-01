@@ -148,7 +148,7 @@ import parseRdpcProgramUpdateEvent from "eventParsers/parseRdpcProgramUpdateEven
     },
   });
   logger.info("pipeline is ready!");
-  expressApp.listen(7000, () => {
+  expressApp.listen(PORT, () => {
     logger.info(`Start readiness check at :${PORT}/status`);
   });
   statusReporter.setReady(true);
