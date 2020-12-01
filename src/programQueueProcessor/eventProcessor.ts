@@ -227,7 +227,7 @@ export default ({
         logger.error(
           `FAILED TO INDEX PROGRAM ${programId} after ${retryConfig.retries} attempts: ${err}`
         );
-        await enqueueEvent(queuedEvent);
+        await enqueueEvent({ ...queuedEvent, requeued: true });
       }
 
       statusReporter?.endProcessingProgram(programId);
