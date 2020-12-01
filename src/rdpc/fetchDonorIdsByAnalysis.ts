@@ -42,7 +42,7 @@ const fetchDonorIdsByAnalysis = async ({
     },
     body: JSON.stringify({
       query,
-      variable: {
+      variables: {
         analysisId,
       } as QueryVariable,
     }),
