@@ -119,5 +119,7 @@ if (USE_VAULT && VAULT_AUTH_METHOD === "kubernetes") {
   }
 }
 
+export const MAX_RETRIES = Number(process.env.MAX_RETRIES) || 100;
+
 export const FEATURE_RDPC_INDEXING_ENABLED =
   process.env.FEATURE_RDPC_INDEXING_ENABLED === "true";

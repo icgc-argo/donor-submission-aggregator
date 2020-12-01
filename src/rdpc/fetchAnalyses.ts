@@ -56,7 +56,7 @@ type QueryVariable = {
 const retryConfig = {
   factor: 2,
   retries: 5,
-  minTimeout: 1000,
+  minTimeout: 10,
   maxTimeout: Infinity,
 };
 

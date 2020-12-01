@@ -5,7 +5,7 @@ export enum KnownEventSource {
   RDPC = "RDPC",
 }
 
-export type QueueRecord = { programId: string } & (
+export type QueueRecord = { programId: string; requeued?: boolean } & (
   | {
       type: KnownEventType.CLINICAL;
     }

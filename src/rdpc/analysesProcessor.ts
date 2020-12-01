@@ -167,6 +167,7 @@ export const getAllMergedDonor = async ({
 
   if (donorIds) {
     for (const donorId of donorIds) {
+      logger.info(`streaming analyses for donor ${donorId}`);
       const stream = analysisStream({
         studyId,
         rdpcUrl: url,
