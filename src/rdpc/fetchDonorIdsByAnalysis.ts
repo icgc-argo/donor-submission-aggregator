@@ -54,6 +54,8 @@ const fetchDonorIdsByAnalysis = async ({
       return data.analyses[0]?.donors.map(({ donorId }) => donorId);
     });
 
+  console.log("output: ", output);
+
   return output;
 };
 export default fetchDonorIdsByAnalysis;
