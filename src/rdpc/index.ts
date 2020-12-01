@@ -100,17 +100,21 @@ export const indexRdpcData = async ({
     }
   );
 
-  logger.info(`Begin bulk indexing donors of program ${programId}...`);
+  if (esDocuments.length) {
+    logger.info(`Begin bulk indexing donors of program ${programId}...`);
 
-  await esClient.bulk({
-    body: toEsBulkIndexActions<EsDonorDocument>(
-      targetIndexName,
-      (donor) => preExistingDonorHits[donor.donorId]?._id
-    )(esDocuments),
-    refresh: "wait_for",
-  });
+    await esClient.bulk({
+      body: toEsBulkIndexActions<EsDonorDocument>(
+        targetIndexName,
+        (donor) => preExistingDonorHits[donor.donorId]?._id
+      )(esDocuments),
+      refresh: "wait_for",
+    });
 
-  logger.info(
-    `Successfully indexed all donors of program ${programId} to index: ${targetIndexName}`
-  );
+    logger.info(
+      `Successfully indexed all donors of program ${programId} to index: ${targetIndexName}`
+    );
+  } else {
+    logger.warn(`No document to index for program ${programId}`);
+  }
 };
