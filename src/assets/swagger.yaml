@@ -17,3 +17,25 @@ paths:
             application/json:
               schema:
                 type: object
+  /index/program/{program_id}:
+    post:
+      tags:
+        - Index Program
+      description: index clinical and RDPC donors of a program
+      parameters:
+        - name: "program_id"
+          in: "path"
+          description: shortname of a program
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: Successfully indexed a program
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Program not found, please enter a valid program id
+        "500":
+          description: Internal Server Error

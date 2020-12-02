@@ -20,7 +20,7 @@ export default (configData: {
   const aliasName = configData.aliasName || "donor_submission_summary";
   const indexEntity = configData?.entity || "donor";
   const indexType = configData?.type || "centric";
-  const shardPrefix = configData?.shardPrefix || "pgm";
+  const shardPrefix = configData?.shardPrefix || "program";
 
   const createNewResolvableIndex = async (
     programShortName: string,
@@ -37,13 +37,18 @@ export default (configData: {
       indexSetting: JSON.stringify(donorIndexMapping.settings),
     };
 
-    const newResolvedIndex = (await fetch(url, {
-      method: "POST",
-      body: JSON.stringify(req),
-      headers: { "Content-Type": "application/json" },
-    }).then((res) => res.json())) as ResolvedIndex;
+    try {
+      const newResolvedIndex = (await fetch(url, {
+        method: "POST",
+        body: JSON.stringify(req),
+        headers: { "Content-Type": "application/json" },
+      }).then((res) => res.json())) as ResolvedIndex;
 
-    return newResolvedIndex;
+      return newResolvedIndex;
+    } catch (err) {
+      logger.error("Failed to get new resolved index from rollcall: " + err);
+      throw err;
+    }
   };
 
   const release = async (resovledIndex: ResolvedIndex): Promise<boolean> => {

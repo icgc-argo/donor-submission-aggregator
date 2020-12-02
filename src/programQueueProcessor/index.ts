@@ -11,7 +11,8 @@ import logger from "logger";
 import initializeProgramQueueTopic from "./initializeProgramQueueTopic";
 import { ProgramQueueProcessor, QueueRecord, KnownEventType } from "./types";
 import createEventProcessor from "./eventProcessor";
-import { fetchAnalyses } from "rdpc/analysesProcessor";
+import fetchAnalyses from "rdpc/fetchAnalyses";
+import fetchDonorIdsByAnalysis from "rdpc/fetchDonorIdsByAnalysis";
 
 const createProgramQueueRecord = (record: QueueRecord): ProducerRecord => {
   return {
@@ -31,12 +32,14 @@ const createProgramQueueProcessor = async ({
   rollCallClient,
   statusReporter,
   analysisFetcher = fetchAnalyses,
+  fetchDonorIds = fetchDonorIdsByAnalysis,
 }: {
   kafka: Kafka;
   esClient: Client;
   rollCallClient: RollCallClient;
   statusReporter?: StatusReporter;
   analysisFetcher?: typeof fetchAnalyses;
+  fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
 }): Promise<ProgramQueueProcessor> => {
   const consumer = kafka.consumer({
     groupId: KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP,
@@ -48,6 +51,12 @@ const createProgramQueueProcessor = async ({
     topic: programQueueTopic,
   });
   logger.info(`subscribed to topic ${programQueueTopic} for queuing`);
+
+  const enqueueEvent = async (event: QueueRecord) => {
+    await producer.send(createProgramQueueRecord(event));
+    logger.info(`enqueued ${event.type} event for program ${event.programId}`);
+  };
+
   await consumer.run({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: createEventProcessor({
@@ -56,6 +65,8 @@ const createProgramQueueProcessor = async ({
       rollCallClient,
       analysisFetcher,
       statusReporter,
+      fetchDonorIds,
+      enqueueEvent,
     }),
   });
   logger.info(`queue pipeline setup complete with topic ${programQueueTopic}`);
@@ -66,10 +77,7 @@ const createProgramQueueProcessor = async ({
       RDPC: KnownEventType.RDPC as KnownEventType.RDPC,
       SYNC: KnownEventType.SYNC as KnownEventType.SYNC,
     },
-    enqueueEvent: async (event) => {
-      await producer.send(createProgramQueueRecord(event));
-      logger.info(`enqueued event for program ${event.programId}`);
-    },
+    enqueueEvent: enqueueEvent,
     destroy: async () => {
       await consumer.stop();
       await Promise.all([consumer.disconnect(), producer.disconnect()]);

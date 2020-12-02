@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import {
   Run,
   RunsByAnalysesByDonors,
@@ -9,113 +8,35 @@ import {
   AnalysisType,
 } from "./types";
 import logger from "logger";
-import promiseRetry from "promise-retry";
 import HashCode from "ts-hashcode";
 import { SANGER_VC_REPO_URL, SEQ_ALIGN_REPO_URL } from "config";
 import _ from "lodash";
-
-const buildQuery = (
-  studyId: string,
-  analysisType: string,
-  repoUrl: string,
-  from: number,
-  size: number
-): string => {
-  const query = `
-  fragment AnalysisData on Analysis {
-    analysisId
-    analysisType
-    donors {
-      donorId
-    }
-  }
-
-  query {
-    analyses(
-      filter: {
-        analysisType: "${analysisType}",
-        analysisState: PUBLISHED,
-        studyId: "${studyId}",
-      },
-      page: {from: ${from}, size: ${size}}
-    ) {
-      ...AnalysisData
-      runs: inputForRuns(
-        filter: {
-          repository: "${repoUrl}"
-        }
-      ) {
-        runId
-        state
-        repository
-        inputAnalyses {
-          analysisId
-        }
-      }
-    }
-  }
-  `;
-
-  return query;
-};
-
-const retryConfig = {
-  factor: 2,
-  retries: 5,
-  minTimeout: 1000,
-  maxTimeout: Infinity,
-};
-
-export const fetchAnalyses = async (
-  studyId: string,
-  rdpcUrl: string,
-  workflowRepoUrl: string,
-  analysisType: string,
-  from: number,
-  size: number
-): Promise<Analysis[]> => {
-  const query = buildQuery(studyId, analysisType, workflowRepoUrl, from, size);
-
-  return await promiseRetry<Analysis[]>(async (retry) => {
-    try {
-      logger.info(`Fetching ${analysisType} analyses from rdpc.....`);
-      const response = await fetch(rdpcUrl, {
-        method: "POST",
-        body: JSON.stringify({ query }),
-        headers: {
-          "Content-type": "application/json",
-        },
-      });
-      return (await response.json()).data.analyses as Analysis[];
-    } catch (err) {
-      logger.warn(`Failed to fetch analyses: ${err}, retrying...`);
-      return retry(err);
-    }
-  }, retryConfig).catch((err) => {
-    logger.error(
-      `Failed to fetch analyses of program: ${studyId} from RDPC ${rdpcUrl} after ${retryConfig.retries} attempts: ${err}`
-    );
-    throw err;
-  });
-};
+import fetchAnalyses from "rdpc/fetchAnalyses";
 
 type StreamState = {
   currentPage: number;
 };
 
-export const analysisStream = async function* (
-  studyId: string,
-  rdpcUrl: string,
-  analysisType: string,
+export const analysisStream = async function* ({
+  studyId,
+  rdpcUrl,
+  analysisType,
+  config,
+  analysesFetcher = fetchAnalyses,
+  donorId,
+}: {
+  studyId: string;
+  rdpcUrl: string;
+  analysisType: string;
   config?: {
     chunkSize?: number;
-    state?: StreamState;
-  },
-  analysesFetcher = fetchAnalyses
-): AsyncGenerator<Analysis[]> {
+  };
+  analysesFetcher: typeof fetchAnalyses;
+  donorId?: string;
+}): AsyncGenerator<Analysis[]> {
   const chunkSize = config?.chunkSize || 1000;
   const streamState: StreamState = {
-    currentPage: config?.state?.currentPage || 0,
+    currentPage: 0,
   };
 
   const workflowRepoUrl =
@@ -124,14 +45,15 @@ export const analysisStream = async function* (
       : SEQ_ALIGN_REPO_URL;
 
   while (true) {
-    const page = await analysesFetcher(
+    const page = await analysesFetcher({
       studyId,
       rdpcUrl,
       workflowRepoUrl,
       analysisType,
-      streamState.currentPage,
-      chunkSize
-    );
+      from: streamState.currentPage,
+      size: chunkSize,
+      donorId,
+    });
 
     streamState.currentPage = streamState.currentPage + chunkSize;
 
@@ -223,29 +145,56 @@ export const getAllRunsByAnalysesByDonors = (
   return mergedMap;
 };
 
-export const getAllMergedDonor = async (
-  studyId: string,
-  url: string,
-  analysisType: string,
+export const getAllMergedDonor = async ({
+  analysesFetcher = fetchAnalyses,
+  analysisType,
+  studyId,
+  url,
+  config,
+  donorIds,
+}: {
+  studyId: string;
+  url: string;
+  analysisType: string;
+  donorIds?: string[];
   config?: {
     chunkSize?: number;
     state?: StreamState;
-  },
-  analysesFetcher = fetchAnalyses
-): Promise<RunsByAnalysesByDonors> => {
-  const stream = analysisStream(
-    studyId,
-    url,
-    analysisType,
-    config,
-    analysesFetcher
-  );
+  };
+  analysesFetcher: typeof fetchAnalyses;
+}): Promise<RunsByAnalysesByDonors> => {
   let mergedDonors: RunsByAnalysesByDonors = {};
 
-  for await (const page of stream) {
-    logger.info(`Streaming ${page.length} of ${analysisType} analyses...`);
-    const donorPerPage = toDonorCentric(page);
-    getAllRunsByAnalysesByDonors(mergedDonors, donorPerPage);
+  if (donorIds) {
+    for (const donorId of donorIds) {
+      logger.info(`streaming analyses for donor ${donorId}`);
+      const stream = analysisStream({
+        studyId,
+        rdpcUrl: url,
+        analysisType,
+        config,
+        analysesFetcher,
+        donorId,
+      });
+      for await (const page of stream) {
+        logger.info(`Streaming ${page.length} of ${analysisType} analyses...`);
+        const donorPerPage = toDonorCentric(page);
+        getAllRunsByAnalysesByDonors(mergedDonors, donorPerPage);
+      }
+    }
+  } else {
+    const stream = analysisStream({
+      studyId,
+      rdpcUrl: url,
+      analysisType,
+      config,
+      analysesFetcher,
+    });
+    for await (const page of stream) {
+      logger.info(`Streaming ${page.length} of ${analysisType} analyses...`);
+      const donorPerPage = toDonorCentric(page);
+      getAllRunsByAnalysesByDonors(mergedDonors, donorPerPage);
+    }
   }
   return mergedDonors;
 };

@@ -1,7 +1,6 @@
 import {
   countAlignmentRunState,
   countVCRunState,
-  fetchAnalyses,
   getAllMergedDonor,
   mergeDonorStateMaps,
 } from "./analysesProcessor";
@@ -12,6 +11,8 @@ import { EsDonorDocument, EsHit, RdpcDonorInfo } from "indexClinicalData/types";
 import { toEsBulkIndexActions } from "elasticsearch";
 import logger from "logger";
 import { AnalysisType } from "./types";
+import fetchAnalyses from "./fetchAnalyses";
+import fetchDonorIdsByAnalysis from "./fetchDonorIdsByAnalysis";
 
 const convertToEsDocument = (
   existingEsHit: EsDonorDocument,
@@ -21,32 +22,51 @@ const convertToEsDocument = (
   return { ...existingEsHit, ...rdpcInfo };
 };
 
-export const indexRdpcData = async (
-  programId: string,
-  rdpcUrl: string,
-  targetIndexName: string,
-  esClient: Client,
-  analysisFetcher = fetchAnalyses
-) => {
+export const indexRdpcData = async ({
+  programId,
+  rdpcUrl,
+  targetIndexName,
+  esClient,
+  analysesFetcher = fetchAnalyses,
+  fetchDonorIds = fetchDonorIdsByAnalysis,
+  analysisId,
+}: {
+  programId: string;
+  rdpcUrl: string;
+  targetIndexName: string;
+  esClient: Client;
+  analysesFetcher?: typeof fetchAnalyses;
+  analysisId?: string;
+  fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
+}) => {
   logger.info(`Processing program: ${programId} from ${rdpcUrl}.`);
 
   const config = { chunkSize: STREAM_CHUNK_SIZE };
 
-  const mergedAlignmentDonors = await getAllMergedDonor(
-    programId,
-    rdpcUrl,
-    AnalysisType.SEQ_EXPERIMENT,
-    config,
-    analysisFetcher
-  );
+  const donorIdsToFilterBy = analysisId
+    ? await fetchDonorIds({
+        rdpcUrl,
+        analysisId,
+      })
+    : undefined;
 
-  const mergedVCDonors = await getAllMergedDonor(
-    programId,
-    rdpcUrl,
-    AnalysisType.SEQ_ALIGNMENT,
+  const mergedAlignmentDonors = await getAllMergedDonor({
+    studyId: programId,
+    url: rdpcUrl,
+    donorIds: donorIdsToFilterBy,
+    analysisType: AnalysisType.SEQ_EXPERIMENT,
     config,
-    analysisFetcher
-  );
+    analysesFetcher,
+  });
+
+  const mergedVCDonors = await getAllMergedDonor({
+    studyId: programId,
+    url: rdpcUrl,
+    donorIds: donorIdsToFilterBy,
+    analysisType: AnalysisType.SEQ_ALIGNMENT,
+    config,
+    analysesFetcher,
+  });
 
   const rdpcInfoByDonor_alignment = countAlignmentRunState(
     mergedAlignmentDonors
@@ -80,24 +100,21 @@ export const indexRdpcData = async (
     }
   );
 
-  logger.info(`Begin bulk indexing donors of program ${programId}...`);
+  if (esDocuments.length) {
+    logger.info(`Begin bulk indexing donors of program ${programId}...`);
 
-  await esClient.bulk(
-    {
+    await esClient.bulk({
       body: toEsBulkIndexActions<EsDonorDocument>(
         targetIndexName,
         (donor) => preExistingDonorHits[donor.donorId]?._id
       )(esDocuments),
-      refresh: "true",
-    },
-    (error, response) => {
-      if (error) {
-        logger.error(response);
-      }
-    }
-  );
+      refresh: "wait_for",
+    });
 
-  logger.info(
-    `Successfully indexed all donors of program ${programId} to index: ${targetIndexName}`
-  );
+    logger.info(
+      `Successfully indexed all donors of program ${programId} to index: ${targetIndexName}`
+    );
+  } else {
+    logger.warn(`No document to index for program ${programId}`);
+  }
 };

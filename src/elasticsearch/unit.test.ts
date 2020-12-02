@@ -61,7 +61,7 @@ describe("initIndexMapping", () => {
       index: TEST_INDEX,
     });
   });
-  it("must puts index mappping properly", async () => {
+  it("must initialize index mappping properly", async () => {
     await initIndexMapping(TEST_INDEX, esClient);
     const { body: exists } = await esClient.indices.exists({
       index: TEST_INDEX,

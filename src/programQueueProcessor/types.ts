@@ -1,14 +1,21 @@
+import { ApiResponse } from "@elastic/elasticsearch";
+
 export enum KnownEventSource {
   CLINICAL = "CLINICAL",
   RDPC = "RDPC",
 }
 
-export type QueueRecord = { programId: string } & (
+export type QueueRecord = { programId: string; requeued?: boolean } & (
   | {
       type: KnownEventType.CLINICAL;
     }
   | {
-      type: KnownEventType.RDPC | KnownEventType.SYNC;
+      type: KnownEventType.RDPC;
+      rdpcGatewayUrls: Array<string>;
+      analysisId?: string;
+    }
+  | {
+      type: KnownEventType.SYNC;
       rdpcGatewayUrls: Array<string>;
     }
 );
@@ -16,7 +23,7 @@ export type QueueRecord = { programId: string } & (
 export enum KnownEventType {
   CLINICAL = "CLINICAL",
   RDPC = "RDPC",
-  SYNC = "SNC",
+  SYNC = "SYNC",
 }
 
 export type ProgramQueueProcessor = {

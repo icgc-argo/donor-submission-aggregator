@@ -27,7 +27,7 @@ export const ROLLCALL_INDEX_ENTITY =
   process.env.ROLLCALL_INDEX_ENTITY || "donor";
 export const ROLLCALL_INDEX_TYPE = process.env.ROLLCALL_INDEX_TYPE || "centric";
 export const ROLLCALL_INDEX_SHARDPREFIX =
-  process.env.ROLLCALL_INDEX_SHARDPREFIX || "pgm";
+  process.env.ROLLCALL_INDEX_SHARDPREFIX || "program";
 
 export const STREAM_CHUNK_SIZE = Number(process.env.STREAM_CHUNK_SIZE) || 1000;
 
@@ -118,6 +118,8 @@ if (USE_VAULT && VAULT_AUTH_METHOD === "kubernetes") {
     throw error;
   }
 }
+
+export const MAX_RETRIES = Number(process.env.MAX_RETRIES) || 100;
 
 export const FEATURE_RDPC_INDEXING_ENABLED =
   process.env.FEATURE_RDPC_INDEXING_ENABLED === "true";
