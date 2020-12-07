@@ -12,6 +12,8 @@ import HashCode from "ts-hashcode";
 import { SANGER_VC_REPO_URL, SEQ_ALIGN_REPO_URL } from "config";
 import _ from "lodash";
 import fetchAnalyses from "rdpc/fetchAnalyses";
+import { EgoJwt, getJwt } from "auth";
+import egoTokenUtils from "auth/egoTokenUtils";
 
 type StreamState = {
   currentPage: number;
@@ -21,6 +23,7 @@ export const analysisStream = async function* ({
   studyId,
   rdpcUrl,
   analysisType,
+  jwt,
   config,
   analysesFetcher = fetchAnalyses,
   donorId,
@@ -28,6 +31,7 @@ export const analysisStream = async function* ({
   studyId: string;
   rdpcUrl: string;
   analysisType: string;
+  jwt: EgoJwt;
   config?: {
     chunkSize?: number;
   };
@@ -44,6 +48,13 @@ export const analysisStream = async function* ({
       ? SANGER_VC_REPO_URL
       : SEQ_ALIGN_REPO_URL;
 
+  let accessToken = jwt.getCurrentJwt().access_token;
+  const decodedToken = egoTokenUtils.decodeToken(accessToken);
+  const expired = egoTokenUtils.isExpiredToken(decodedToken);
+  if (expired) {
+    accessToken = (await getJwt()).getCurrentJwt().access_token;
+  }
+
   while (true) {
     const page = await analysesFetcher({
       studyId,
@@ -52,6 +63,7 @@ export const analysisStream = async function* ({
       analysisType,
       from: streamState.currentPage,
       size: chunkSize,
+      accessToken,
       donorId,
     });
 
@@ -148,6 +160,7 @@ export const getAllRunsByAnalysesByDonors = (
 export const getAllMergedDonor = async ({
   analysesFetcher = fetchAnalyses,
   analysisType,
+  jwt,
   studyId,
   url,
   config,
@@ -156,6 +169,7 @@ export const getAllMergedDonor = async ({
   studyId: string;
   url: string;
   analysisType: string;
+  jwt: EgoJwt;
   donorIds?: string[];
   config?: {
     chunkSize?: number;
@@ -172,6 +186,7 @@ export const getAllMergedDonor = async ({
         studyId,
         rdpcUrl: url,
         analysisType,
+        jwt,
         config,
         analysesFetcher,
         donorId,
@@ -187,6 +202,7 @@ export const getAllMergedDonor = async ({
       studyId,
       rdpcUrl: url,
       analysisType,
+      jwt,
       config,
       analysesFetcher,
     });

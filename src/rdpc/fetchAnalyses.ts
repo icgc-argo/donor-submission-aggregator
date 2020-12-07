@@ -67,6 +67,7 @@ const fetchAnalyses = async ({
   analysisType,
   from,
   size,
+  accessToken,
   donorId,
 }: {
   studyId: string;
@@ -75,6 +76,7 @@ const fetchAnalyses = async ({
   analysisType: string;
   from: number;
   size: number;
+  accessToken: string;
   donorId?: string;
 }): Promise<Analysis[]> => {
   return await promiseRetry<Analysis[]>(async (retry) => {
@@ -100,6 +102,7 @@ const fetchAnalyses = async ({
         }),
         headers: {
           "Content-type": "application/json",
+          authorization: `Bearer ${accessToken}`,
         },
       });
       return (await response.json()).data.analyses as Analysis[];

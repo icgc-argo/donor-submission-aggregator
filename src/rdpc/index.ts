@@ -13,6 +13,7 @@ import logger from "logger";
 import { AnalysisType } from "./types";
 import fetchAnalyses from "./fetchAnalyses";
 import fetchDonorIdsByAnalysis from "./fetchDonorIdsByAnalysis";
+import { getJwt } from "auth";
 
 const convertToEsDocument = (
   existingEsHit: EsDonorDocument,
@@ -40,13 +41,17 @@ export const indexRdpcData = async ({
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
 }) => {
   logger.info(`Processing program: ${programId} from ${rdpcUrl}.`);
-
   const config = { chunkSize: STREAM_CHUNK_SIZE };
+
+  // get the first jwt:
+  const jwt = await getJwt();
+  const accessToken = jwt.getCurrentJwt().access_token;
 
   const donorIdsToFilterBy = analysisId
     ? await fetchDonorIds({
         rdpcUrl,
         analysisId,
+        accessToken,
       })
     : undefined;
 
@@ -55,6 +60,7 @@ export const indexRdpcData = async ({
     url: rdpcUrl,
     donorIds: donorIdsToFilterBy,
     analysisType: AnalysisType.SEQ_EXPERIMENT,
+    jwt,
     config,
     analysesFetcher,
   });
@@ -64,6 +70,7 @@ export const indexRdpcData = async ({
     url: rdpcUrl,
     donorIds: donorIdsToFilterBy,
     analysisType: AnalysisType.SEQ_ALIGNMENT,
+    jwt,
     config,
     analysesFetcher,
   });

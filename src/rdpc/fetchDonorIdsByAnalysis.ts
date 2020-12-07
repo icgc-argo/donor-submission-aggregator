@@ -31,14 +31,17 @@ type QueryVariable = {
 const fetchDonorIdsByAnalysis = async ({
   analysisId,
   rdpcUrl,
+  accessToken,
 }: {
   analysisId: string;
   rdpcUrl: string;
+  accessToken: string;
 }) => {
   const output = await fetch(rdpcUrl, {
     method: "POST",
     headers: {
       "Content-type": "application/json",
+      authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify({
       query,
