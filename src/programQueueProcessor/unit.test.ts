@@ -80,6 +80,7 @@ describe("kafka integration", () => {
     analysisType,
     from,
     size,
+    accessToken,
     donorId,
   }): Promise<Analysis[]> => {
     const matchesDonorId = (donor: any) =>

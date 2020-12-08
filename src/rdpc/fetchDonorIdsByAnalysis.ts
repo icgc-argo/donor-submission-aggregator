@@ -53,7 +53,12 @@ const fetchDonorIdsByAnalysis = async ({
     .then((res) => res.json())
     .then((res: { data: QueryResponseData }) => {
       const { data } = res;
-      return data.analyses[0]?.donors.map(({ donorId }) => donorId) || [];
+      if (data.analyses) {
+        return data.analyses[0]?.donors.map(({ donorId }) => donorId) || [];
+      } else {
+        logger.info(`fetchDonorIdsByAnalysis: no analyses fetched from rdpc.`);
+        return [];
+      }
     });
 
   return output;

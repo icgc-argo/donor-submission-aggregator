@@ -1,10 +1,12 @@
 import createEgoUtils from "@icgc-argo/ego-token-utils";
-import { EGO_PUBLIC_KEY } from "config";
+import { getPublicKey } from "auth";
 
-const TokenUtils = createEgoUtils(EGO_PUBLIC_KEY);
-
-export default {
-  ...TokenUtils,
-  isExpiredToken: (decodedToken: ReturnType<typeof TokenUtils.decodeToken>) =>
-    decodedToken.exp < new Date().getUTCMilliseconds(),
+export default async () => {
+  const egoPubliKey: string = await getPublicKey();
+  const TokenUtils = createEgoUtils(egoPubliKey);
+  return {
+    ...TokenUtils,
+    isExpiredToken: (decodedToken: ReturnType<typeof TokenUtils.decodeToken>) =>
+      decodedToken.exp < new Date().getUTCMilliseconds(),
+  };
 };

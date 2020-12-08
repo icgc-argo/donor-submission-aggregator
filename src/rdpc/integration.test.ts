@@ -34,6 +34,7 @@ describe("should index RDPC analyses to donor index", () => {
     analysisType,
     from,
     size,
+    accessToken,
     donorId,
   }): Promise<Analysis[]> => {
     const matchesDonorId = (donor: any) =>

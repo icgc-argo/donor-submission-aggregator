@@ -12,8 +12,6 @@ import HashCode from "ts-hashcode";
 import { SANGER_VC_REPO_URL, SEQ_ALIGN_REPO_URL } from "config";
 import _ from "lodash";
 import fetchAnalyses from "rdpc/fetchAnalyses";
-import { EgoJwt, getJwt } from "auth";
-import egoTokenUtils from "auth/egoTokenUtils";
 
 type StreamState = {
   currentPage: number;
@@ -23,7 +21,7 @@ export const analysisStream = async function* ({
   studyId,
   rdpcUrl,
   analysisType,
-  jwt,
+  accessToken,
   config,
   analysesFetcher = fetchAnalyses,
   donorId,
@@ -31,7 +29,7 @@ export const analysisStream = async function* ({
   studyId: string;
   rdpcUrl: string;
   analysisType: string;
-  jwt: EgoJwt;
+  accessToken: string;
   config?: {
     chunkSize?: number;
   };
@@ -47,13 +45,6 @@ export const analysisStream = async function* ({
     analysisType === AnalysisType.SEQ_ALIGNMENT
       ? SANGER_VC_REPO_URL
       : SEQ_ALIGN_REPO_URL;
-
-  let accessToken = jwt.getCurrentJwt().access_token;
-  const decodedToken = egoTokenUtils.decodeToken(accessToken);
-  const expired = egoTokenUtils.isExpiredToken(decodedToken);
-  if (expired) {
-    accessToken = (await getJwt()).getCurrentJwt().access_token;
-  }
 
   while (true) {
     const page = await analysesFetcher({
@@ -160,7 +151,7 @@ export const getAllRunsByAnalysesByDonors = (
 export const getAllMergedDonor = async ({
   analysesFetcher = fetchAnalyses,
   analysisType,
-  jwt,
+  accessToken,
   studyId,
   url,
   config,
@@ -169,7 +160,7 @@ export const getAllMergedDonor = async ({
   studyId: string;
   url: string;
   analysisType: string;
-  jwt: EgoJwt;
+  accessToken: string;
   donorIds?: string[];
   config?: {
     chunkSize?: number;
@@ -186,12 +177,15 @@ export const getAllMergedDonor = async ({
         studyId,
         rdpcUrl: url,
         analysisType,
-        jwt,
+        accessToken,
         config,
         analysesFetcher,
         donorId,
       });
       for await (const page of stream) {
+        if (page.length === 0) {
+          logger.info(`No ${analysisType} analyses for streaming`);
+        }
         logger.info(`Streaming ${page.length} of ${analysisType} analyses...`);
         const donorPerPage = toDonorCentric(page);
         getAllRunsByAnalysesByDonors(mergedDonors, donorPerPage);
@@ -202,11 +196,14 @@ export const getAllMergedDonor = async ({
       studyId,
       rdpcUrl: url,
       analysisType,
-      jwt,
+      accessToken,
       config,
       analysesFetcher,
     });
     for await (const page of stream) {
+      if (page.length === 0) {
+        logger.info(`No ${analysisType} analyses for streaming`);
+      }
       logger.info(`Streaming ${page.length} of ${analysisType} analyses...`);
       const donorPerPage = toDonorCentric(page);
       getAllRunsByAnalysesByDonors(mergedDonors, donorPerPage);
