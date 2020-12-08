@@ -24,7 +24,11 @@ type EgoAppCredential = {
   egoClientSecret: string;
 };
 
-export const createEgoJwtManager = async (): Promise<EgoAccessToken> => {
+export type EgoJwtManager = {
+  getLatestJwt: () => Promise<EgoAccessToken>;
+};
+
+export const createEgoJwtManager = async (): Promise<EgoJwtManager> => {
   let cachedJwt = await getJwt();
   const getLatestJwt = async () => {
     const egoTokenUtil = await createEgoUtil();
@@ -34,7 +38,7 @@ export const createEgoJwtManager = async (): Promise<EgoAccessToken> => {
       : cachedJwt;
     return cachedJwt;
   };
-  return getLatestJwt();
+  return { getLatestJwt };
 };
 
 const getEgoAppCredentials = async (

@@ -125,11 +125,10 @@ const getNewResolvedIndex = async (
   return newResolvedIndex;
 };
 
-export default ({
+export default async ({
   rollCallClient,
   esClient,
   programQueueTopic,
-  egoJwtManager,
   analysisFetcher = fetchAnalyses,
   fetchDonorIds = fetchDonorIdsByAnalysis,
   statusReporter,
@@ -139,11 +138,11 @@ export default ({
   esClient: Client;
   programQueueTopic: string;
   enqueueEvent: ProgramQueueProcessor["enqueueEvent"];
-  egoJwtManager?: typeof createEgoJwtManager;
   analysisFetcher?: typeof fetchAnalyses;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
   statusReporter?: StatusReporter;
 }) => {
+  const egoJwtManager = await createEgoJwtManager();
   return async ({ message }: EachMessagePayload) => {
     if (message && message.value) {
       const queuedEvent = parseProgramQueueEvent(message.value.toString());

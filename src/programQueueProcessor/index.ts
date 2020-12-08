@@ -62,10 +62,9 @@ const createProgramQueueProcessor = async ({
 
   await consumer.run({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
-    eachMessage: createEventProcessor({
+    eachMessage: await createEventProcessor({
       esClient,
       programQueueTopic,
-      egoJwtManager,
       rollCallClient,
       analysisFetcher,
       statusReporter,
