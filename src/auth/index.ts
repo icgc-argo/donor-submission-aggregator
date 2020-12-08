@@ -61,8 +61,8 @@ const isEgoCredential = (obj: {
   [k: string]: any;
 }): obj is EgoAppCredential => {
   return (
-    typeof obj["EGO_CLIENT_ID"] === "string" &&
-    typeof obj["EGO_CLIENT_SECRET"] === "string"
+    typeof obj["egoClientId"] === "string" &&
+    typeof obj["egoClientSecret"] === "string"
   );
 };
 
