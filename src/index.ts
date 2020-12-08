@@ -27,6 +27,7 @@ import logger from "logger";
 import createProgramQueueProcessor from "programQueueProcessor";
 import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUpdateEvent";
 import parseRdpcProgramUpdateEvent from "eventParsers/parseRdpcProgramUpdateEvent";
+import { createEgoJwtManager } from "auth";
 
 (async () => {
   /**
@@ -89,10 +90,12 @@ import parseRdpcProgramUpdateEvent from "eventParsers/parseRdpcProgramUpdateEven
     groupId: KAFKA_CONSUMER_GROUP,
   });
 
+  const egoJwtManager = await createEgoJwtManager();
   const programQueueProcessor = await createProgramQueueProcessor({
     kafka,
     esClient,
     rollCallClient,
+    egoJwtManager,
     statusReporter,
   });
 

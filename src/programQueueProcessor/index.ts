@@ -13,7 +13,7 @@ import { ProgramQueueProcessor, QueueRecord, KnownEventType } from "./types";
 import createEventProcessor from "./eventProcessor";
 import fetchAnalyses from "rdpc/fetchAnalyses";
 import fetchDonorIdsByAnalysis from "rdpc/fetchDonorIdsByAnalysis";
-import { createEgoJwtManager, EgoJwtManager } from "auth";
+import { EgoJwtManager } from "auth";
 
 const createProgramQueueRecord = (record: QueueRecord): ProducerRecord => {
   return {
@@ -60,7 +60,6 @@ const createProgramQueueProcessor = async ({
     logger.info(`enqueued ${event.type} event for program ${event.programId}`);
   };
 
-  egoJwtManager = await createEgoJwtManager();
   await consumer.run({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: await createEventProcessor({
