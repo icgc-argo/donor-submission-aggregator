@@ -10,7 +10,6 @@ import fetch from "node-fetch";
 import urlJoin from "url-join";
 import { createVaultClient, loadVaultSecret } from "vault";
 import createEgoUtil from "auth/egoTokenUtils";
-import urljoin from "url-join";
 
 export type EgoAccessToken = {
   access_token: string;
@@ -67,7 +66,7 @@ const isEgoCredential = (obj: {
   );
 };
 
-export const getJwt = async (): Promise<EgoAccessToken> => {
+const getJwt = async (): Promise<EgoAccessToken> => {
   try {
     const secret = await getEgoAppCredentials();
     const egoClientId = secret.egoClientId;
@@ -89,36 +88,5 @@ export const getJwt = async (): Promise<EgoAccessToken> => {
   } catch (error) {
     logger.error(`Failed to fetch ego jwt: ${error}`);
     throw error;
-  }
-};
-
-export const getPublicKey = async (): Promise<string> => {
-  logger.info("fetching ego public key...");
-  try {
-    const url = urljoin(EGO_URL, "api/oauth/token/public_key");
-
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-type": "application/json",
-      },
-    });
-
-    const key = await response.text();
-    if (
-      response.status != 200 ||
-      key.indexOf("-----BEGIN PUBLIC KEY-----") === -1
-    ) {
-      throw new Error(`failed to fetch valid JwtPublicKey, response:  ${key}`);
-    }
-    const correctFormatKey = `-----BEGIN PUBLIC KEY-----\n${key
-      .replace("-----BEGIN PUBLIC KEY-----", "")
-      .replace("-----END PUBLIC KEY-----", "")
-      .trim()}\n-----END PUBLIC KEY-----`;
-
-    return correctFormatKey;
-  } catch (err) {
-    logger.error(`Failed to fetch ego public key ${err}`);
-    throw new Error(err);
   }
 };
