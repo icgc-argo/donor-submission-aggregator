@@ -66,6 +66,7 @@ const createProgramQueueProcessor = async ({
     eachMessage: await createEventProcessor({
       esClient,
       programQueueTopic,
+      egoJwtManager,
       rollCallClient,
       analysisFetcher,
       statusReporter,
