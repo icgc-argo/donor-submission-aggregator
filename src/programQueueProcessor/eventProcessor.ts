@@ -16,6 +16,7 @@ import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 import fetchAnalyses from "rdpc/fetchAnalyses";
 import fetchDonorIdsByAnalysis from "rdpc/fetchDonorIdsByAnalysis";
 import { MAX_RETRIES } from "config";
+import { createEgoJwtManager } from "auth";
 
 const parseProgramQueueEvent = (message: string): QueueRecord =>
   JSON.parse(message);
@@ -128,6 +129,7 @@ export default ({
   rollCallClient,
   esClient,
   programQueueTopic,
+  egoJwtManager,
   analysisFetcher = fetchAnalyses,
   fetchDonorIds = fetchDonorIdsByAnalysis,
   statusReporter,
@@ -137,6 +139,7 @@ export default ({
   esClient: Client;
   programQueueTopic: string;
   enqueueEvent: ProgramQueueProcessor["enqueueEvent"];
+  egoJwtManager?: typeof createEgoJwtManager;
   analysisFetcher?: typeof fetchAnalyses;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
   statusReporter?: StatusReporter;
@@ -189,6 +192,7 @@ export default ({
                   rdpcUrl,
                   targetIndexName: newResolvedIndex.indexName,
                   esClient,
+                  egoJwtManager: egoJwtManager,
                   analysesFetcher: analysisFetcher,
                   fetchDonorIds,
                   analysisId: queuedEvent.analysisId,
@@ -206,6 +210,7 @@ export default ({
                   rdpcUrl,
                   targetIndexName: newResolvedIndex.indexName,
                   esClient,
+                  egoJwtManager,
                   analysesFetcher: analysisFetcher,
                   fetchDonorIds,
                 });

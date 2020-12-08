@@ -34,7 +34,6 @@ import { EsHit } from "indexClinicalData/types";
 import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 import { generateIndexName } from "./util";
 import { getIndexSettings, getLatestIndexName } from "elasticsearch";
-import { create } from "lodash";
 
 const TEST_US = "TEST-US";
 const TEST_CA = "TEST-CA";

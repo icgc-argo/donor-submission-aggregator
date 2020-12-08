@@ -28,6 +28,7 @@ export const indexRdpcData = async ({
   rdpcUrl,
   targetIndexName,
   esClient,
+  egoJwtManager = createEgoJwtManager,
   analysesFetcher = fetchAnalyses,
   fetchDonorIds = fetchDonorIdsByAnalysis,
   analysisId,
@@ -36,6 +37,7 @@ export const indexRdpcData = async ({
   rdpcUrl: string;
   targetIndexName: string;
   esClient: Client;
+  egoJwtManager?: typeof createEgoJwtManager;
   analysesFetcher?: typeof fetchAnalyses;
   analysisId?: string;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
@@ -43,7 +45,7 @@ export const indexRdpcData = async ({
   logger.info(`Processing program: ${programId} from ${rdpcUrl}.`);
   const config = { chunkSize: STREAM_CHUNK_SIZE };
 
-  const jwt = await createEgoJwtManager();
+  const jwt = await egoJwtManager();
   const accessToken = jwt.access_token;
 
   const donorIdsToFilterBy = analysisId
