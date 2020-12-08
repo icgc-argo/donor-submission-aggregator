@@ -41,7 +41,7 @@ const TEST_CA = "TEST-CA";
 const DB_COLLECTION_SIZE = 10010;
 const asyncExec = promisify(exec);
 
-describe.only("kafka integration", () => {
+describe("kafka integration", () => {
   /******** Cooonfigs *********/
   const RESOLVED_INDEX_PARTS = {
     entity: "donor",
