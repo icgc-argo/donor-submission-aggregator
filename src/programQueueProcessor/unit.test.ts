@@ -34,7 +34,7 @@ import { EsHit } from "indexClinicalData/types";
 import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 import { generateIndexName } from "./util";
 import { getIndexSettings, getLatestIndexName } from "elasticsearch";
-import { createEgoJwtManager, EgoAccessToken } from "auth";
+import { EgoAccessToken, EgoJwtManager } from "auth";
 
 const TEST_US = "TEST-US";
 const TEST_CA = "TEST-CA";
@@ -73,16 +73,16 @@ describe("kafka integration", () => {
 
   let programQueueProcessor: ProgramQueueProcessor;
 
-  const mockEgoJwtManager: typeof createEgoJwtManager = async (): Promise<
-    EgoAccessToken
-  > => {
-    return {
-      access_token: "dummy",
-      token_type: "",
-      expires_in: 99999,
-      scope: "",
-      groups: "",
-    };
+  const mockEgoJwtManager: EgoJwtManager = {
+    getLatestJwt: async (): Promise<EgoAccessToken> => {
+      return {
+        access_token: "dummy",
+        token_type: "",
+        expires_in: 99999,
+        scope: "",
+        groups: "",
+      };
+    },
   };
 
   const mockAnalysisFetcher: typeof fetchAnalyses = async ({

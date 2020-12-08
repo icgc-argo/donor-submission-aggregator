@@ -16,9 +16,9 @@ import {
   mockSeqExpAnalyses,
 } from "./fixtures/integrationTest/mockAnalyses";
 import { Analysis, AnalysisType } from "./types";
-import { createEgoJwtManager, EgoAccessToken } from "auth";
+import { EgoAccessToken, EgoJwtManager } from "auth";
 
-describe("should index RDPC analyses to donor index", () => {
+describe.only("should index RDPC analyses to donor index", () => {
   let elasticsearchContainer: StartedTestContainer;
   let esClient: Client;
   const ES_PORT = 10092;
@@ -51,16 +51,16 @@ describe("should index RDPC analyses to donor index", () => {
     );
   };
 
-  const mockEgoJwtManager: typeof createEgoJwtManager = async (): Promise<
-    EgoAccessToken
-  > => {
-    return {
-      access_token: "dummy",
-      token_type: "",
-      expires_in: 99999,
-      scope: "",
-      groups: "",
-    };
+  const mockEgoJwtManager: EgoJwtManager = {
+    getLatestJwt: async (): Promise<EgoAccessToken> => {
+      return {
+        access_token: "dummy",
+        token_type: "",
+        expires_in: 99999,
+        scope: "",
+        groups: "",
+      };
+    },
   };
 
   before(async () => {

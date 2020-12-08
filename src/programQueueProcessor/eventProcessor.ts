@@ -16,7 +16,7 @@ import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 import fetchAnalyses from "rdpc/fetchAnalyses";
 import fetchDonorIdsByAnalysis from "rdpc/fetchDonorIdsByAnalysis";
 import { MAX_RETRIES } from "config";
-import { createEgoJwtManager } from "auth";
+import { EgoJwtManager } from "auth";
 
 const parseProgramQueueEvent = (message: string): QueueRecord =>
   JSON.parse(message);
@@ -129,6 +129,7 @@ export default async ({
   rollCallClient,
   esClient,
   programQueueTopic,
+  egoJwtManager,
   analysisFetcher = fetchAnalyses,
   fetchDonorIds = fetchDonorIdsByAnalysis,
   statusReporter,
@@ -138,11 +139,11 @@ export default async ({
   esClient: Client;
   programQueueTopic: string;
   enqueueEvent: ProgramQueueProcessor["enqueueEvent"];
+  egoJwtManager?: EgoJwtManager;
   analysisFetcher?: typeof fetchAnalyses;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
   statusReporter?: StatusReporter;
 }) => {
-  const egoJwtManager = await createEgoJwtManager();
   return async ({ message }: EachMessagePayload) => {
     if (message && message.value) {
       const queuedEvent = parseProgramQueueEvent(message.value.toString());
