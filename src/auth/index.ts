@@ -37,7 +37,7 @@ export const createEgoJwtManager = async (): Promise<EgoAccessToken> => {
   return getLatestJwt();
 };
 
-export const getEgoAppCredentials = async (
+const getEgoAppCredentials = async (
   vaultClient = createVaultClient()
 ): Promise<EgoAppCredential> => {
   if (USE_VAULT) {
