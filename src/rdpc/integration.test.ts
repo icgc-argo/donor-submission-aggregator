@@ -18,7 +18,7 @@ import {
 import { Analysis, AnalysisType } from "./types";
 import { createEgoJwtManager, EgoAccessToken } from "auth";
 
-describe.only("should index RDPC analyses to donor index", () => {
+describe("should index RDPC analyses to donor index", () => {
   let elasticsearchContainer: StartedTestContainer;
   let esClient: Client;
   const ES_PORT = 10092;

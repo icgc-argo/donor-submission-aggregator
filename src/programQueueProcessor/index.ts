@@ -13,6 +13,7 @@ import { ProgramQueueProcessor, QueueRecord, KnownEventType } from "./types";
 import createEventProcessor from "./eventProcessor";
 import fetchAnalyses from "rdpc/fetchAnalyses";
 import fetchDonorIdsByAnalysis from "rdpc/fetchDonorIdsByAnalysis";
+import { createEgoJwtManager } from "auth";
 
 const createProgramQueueRecord = (record: QueueRecord): ProducerRecord => {
   return {
@@ -29,6 +30,7 @@ const createProgramQueueRecord = (record: QueueRecord): ProducerRecord => {
 const createProgramQueueProcessor = async ({
   kafka,
   esClient,
+  egoJwtManager,
   rollCallClient,
   statusReporter,
   analysisFetcher = fetchAnalyses,
@@ -37,6 +39,7 @@ const createProgramQueueProcessor = async ({
   kafka: Kafka;
   esClient: Client;
   rollCallClient: RollCallClient;
+  egoJwtManager?: typeof createEgoJwtManager;
   statusReporter?: StatusReporter;
   analysisFetcher?: typeof fetchAnalyses;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
@@ -62,6 +65,7 @@ const createProgramQueueProcessor = async ({
     eachMessage: createEventProcessor({
       esClient,
       programQueueTopic,
+      egoJwtManager,
       rollCallClient,
       analysisFetcher,
       statusReporter,

@@ -34,13 +34,14 @@ import { EsHit } from "indexClinicalData/types";
 import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 import { generateIndexName } from "./util";
 import { getIndexSettings, getLatestIndexName } from "elasticsearch";
+import { createEgoJwtManager, EgoAccessToken } from "auth";
 
 const TEST_US = "TEST-US";
 const TEST_CA = "TEST-CA";
 const DB_COLLECTION_SIZE = 10010;
 const asyncExec = promisify(exec);
 
-describe("kafka integration", () => {
+describe.only("kafka integration", () => {
   /******** Cooonfigs *********/
   const RESOLVED_INDEX_PARTS = {
     entity: "donor",
@@ -71,6 +72,18 @@ describe("kafka integration", () => {
   /**************************/
 
   let programQueueProcessor: ProgramQueueProcessor;
+
+  const mockEgoJwtManager: typeof createEgoJwtManager = async (): Promise<
+    EgoAccessToken
+  > => {
+    return {
+      access_token: "dummy",
+      token_type: "",
+      expires_in: 99999,
+      scope: "",
+      groups: "",
+    };
+  };
 
   const mockAnalysisFetcher: typeof fetchAnalyses = async ({
     studyId,
@@ -266,6 +279,7 @@ describe("kafka integration", () => {
         kafka: kafkaClient,
         esClient,
         rollCallClient: rollcallClient,
+        egoJwtManager: mockEgoJwtManager,
         analysisFetcher: mockAnalysisFetcher,
       });
 
@@ -423,6 +437,7 @@ describe("kafka integration", () => {
         kafka: kafkaClient,
         esClient,
         rollCallClient: rollcallClient,
+        egoJwtManager: mockEgoJwtManager,
       });
 
       // 1.If a program has never been indexed before, newly created index settings
@@ -524,6 +539,7 @@ describe("kafka integration", () => {
           kafka: kafkaClient,
           esClient,
           rollCallClient: rollcallClient,
+          egoJwtManager: mockEgoJwtManager,
         });
 
         await programQueueProcessor.enqueueEvent({
@@ -577,6 +593,7 @@ describe("kafka integration", () => {
       programQueueProcessor = await createProgramQueueProcessor({
         kafka: kafkaClient,
         esClient,
+        egoJwtManager: mockEgoJwtManager,
         rollCallClient: rollcallClient,
         analysisFetcher: mockAnalysisFetcher,
         fetchDonorIds: () => Promise.resolve([testDonorId]),
