@@ -13,6 +13,7 @@ import logger from "logger";
 import { AnalysisType } from "./types";
 import fetchAnalyses from "./fetchAnalyses";
 import fetchDonorIdsByAnalysis from "./fetchDonorIdsByAnalysis";
+import { EgoJwtManager, EgoAccessToken } from "auth";
 
 const convertToEsDocument = (
   existingEsHit: EsDonorDocument,
@@ -27,6 +28,7 @@ export const indexRdpcData = async ({
   rdpcUrl,
   targetIndexName,
   esClient,
+  egoJwtManager,
   analysesFetcher = fetchAnalyses,
   fetchDonorIds = fetchDonorIdsByAnalysis,
   analysisId,
@@ -35,18 +37,19 @@ export const indexRdpcData = async ({
   rdpcUrl: string;
   targetIndexName: string;
   esClient: Client;
+  egoJwtManager: EgoJwtManager; // optional only for test
   analysesFetcher?: typeof fetchAnalyses;
   analysisId?: string;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
 }) => {
   logger.info(`Processing program: ${programId} from ${rdpcUrl}.`);
-
   const config = { chunkSize: STREAM_CHUNK_SIZE };
 
   const donorIdsToFilterBy = analysisId
     ? await fetchDonorIds({
         rdpcUrl,
         analysisId,
+        egoJwtManager,
       })
     : undefined;
 
@@ -55,6 +58,7 @@ export const indexRdpcData = async ({
     url: rdpcUrl,
     donorIds: donorIdsToFilterBy,
     analysisType: AnalysisType.SEQ_EXPERIMENT,
+    egoJwtManager,
     config,
     analysesFetcher,
   });
@@ -64,6 +68,7 @@ export const indexRdpcData = async ({
     url: rdpcUrl,
     donorIds: donorIdsToFilterBy,
     analysisType: AnalysisType.SEQ_ALIGNMENT,
+    egoJwtManager,
     config,
     analysesFetcher,
   });

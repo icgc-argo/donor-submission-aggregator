@@ -7,6 +7,12 @@ dotenv.config({
   path: path.resolve(APP_DIR, "../.env"),
 });
 
+export const EGO_URL = process.env.EGO_URL || "http://localhost:8081";
+export const EGO_CLIENT_ID =
+  process.env.EGO_CLIENT_ID || "donor-submission-aggregator";
+export const EGO_CLIENT_SECRET =
+  process.env.EGO_CLIENT_SECRET || "donor-submission-aggregator-secret";
+export const EGO_PUBLIC_KEY = process.env.EGO_PUBLIC_KEY as string;
 export const RDPC_URL =
   process.env.RDPC_URL || "https://api.rdpc-qa.cancercollaboratory.org/graphql";
 
@@ -85,6 +91,8 @@ export const VAULT_ROLE = process.env.VAULT_ROLE as string;
 export const VAULT_ES_SECRET_PATH = process.env.VAULT_ES_SECRET_PATH as string;
 export const VAULT_MONGO_SECRET_PATH = process.env
   .VAULT_MONGO_SECRET_PATH as string;
+export const VAULT_EGO_SECRET_PATH = process.env
+  .VAULT_EGO_SECRET_PATH as string;
 const REQUIRED_VAULT_CONFIGS = {
   VAULT_AUTH_METHOD,
   VAULT_URL,

@@ -12,6 +12,7 @@ import HashCode from "ts-hashcode";
 import { SANGER_VC_REPO_URL, SEQ_ALIGN_REPO_URL } from "config";
 import _ from "lodash";
 import fetchAnalyses from "rdpc/fetchAnalyses";
+import { EgoJwtManager } from "auth";
 
 type StreamState = {
   currentPage: number;
@@ -21,6 +22,7 @@ export const analysisStream = async function* ({
   studyId,
   rdpcUrl,
   analysisType,
+  egoJwtManager,
   config,
   analysesFetcher = fetchAnalyses,
   donorId,
@@ -28,6 +30,7 @@ export const analysisStream = async function* ({
   studyId: string;
   rdpcUrl: string;
   analysisType: string;
+  egoJwtManager: EgoJwtManager;
   config?: {
     chunkSize?: number;
   };
@@ -52,6 +55,7 @@ export const analysisStream = async function* ({
       analysisType,
       from: streamState.currentPage,
       size: chunkSize,
+      egoJwtManager,
       donorId,
     });
 
@@ -148,6 +152,7 @@ export const getAllRunsByAnalysesByDonors = (
 export const getAllMergedDonor = async ({
   analysesFetcher = fetchAnalyses,
   analysisType,
+  egoJwtManager,
   studyId,
   url,
   config,
@@ -156,6 +161,7 @@ export const getAllMergedDonor = async ({
   studyId: string;
   url: string;
   analysisType: string;
+  egoJwtManager: EgoJwtManager;
   donorIds?: string[];
   config?: {
     chunkSize?: number;
@@ -172,11 +178,15 @@ export const getAllMergedDonor = async ({
         studyId,
         rdpcUrl: url,
         analysisType,
+        egoJwtManager,
         config,
         analysesFetcher,
         donorId,
       });
       for await (const page of stream) {
+        if (page.length === 0) {
+          logger.info(`No ${analysisType} analyses for streaming`);
+        }
         logger.info(`Streaming ${page.length} of ${analysisType} analyses...`);
         const donorPerPage = toDonorCentric(page);
         getAllRunsByAnalysesByDonors(mergedDonors, donorPerPage);
@@ -187,10 +197,14 @@ export const getAllMergedDonor = async ({
       studyId,
       rdpcUrl: url,
       analysisType,
+      egoJwtManager,
       config,
       analysesFetcher,
     });
     for await (const page of stream) {
+      if (page.length === 0) {
+        logger.info(`No ${analysisType} analyses for streaming`);
+      }
       logger.info(`Streaming ${page.length} of ${analysisType} analyses...`);
       const donorPerPage = toDonorCentric(page);
       getAllRunsByAnalysesByDonors(mergedDonors, donorPerPage);
