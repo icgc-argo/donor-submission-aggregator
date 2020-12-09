@@ -1,6 +1,6 @@
 {
   "name": "donor-submission-aggregator",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "description": "Donor aggregation service for the ICGC-ARGO Submission System",
   "main": "src",
   "scripts": {
@@ -71,6 +71,7 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "^7.5.0",
+    "@icgc-argo/ego-token-utils": "^8.0.0",
     "dotenv": "^8.2.0",
     "elastic-builder": "^2.7.1",
     "express": "^4.17.1",

@@ -1,6 +1,6 @@
 import vault, { VaultOptions } from "node-vault";
 import { VAULT_URL, VAULT_ROLE, VAULT_TOKEN, VAULT_AUTH_METHOD } from "config";
-import { promises, realpathSync } from "fs";
+import { promises } from "fs";
 import memoize from "lodash/memoize";
 import logger from "logger";
 
@@ -13,7 +13,7 @@ export const createVaultClient = memoize(
       apiVersion: "v1",
       endpoint: VAULT_URL,
       token: VAULT_TOKEN,
-      ...vaultOptions
+      ...vaultOptions,
     };
     const vaultClient = vault(options);
 
@@ -26,7 +26,7 @@ export const createVaultClient = memoize(
         ));
       await vaultClient.kubernetesLogin({
         role: VAULT_ROLE,
-        jwt: k8Token
+        jwt: k8Token,
       });
     }
     return vaultClient;

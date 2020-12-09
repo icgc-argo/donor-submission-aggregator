@@ -16,6 +16,7 @@ import {
   mockSeqExpAnalyses,
 } from "./fixtures/integrationTest/mockAnalyses";
 import { Analysis, AnalysisType } from "./types";
+import { EgoAccessToken, EgoJwtManager } from "auth";
 
 describe("should index RDPC analyses to donor index", () => {
   let elasticsearchContainer: StartedTestContainer;
@@ -27,6 +28,18 @@ describe("should index RDPC analyses to donor index", () => {
   const url = "https://api.rdpc-qa.cancercollaboratory.org/graphql";
   const donorIds = clinicalDataset.map((doc) => doc.donorId);
 
+  const mockEgoJwtManager: EgoJwtManager = {
+    getLatestJwt: async (): Promise<EgoAccessToken> => {
+      return {
+        access_token: "dummy",
+        token_type: "",
+        expires_in: 99999,
+        scope: "",
+        groups: "",
+      };
+    },
+  };
+
   const mockAnalysisFetcher: typeof fetchAnalyses = async ({
     studyId,
     rdpcUrl,
@@ -34,6 +47,7 @@ describe("should index RDPC analyses to donor index", () => {
     analysisType,
     from,
     size,
+    egoJwtManager,
     donorId,
   }): Promise<Analysis[]> => {
     const matchesDonorId = (donor: any) =>
@@ -138,6 +152,7 @@ describe("should index RDPC analyses to donor index", () => {
       rdpcUrl: url,
       targetIndexName: INDEX_NAME,
       esClient,
+      egoJwtManager: mockEgoJwtManager,
       analysesFetcher: mockAnalysisFetcher,
     });
 
@@ -214,6 +229,7 @@ describe("should index RDPC analyses to donor index", () => {
       rdpcUrl: url,
       targetIndexName: INDEX_NAME,
       esClient,
+      egoJwtManager: mockEgoJwtManager,
       analysisId: testAnalysis.analysisId,
       analysesFetcher: mockAnalysisFetcher,
       fetchDonorIds: ({ analysisId, rdpcUrl }) =>
