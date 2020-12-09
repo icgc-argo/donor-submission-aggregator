@@ -12,6 +12,7 @@ import HashCode from "ts-hashcode";
 import { SANGER_VC_REPO_URL, SEQ_ALIGN_REPO_URL } from "config";
 import _ from "lodash";
 import fetchAnalyses from "rdpc/fetchAnalyses";
+import { EgoJwtManager } from "auth";
 
 type StreamState = {
   currentPage: number;
@@ -21,7 +22,7 @@ export const analysisStream = async function* ({
   studyId,
   rdpcUrl,
   analysisType,
-  accessToken,
+  egoJwtManager,
   config,
   analysesFetcher = fetchAnalyses,
   donorId,
@@ -29,7 +30,7 @@ export const analysisStream = async function* ({
   studyId: string;
   rdpcUrl: string;
   analysisType: string;
-  accessToken: string;
+  egoJwtManager: EgoJwtManager;
   config?: {
     chunkSize?: number;
   };
@@ -54,7 +55,7 @@ export const analysisStream = async function* ({
       analysisType,
       from: streamState.currentPage,
       size: chunkSize,
-      accessToken,
+      egoJwtManager,
       donorId,
     });
 
@@ -151,7 +152,7 @@ export const getAllRunsByAnalysesByDonors = (
 export const getAllMergedDonor = async ({
   analysesFetcher = fetchAnalyses,
   analysisType,
-  accessToken,
+  egoJwtManager,
   studyId,
   url,
   config,
@@ -160,7 +161,7 @@ export const getAllMergedDonor = async ({
   studyId: string;
   url: string;
   analysisType: string;
-  accessToken: string;
+  egoJwtManager: EgoJwtManager;
   donorIds?: string[];
   config?: {
     chunkSize?: number;
@@ -177,7 +178,7 @@ export const getAllMergedDonor = async ({
         studyId,
         rdpcUrl: url,
         analysisType,
-        accessToken,
+        egoJwtManager,
         config,
         analysesFetcher,
         donorId,
@@ -196,7 +197,7 @@ export const getAllMergedDonor = async ({
       studyId,
       rdpcUrl: url,
       analysisType,
-      accessToken,
+      egoJwtManager,
       config,
       analysesFetcher,
     });

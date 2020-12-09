@@ -92,7 +92,7 @@ describe("kafka integration", () => {
     analysisType,
     from,
     size,
-    accessToken,
+    egoJwtManager,
     donorId,
   }): Promise<Analysis[]> => {
     const matchesDonorId = (donor: any) =>

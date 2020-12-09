@@ -139,7 +139,7 @@ export default async ({
   esClient: Client;
   programQueueTopic: string;
   enqueueEvent: ProgramQueueProcessor["enqueueEvent"];
-  egoJwtManager?: EgoJwtManager;
+  egoJwtManager: EgoJwtManager;
   analysisFetcher?: typeof fetchAnalyses;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
   statusReporter?: StatusReporter;

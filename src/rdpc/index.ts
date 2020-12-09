@@ -37,7 +37,7 @@ export const indexRdpcData = async ({
   rdpcUrl: string;
   targetIndexName: string;
   esClient: Client;
-  egoJwtManager?: EgoJwtManager; // optional only for test
+  egoJwtManager: EgoJwtManager; // optional only for test
   analysesFetcher?: typeof fetchAnalyses;
   analysisId?: string;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
@@ -45,14 +45,11 @@ export const indexRdpcData = async ({
   logger.info(`Processing program: ${programId} from ${rdpcUrl}.`);
   const config = { chunkSize: STREAM_CHUNK_SIZE };
 
-  const jwt = (await egoJwtManager?.getLatestJwt()) as EgoAccessToken;
-  const accessToken = jwt.access_token;
-
   const donorIdsToFilterBy = analysisId
     ? await fetchDonorIds({
         rdpcUrl,
         analysisId,
-        accessToken,
+        egoJwtManager,
       })
     : undefined;
 
@@ -61,7 +58,7 @@ export const indexRdpcData = async ({
     url: rdpcUrl,
     donorIds: donorIdsToFilterBy,
     analysisType: AnalysisType.SEQ_EXPERIMENT,
-    accessToken,
+    egoJwtManager,
     config,
     analysesFetcher,
   });
@@ -71,7 +68,7 @@ export const indexRdpcData = async ({
     url: rdpcUrl,
     donorIds: donorIdsToFilterBy,
     analysisType: AnalysisType.SEQ_ALIGNMENT,
-    accessToken,
+    egoJwtManager,
     config,
     analysesFetcher,
   });

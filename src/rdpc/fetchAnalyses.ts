@@ -3,6 +3,7 @@ import { Analysis } from "./types";
 import logger from "logger";
 import promiseRetry from "promise-retry";
 import _ from "lodash";
+import { EgoAccessToken, EgoJwtManager } from "auth";
 
 const query = `
   fragment AnalysisData on Analysis {
@@ -67,7 +68,7 @@ const fetchAnalyses = async ({
   analysisType,
   from,
   size,
-  accessToken,
+  egoJwtManager,
   donorId,
 }: {
   studyId: string;
@@ -76,9 +77,11 @@ const fetchAnalyses = async ({
   analysisType: string;
   from: number;
   size: number;
-  accessToken: string;
+  egoJwtManager: EgoJwtManager;
   donorId?: string;
 }): Promise<Analysis[]> => {
+  const jwt = (await egoJwtManager.getLatestJwt()) as EgoAccessToken;
+  const accessToken = jwt.access_token;
   return await promiseRetry<Analysis[]>(async (retry) => {
     try {
       logger.info(`Fetching ${analysisType} analyses from rdpc.....`);

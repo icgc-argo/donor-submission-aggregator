@@ -1,3 +1,4 @@
+import { EgoAccessToken, EgoJwtManager } from "auth";
 import logger from "logger";
 import fetch from "node-fetch";
 
@@ -31,12 +32,14 @@ type QueryVariable = {
 const fetchDonorIdsByAnalysis = async ({
   analysisId,
   rdpcUrl,
-  accessToken,
+  egoJwtManager,
 }: {
   analysisId: string;
   rdpcUrl: string;
-  accessToken: string;
+  egoJwtManager: EgoJwtManager;
 }) => {
+  const jwt = (await egoJwtManager.getLatestJwt()) as EgoAccessToken;
+  const accessToken = jwt.access_token;
   const output = await fetch(rdpcUrl, {
     method: "POST",
     headers: {

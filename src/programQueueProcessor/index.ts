@@ -39,7 +39,7 @@ const createProgramQueueProcessor = async ({
   kafka: Kafka;
   esClient: Client;
   rollCallClient: RollCallClient;
-  egoJwtManager?: EgoJwtManager;
+  egoJwtManager: EgoJwtManager;
   statusReporter?: StatusReporter;
   analysisFetcher?: typeof fetchAnalyses;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
