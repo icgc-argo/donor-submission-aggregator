@@ -1,3 +1,6 @@
+import logger from "logger";
+import { isNotAbsent } from "utils";
+
 const parseRdpcProgramUpdateEvent = (
   message: string
 ): RdpcProgramUpdateEvent => {
@@ -5,7 +8,12 @@ const parseRdpcProgramUpdateEvent = (
   if (isProgramUpdateEvent(obj)) {
     return obj;
   } else {
-    throw new Error("Not a program update event");
+    logger.warn(
+      "Failed to process message, missing studyId, it's either not a RDPC update event or message has invalid/missing fields."
+    );
+    return {
+      studyId: "",
+    };
   }
 };
 
@@ -17,9 +25,8 @@ enum RDPC_EVENT_STATE {
 
 type RdpcProgramUpdateEvent = {
   studyId: string;
-  state: RDPC_EVENT_STATE;
-  analysisId: string;
-  rdpcGatewayUrls: Array<string>;
+  state?: RDPC_EVENT_STATE;
+  analysisId?: string;
 };
 
 const isProgramUpdateEvent = (
@@ -27,9 +34,10 @@ const isProgramUpdateEvent = (
 ): data is RdpcProgramUpdateEvent => {
   if (typeof data === "object") {
     if (data) {
-      return (
-        data && typeof (data as { studyId: string })["studyId"] === "string"
-      );
+      const event = data as RdpcProgramUpdateEvent;
+      return isNotAbsent(event.studyId)
+        ? typeof event.studyId === "string"
+        : false;
     }
     return false;
   }

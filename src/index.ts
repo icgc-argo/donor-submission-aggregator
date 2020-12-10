@@ -28,6 +28,7 @@ import createProgramQueueProcessor from "programQueueProcessor";
 import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUpdateEvent";
 import parseRdpcProgramUpdateEvent from "eventParsers/parseRdpcProgramUpdateEvent";
 import { createEgoJwtManager } from "auth";
+import { isNotEmptyString } from "utils";
 
 (async () => {
   /**
@@ -122,10 +123,12 @@ import { createEgoJwtManager } from "auth";
             const { programId } = parseClinicalProgramUpdateEvent(
               message.value.toString()
             );
-            await programQueueProcessor.enqueueEvent({
-              programId,
-              type: programQueueProcessor.knownEventTypes.CLINICAL,
-            });
+            if (isNotEmptyString(programId)) {
+              await programQueueProcessor.enqueueEvent({
+                programId,
+                type: programQueueProcessor.knownEventTypes.CLINICAL,
+              });
+            }
             break;
 
           case RDPC_PROGRAM_UPDATE_TOPIC:
@@ -133,12 +136,14 @@ import { createEgoJwtManager } from "auth";
               const event = parseRdpcProgramUpdateEvent(
                 message.value.toString()
               );
-              await programQueueProcessor.enqueueEvent({
-                programId: event.studyId,
-                type: programQueueProcessor.knownEventTypes.RDPC,
-                rdpcGatewayUrls: [RDPC_URL],
-                analysisId: event.analysisId,
-              });
+              if (isNotEmptyString(event.studyId)) {
+                await programQueueProcessor.enqueueEvent({
+                  programId: event.studyId,
+                  type: programQueueProcessor.knownEventTypes.RDPC,
+                  rdpcGatewayUrls: [RDPC_URL],
+                  analysisId: event.analysisId,
+                });
+              }
             }
             break;
 
