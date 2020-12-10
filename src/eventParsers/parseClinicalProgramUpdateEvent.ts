@@ -1,3 +1,5 @@
+import logger from "logger";
+
 type ClinicalProgramUpdateEvent = {
   programId: string;
 };
@@ -23,7 +25,10 @@ const parseClinicalProgramUpdateEvent = (
   if (isProgramUpdateEvent(obj)) {
     return obj;
   } else {
-    throw new Error("Not a program update event");
+    logger.warn(
+      "Failed to process message, missing programId, it's either not a CLINICAL update event or message has invalid/missing fields."
+    );
+    return { programId: "" };
   }
 };
 
