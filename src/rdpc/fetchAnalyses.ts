@@ -108,7 +108,14 @@ const fetchAnalyses = async ({
           authorization: `Bearer ${accessToken}`,
         },
       });
-      return (await response.json()).data.analyses as Analysis[];
+      const jsonResponse = await response.json();
+      const hasError = jsonResponse.errors?.length > 0;
+      if (hasError) {
+        logger.error(
+          `received error from rdpc... page: from => ${from} size => ${size}`
+        );
+      }
+      return jsonResponse.data.analyses as Analysis[];
     } catch (err) {
       logger.warn(`Failed to fetch analyses: ${err}, retrying...`);
       return retry(err);

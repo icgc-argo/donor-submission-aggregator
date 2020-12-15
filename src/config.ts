@@ -18,7 +18,7 @@ export const RDPC_URL =
 
 export const MONGO_URL =
   process.env.MONGO_URL || "mongodb://localhost:27017/clinical";
-export const MONGO_USER = process.env.MONG_OUSER;
+export const MONGO_USER = process.env.MONGO_USER;
 export const MONGO_PASS = process.env.MONGO_PASS;
 
 export const ES_HOST = process.env.ES_HOST || "http://localhost:9200";
@@ -53,6 +53,16 @@ export const RDPC_PROGRAM_UPDATE_TOPIC =
 
 export const KAFKA_PROGRAM_QUEUE_TOPIC =
   process.env.KAFKA_PROGRAM_QUEUE_TOPIC || "donor_aggregator_program_queues";
+
+export const KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL =
+  process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL || 6 * 1000;
+
+export const KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT =
+  process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT || 120 * 1000;
+
+export const KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT =
+  process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT || 180 * 1000;
+
 export const KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP =
   process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP ||
   "program-queue-donor-processor";
@@ -127,7 +137,7 @@ if (USE_VAULT && VAULT_AUTH_METHOD === "kubernetes") {
   }
 }
 
-export const MAX_RETRIES = Number(process.env.MAX_RETRIES) || 100;
+export const MAX_RETRIES = Number(process.env.MAX_RETRIES) || 5;
 
 export const FEATURE_RDPC_INDEXING_ENABLED =
   process.env.FEATURE_RDPC_INDEXING_ENABLED === "true";
