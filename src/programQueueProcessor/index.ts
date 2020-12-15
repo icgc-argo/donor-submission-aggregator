@@ -2,6 +2,9 @@ import {
   KAFKA_PROGRAM_QUEUE_TOPIC,
   PARTITIONS_CONSUMED_CONCURRENTLY,
   KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP,
+  KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL,
+  KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT,
+  KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT,
 } from "config";
 import { ProducerRecord, Kafka } from "kafkajs";
 import { Client } from "@elastic/elasticsearch";
@@ -46,6 +49,9 @@ const createProgramQueueProcessor = async ({
 }): Promise<ProgramQueueProcessor> => {
   const consumer = kafka.consumer({
     groupId: KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP,
+    heartbeatInterval: Number(KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL),
+    sessionTimeout: Number(KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT),
+    rebalanceTimeout: Number(KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT),
   });
   const producer = kafka.producer();
 
