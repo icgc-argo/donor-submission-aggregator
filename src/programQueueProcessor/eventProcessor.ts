@@ -59,7 +59,23 @@ const getNewResolvedIndex = async (
   rollCallClient: RollCallClient
 ): Promise<ResolvedIndex> => {
   let newResolvedIndex: ResolvedIndex | null = null;
-  const existingIndexName = await getLatestIndexName(esClient, programId);
+
+  let existingIndexName = "";
+  try {
+    existingIndexName = await getLatestIndexName(esClient, programId);
+  } catch (err) {
+    logger.error(
+      `error while trying to get existing index for program ${programId} ${JSON.stringify(
+        err
+      )}`,
+      err
+    );
+    if (err.meta?.body?.status == 404) {
+      logger.info(`no existing index for program ${programId}`);
+    } else {
+      throw err;
+    }
+  }
   if (existingIndexName) {
     const response = await getIndexSettings(esClient, existingIndexName);
     const indexSettings = response.body[existingIndexName].settings.index;
@@ -230,8 +246,12 @@ export default async ({
         }, retryConfig);
       } catch (err) {
         logger.error(
-          `FAILED TO INDEX PROGRAM ${programId} after ${retryConfig.retries} attempts: ${err}`
+          `FAILED TO INDEX PROGRAM ${programId} after ${
+            retryConfig.retries
+          } attempts: ${JSON.stringify(err)}`,
+          err
         );
+        // TODO: this can result in infinite processing of a bad message
         await enqueueEvent({ ...queuedEvent, requeued: true });
       }
 
