@@ -6,4 +6,3 @@ down:
 
 nuke:
 	docker-compose down --volumes
-	
