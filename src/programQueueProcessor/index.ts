@@ -54,7 +54,6 @@ const createProgramQueueProcessor = async ({
     rebalanceTimeout: Number(KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT),
   });
   const producer = kafka.producer();
-
   const programQueueTopic = await initializeProgramQueueTopic(kafka);
   await consumer.subscribe({
     topic: programQueueTopic,
@@ -64,6 +63,22 @@ const createProgramQueueProcessor = async ({
   const enqueueEvent = async (event: QueueRecord) => {
     await producer.send(createProgramQueueRecord(event));
     logger.info(`enqueued ${event.type} event for program ${event.programId}`);
+  };
+
+  const sendDlqMessage = async (dlqTopic: string, messageJSON: string) => {
+    const result = await producer.send({
+      topic: dlqTopic,
+      messages: [
+        {
+          value: JSON.stringify(messageJSON),
+        },
+      ],
+    });
+    logger.debug(
+      `message is sent to DLQ topic ${dlqTopic}, response: ${JSON.stringify(
+        result
+      )}`
+    );
   };
 
   await consumer.run({
@@ -76,7 +91,7 @@ const createProgramQueueProcessor = async ({
       analysisFetcher,
       statusReporter,
       fetchDonorIds,
-      enqueueEvent,
+      sendDlqMessage,
     }),
   });
   logger.info(`queue pipeline setup complete with topic ${programQueueTopic}`);
@@ -88,6 +103,7 @@ const createProgramQueueProcessor = async ({
       SYNC: KnownEventType.SYNC as KnownEventType.SYNC,
     },
     enqueueEvent: enqueueEvent,
+    sendDlqMessage: sendDlqMessage,
     destroy: async () => {
       await consumer.stop();
       await Promise.all([consumer.disconnect(), producer.disconnect()]);

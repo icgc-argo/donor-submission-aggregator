@@ -54,6 +54,9 @@ export const RDPC_PROGRAM_UPDATE_TOPIC =
 export const KAFKA_PROGRAM_QUEUE_TOPIC =
   process.env.KAFKA_PROGRAM_QUEUE_TOPIC || "donor_aggregator_program_queues";
 
+export const DLQ_TOPIC_NAME =
+  process.env.DLQ_TOPIC_NAME || "donor_aggregator_dlq";
+
 export const KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL =
   process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL || 6 * 1000;
 
