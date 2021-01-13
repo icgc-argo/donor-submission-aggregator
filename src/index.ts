@@ -21,6 +21,7 @@ import {
   RDPC_PROGRAM_UPDATE_TOPIC,
   RDPC_URL,
   FEATURE_RDPC_INDEXING_ENABLED,
+  DLQ_TOPIC_NAME,
 } from "config";
 import applyStatusReport from "./statusReport";
 import logger from "logger";
@@ -128,6 +129,11 @@ import { isNotEmptyString } from "utils";
                 programId,
                 type: programQueueProcessor.knownEventTypes.CLINICAL,
               });
+            } else {
+              await programQueueProcessor.sendDlqMessage(
+                DLQ_TOPIC_NAME,
+                message.value.toString()
+              );
             }
             break;
 
@@ -143,6 +149,11 @@ import { isNotEmptyString } from "utils";
                   rdpcGatewayUrls: [RDPC_URL],
                   analysisId: event.analysisId,
                 });
+              } else {
+                await programQueueProcessor.sendDlqMessage(
+                  DLQ_TOPIC_NAME,
+                  message.value.toString()
+                );
               }
             }
             break;

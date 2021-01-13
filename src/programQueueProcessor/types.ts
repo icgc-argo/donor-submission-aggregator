@@ -33,5 +33,6 @@ export type ProgramQueueProcessor = {
     SYNC: KnownEventType.SYNC;
   };
   enqueueEvent: (event: QueueRecord) => Promise<void>;
+  sendDlqMessage: (dlqTopic: string, messageJSON: string) => Promise<void>;
   destroy: () => Promise<void>;
 };
