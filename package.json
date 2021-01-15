@@ -79,7 +79,7 @@
     "husky": "^4.3.0",
     "kafkajs": "^1.13.0",
     "lodash": "^4.17.19",
-    "mongoose": "^5.8.11",
+    "mongoose": "^5.11.12",
     "node-vault": "^0.9.13",
     "path": "^0.12.7",
     "prettier": "^2.1.2",
