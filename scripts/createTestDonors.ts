@@ -1,14 +1,15 @@
 import mongoose from "mongoose";
 import { MONGO_URL } from "../src/config";
-import { Donor } from "../src/indexClinicalData/clinicalMongo/donorModel/types";
-import donorModel from "../src/indexClinicalData/clinicalMongo/donorModel";
+import donorModel, {
+  MongoDonorDocument,
+} from "../src/indexClinicalData/clinicalMongo/donorModel";
 import { testDonorIds } from "../src/rdpc/fixtures/integrationTest/dataset";
 import createDonor from "./createDonor";
 
 const PROGRAM_SHORT_NAME = process.env.PROGRAM_SHORT_NAME || "TEST-CA";
 
 // integration testing donors:
-const testingDonors: Donor[] = testDonorIds.map((donorId) =>
+const testingDonors: MongoDonorDocument[] = testDonorIds.map((donorId) =>
   createDonor(PROGRAM_SHORT_NAME, parseInt(donorId))
 );
 

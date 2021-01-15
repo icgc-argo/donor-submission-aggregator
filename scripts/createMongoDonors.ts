@@ -1,13 +1,14 @@
 import mongoose from "mongoose";
 import { MONGO_URL } from "../src/config";
 import range from "lodash/range";
-import { Donor } from "../src/indexClinicalData/clinicalMongo/donorModel/types";
-import donorModel from "../src/indexClinicalData/clinicalMongo/donorModel";
+import donorModel, {
+  MongoDonorDocument,
+} from "../src/indexClinicalData/clinicalMongo/donorModel";
 import createDonor from "./createDonor";
 
 const PROGRAM_SHORT_NAME = process.env.PROGRAM_SHORT_NAME || "TEST-CA";
 const COLLECTION_SIZE = Number(process.env.COLLECTION_SIZE) || 10000;
-const donors: Donor[] = range(0, COLLECTION_SIZE).map(() =>
+const donors: MongoDonorDocument[] = range(0, COLLECTION_SIZE).map(() =>
   createDonor(PROGRAM_SHORT_NAME, Math.random())
 );
 
