@@ -64,7 +64,7 @@
     "testcontainers": "^2.20.0",
     "ts-mocha": "^6.0.0",
     "ts-node": "^8.10.2",
-    "ts-node-dev": "^1.0.0-pre.44",
+    "ts-node-dev": "^1.0.0",
     "tsconfig-paths": "^3.9.0",
     "typescript": "^3.9.7",
     "uuid": "^3.4.0",
