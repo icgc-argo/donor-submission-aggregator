@@ -15,7 +15,7 @@ import { indexRdpcData } from "rdpc/index";
 import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 import fetchAnalyses from "rdpc/fetchAnalyses";
 import fetchDonorIdsByAnalysis from "rdpc/fetchDonorIdsByAnalysis";
-import { MAX_RETRIES } from "config";
+import { DLQ_TOPIC_NAME, MAX_RETRIES } from "config";
 import { EgoJwtManager } from "auth";
 
 const parseProgramQueueEvent = (message: string): QueueRecord =>
@@ -149,12 +149,12 @@ export default async ({
   analysisFetcher = fetchAnalyses,
   fetchDonorIds = fetchDonorIdsByAnalysis,
   statusReporter,
-  enqueueEvent,
+  sendDlqMessage,
 }: {
   rollCallClient: RollCallClient;
   esClient: Client;
   programQueueTopic: string;
-  enqueueEvent: ProgramQueueProcessor["enqueueEvent"];
+  sendDlqMessage: ProgramQueueProcessor["sendDlqMessage"];
   egoJwtManager: EgoJwtManager;
   analysisFetcher?: typeof fetchAnalyses;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
@@ -181,6 +181,7 @@ export default async ({
             esClient,
             rollCallClient
           );
+
           try {
             await esClient.indices.putSettings({
               index: newResolvedIndex.indexName.toLowerCase(),
@@ -251,8 +252,7 @@ export default async ({
           } attempts: ${JSON.stringify(err)}`,
           err
         );
-        // TODO: this can result in infinite processing of a bad message
-        await enqueueEvent({ ...queuedEvent, requeued: true });
+        await sendDlqMessage(DLQ_TOPIC_NAME, message.value.toString());
       }
 
       statusReporter?.endProcessingProgram(programId);
