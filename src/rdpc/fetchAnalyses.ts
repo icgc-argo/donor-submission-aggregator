@@ -6,19 +6,21 @@ import _ from "lodash";
 import { EgoAccessToken, EgoJwtManager } from "auth";
 
 const query = `
-  fragment AnalysisData on Analysis {
-    analysisId
-    analysisType
-    donors {
-      donorId
-    }
+fragment AnalysisData on Analysis {
+  analysisId
+  analysisType
+  donors {
+    donorId
   }
+}
 
-  query($analysisFilter: AnalysisFilter, $analysisPage: Page, $workflowRepoUrl: String) {
-    analyses(
-      filter: $analysisFilter,
-      page: $analysisPage
-    ) {
+query($analysisFilter: AnalysisFilter, $analysisPage: Page, $workflowRepoUrl: String) {
+  analyses(
+    filter: $analysisFilter,
+    page: $analysisPage,
+    sorts:{fieldName:analysisId, order: asc}
+  ) {
+    content{
       ...AnalysisData
       runs: inputForRuns(
         filter: {
@@ -29,11 +31,18 @@ const query = `
         state
         repository
         inputAnalyses {
-          analysisId
+            analysisId
+            analysisType
+          }
         }
-      }
+    }
+     info{
+      contentCount
+      hasNextFrom
+      totalHits
     }
   }
+}
 `;
 
 type AnalysisFilterQueryVar = {
@@ -115,7 +124,7 @@ const fetchAnalyses = async ({
           `received error from rdpc... page: from => ${from} size => ${size}`
         );
       }
-      return jsonResponse.data.analyses as Analysis[];
+      return jsonResponse.data.analyses.content as Analysis[];
     } catch (err) {
       logger.warn(`Failed to fetch analyses: ${err}, retrying...`);
       return retry(err);
