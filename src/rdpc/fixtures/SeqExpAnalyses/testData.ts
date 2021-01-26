@@ -21,6 +21,14 @@ export const seqExpAnalysesWithMultipleRuns_page_1 = [
             analysisId: "abd8e25c-263d-4588-98e2-5c263db5882c",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-c17dfe3890b44f8a8c1fde0b360d3ee5",
@@ -32,6 +40,14 @@ export const seqExpAnalysesWithMultipleRuns_page_1 = [
             analysisId: "abd8e25c-263d-4588-98e2-5c263db5882c",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-5aba793db9144a89a0fc8658f5671fb4",
@@ -41,6 +57,14 @@ export const seqExpAnalysesWithMultipleRuns_page_1 = [
         inputAnalyses: [
           {
             analysisId: "abd8e25c-263d-4588-98e2-5c263db5882c",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -66,6 +90,14 @@ export const seqExpAnalysesWithMultipleRuns_page_1 = [
             analysisId: "ac11f7ea-5fef-46be-91f7-ea5fefd6be8b",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-b505bee0881345da8bb18cc9ec60df61",
@@ -75,6 +107,14 @@ export const seqExpAnalysesWithMultipleRuns_page_1 = [
         inputAnalyses: [
           {
             analysisId: "ac11f7ea-5fef-46be-91f7-ea5fefd6be8b",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -103,6 +143,14 @@ export const seqExpAnalysesWithMultipleRuns_page_2 = [
             analysisId: "17297f22-3397-420c-a97f-223397220c2f",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-e316f80bcec64565a65a641edf0206c2",
@@ -112,6 +160,14 @@ export const seqExpAnalysesWithMultipleRuns_page_2 = [
         inputAnalyses: [
           {
             analysisId: "17297f22-3397-420c-a97f-223397220c2f",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -125,6 +181,14 @@ export const seqExpAnalysesWithMultipleRuns_page_2 = [
             analysisId: "17297f22-3397-420c-a97f-223397220c2f",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-9f16f80bcec64565a65a641edf0206c2",
@@ -134,6 +198,14 @@ export const seqExpAnalysesWithMultipleRuns_page_2 = [
         inputAnalyses: [
           {
             analysisId: "17297f22-3397-420c-a97f-223397220c2f",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -159,6 +231,14 @@ export const seqExpAnalysesWithMultipleRuns_page_2 = [
             analysisId: "e5c7894c-6490-46cf-8789-4c6490b6cf03",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-f44500799eae4b34bef25c9275cfc2a1",
@@ -168,6 +248,14 @@ export const seqExpAnalysesWithMultipleRuns_page_2 = [
         inputAnalyses: [
           {
             analysisId: "e5c7894c-6490-46cf-8789-4c6490b6cf03",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -184,6 +272,14 @@ export const mergedPagesDonorStateMap = {
         sessionId: "34c5d782-70ba-4f84-8cca-3e63f26d0c55",
         repository: "https://github.com/icgc-argo/dna-seq-processing-wfs.git",
         inputAnalyses: [{ analysisId: "e5c7894c-6490-46cf-8789-4c6490b6cf03" }],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
     ],
     "-2571731288": [
@@ -193,6 +289,14 @@ export const mergedPagesDonorStateMap = {
         sessionId: "3bc5d782-70ba-4f84-8cca-3e63f26d0c55",
         repository: "https://github.com/icgc-argo/dna-seq-processing-wfs.git",
         inputAnalyses: [{ analysisId: "abd8e25c-263d-4588-98e2-5c263db5882c" }],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
     ],
   },
@@ -204,6 +308,14 @@ export const mergedPagesDonorStateMap = {
         sessionId: "951e6b51-06d4-4281-a204-b7d2f23b090c",
         repository: "https://github.com/icgc-argo/dna-seq-processing-wfs.git",
         inputAnalyses: [{ analysisId: "ac11f7ea-5fef-46be-91f7-ea5fefd6be8b" }],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
     ],
   },
@@ -215,6 +327,14 @@ export const mergedPagesDonorStateMap = {
         sessionId: "29bf4110-757b-4ee8-aeb1-942f02b201be",
         repository: "https://github.com/icgc-argo/dna-seq-processing-wfs.git",
         inputAnalyses: [{ analysisId: "17297f22-3397-420c-a97f-223397220c2f" }],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
     ],
   },
@@ -400,6 +520,14 @@ export const runsWithMultipleStates_1 = [
         analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e",
       },
     ],
+    producedAnalyses: [
+      {
+        analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+      },
+      {
+        analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+      },
+    ],
   },
   {
     runId: "wes-0082753860a7434198a733e9992192ba",
@@ -414,6 +542,14 @@ export const runsWithMultipleStates_1 = [
         analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e",
       },
     ],
+    producedAnalyses: [
+      {
+        analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+      },
+      {
+        analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+      },
+    ],
   },
   {
     runId: "wes-0182753860a7434198a733e9992192ba",
@@ -426,6 +562,14 @@ export const runsWithMultipleStates_1 = [
       },
       {
         analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e",
+      },
+    ],
+    producedAnalyses: [
+      {
+        analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+      },
+      {
+        analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
       },
     ],
   },
@@ -445,6 +589,14 @@ export const runsWithMultipleStates_2 = [
         analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e",
       },
     ],
+    producedAnalyses: [
+      {
+        analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+      },
+      {
+        analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+      },
+    ],
   },
   {
     runId: "wes-0082753860a7434198a733e9992192ba",
@@ -459,6 +611,14 @@ export const runsWithMultipleStates_2 = [
         analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e",
       },
     ],
+    producedAnalyses: [
+      {
+        analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+      },
+      {
+        analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+      },
+    ],
   },
   {
     runId: "wes-0182753860a7434198a733e9992192ba",
@@ -471,6 +631,14 @@ export const runsWithMultipleStates_2 = [
       },
       {
         analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e",
+      },
+    ],
+    producedAnalyses: [
+      {
+        analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+      },
+      {
+        analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
       },
     ],
   },

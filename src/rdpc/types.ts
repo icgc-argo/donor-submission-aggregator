@@ -20,7 +20,7 @@ export interface Run {
   state: RunState;
   repository: string;
   inputAnalyses: SimpleAnalysis[];
-  producedAnalyses?: SimpleAnalysis[];
+  producedAnalyses: SimpleAnalysis[];
 }
 
 export enum RunState {
