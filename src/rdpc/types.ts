@@ -6,13 +6,33 @@ export interface Analysis {
   donors: Donor[];
   runs: Run[];
 }
-
+export interface AnalysisWithSpecimens {
+  analysisId: string;
+  analysisType: AnalysisType;
+  analysisState: AnalysisState;
+  donors: DonorWithSpecimens[];
+}
+export interface Donor {
+  donorId: string;
+  specimens?: Specimen[];
+}
 export interface SimpleAnalysis {
   analysisId: string;
 }
 
-export interface Donor {
+export interface DonorWithSpecimens {
   donorId: string;
+  specimens: Specimen[];
+}
+
+export interface Specimen {
+  specimenId: string;
+  tumourNormalDesignation: TumourNormalDesignationValue;
+}
+
+export enum TumourNormalDesignationValue {
+  Normal = "Normal",
+  Tumour = "Tumour",
 }
 
 export interface Run {
@@ -46,6 +66,10 @@ export interface RunsByAnalysesByDonors {
   [donorId: string]: RunsByInputAnalyses;
 }
 
-export interface DonorRunStateMap {
+export interface DonorInfoMap {
   [donorId: string]: RdpcDonorInfo;
+}
+
+export interface SpecimensByDonors {
+  [donorId: string]: Specimen[];
 }

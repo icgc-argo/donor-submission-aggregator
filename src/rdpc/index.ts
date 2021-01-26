@@ -1,7 +1,9 @@
 import {
   countAlignmentRunState,
+  countSpecimenType,
   countVCRunState,
   getAllMergedDonor,
+  getAllMergedDonorWithSpecimens,
   mergeDonorStateMaps,
 } from "./analysesProcessor";
 import { STREAM_CHUNK_SIZE } from "config";
@@ -13,7 +15,8 @@ import logger from "logger";
 import { AnalysisType } from "./types";
 import fetchAnalyses from "./fetchAnalyses";
 import fetchDonorIdsByAnalysis from "./fetchDonorIdsByAnalysis";
-import { EgoJwtManager, EgoAccessToken } from "auth";
+import { EgoJwtManager } from "auth";
+import fetchAnalysesWithSpecimens from "./fetchAnalysesWithSpecimens";
 
 const convertToEsDocument = (
   existingEsHit: EsDonorDocument,
@@ -30,6 +33,7 @@ export const indexRdpcData = async ({
   esClient,
   egoJwtManager,
   analysesFetcher = fetchAnalyses,
+  analysesWithSpecimensFetcher = fetchAnalysesWithSpecimens,
   fetchDonorIds = fetchDonorIdsByAnalysis,
   analysisId,
 }: {
@@ -37,8 +41,9 @@ export const indexRdpcData = async ({
   rdpcUrl: string;
   targetIndexName: string;
   esClient: Client;
-  egoJwtManager: EgoJwtManager; // optional only for test
-  analysesFetcher?: typeof fetchAnalyses;
+  egoJwtManager: EgoJwtManager;
+  analysesFetcher?: typeof fetchAnalyses; // optional only for test
+  analysesWithSpecimensFetcher?: typeof fetchAnalysesWithSpecimens; // optional only for test
   analysisId?: string;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
 }) => {
@@ -52,6 +57,17 @@ export const indexRdpcData = async ({
         egoJwtManager,
       })
     : undefined;
+
+  const mergedSpecimensByDonor = {};
+  // await getAllMergedDonorWithSpecimens(
+  //   {
+  //     studyId: programId,
+  //     url: rdpcUrl,
+  //     egoJwtManager,
+  //     donorIds: donorIdsToFilterBy,
+  //     config:config,
+  //     analysesFetcher: analysesWithSpecimensFetcher
+  //   });
 
   const mergedAlignmentDonors = await getAllMergedDonor({
     studyId: programId,
@@ -79,9 +95,16 @@ export const indexRdpcData = async ({
 
   const rdpcInfoByDonor_VC = countVCRunState(mergedVCDonors);
 
-  const rdpcDocsMap = mergeDonorStateMaps(
+  const rdpcInfoByDonor_specimens = countSpecimenType(mergedSpecimensByDonor);
+
+  const donorInfo_runState = mergeDonorStateMaps(
     rdpcInfoByDonor_alignment,
     rdpcInfoByDonor_VC
+  );
+
+  const rdpcDocsMap = mergeDonorStateMaps(
+    donorInfo_runState,
+    rdpcInfoByDonor_specimens
   );
 
   // get existing ES donors:

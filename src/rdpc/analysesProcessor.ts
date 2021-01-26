@@ -2,20 +2,66 @@ import {
   Run,
   RunsByAnalysesByDonors,
   Analysis,
-  DonorRunStateMap,
+  DonorInfoMap,
   RunsByInputAnalyses,
   RunState,
   AnalysisType,
+  SpecimensByDonors,
+  Specimen,
+  AnalysisWithSpecimens,
+  TumourNormalDesignationValue,
 } from "./types";
 import logger from "logger";
 import HashCode from "ts-hashcode";
 import { SANGER_VC_REPO_URL, SEQ_ALIGN_REPO_URL } from "config";
-import _ from "lodash";
 import fetchAnalyses from "rdpc/fetchAnalyses";
 import { EgoJwtManager } from "auth";
+import fetchAnalysesWithSpecimens from "./fetchAnalysesWithSpecimens";
+import _ from "lodash";
 
 type StreamState = {
   currentPage: number;
+};
+
+export const analysisStream_withSpeicmens = async function* ({
+  studyId,
+  rdpcUrl,
+  egoJwtManager,
+  config,
+  analysesFetcher = fetchAnalysesWithSpecimens,
+  donorId,
+}: {
+  studyId: string;
+  rdpcUrl: string;
+  egoJwtManager: EgoJwtManager;
+  config?: {
+    chunkSize?: number;
+  };
+  analysesFetcher: typeof fetchAnalysesWithSpecimens;
+  donorId?: string;
+}): AsyncGenerator<AnalysisWithSpecimens[]> {
+  const chunkSize = config?.chunkSize || 1000;
+  const streamState: StreamState = {
+    currentPage: 0,
+  };
+  while (true) {
+    const page = await analysesFetcher({
+      studyId,
+      rdpcUrl,
+      from: streamState.currentPage,
+      size: chunkSize,
+      egoJwtManager,
+      donorId,
+    });
+
+    streamState.currentPage = streamState.currentPage + chunkSize;
+
+    if (page && page.length > 0) {
+      yield page;
+    } else {
+      break;
+    }
+  }
 };
 
 export const analysisStream = async function* ({
@@ -67,6 +113,53 @@ export const analysisStream = async function* ({
       break;
     }
   }
+};
+
+export const aggregateSpecimensByDonorId = (
+  analyses: AnalysisWithSpecimens[]
+): SpecimensByDonors => {
+  const result = analyses.reduce<SpecimensByDonors>((acc, analysis) => {
+    const donorWithSpecimens = analysis.donors.reduce<SpecimensByDonors>(
+      (_acc, donor) => {
+        _acc[donor.donorId] = donor.specimens;
+        return _acc;
+      },
+      {}
+    );
+
+    // console.log(JSON.stringify(donorWithSpecimens));
+
+    Object.entries(donorWithSpecimens).forEach(([donorId, specimens]) => {
+      const existing = acc[donorId];
+      const mergedSpcimens =
+        existing === undefined
+          ? specimens
+          : mergedSpecimens(specimens, existing);
+      acc[donorId] = mergedSpcimens;
+    });
+    // console.log('acc----' + JSON.stringify(acc))
+    return acc;
+  }, {});
+
+  return result;
+};
+
+/**
+ * Removes duplicate specimens in merged arrays
+ * @param existingSpecimens
+ * @param toMerge
+ */
+export const mergedSpecimens = (
+  existingSpecimens: Specimen[],
+  toMerge: Specimen[]
+): Specimen[] => {
+  const combined = existingSpecimens.concat(toMerge);
+  const map = new Map();
+  for (const specimen of combined) {
+    map.set(specimen.specimenId, specimen);
+  }
+  const result = [...map.values()];
+  return result;
 };
 
 /**
@@ -133,6 +226,11 @@ export const getLatestRun = (runs: Run[]): Run | undefined => {
     .head();
 };
 
+/**
+ * Merges all pages of donors.
+ * @param mergedMap
+ * @param toMerge
+ */
 export const getAllRunsByAnalysesByDonors = (
   mergedMap: RunsByAnalysesByDonors,
   toMerge: RunsByAnalysesByDonors
@@ -213,10 +311,121 @@ export const getAllMergedDonor = async ({
   return mergedDonors;
 };
 
+export const getAllMergedDonorWithSpecimens = async ({
+  analysesFetcher = fetchAnalysesWithSpecimens,
+  egoJwtManager,
+  studyId,
+  url,
+  config,
+  donorIds,
+}: {
+  studyId: string;
+  url: string;
+  egoJwtManager: EgoJwtManager;
+  donorIds?: string[];
+  config?: {
+    chunkSize?: number;
+    state?: StreamState;
+  };
+  analysesFetcher: typeof fetchAnalysesWithSpecimens;
+}): Promise<SpecimensByDonors> => {
+  let mergedDonors: SpecimensByDonors = {};
+
+  if (donorIds) {
+    for (const donorId of donorIds) {
+      logger.info(`streaming analyses with Specimens for donor ${donorId}`);
+      const stream = analysisStream_withSpeicmens({
+        studyId,
+        rdpcUrl: url,
+        egoJwtManager,
+        config,
+        analysesFetcher,
+        donorId,
+      });
+      for await (const page of stream) {
+        if (page.length === 0) {
+          logger.info(
+            `No sequencing experiment analyses with specimens fetched`
+          );
+        }
+        logger.info(
+          `Streaming ${page.length} of sequencing experiment analyses with specimens...`
+        );
+        const donorPerPage = aggregateSpecimensByDonorId(page);
+        mergeAllPagesSpecimensByDonorId(mergedDonors, donorPerPage);
+      }
+    }
+  } else {
+    const stream = analysisStream_withSpeicmens({
+      studyId,
+      rdpcUrl: url,
+      egoJwtManager,
+      config,
+      analysesFetcher,
+    });
+    for await (const page of stream) {
+      if (page.length === 0) {
+        logger.info(
+          `No sequencing experiment analyses with specimens for streaming`
+        );
+      }
+      logger.info(
+        `Streaming ${page.length} of sequencing experiment analyses with specimens...`
+      );
+      const donorPerPage = aggregateSpecimensByDonorId(page);
+      mergeAllPagesSpecimensByDonorId(mergedDonors, donorPerPage);
+    }
+  }
+  return mergedDonors;
+};
+
+export const mergeAllPagesSpecimensByDonorId = (
+  merged: SpecimensByDonors,
+  toMerge: SpecimensByDonors
+): SpecimensByDonors => {
+  Object.entries(toMerge).forEach(([donorId, specimens]) => {
+    const combined = merged[donorId]
+      ? mergedSpecimens(specimens, merged[donorId])
+      : specimens;
+    merged[donorId] = combined;
+  });
+  return merged;
+};
+
+export const countSpecimenType = (donors: SpecimensByDonors): DonorInfoMap => {
+  let result: DonorInfoMap = {};
+  Object.entries(donors).forEach(([donorId, specimens]) => {
+    for (const specimen of specimens) {
+      if (
+        specimen.tumourNormalDesignation === TumourNormalDesignationValue.Normal
+      ) {
+        if (result[donorId]) {
+          result[donorId].publishedNormalAnalysis += 1;
+        } else {
+          initializeRdpcInfo(result, donorId);
+          result[donorId].publishedNormalAnalysis += 1;
+        }
+      }
+
+      if (
+        specimen.tumourNormalDesignation === TumourNormalDesignationValue.Tumour
+      ) {
+        if (result[donorId]) {
+          result[donorId].publishedTumourAnalysis += 1;
+        } else {
+          initializeRdpcInfo(result, donorId);
+          result[donorId].publishedTumourAnalysis += 1;
+        }
+      }
+    }
+  });
+  return result;
+};
+
 export const countAlignmentRunState = (
   donorMap: RunsByAnalysesByDonors
-): DonorRunStateMap => {
-  let result: DonorRunStateMap = {};
+): DonorInfoMap => {
+  let result: DonorInfoMap = {};
   Object.entries(donorMap).forEach(([donorId, map]) => {
     Object.entries(map).forEach(([inputAnalysesId, runs]) => {
       runs.forEach((run) => {
@@ -255,8 +464,8 @@ export const countAlignmentRunState = (
 
 export const countVCRunState = (
   donorMap: RunsByAnalysesByDonors
-): DonorRunStateMap => {
-  let result: DonorRunStateMap = {};
+): DonorInfoMap => {
+  let result: DonorInfoMap = {};
   Object.entries(donorMap).forEach(([donorId, map]) => {
     Object.entries(map).forEach(([inputAnalysesId, runs]) => {
       runs.forEach((run) => {
@@ -293,7 +502,7 @@ export const countVCRunState = (
 };
 
 export const initializeRdpcInfo = (
-  result: DonorRunStateMap,
+  result: DonorInfoMap,
   donorId: string
 ): void => {
   result[donorId] = {
@@ -313,10 +522,10 @@ export const initializeRdpcInfo = (
 };
 
 export const mergeDonorStateMaps = (
-  map: DonorRunStateMap,
-  mergeWith: DonorRunStateMap
-): DonorRunStateMap => {
-  const result = Object.entries(mergeWith).reduce<DonorRunStateMap>(
+  map: DonorInfoMap,
+  mergeWith: DonorInfoMap
+): DonorInfoMap => {
+  const result = Object.entries(mergeWith).reduce<DonorInfoMap>(
     (acc, [donorId, rdpcInfo]) => {
       acc[donorId] = {
         publishedNormalAnalysis:

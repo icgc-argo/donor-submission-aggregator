@@ -1,9 +1,53 @@
 import fetch from "node-fetch";
-import { Analysis } from "./types";
+import { Analysis, AnalysisType } from "./types";
 import logger from "logger";
 import promiseRetry from "promise-retry";
 import _ from "lodash";
 import { EgoAccessToken, EgoJwtManager } from "auth";
+
+const query_sepcimens = `
+fragment AnalysisData on Analysis {
+  analysisId
+  analysisType
+  donors {
+    donorId
+    specimens {
+      specimenId
+      tumourNormalDesignation
+    }
+  }
+}
+
+query($analysisFilter: AnalysisFilter, $analysisPage: Page, $workflowRepoUrl: String) {
+  analyses(
+    filter: $analysisFilter,
+    page: $analysisPage,
+    sorts:{fieldName:analysisId, order: asc}
+  ) {
+    content {
+      ...AnalysisData
+      runs: inputForRuns(
+        filter: {
+          repository: $workflowRepoUrl
+        }
+      ) {
+        runId
+        state
+        repository
+        inputAnalyses {
+            analysisId
+            analysisType
+          }
+        }
+    }
+     info{
+      contentCount
+      hasNextFrom
+      totalHits
+    }
+  }
+}
+`;
 
 const query = `
 fragment AnalysisData on Analysis {
@@ -20,7 +64,7 @@ query($analysisFilter: AnalysisFilter, $analysisPage: Page, $workflowRepoUrl: St
     page: $analysisPage,
     sorts:{fieldName:analysisId, order: asc}
   ) {
-    content{
+    content {
       ...AnalysisData
       runs: inputForRuns(
         filter: {
@@ -52,7 +96,7 @@ type AnalysisFilterQueryVar = {
   donorId?: string;
 };
 
-type PageQueryVar = {
+export type PageQueryVar = {
   from: number;
   size: number;
 };
@@ -60,7 +104,7 @@ type PageQueryVar = {
 type QueryVariable = {
   analysisFilter: AnalysisFilterQueryVar;
   analysisPage: PageQueryVar;
-  workflowRepoUrl: string;
+  workflowRepoUrl?: string;
 };
 
 const retryConfig = {
@@ -94,10 +138,12 @@ const fetchAnalyses = async ({
   return await promiseRetry<Analysis[]>(async (retry) => {
     try {
       logger.info(`Fetching ${analysisType} analyses from rdpc.....`);
+
+      // const fetchQuery = analysisType === AnalysisType.SEQ_EXPERIMENT ? query_sepcimens : query;
       const response = await fetch(rdpcUrl, {
         method: "POST",
         body: JSON.stringify({
-          query,
+          query_sepcimens,
           variables: {
             analysisFilter: {
               analysisState: "PUBLISHED",
@@ -124,6 +170,7 @@ const fetchAnalyses = async ({
           `received error from rdpc... page: from => ${from} size => ${size}`
         );
       }
+      const result = jsonResponse.data.analyses.content as Analysis[];
       return jsonResponse.data.analyses.content as Analysis[];
     } catch (err) {
       logger.warn(`Failed to fetch analyses: ${err}, retrying...`);
