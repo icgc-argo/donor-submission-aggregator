@@ -220,15 +220,14 @@ export const removeRunsWithSuppressedAnalyses = (
   analyses: Analysis[]
 ): Analysis[] => {
   const result = analyses.reduce<Analysis[]>((acc, analysis) => {
-    const filteredRuns = analysis.runs.reduce<Run[]>((_acc, run) => {
-      if (run.producedAnalyses && run.producedAnalyses.length !== 0) {
-        _acc.push(run);
-      }
-      return _acc;
-    }, []);
-
-    analysis.runs = filteredRuns;
-    acc.push(analysis);
+    const filteredRuns = analysis.runs.filter(
+      (run) => run.producedAnalyses && run.producedAnalyses.length > 0
+    );
+    const newAnalysis = {
+      ...analysis,
+      runs: [...filteredRuns],
+    };
+    acc.push(newAnalysis);
     return acc;
   }, []);
   return result;
