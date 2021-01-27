@@ -58,16 +58,14 @@ export const indexRdpcData = async ({
       })
     : undefined;
 
-  const mergedSpecimensByDonor = {};
-  // await getAllMergedDonorWithSpecimens(
-  //   {
-  //     studyId: programId,
-  //     url: rdpcUrl,
-  //     egoJwtManager,
-  //     donorIds: donorIdsToFilterBy,
-  //     config:config,
-  //     analysesFetcher: analysesWithSpecimensFetcher
-  //   });
+  const mergedSpecimensByDonor = await getAllMergedDonorWithSpecimens({
+    studyId: programId,
+    url: rdpcUrl,
+    egoJwtManager,
+    donorIds: donorIdsToFilterBy,
+    config: config,
+    analysesFetcher: analysesWithSpecimensFetcher,
+  });
 
   const mergedAlignmentDonors = await getAllMergedDonor({
     studyId: programId,

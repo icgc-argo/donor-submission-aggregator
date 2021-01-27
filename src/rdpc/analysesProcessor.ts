@@ -127,8 +127,6 @@ export const aggregateSpecimensByDonorId = (
       {}
     );
 
-    // console.log(JSON.stringify(donorWithSpecimens));
-
     Object.entries(donorWithSpecimens).forEach(([donorId, specimens]) => {
       const existing = acc[donorId];
       const mergedSpcimens =
@@ -137,7 +135,6 @@ export const aggregateSpecimensByDonorId = (
           : mergedSpecimens(specimens, existing);
       acc[donorId] = mergedSpcimens;
     });
-    // console.log('acc----' + JSON.stringify(acc))
     return acc;
   }, {});
 
