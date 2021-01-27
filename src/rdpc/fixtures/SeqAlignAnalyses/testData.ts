@@ -24,6 +24,14 @@ export const seqAlignAnalysesWithMultiTNPairs_page_1 = [
             analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-d409885034734dd6a3fcb6bfd4b5d96b",
@@ -36,6 +44,14 @@ export const seqAlignAnalysesWithMultiTNPairs_page_1 = [
           },
           {
             analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -52,6 +68,14 @@ export const seqAlignAnalysesWithMultiTNPairs_page_1 = [
             analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-ccfd0659477a45fb830eb5ede214af5f",
@@ -64,6 +88,14 @@ export const seqAlignAnalysesWithMultiTNPairs_page_1 = [
           },
           {
             analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -81,6 +113,14 @@ export const seqAlignAnalysesWithMultiTNPairs_page_1 = [
             analysisId: "110fd411-1cab-4bff-8fd4-111cabebff9e",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-80a14eef2b2d47c48e08bbf5dbdce09d",
@@ -93,6 +133,14 @@ export const seqAlignAnalysesWithMultiTNPairs_page_1 = [
           },
           {
             analysisId: "990fd411-1cab-4bff-8fd4-111cabebff9e",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -121,6 +169,14 @@ export const seqAlignAnalysesWithMultiTNPairs_page_1 = [
             analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-d409885034734dd6a3fcb6bfd4b5d96b",
@@ -133,6 +189,14 @@ export const seqAlignAnalysesWithMultiTNPairs_page_1 = [
           },
           {
             analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -149,6 +213,14 @@ export const seqAlignAnalysesWithMultiTNPairs_page_1 = [
             analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-ccfd0659477a45fb830eb5ede214af5f",
@@ -161,6 +233,14 @@ export const seqAlignAnalysesWithMultiTNPairs_page_1 = [
           },
           {
             analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -177,6 +257,14 @@ export const seqAlignAnalysesWithMultiTNPairs_page_1 = [
             analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-80a14eef2b2d47c48e08bbf5dbdce09d",
@@ -189,6 +277,14 @@ export const seqAlignAnalysesWithMultiTNPairs_page_1 = [
           },
           {
             analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -221,6 +317,14 @@ export const seqAlignAnalysesWithMultiTNPairs_page_2 = [
             analysisId: "002c5ed4-69a3-4b42-ac5e-d469a35b4284",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
     ],
   },
@@ -246,6 +350,14 @@ export const seqAlignAnalysesWithMultiTNPairs_page_2 = [
           },
           {
             analysisId: "0568e311-6b35-4e53-a8e3-116b35ce53fb",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -278,6 +390,14 @@ export const seqAlignAnalysesWithOneTNPairs = [
             analysisId: "27ebc997-d12d-4a9f-abc9-97d12d6a9fd0",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
     ],
   },
@@ -305,6 +425,14 @@ export const seqAlignAnalysesWithOneTNPairs = [
             analysisId: "27ebc997-d12d-4a9f-abc9-97d12d6a9fd0",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
     ],
   },
@@ -322,6 +450,14 @@ export const mergedDonorByInputAnalyses = {
           { analysisId: "2cb3593d-174d-4617-b359-3d174d861714" },
           { analysisId: "990fd411-1cab-4bff-8fd4-111cabebff9e" },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
     ],
     "-582135718": [
@@ -334,6 +470,14 @@ export const mergedDonorByInputAnalyses = {
           { analysisId: "2cb3593d-174d-4617-b359-3d174d861714" },
           { analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e" },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
     ],
     "-1768359391": [
@@ -345,6 +489,14 @@ export const mergedDonorByInputAnalyses = {
         inputAnalyses: [
           { analysisId: "2cb3593d-174d-4617-b359-3d174d861714" },
           { analysisId: "110fd411-1cab-4bff-8fd4-111cabebff9e" },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
         ],
       },
     ],
@@ -361,6 +513,14 @@ export const mergedDonorByInputAnalyses = {
           { analysisId: "1d45a982-9da7-46a7-85a9-829da766a71f" },
           { analysisId: "002c5ed4-69a3-4b42-ac5e-d469a35b4284" },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
     ],
   },
@@ -375,6 +535,14 @@ export const mergedDonorByInputAnalyses = {
         inputAnalyses: [
           { analysisId: "8748eebb-a360-40be-88ee-bba36010be22" },
           { analysisId: "0568e311-6b35-4e53-a8e3-116b35ce53fb" },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
         ],
       },
     ],

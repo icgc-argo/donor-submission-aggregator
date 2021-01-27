@@ -10,6 +10,10 @@ export const donorCentricWithMultipleTNPairs_page_1 = {
           { analysisId: "2cb3593d-174d-4617-b359-3d174d861714" },
           { analysisId: "990fd411-1cab-4bff-8fd4-111cabebff9e" },
         ],
+        producedAnalyses: [
+          { analysisId: "d970697a-507a-41e3-b069-7a507a81e37d" },
+          { analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b" },
+        ],
       },
     ],
     "-582135718": [
@@ -22,6 +26,10 @@ export const donorCentricWithMultipleTNPairs_page_1 = {
           { analysisId: "2cb3593d-174d-4617-b359-3d174d861714" },
           { analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e" },
         ],
+        producedAnalyses: [
+          { analysisId: "d970697a-507a-41e3-b069-7a507a81e37d" },
+          { analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b" },
+        ],
       },
     ],
     "-1768359391": [
@@ -33,6 +41,10 @@ export const donorCentricWithMultipleTNPairs_page_1 = {
         inputAnalyses: [
           { analysisId: "2cb3593d-174d-4617-b359-3d174d861714" },
           { analysisId: "110fd411-1cab-4bff-8fd4-111cabebff9e" },
+        ],
+        producedAnalyses: [
+          { analysisId: "d970697a-507a-41e3-b069-7a507a81e37d" },
+          { analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b" },
         ],
       },
     ],
@@ -52,6 +64,10 @@ export const donorCentricWithMultipleTNPairs_page_2 = {
           { analysisId: "1d45a982-9da7-46a7-85a9-829da766a71f" },
           { analysisId: "002c5ed4-69a3-4b42-ac5e-d469a35b4284" },
         ],
+        producedAnalyses: [
+          { analysisId: "d970697a-507a-41e3-b069-7a507a81e37d" },
+          { analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b" },
+        ],
       },
     ],
   },
@@ -66,6 +82,10 @@ export const donorCentricWithMultipleTNPairs_page_2 = {
         inputAnalyses: [
           { analysisId: "8748eebb-a360-40be-88ee-bba36010be22" },
           { analysisId: "0568e311-6b35-4e53-a8e3-116b35ce53fb" },
+        ],
+        producedAnalyses: [
+          { analysisId: "d970697a-507a-41e3-b069-7a507a81e37d" },
+          { analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b" },
         ],
       },
     ],
@@ -84,6 +104,10 @@ export const mergedDonorByAlignRuns = {
           { analysisId: "2cb3593d-174d-4617-b359-3d174d861714" },
           { analysisId: "990fd411-1cab-4bff-8fd4-111cabebff9e" },
         ],
+        producedAnalyses: [
+          { analysisId: "d970697a-507a-41e3-b069-7a507a81e37d" },
+          { analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b" },
+        ],
       },
     ],
     "-582135718": [
@@ -96,6 +120,10 @@ export const mergedDonorByAlignRuns = {
           { analysisId: "2cb3593d-174d-4617-b359-3d174d861714" },
           { analysisId: "070fd411-1cab-4bff-8fd4-111cabebff9e" },
         ],
+        producedAnalyses: [
+          { analysisId: "d970697a-507a-41e3-b069-7a507a81e37d" },
+          { analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b" },
+        ],
       },
     ],
     "-1768359391": [
@@ -107,6 +135,10 @@ export const mergedDonorByAlignRuns = {
         inputAnalyses: [
           { analysisId: "2cb3593d-174d-4617-b359-3d174d861714" },
           { analysisId: "110fd411-1cab-4bff-8fd4-111cabebff9e" },
+        ],
+        producedAnalyses: [
+          { analysisId: "d970697a-507a-41e3-b069-7a507a81e37d" },
+          { analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b" },
         ],
       },
     ],
@@ -123,6 +155,10 @@ export const mergedDonorByAlignRuns = {
           { analysisId: "1d45a982-9da7-46a7-85a9-829da766a71f" },
           { analysisId: "002c5ed4-69a3-4b42-ac5e-d469a35b4284" },
         ],
+        producedAnalyses: [
+          { analysisId: "d970697a-507a-41e3-b069-7a507a81e37d" },
+          { analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b" },
+        ],
       },
     ],
   },
@@ -137,6 +173,10 @@ export const mergedDonorByAlignRuns = {
         inputAnalyses: [
           { analysisId: "8748eebb-a360-40be-88ee-bba36010be22" },
           { analysisId: "0568e311-6b35-4e53-a8e3-116b35ce53fb" },
+        ],
+        producedAnalyses: [
+          { analysisId: "d970697a-507a-41e3-b069-7a507a81e37d" },
+          { analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b" },
         ],
       },
     ],
@@ -155,6 +195,10 @@ export const donorCentricWithOneTNPair = {
         inputAnalyses: [
           { analysisId: "7928b529-3a1d-4d22-a8b5-293a1d1d22bf" },
           { analysisId: "27ebc997-d12d-4a9f-abc9-97d12d6a9fd0" },
+        ],
+        producedAnalyses: [
+          { analysisId: "d970697a-507a-41e3-b069-7a507a81e37d" },
+          { analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b" },
         ],
       },
     ],

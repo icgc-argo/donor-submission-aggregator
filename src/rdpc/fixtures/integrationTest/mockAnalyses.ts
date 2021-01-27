@@ -19,6 +19,14 @@ export const mockSeqExpAnalyses: Analysis[] = [
             analysisId: "ab784c58-39bd-4441-b84c-5839bdf4410f",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
     ],
   },
@@ -40,6 +48,14 @@ export const mockSeqExpAnalyses: Analysis[] = [
             analysisId: "ad10ea81-5431-488b-90ea-815431a88b46",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-015c429407e14301a13c1c7f5507de77",
@@ -48,6 +64,14 @@ export const mockSeqExpAnalyses: Analysis[] = [
         inputAnalyses: [
           {
             analysisId: "ad10ea81-5431-488b-90ea-815431a88b46",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -71,6 +95,14 @@ export const mockSeqExpAnalyses: Analysis[] = [
             analysisId: "49ffef9b-5516-43b0-bfef-9b551643b0b7",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
     ],
   },
@@ -92,6 +124,14 @@ export const mockSeqExpAnalyses: Analysis[] = [
             analysisId: "aa7e002c-112e-4929-be00-2c112e1929a8",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-ac231ecc0550444da7e6c8f489901310",
@@ -102,6 +142,14 @@ export const mockSeqExpAnalyses: Analysis[] = [
             analysisId: "aa7e002c-112e-4929-be00-2c112e1929a8",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-ac331ecc0550444da7e6c8f489901310",
@@ -110,6 +158,14 @@ export const mockSeqExpAnalyses: Analysis[] = [
         inputAnalyses: [
           {
             analysisId: "aa7e002c-112e-4929-be00-2c112e1929a8",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -133,6 +189,14 @@ export const mockSeqExpAnalyses: Analysis[] = [
             analysisId: "abd8e25c-263d-4588-98e2-5c263db5882c",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-c17dfe3890b44f8a8c1fde0b360d3ee5",
@@ -143,6 +207,14 @@ export const mockSeqExpAnalyses: Analysis[] = [
             analysisId: "abd8e25c-263d-4588-98e2-5c263db5882c",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-5aba793db9144a89a0fc8658f5671fb4",
@@ -151,6 +223,14 @@ export const mockSeqExpAnalyses: Analysis[] = [
         inputAnalyses: [
           {
             analysisId: "abd8e25c-263d-4588-98e2-5c263db5882c",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -174,6 +254,14 @@ export const mockSeqExpAnalyses: Analysis[] = [
             analysisId: "1683e474-eb84-45ab-83e4-74eb8445abdf",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
     ],
   },
@@ -193,6 +281,14 @@ export const mockSeqExpAnalyses: Analysis[] = [
         inputAnalyses: [
           {
             analysisId: "bec19bda-8264-46b7-819b-da826466b7f1",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -216,6 +312,14 @@ export const mockSeqExpAnalyses: Analysis[] = [
             analysisId: "8948b474-79be-4962-88b4-7479be896233",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
     ],
   },
@@ -235,6 +339,14 @@ export const mockSeqExpAnalyses: Analysis[] = [
         inputAnalyses: [
           {
             analysisId: "2266826a-2d28-4264-a682-6a2d28a26498",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -258,6 +370,14 @@ export const mockSeqExpAnalyses: Analysis[] = [
             analysisId: "3d99d016-e61d-4a3a-99d0-16e61d4a3a1c",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-71c4e6436d934aaa9d0236f325203650",
@@ -266,6 +386,14 @@ export const mockSeqExpAnalyses: Analysis[] = [
         inputAnalyses: [
           {
             analysisId: "3d99d016-e61d-4a3a-99d0-16e61d4a3a1c",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -296,6 +424,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
             analysisId: "e72b062d-f3dc-45dc-ab06-2df3dc75dc4b",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-4c13fa7083194f0894b160284d23a27f",
@@ -308,6 +444,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
           },
           {
             analysisId: "e72b062d-f3dc-45dc-ab06-2df3dc75dc4b",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -324,6 +468,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
             analysisId: "e72b062d-f3dc-45dc-ab06-2df3dc75dc4b",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-875bb22e298c480297ea490f388a5896",
@@ -336,6 +488,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
           },
           {
             analysisId: "e72b062d-f3dc-45dc-ab06-2df3dc75dc4b",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -363,6 +523,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
             analysisId: "4b2778e0-bf6a-4d5e-a778-e0bf6a2d5ef3",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-11cc667a939f4bb3a8cecc9e91505520",
@@ -375,6 +543,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
           },
           {
             analysisId: "4b2778e0-bf6a-4d5e-a778-e0bf6a2d5ef3",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -391,6 +567,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
             analysisId: "4b2778e0-bf6a-4d5e-a778-e0bf6a2d5ef3",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-f0d5cb8062f24632b82d48794fd7b939",
@@ -403,6 +587,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
           },
           {
             analysisId: "4b2778e0-bf6a-4d5e-a778-e0bf6a2d5ef3",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -430,6 +622,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
             analysisId: "db764a17-b0de-456c-b64a-17b0de256cd6",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
     ],
   },
@@ -453,6 +653,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
           },
           {
             analysisId: "852c6beb-ff39-4976-ac6b-ebff391976df",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -480,6 +688,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
             analysisId: "e1512c8e-0274-426e-912c-8e0274526e4f",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
     ],
   },
@@ -503,6 +719,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
           },
           {
             analysisId: "29ab71c8-ea17-47c2-ab71-c8ea1787c2a4",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -530,6 +754,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
             analysisId: "6e1ce8fb-3335-4f25-9ce8-fb33353f256a",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
     ],
   },
@@ -555,6 +787,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
             analysisId: "aaffcbcf-827c-4f6d-bfcb-cf827c0f6dd8",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-98732019728c4cd9ba2d914835750e40",
@@ -567,6 +807,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
           },
           {
             analysisId: "aaffcbcf-827c-4f6d-bfcb-cf827c0f6dd8",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -583,6 +831,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
             analysisId: "aaffcbcf-827c-4f6d-bfcb-cf827c0f6dd8",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-afeaf41762424ad7b01c18ff06227d8f",
@@ -595,6 +851,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
           },
           {
             analysisId: "aaffcbcf-827c-4f6d-bfcb-cf827c0f6dd8",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -611,6 +875,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
             analysisId: "aaffcbcf-827c-4f6d-bfcb-cf827c0f6dd8",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-a2835112ba294d21986743b4f822f4e0",
@@ -623,6 +895,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
           },
           {
             analysisId: "aaffcbcf-827c-4f6d-bfcb-cf827c0f6dd8",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -639,6 +919,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
             analysisId: "aaffcbcf-827c-4f6d-bfcb-cf827c0f6dd8",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-4871432e547d45a6885ee27acbab304e",
@@ -651,6 +939,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
           },
           {
             analysisId: "aaffcbcf-827c-4f6d-bfcb-cf827c0f6dd8",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -667,6 +963,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
             analysisId: "aaffcbcf-827c-4f6d-bfcb-cf827c0f6dd8",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
       {
         runId: "wes-d381791481b14f25a878b940674e6f12",
@@ -679,6 +983,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
           },
           {
             analysisId: "aaffcbcf-827c-4f6d-bfcb-cf827c0f6dd8",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
@@ -706,6 +1018,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
             analysisId: "356e8e2e-7fe6-4dd8-ae8e-2e7fe64dd8b0",
           },
         ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
       },
     ],
   },
@@ -729,6 +1049,14 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
           },
           {
             analysisId: "29ab71c8-ea17-47c2-ab71-c8ea1787c2a4",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
           },
         ],
       },
