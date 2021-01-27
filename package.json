@@ -1,6 +1,6 @@
 {
   "name": "donor-submission-aggregator",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "description": "Donor aggregation service for the ICGC-ARGO Submission System",
   "main": "src",
   "scripts": {
@@ -11,8 +11,7 @@
     "test": "npm run build && NODE_PATH=./dist nyc -- mocha --timeout 240000 dist/**/*.test.js && npm run cover",
     "createMongoDonors": "ts-node ./scripts/createMongoDonors.ts",
     "cover": "nyc report  --reporter=lcov --reporter=text",
-    "createIntegrationTestMongoDonors": "ts-node ./scripts/createTestDonors.ts",
-    "debug": "NODE_PATH=src ts-node src/debug.ts"
+    "createIntegrationTestMongoDonors": "ts-node ./scripts/createTestDonors.ts"
   },
   "nyc": {
     "extension": [
