@@ -5,6 +5,7 @@ import {
   toDonorCentric,
   countAlignmentRunState,
   countVCRunState,
+  removeRunsWithSuppressedAnalyses,
 } from "rdpc/analysesProcessor";
 import {
   donorByVCRunState,
@@ -25,8 +26,10 @@ import {
   donorStateMap_expected,
   latestRun_expected_1,
   mergedPage_expected,
+  removeSuppressedAnalyses_expected,
 } from "./fixtures/SeqExpAnalyses/expectedResults";
 import {
+  analysesWithEmptyProducedAnalyses,
   mergedPagesDonorStateMap,
   runsWithMultipleStates_1,
   runsWithMultipleStates_2,
@@ -34,6 +37,15 @@ import {
   seqExpAnalysesWithMultipleRuns_page_2,
 } from "./fixtures/SeqExpAnalyses/testData";
 describe("RDPC sequencing experiment analyses processing", () => {
+  it("should remove runs with SUPPRESSED producedAnalyses ", () => {
+    const result = removeRunsWithSuppressedAnalyses(
+      analysesWithEmptyProducedAnalyses
+    );
+    expect(JSON.stringify(result)).to.equal(
+      JSON.stringify(removeSuppressedAnalyses_expected)
+    );
+  });
+
   it("converts and merges sequencing experiment analyses to a donor document map", async () => {
     const donorCentric_page_1 = toDonorCentric(
       seqExpAnalysesWithMultipleRuns_page_1

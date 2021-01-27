@@ -188,7 +188,8 @@ export const getAllMergedDonor = async ({
           logger.info(`No ${analysisType} analyses for streaming`);
         }
         logger.info(`Streaming ${page.length} of ${analysisType} analyses...`);
-        const donorPerPage = toDonorCentric(page);
+        const filteredAnalyses = removeRunsWithSuppressedAnalyses(page);
+        const donorPerPage = toDonorCentric(filteredAnalyses);
         getAllRunsByAnalysesByDonors(mergedDonors, donorPerPage);
       }
     }
@@ -206,11 +207,30 @@ export const getAllMergedDonor = async ({
         logger.info(`No ${analysisType} analyses for streaming`);
       }
       logger.info(`Streaming ${page.length} of ${analysisType} analyses...`);
-      const donorPerPage = toDonorCentric(page);
+      const filteredAnalyses = removeRunsWithSuppressedAnalyses(page);
+      const donorPerPage = toDonorCentric(filteredAnalyses);
       getAllRunsByAnalysesByDonors(mergedDonors, donorPerPage);
     }
   }
   return mergedDonors;
+};
+
+// Removes runs with suppressed producedAnalyses
+export const removeRunsWithSuppressedAnalyses = (
+  analyses: Analysis[]
+): Analysis[] => {
+  const result = analyses.reduce<Analysis[]>((acc, analysis) => {
+    const filteredRuns = analysis.runs.filter(
+      (run) => run.producedAnalyses && run.producedAnalyses.length > 0
+    );
+    const newAnalysis = {
+      ...analysis,
+      runs: [...filteredRuns],
+    };
+    acc.push(newAnalysis);
+    return acc;
+  }, []);
+  return result;
 };
 
 export const countAlignmentRunState = (

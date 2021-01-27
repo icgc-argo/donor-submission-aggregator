@@ -27,13 +27,19 @@ query($analysisFilter: AnalysisFilter, $analysisPage: Page, $workflowRepoUrl: St
           repository: $workflowRepoUrl
         }
       ) {
-        runId
-        state
-        repository
-        inputAnalyses {
-            analysisId
-            analysisType
+          runId
+          state
+          repository
+          inputAnalyses {
+              analysisId
+              analysisType
           }
+          producedAnalyses
+            (filter: { analysisState: PUBLISHED}) {
+              analysisId
+              analysisState
+              analysisType
+            }
         }
     }
      info{

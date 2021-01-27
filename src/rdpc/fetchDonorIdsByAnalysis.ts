@@ -4,26 +4,30 @@ import fetch from "node-fetch";
 import promiseRetry from "promise-retry";
 
 const query = `
-  query($analysisId: String) {
-    analyses(
-      filter: {
-        analysisId: $analysisId
-        analysisState: PUBLISHED
-      }
-    ) {
+query($analysisId: String) {
+  analyses(
+    filter: {
+      analysisId: $analysisId
+      analysisState: PUBLISHED
+    }
+  ) {
+    content{
       donors {
         donorId
       }
     }
   }
+}
 `;
 
 type QueryResponseData = {
   analyses: {
-    donors: {
-      donorId: string;
+    content: {
+      donors: {
+        donorId: string;
+      }[];
     }[];
-  }[];
+  };
 };
 
 type QueryVariable = {
@@ -66,8 +70,11 @@ const fetchDonorIdsByAnalysis = async ({
         .then((res) => res.json())
         .then((res: { data: QueryResponseData }) => {
           const { data } = res;
-          if (data.analyses) {
-            return data.analyses[0]?.donors.map(({ donorId }) => donorId) || [];
+          if (data.analyses.content) {
+            return (
+              data.analyses.content[0]?.donors.map(({ donorId }) => donorId) ||
+              []
+            );
           } else {
             logger.info(
               `fetchDonorIdsByAnalysis: no analyses fetched from rdpc.`
