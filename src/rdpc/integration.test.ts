@@ -14,9 +14,11 @@ import {
 import {
   mockSeqAlignmentAnalyses,
   mockSeqExpAnalyses,
+  mockSeqExpAnalysesWithSpecimens,
 } from "./fixtures/integrationTest/mockAnalyses";
-import { Analysis, AnalysisType } from "./types";
+import { Analysis, AnalysisType, AnalysisWithSpecimens } from "./types";
 import { EgoAccessToken, EgoJwtManager } from "auth";
+import fetchAnalysesWithSpecimens from "./fetchAnalysesWithSpecimens";
 
 describe("should index RDPC analyses to donor index", () => {
   let elasticsearchContainer: StartedTestContainer;
@@ -60,6 +62,23 @@ describe("should index RDPC analyses to donor index", () => {
         : mockSeqAlignmentAnalyses
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
+    );
+  };
+
+  const mockAnalysesWithSpecimensFetcher: typeof fetchAnalysesWithSpecimens = async ({
+    studyId,
+    rdpcUrl,
+    from,
+    size,
+    egoJwtManager,
+    donorId,
+  }): Promise<AnalysisWithSpecimens[]> => {
+    const matchesDonorId = (donor: any) =>
+      donorId ? donor.donorId === donorId : true;
+    return Promise.resolve(
+      mockSeqExpAnalysesWithSpecimens
+        .filter((analysis) => analysis.donors.some(matchesDonorId))
+        .slice(from, from + size)
     );
   };
 
@@ -154,6 +173,7 @@ describe("should index RDPC analyses to donor index", () => {
       esClient,
       egoJwtManager: mockEgoJwtManager,
       analysesFetcher: mockAnalysisFetcher,
+      analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
     });
 
     const totalEsDocumentsCount = (
@@ -232,6 +252,7 @@ describe("should index RDPC analyses to donor index", () => {
       egoJwtManager: mockEgoJwtManager,
       analysisId: testAnalysis.analysisId,
       analysesFetcher: mockAnalysisFetcher,
+      analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
       fetchDonorIds: ({ analysisId, rdpcUrl }) =>
         Promise.resolve([testDonorId]),
     });

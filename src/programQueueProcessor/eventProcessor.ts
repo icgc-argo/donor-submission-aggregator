@@ -17,6 +17,7 @@ import fetchAnalyses from "rdpc/fetchAnalyses";
 import fetchDonorIdsByAnalysis from "rdpc/fetchDonorIdsByAnalysis";
 import { DLQ_TOPIC_NAME, MAX_RETRIES } from "config";
 import { EgoJwtManager } from "auth";
+import fetchAnalysesWithSpecimens from "rdpc/fetchAnalysesWithSpecimens";
 
 const parseProgramQueueEvent = (message: string): QueueRecord =>
   JSON.parse(message);
@@ -147,6 +148,7 @@ export default async ({
   programQueueTopic,
   egoJwtManager,
   analysisFetcher = fetchAnalyses,
+  analysisWithSpecimensFetcher = fetchAnalysesWithSpecimens,
   fetchDonorIds = fetchDonorIdsByAnalysis,
   statusReporter,
   sendDlqMessage,
@@ -157,6 +159,7 @@ export default async ({
   sendDlqMessage: ProgramQueueProcessor["sendDlqMessage"];
   egoJwtManager: EgoJwtManager;
   analysisFetcher?: typeof fetchAnalyses;
+  analysisWithSpecimensFetcher?: typeof fetchAnalysesWithSpecimens;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
   statusReporter?: StatusReporter;
 }) => {
@@ -211,6 +214,7 @@ export default async ({
                   esClient,
                   egoJwtManager: egoJwtManager,
                   analysesFetcher: analysisFetcher,
+                  analysesWithSpecimensFetcher: analysisWithSpecimensFetcher,
                   fetchDonorIds,
                   analysisId: queuedEvent.analysisId,
                 });
@@ -229,6 +233,7 @@ export default async ({
                   esClient,
                   egoJwtManager,
                   analysesFetcher: analysisFetcher,
+                  analysesWithSpecimensFetcher: analysisWithSpecimensFetcher,
                   fetchDonorIds,
                 });
               }

@@ -1,4 +1,11 @@
-import { Analysis, RunState } from "rdpc/types";
+import {
+  Analysis,
+  AnalysisState,
+  AnalysisType,
+  AnalysisWithSpecimens,
+  RunState,
+  TumourNormalDesignationValue,
+} from "rdpc/types";
 
 export const mockSeqExpAnalyses: Analysis[] = [
   {
@@ -1057,6 +1064,41 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
           },
           {
             analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
+      },
+    ],
+  },
+];
+
+export const mockSeqExpAnalysesWithSpecimens: AnalysisWithSpecimens[] = [
+  {
+    analysisId: "63c4653b-f881-4148-8465-3bf8811148c8",
+    analysisType: AnalysisType.SEQ_EXPERIMENT,
+    analysisState: AnalysisState.PUBLISHED,
+    donors: [
+      {
+        donorId: "DO35102",
+        specimens: [
+          {
+            specimenId: "SP77834",
+            tumourNormalDesignation: TumourNormalDesignationValue.Tumour,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    analysisId: "854f3c1f-8ca3-4aff-8f3c-1f8ca3faff8e",
+    analysisType: AnalysisType.SEQ_EXPERIMENT,
+    analysisState: AnalysisState.PUBLISHED,
+    donors: [
+      {
+        donorId: "DO35102",
+        specimens: [
+          {
+            specimenId: "SP77838",
+            tumourNormalDesignation: TumourNormalDesignationValue.Normal,
           },
         ],
       },
