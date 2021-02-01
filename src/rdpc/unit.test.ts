@@ -5,7 +5,7 @@ import {
   toDonorCentric,
   countAlignmentRunState,
   countVCRunState,
-  removeRunsWithSuppressedAnalyses,
+  removeCompleteRunsWithSuppressedAnalyses,
 } from "rdpc/analysesProcessor";
 import {
   donorByVCRunState,
@@ -21,6 +21,7 @@ import {
   seqAlignAnalysesWithOneTNPairs,
 } from "./fixtures/SeqAlignAnalyses/testData";
 import {
+  analysesWithValidCompleteAndActiveRuns_expected,
   donorCentric_page_1_exptected,
   donorCentric_page_2_exptected,
   donorStateMap_expected,
@@ -29,7 +30,9 @@ import {
   removeSuppressedAnalyses_expected,
 } from "./fixtures/SeqExpAnalyses/expectedResults";
 import {
+  analysesWithActiveRunsOnly,
   analysesWithEmptyProducedAnalyses,
+  analysesWithValidCompleteAndActiveRuns,
   mergedPagesDonorStateMap,
   runsWithMultipleStates_1,
   runsWithMultipleStates_2,
@@ -37,12 +40,28 @@ import {
   seqExpAnalysesWithMultipleRuns_page_2,
 } from "./fixtures/SeqExpAnalyses/testData";
 describe("RDPC sequencing experiment analyses processing", () => {
-  it("should remove runs with SUPPRESSED producedAnalyses ", () => {
-    const result = removeRunsWithSuppressedAnalyses(
+  it("should remove COMPLETE runs with SUPPRESSED producedAnalyses ", () => {
+    const result = removeCompleteRunsWithSuppressedAnalyses(
       analysesWithEmptyProducedAnalyses
     );
     expect(JSON.stringify(result)).to.equal(
       JSON.stringify(removeSuppressedAnalyses_expected)
+    );
+  });
+
+  it("should not remove RUNNING AND EXECTOR_ERROR runs", () => {
+    const result_1 = removeCompleteRunsWithSuppressedAnalyses(
+      analysesWithActiveRunsOnly
+    );
+    expect(JSON.stringify(result_1)).to.equal(
+      JSON.stringify(analysesWithActiveRunsOnly)
+    );
+
+    const result_2 = removeCompleteRunsWithSuppressedAnalyses(
+      analysesWithValidCompleteAndActiveRuns
+    );
+    expect(JSON.stringify(result_2)).to.equal(
+      JSON.stringify(analysesWithValidCompleteAndActiveRuns_expected)
     );
   });
 
