@@ -287,3 +287,69 @@ export const removeSuppressedAnalyses_expected = [
     runs: [],
   },
 ];
+
+export const analysesWithValidCompleteAndActiveRuns_expected = [
+  {
+    analysisId: "84c8e815-04f2-4a98-88e8-1504f29a9835",
+    analysisType: "sequencing_alignment",
+    donors: [
+      {
+        donorId: "DO35148",
+      },
+    ],
+    runs: [
+      {
+        runId: "wes-113b0eba6b7c472a89ce976c341f1fce",
+        state: RunState.COMPLETE,
+        repository:
+          "https://github.com/icgc-argo/sanger-wgs-variant-calling.git",
+        inputAnalyses: [
+          {
+            analysisId: "84c8e815-04f2-4a98-88e8-1504f29a9835",
+          },
+          {
+            analysisId: "d066cd65-d071-4f3f-a6cd-65d071df3fd0",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "7ea869bd-a73c-4bec-a869-bda73c8bec1a",
+          },
+          {
+            analysisId: "d066cd65-d071-4f3f-a6cd-65d071df3fd0",
+          },
+        ],
+      },
+      {
+        runId: "wes-2c3b0eba6b7c472a89ce976c341f1fce",
+        state: RunState.RUNNING,
+        repository:
+          "https://github.com/icgc-argo/sanger-wgs-variant-calling.git",
+        inputAnalyses: [
+          {
+            analysisId: "84c8e815-04f2-4a98-88e8-1504f29a9835",
+          },
+          {
+            analysisId: "d066cd65-d071-4f3f-a6cd-65d071df3fd0",
+          },
+        ],
+        producedAnalyses: [],
+      },
+      {
+        runId: "wes-8fd46a1e38b24e38a6e2cf18de3e74a9",
+        state: RunState.EXECUTOR_ERROR,
+        repository:
+          "https://github.com/icgc-argo/sanger-wgs-variant-calling.git",
+        inputAnalyses: [
+          {
+            analysisId: "84c8e815-04f2-4a98-88e8-1504f29a9835",
+          },
+          {
+            analysisId: "d066cd65-d071-4f3f-a6cd-65d071df3fd0",
+          },
+        ],
+        producedAnalyses: [],
+      },
+    ],
+  },
+];
