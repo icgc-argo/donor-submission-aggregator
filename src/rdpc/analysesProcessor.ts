@@ -8,7 +8,6 @@ import {
   AnalysisType,
   SpecimensByDonors,
   Specimen,
-  AnalysisWithSpecimens,
   TumourNormalDesignationValue,
 } from "./types";
 import logger from "logger";
@@ -23,7 +22,7 @@ type StreamState = {
   currentPage: number;
 };
 
-export const analysisStream_withSpeicmens = async function* ({
+export const analysisStream_withSpecimens = async function* ({
   studyId,
   rdpcUrl,
   egoJwtManager,
@@ -39,8 +38,8 @@ export const analysisStream_withSpeicmens = async function* ({
   };
   analysesFetcher: typeof fetchAnalysesWithSpecimens;
   donorId?: string;
-}): AsyncGenerator<AnalysisWithSpecimens[]> {
-  const chunkSize = config?.chunkSize || 1000;
+}): AsyncGenerator<Analysis[]> {
+  let chunkSize = config?.chunkSize || 100;
   const streamState: StreamState = {
     currentPage: 0,
   };
@@ -54,9 +53,15 @@ export const analysisStream_withSpeicmens = async function* ({
       donorId,
     });
 
+    // in case of api returns less analyses than chunk size, we need to stream from the last analysis
+    // to make sure there is no data loss:
+    if (page && page.length < chunkSize) {
+      chunkSize = page.length;
+    }
+
     streamState.currentPage = streamState.currentPage + chunkSize;
 
-    if (page && page.length > 0) {
+    if (page.length > 0) {
       yield page;
     } else {
       break;
@@ -83,7 +88,7 @@ export const analysisStream = async function* ({
   analysesFetcher: typeof fetchAnalyses;
   donorId?: string;
 }): AsyncGenerator<Analysis[]> {
-  const chunkSize = config?.chunkSize || 1000;
+  let chunkSize = config?.chunkSize || 100;
   const streamState: StreamState = {
     currentPage: 0,
   };
@@ -105,9 +110,15 @@ export const analysisStream = async function* ({
       donorId,
     });
 
+    // in case of api returns less analyses than chunk size, we need to stream from the last analysis
+    // to make sure there is no data loss:
+    if (page && page.length < chunkSize) {
+      chunkSize = page.length;
+    }
+
     streamState.currentPage = streamState.currentPage + chunkSize;
 
-    if (page && page.length > 0) {
+    if (page.length > 0) {
       yield page;
     } else {
       break;
@@ -115,28 +126,22 @@ export const analysisStream = async function* ({
   }
 };
 
+// iterates over analyses to extract specimens by grouping specimens by donorId,
+// when a donor appears under multiple analyses, this functions merges speicmens by donor id across analyses
 export const aggregateSpecimensByDonorId = (
-  analyses: AnalysisWithSpecimens[]
+  analyses: Analysis[]
 ): SpecimensByDonors => {
-  const result = analyses.reduce<SpecimensByDonors>((acc, analysis) => {
-    const donorWithSpecimens = analysis.donors.reduce<SpecimensByDonors>(
-      (_acc, donor) => {
-        _acc[donor.donorId] = donor.specimens;
-        return _acc;
-      },
-      {}
-    );
-
-    Object.entries(donorWithSpecimens).forEach(([donorId, specimens]) => {
-      const existing = acc[donorId];
-      const mergedSpcimens =
-        existing === undefined
-          ? specimens
-          : mergedSpecimens(specimens, existing);
-      acc[donorId] = mergedSpcimens;
-    });
-    return acc;
-  }, {});
+  const result = analyses.reduce<SpecimensByDonors>(
+    (specimenAccumulator, analysis) => {
+      analysis.donors.forEach((donor) => {
+        specimenAccumulator[donor.donorId] = specimenAccumulator[donor.donorId]
+          ? mergeSpecimens(specimenAccumulator[donor.donorId], donor.specimens)
+          : donor.specimens;
+      });
+      return specimenAccumulator;
+    },
+    {}
+  );
 
   return result;
 };
@@ -146,7 +151,7 @@ export const aggregateSpecimensByDonorId = (
  * @param existingSpecimens
  * @param toMerge
  */
-export const mergedSpecimens = (
+const mergeSpecimens = (
   existingSpecimens: Specimen[],
   toMerge: Specimen[]
 ): Specimen[] => {
@@ -264,7 +269,7 @@ export const getAllMergedDonor = async ({
   };
   analysesFetcher: typeof fetchAnalyses;
 }): Promise<RunsByAnalysesByDonors> => {
-  let mergedDonors: RunsByAnalysesByDonors = {};
+  const mergedDonors: RunsByAnalysesByDonors = {};
 
   if (donorIds) {
     for (const donorId of donorIds) {
@@ -333,7 +338,7 @@ export const getAllMergedDonorWithSpecimens = async ({
   if (donorIds) {
     for (const donorId of donorIds) {
       logger.info(`streaming analyses with Specimens for donor ${donorId}`);
-      const stream = analysisStream_withSpeicmens({
+      const stream = analysisStream_withSpecimens({
         studyId,
         rdpcUrl: url,
         egoJwtManager,
@@ -355,7 +360,7 @@ export const getAllMergedDonorWithSpecimens = async ({
       }
     }
   } else {
-    const stream = analysisStream_withSpeicmens({
+    const stream = analysisStream_withSpecimens({
       studyId,
       rdpcUrl: url,
       egoJwtManager,
@@ -381,18 +386,17 @@ export const getAllMergedDonorWithSpecimens = async ({
 export const mergeAllPagesSpecimensByDonorId = (
   merged: SpecimensByDonors,
   toMerge: SpecimensByDonors
-): SpecimensByDonors => {
+) => {
   Object.entries(toMerge).forEach(([donorId, specimens]) => {
     const combined = merged[donorId]
-      ? mergedSpecimens(specimens, merged[donorId])
+      ? mergeSpecimens(specimens, merged[donorId])
       : specimens;
     merged[donorId] = combined;
   });
-  return merged;
 };
 
 export const countSpecimenType = (donors: SpecimensByDonors): DonorInfoMap => {
-  let result: DonorInfoMap = {};
+  const result: DonorInfoMap = {};
   Object.entries(donors).forEach(([donorId, specimens]) => {
     for (const specimen of specimens) {
       if (
@@ -442,7 +446,7 @@ export const removeRunsWithSuppressedAnalyses = (
 export const countAlignmentRunState = (
   donorMap: RunsByAnalysesByDonors
 ): DonorInfoMap => {
-  let result: DonorInfoMap = {};
+  const result: DonorInfoMap = {};
   Object.entries(donorMap).forEach(([donorId, map]) => {
     Object.entries(map).forEach(([inputAnalysesId, runs]) => {
       runs.forEach((run) => {
@@ -482,7 +486,7 @@ export const countAlignmentRunState = (
 export const countVCRunState = (
   donorMap: RunsByAnalysesByDonors
 ): DonorInfoMap => {
-  let result: DonorInfoMap = {};
+  const result: DonorInfoMap = {};
   Object.entries(donorMap).forEach(([donorId, map]) => {
     Object.entries(map).forEach(([inputAnalysesId, runs]) => {
       runs.forEach((run) => {

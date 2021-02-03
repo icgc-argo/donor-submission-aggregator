@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { Analysis, AnalysisType } from "./types";
+import { Analysis } from "./types";
 import logger from "logger";
 import promiseRetry from "promise-retry";
 import _ from "lodash";
@@ -42,11 +42,7 @@ query($analysisFilter: AnalysisFilter, $analysisPage: Page, $workflowRepoUrl: St
             }
         }
     }
-     info{
-      contentCount
-      hasNextFrom
-      totalHits
-    }
+
   }
 }
 `;

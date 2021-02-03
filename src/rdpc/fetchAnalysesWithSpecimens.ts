@@ -3,18 +3,18 @@ import logger from "logger";
 import fetch from "node-fetch";
 import promiseRetry from "promise-retry";
 import { PageQueryVar } from "rdpc/fetchAnalyses";
-import { AnalysisState, AnalysisType, AnalysisWithSpecimens } from "rdpc/types";
+import { Analysis, AnalysisState, AnalysisType } from "rdpc/types";
 
 const query = `
 query ($analysisFilter: AnalysisFilter, $analysisPage: Page){
     analyses (
       filter: $analysisFilter,
-      page: $analysisPage
+      page: $analysisPage,
+      sorts:{fieldName:analysisId, order: asc}
     ) {
-      content{
+      content {
         analysisId
         analysisType
-        analysisState
         donors {
           donorId
           specimens {
@@ -59,10 +59,10 @@ const fetchAnalysesWithSpecimens = async ({
   size: number;
   egoJwtManager: EgoJwtManager;
   donorId?: string;
-}): Promise<AnalysisWithSpecimens[]> => {
+}): Promise<Analysis[]> => {
   const jwt = (await egoJwtManager.getLatestJwt()) as EgoAccessToken;
   const accessToken = jwt.access_token;
-  return await promiseRetry<AnalysisWithSpecimens[]>(async (retry) => {
+  return await promiseRetry<Analysis[]>(async (retry) => {
     try {
       logger.info(
         `Fetching sequencing experiment analyses with specimens from rdpc.....`
@@ -96,7 +96,7 @@ const fetchAnalysesWithSpecimens = async ({
           `received error from rdpc... page: from => ${from} size => ${size}`
         );
       }
-      return jsonResponse.data.analyses.content as AnalysisWithSpecimens[];
+      return jsonResponse.data.analyses.content as Analysis[];
     } catch (err) {
       logger.warn(
         `Failed to fetch sequencing experiment analyses with specimens: ${err}, retrying...`

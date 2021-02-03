@@ -24,7 +24,7 @@ import {
   testDonorIds,
 } from "rdpc/fixtures/integrationTest/dataset";
 import fetchAnalyses from "rdpc/fetchAnalyses";
-import { Analysis, AnalysisType, AnalysisWithSpecimens } from "rdpc/types";
+import { Analysis, AnalysisType } from "rdpc/types";
 import {
   mockSeqAlignmentAnalyses,
   mockSeqExpAnalyses,
@@ -94,7 +94,7 @@ describe("kafka integration", () => {
     size,
     egoJwtManager,
     donorId,
-  }): Promise<AnalysisWithSpecimens[]> => {
+  }): Promise<Analysis[]> => {
     const matchesDonorId = (donor: any) =>
       donorId ? donor.donorId === donorId : true;
     return Promise.resolve(

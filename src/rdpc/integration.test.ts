@@ -16,7 +16,7 @@ import {
   mockSeqExpAnalyses,
   mockSeqExpAnalysesWithSpecimens,
 } from "./fixtures/integrationTest/mockAnalyses";
-import { Analysis, AnalysisType, AnalysisWithSpecimens } from "./types";
+import { Analysis, AnalysisType } from "./types";
 import { EgoAccessToken, EgoJwtManager } from "auth";
 import fetchAnalysesWithSpecimens from "./fetchAnalysesWithSpecimens";
 
@@ -72,7 +72,7 @@ describe("should index RDPC analyses to donor index", () => {
     size,
     egoJwtManager,
     donorId,
-  }): Promise<AnalysisWithSpecimens[]> => {
+  }): Promise<Analysis[]> => {
     const matchesDonorId = (donor: any) =>
       donorId ? donor.donorId === donorId : true;
     return Promise.resolve(
