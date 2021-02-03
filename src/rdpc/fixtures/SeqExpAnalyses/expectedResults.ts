@@ -222,7 +222,7 @@ export const removeSuppressedAnalyses_expected = [
   {
     analysisId: "63c4653b-f881-4148-8465-3bf8811148c8",
     analysisType: "sequencing_experiment",
-    donors: [{ donorId: "DO35102" }],
+    donors: [{ donorId: "DO35102", specimens: [] }],
     runs: [
       {
         runId: "wes-afcd45e183a94f649e6c81fafe4ed6b5",
@@ -253,7 +253,7 @@ export const removeSuppressedAnalyses_expected = [
   {
     analysisId: "854f3c1f-8ca3-4aff-8f3c-1f8ca3faff8e",
     analysisType: "sequencing_experiment",
-    donors: [{ donorId: "DO35102" }],
+    donors: [{ donorId: "DO35102", specimens: [] }],
     runs: [
       {
         runId: "wes-585b98b1cebb4cb3809017955b4b0042",
@@ -283,7 +283,7 @@ export const removeSuppressedAnalyses_expected = [
   {
     analysisId: "94684d53-7ec7-4d3e-a84d-537ec7cd3ea9",
     analysisType: "sequencing_experiment",
-    donors: [{ donorId: "DO35102" }],
+    donors: [{ donorId: "DO35102", specimens: [] }],
     runs: [],
   },
 ];
@@ -295,6 +295,7 @@ export const analysesWithValidCompleteAndActiveRuns_expected = [
     donors: [
       {
         donorId: "DO35148",
+        specimens: [],
       },
     ],
     runs: [

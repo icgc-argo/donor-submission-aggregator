@@ -28,6 +28,7 @@ import { Analysis, AnalysisType } from "rdpc/types";
 import {
   mockSeqAlignmentAnalyses,
   mockSeqExpAnalyses,
+  mockSeqExpAnalysesWithSpecimens,
 } from "rdpc/fixtures/integrationTest/mockAnalyses";
 import esb from "elastic-builder";
 import { EsHit } from "indexClinicalData/types";
@@ -35,6 +36,7 @@ import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 import { generateIndexName } from "./util";
 import { getIndexSettings, getLatestIndexName } from "elasticsearch";
 import { EgoAccessToken, EgoJwtManager } from "auth";
+import fetchAnalysesWithSpecimens from "rdpc/fetchAnalysesWithSpecimens";
 
 const TEST_US = "TEST-US";
 const TEST_CA = "TEST-CA";
@@ -83,6 +85,23 @@ describe("kafka integration", () => {
         groups: "",
       };
     },
+  };
+
+  const mockAnalysesWithSpecimensFetcher: typeof fetchAnalysesWithSpecimens = async ({
+    studyId,
+    rdpcUrl,
+    from,
+    size,
+    egoJwtManager,
+    donorId,
+  }): Promise<Analysis[]> => {
+    const matchesDonorId = (donor: any) =>
+      donorId ? donor.donorId === donorId : true;
+    return Promise.resolve(
+      mockSeqExpAnalysesWithSpecimens
+        .filter((analysis) => analysis.donors.some(matchesDonorId))
+        .slice(from, from + size)
+    );
   };
 
   const mockAnalysisFetcher: typeof fetchAnalyses = async ({
@@ -281,6 +300,7 @@ describe("kafka integration", () => {
         rollCallClient: rollcallClient,
         egoJwtManager: mockEgoJwtManager,
         analysisFetcher: mockAnalysisFetcher,
+        analysisWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
       });
 
       await programQueueProcessor.enqueueEvent({
@@ -596,6 +616,7 @@ describe("kafka integration", () => {
         egoJwtManager: mockEgoJwtManager,
         rollCallClient: rollcallClient,
         analysisFetcher: mockAnalysisFetcher,
+        analysisWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
         fetchDonorIds: () => Promise.resolve([testDonorId]),
       });
 

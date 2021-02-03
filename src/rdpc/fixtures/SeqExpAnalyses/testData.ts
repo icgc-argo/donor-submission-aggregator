@@ -8,6 +8,7 @@ export const seqExpAnalysesWithMultipleRuns_page_1 = [
     donors: [
       {
         donorId: "DO35222",
+        specimens: [],
       },
     ],
     runs: [
@@ -77,6 +78,7 @@ export const seqExpAnalysesWithMultipleRuns_page_1 = [
     donors: [
       {
         donorId: "DO35228",
+        specimens: [],
       },
     ],
     runs: [
@@ -130,6 +132,7 @@ export const seqExpAnalysesWithMultipleRuns_page_2 = [
     donors: [
       {
         donorId: "DO35198",
+        specimens: [],
       },
     ],
     runs: [
@@ -218,6 +221,7 @@ export const seqExpAnalysesWithMultipleRuns_page_2 = [
     donors: [
       {
         donorId: "DO35222",
+        specimens: [],
       },
     ],
     runs: [
@@ -651,6 +655,7 @@ export const analysesWithEmptyProducedAnalyses = [
     donors: [
       {
         donorId: "DO35102",
+        specimens: [],
       },
     ],
     runs: [
@@ -685,6 +690,7 @@ export const analysesWithEmptyProducedAnalyses = [
     donors: [
       {
         donorId: "DO35102",
+        specimens: [],
       },
     ],
     runs: [
@@ -719,6 +725,7 @@ export const analysesWithEmptyProducedAnalyses = [
     donors: [
       {
         donorId: "DO35102",
+        specimens: [],
       },
     ],
     runs: [
@@ -745,6 +752,7 @@ export const analysesWithActiveRunsOnly = [
     donors: [
       {
         donorId: "DO35148",
+        specimens: [],
       },
     ],
     runs: [
@@ -786,6 +794,7 @@ export const analysesWithActiveRunsOnly = [
     donors: [
       {
         donorId: "DO35148",
+        specimens: [],
       },
     ],
     runs: [
@@ -815,6 +824,7 @@ export const analysesWithValidCompleteAndActiveRuns = [
     donors: [
       {
         donorId: "DO35148",
+        specimens: [],
       },
     ],
     runs: [

@@ -1,4 +1,9 @@
-import { Analysis, RunState } from "rdpc/types";
+import {
+  Analysis,
+  AnalysisType,
+  RunState,
+  TumourNormalDesignationValue,
+} from "rdpc/types";
 
 export const mockSeqExpAnalyses: Analysis[] = [
   {
@@ -7,6 +12,7 @@ export const mockSeqExpAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35082",
+        specimens: [],
       },
     ],
     runs: [
@@ -36,6 +42,7 @@ export const mockSeqExpAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35083",
+        specimens: [],
       },
     ],
     runs: [
@@ -83,6 +90,7 @@ export const mockSeqExpAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35084",
+        specimens: [],
       },
     ],
     runs: [
@@ -112,6 +120,7 @@ export const mockSeqExpAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35085",
+        specimens: [],
       },
     ],
     runs: [
@@ -177,6 +186,7 @@ export const mockSeqExpAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35086",
+        specimens: [],
       },
     ],
     runs: [
@@ -242,6 +252,7 @@ export const mockSeqExpAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35087",
+        specimens: [],
       },
     ],
     runs: [
@@ -271,6 +282,7 @@ export const mockSeqExpAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35088",
+        specimens: [],
       },
     ],
     runs: [
@@ -300,6 +312,7 @@ export const mockSeqExpAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35089",
+        specimens: [],
       },
     ],
     runs: [
@@ -329,6 +342,7 @@ export const mockSeqExpAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35090",
+        specimens: [],
       },
     ],
     runs: [
@@ -358,6 +372,7 @@ export const mockSeqExpAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35091",
+        specimens: [],
       },
     ],
     runs: [
@@ -408,6 +423,7 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35082",
+        specimens: [],
       },
     ],
     runs: [
@@ -507,6 +523,7 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35083",
+        specimens: [],
       },
     ],
     runs: [
@@ -606,6 +623,7 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35084",
+        specimens: [],
       },
     ],
     runs: [
@@ -639,6 +657,7 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35085",
+        specimens: [],
       },
     ],
     runs: [
@@ -672,6 +691,7 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35086",
+        specimens: [],
       },
     ],
     runs: [
@@ -705,6 +725,7 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35087",
+        specimens: [],
       },
     ],
     runs: [
@@ -738,6 +759,7 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35088",
+        specimens: [],
       },
     ],
     runs: [
@@ -771,6 +793,7 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35089",
+        specimens: [],
       },
     ],
     runs: [
@@ -1002,6 +1025,7 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35090",
+        specimens: [],
       },
     ],
     runs: [
@@ -1035,6 +1059,7 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
     donors: [
       {
         donorId: "DO35091",
+        specimens: [],
       },
     ],
     runs: [
@@ -1061,5 +1086,40 @@ export const mockSeqAlignmentAnalyses: Analysis[] = [
         ],
       },
     ],
+  },
+];
+
+export const mockSeqExpAnalysesWithSpecimens: Analysis[] = [
+  {
+    analysisId: "63c4653b-f881-4148-8465-3bf8811148c8",
+    analysisType: AnalysisType.SEQ_EXPERIMENT,
+    donors: [
+      {
+        donorId: "DO35102",
+        specimens: [
+          {
+            specimenId: "SP77834",
+            tumourNormalDesignation: TumourNormalDesignationValue.Tumour,
+          },
+        ],
+      },
+    ],
+    runs: [],
+  },
+  {
+    analysisId: "854f3c1f-8ca3-4aff-8f3c-1f8ca3faff8e",
+    analysisType: AnalysisType.SEQ_EXPERIMENT,
+    donors: [
+      {
+        donorId: "DO35102",
+        specimens: [
+          {
+            specimenId: "SP77838",
+            tumourNormalDesignation: TumourNormalDesignationValue.Normal,
+          },
+        ],
+      },
+    ],
+    runs: [],
   },
 ];

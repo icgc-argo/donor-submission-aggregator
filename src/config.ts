@@ -35,7 +35,11 @@ export const ROLLCALL_INDEX_TYPE = process.env.ROLLCALL_INDEX_TYPE || "centric";
 export const ROLLCALL_INDEX_SHARDPREFIX =
   process.env.ROLLCALL_INDEX_SHARDPREFIX || "program";
 
-export const STREAM_CHUNK_SIZE = Number(process.env.STREAM_CHUNK_SIZE) || 1000;
+export const STREAM_CHUNK_SIZE =
+  !Number(process.env.STREAM_CHUNK_SIZE) ||
+  Number(process.env.STREAM_CHUNK_SIZE) <= 0
+    ? 100
+    : Number(process.env.STREAM_CHUNK_SIZE);
 
 export const SEQ_ALIGN_REPO_URL =
   process.env.SEQ_ALIGN_REPO_URL ||
