@@ -174,48 +174,53 @@ const mergeSpecimens = (
 export const toDonorCentric = (
   analyses: Analysis[]
 ): RunsByAnalysesByDonors => {
-  const result = analyses.reduce<RunsByAnalysesByDonors>((acc, analysis) => {
-    const donorWithLatestRun = analysis.donors.reduce<RunsByAnalysesByDonors>(
-      (_acc, donor) => {
-        const inputAnalysesMap = _(analysis.runs)
-          .groupBy((run) =>
-            HashCode(
-              _(run.inputAnalyses)
-                .map((a) => a.analysisId)
-                .orderBy()
-                .join("-")
+  const result = analyses.reduce<RunsByAnalysesByDonors>(
+    (runAccWithDuplicateDonors, analysis) => {
+      const donorWithLatestRun = analysis.donors.reduce<RunsByAnalysesByDonors>(
+        (runAccumulator, donor) => {
+          const inputAnalysesMap = _(analysis.runs)
+            .groupBy((run) =>
+              HashCode(
+                _(run.inputAnalyses)
+                  .map((a) => a.analysisId)
+                  .orderBy()
+                  .join("-")
+              )
             )
-          )
-          .value() as RunsByInputAnalyses;
+            .value() as RunsByInputAnalyses;
 
-        Object.entries(inputAnalysesMap).forEach(([inputId, runs]) => {
-          const latestRun = getLatestRun(runs);
-          const run = latestRun === undefined ? [] : [latestRun];
-          const existingMap = _acc[donor.donorId];
-          _acc[donor.donorId] = {
+          Object.entries(inputAnalysesMap).forEach(([inputId, runs]) => {
+            const latestRun = getLatestRun(runs);
+            const run = latestRun === undefined ? [] : [latestRun];
+            const existingMap = runAccumulator[donor.donorId];
+            runAccumulator[donor.donorId] = {
+              ...existingMap,
+              [inputId]: run,
+            };
+          });
+
+          return runAccumulator;
+        },
+        {}
+      );
+
+      // merge donor-inputAnalyses-run map by donorId, in case same donors appear under multiple analyses
+      Object.entries(donorWithLatestRun).forEach(
+        ([donorId, inputAnalysesMap]) => {
+          const existingMap = runAccWithDuplicateDonors[donorId]
+            ? runAccWithDuplicateDonors[donorId]
+            : {};
+          runAccWithDuplicateDonors[donorId] = {
+            ...inputAnalysesMap,
             ...existingMap,
-            [inputId]: run,
           };
-        });
+        }
+      );
 
-        return _acc;
-      },
-      {}
-    );
-
-    // merge donor-inputAnalyses-run map by donorId, in case same donors appear under multiple analyses
-    Object.entries(donorWithLatestRun).forEach(
-      ([donorId, inputAnalysesMap]) => {
-        const existingMap = acc[donorId] ? acc[donorId] : {};
-        acc[donorId] = {
-          ...inputAnalysesMap,
-          ...existingMap,
-        };
-      }
-    );
-
-    return acc;
-  }, {});
+      return runAccWithDuplicateDonors;
+    },
+    {}
+  );
 
   return result;
 };
@@ -383,6 +388,8 @@ export const getAllMergedDonorWithSpecimens = async ({
   return mergedDonors;
 };
 
+// merges specimens from all pages, duplicate donor ids can be found in multiple pages,
+// therefor removing duplicate specimens by donor id is necessary.
 export const mergeAllPagesSpecimensByDonorId = (
   merged: SpecimensByDonors,
   toMerge: SpecimensByDonors
