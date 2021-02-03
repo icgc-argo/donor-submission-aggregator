@@ -37,7 +37,7 @@ export const ROLLCALL_INDEX_SHARDPREFIX =
 
 export const STREAM_CHUNK_SIZE =
   !Number(process.env.STREAM_CHUNK_SIZE) ||
-  Number(process.env.STREAM_CHUNK_SIZE) < 0
+  Number(process.env.STREAM_CHUNK_SIZE) <= 0
     ? 100
     : Number(process.env.STREAM_CHUNK_SIZE);
 

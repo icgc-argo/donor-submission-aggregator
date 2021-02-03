@@ -33,13 +33,13 @@ export const analysisStream_withSpecimens = async function* ({
   studyId: string;
   rdpcUrl: string;
   egoJwtManager: EgoJwtManager;
-  config?: {
-    chunkSize?: number;
+  config: {
+    chunkSize: number;
   };
   analysesFetcher: typeof fetchAnalysesWithSpecimens;
   donorId?: string;
 }): AsyncGenerator<Analysis[]> {
-  let chunkSize = config?.chunkSize || 100;
+  const chunkSize = config.chunkSize;
   const streamState: StreamState = {
     currentPage: 0,
   };
@@ -55,11 +55,8 @@ export const analysisStream_withSpecimens = async function* ({
 
     // in case of api returns less analyses than chunk size, we need to stream from the last analysis
     // to make sure there is no data loss:
-    if (page && page.length < chunkSize) {
-      chunkSize = page.length;
-    }
-
-    streamState.currentPage = streamState.currentPage + chunkSize;
+    streamState.currentPage +=
+      page.length < chunkSize ? page.length : chunkSize;
 
     if (page.length > 0) {
       yield page;
@@ -82,13 +79,13 @@ export const analysisStream = async function* ({
   rdpcUrl: string;
   analysisType: string;
   egoJwtManager: EgoJwtManager;
-  config?: {
-    chunkSize?: number;
+  config: {
+    chunkSize: number;
   };
   analysesFetcher: typeof fetchAnalyses;
   donorId?: string;
 }): AsyncGenerator<Analysis[]> {
-  let chunkSize = config?.chunkSize || 100;
+  const chunkSize = config.chunkSize;
   const streamState: StreamState = {
     currentPage: 0,
   };
@@ -112,11 +109,8 @@ export const analysisStream = async function* ({
 
     // in case of api returns less analyses than chunk size, we need to stream from the last analysis
     // to make sure there is no data loss:
-    if (page && page.length < chunkSize) {
-      chunkSize = page.length;
-    }
-
-    streamState.currentPage = streamState.currentPage + chunkSize;
+    streamState.currentPage +=
+      page.length < chunkSize ? page.length : chunkSize;
 
     if (page.length > 0) {
       yield page;
@@ -268,8 +262,8 @@ export const getAllMergedDonor = async ({
   analysisType: string;
   egoJwtManager: EgoJwtManager;
   donorIds?: string[];
-  config?: {
-    chunkSize?: number;
+  config: {
+    chunkSize: number;
     state?: StreamState;
   };
   analysesFetcher: typeof fetchAnalyses;
@@ -332,8 +326,8 @@ export const getAllMergedDonorWithSpecimens = async ({
   url: string;
   egoJwtManager: EgoJwtManager;
   donorIds?: string[];
-  config?: {
-    chunkSize?: number;
+  config: {
+    chunkSize: number;
     state?: StreamState;
   };
   analysesFetcher: typeof fetchAnalysesWithSpecimens;
