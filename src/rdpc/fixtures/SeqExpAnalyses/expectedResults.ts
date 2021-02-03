@@ -222,7 +222,7 @@ export const removeSuppressedAnalyses_expected = [
   {
     analysisId: "63c4653b-f881-4148-8465-3bf8811148c8",
     analysisType: "sequencing_experiment",
-    donors: [{ donorId: "DO35102" }],
+    donors: [{ donorId: "DO35102", specimens: [] }],
     runs: [
       {
         runId: "wes-afcd45e183a94f649e6c81fafe4ed6b5",
@@ -253,7 +253,7 @@ export const removeSuppressedAnalyses_expected = [
   {
     analysisId: "854f3c1f-8ca3-4aff-8f3c-1f8ca3faff8e",
     analysisType: "sequencing_experiment",
-    donors: [{ donorId: "DO35102" }],
+    donors: [{ donorId: "DO35102", specimens: [] }],
     runs: [
       {
         runId: "wes-585b98b1cebb4cb3809017955b4b0042",
@@ -283,7 +283,74 @@ export const removeSuppressedAnalyses_expected = [
   {
     analysisId: "94684d53-7ec7-4d3e-a84d-537ec7cd3ea9",
     analysisType: "sequencing_experiment",
-    donors: [{ donorId: "DO35102" }],
+    donors: [{ donorId: "DO35102", specimens: [] }],
     runs: [],
+  },
+];
+
+export const analysesWithValidCompleteAndActiveRuns_expected = [
+  {
+    analysisId: "84c8e815-04f2-4a98-88e8-1504f29a9835",
+    analysisType: "sequencing_alignment",
+    donors: [
+      {
+        donorId: "DO35148",
+        specimens: [],
+      },
+    ],
+    runs: [
+      {
+        runId: "wes-113b0eba6b7c472a89ce976c341f1fce",
+        state: RunState.COMPLETE,
+        repository:
+          "https://github.com/icgc-argo/sanger-wgs-variant-calling.git",
+        inputAnalyses: [
+          {
+            analysisId: "84c8e815-04f2-4a98-88e8-1504f29a9835",
+          },
+          {
+            analysisId: "d066cd65-d071-4f3f-a6cd-65d071df3fd0",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "7ea869bd-a73c-4bec-a869-bda73c8bec1a",
+          },
+          {
+            analysisId: "d066cd65-d071-4f3f-a6cd-65d071df3fd0",
+          },
+        ],
+      },
+      {
+        runId: "wes-2c3b0eba6b7c472a89ce976c341f1fce",
+        state: RunState.RUNNING,
+        repository:
+          "https://github.com/icgc-argo/sanger-wgs-variant-calling.git",
+        inputAnalyses: [
+          {
+            analysisId: "84c8e815-04f2-4a98-88e8-1504f29a9835",
+          },
+          {
+            analysisId: "d066cd65-d071-4f3f-a6cd-65d071df3fd0",
+          },
+        ],
+        producedAnalyses: [],
+      },
+      {
+        runId: "wes-8fd46a1e38b24e38a6e2cf18de3e74a9",
+        state: RunState.EXECUTOR_ERROR,
+        repository:
+          "https://github.com/icgc-argo/sanger-wgs-variant-calling.git",
+        inputAnalyses: [
+          {
+            analysisId: "84c8e815-04f2-4a98-88e8-1504f29a9835",
+          },
+          {
+            analysisId: "d066cd65-d071-4f3f-a6cd-65d071df3fd0",
+          },
+        ],
+        producedAnalyses: [],
+      },
+    ],
   },
 ];

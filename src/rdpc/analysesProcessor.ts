@@ -288,7 +288,7 @@ export const getAllMergedDonor = async ({
           logger.info(`No ${analysisType} analyses for streaming`);
         }
         logger.info(`Streaming ${page.length} of ${analysisType} analyses...`);
-        const filteredAnalyses = removeRunsWithSuppressedAnalyses(page);
+        const filteredAnalyses = removeCompleteRunsWithSuppressedAnalyses(page);
         const donorPerPage = toDonorCentric(filteredAnalyses);
         getAllRunsByAnalysesByDonors(mergedDonors, donorPerPage);
       }
@@ -307,7 +307,7 @@ export const getAllMergedDonor = async ({
         logger.info(`No ${analysisType} analyses for streaming`);
       }
       logger.info(`Streaming ${page.length} of ${analysisType} analyses...`);
-      const filteredAnalyses = removeRunsWithSuppressedAnalyses(page);
+      const filteredAnalyses = removeCompleteRunsWithSuppressedAnalyses(page);
       const donorPerPage = toDonorCentric(filteredAnalyses);
       getAllRunsByAnalysesByDonors(mergedDonors, donorPerPage);
     }
@@ -425,21 +425,28 @@ export const countSpecimenType = (donors: SpecimensByDonors): DonorInfoMap => {
   return result;
 };
 
-// Removes runs with suppressed producedAnalyses
-export const removeRunsWithSuppressedAnalyses = (
+// Removes COMPLETE (not RUNNING OR EXECUTOR_ERROR) runs with suppressed producedAnalyses
+export const removeCompleteRunsWithSuppressedAnalyses = (
   analyses: Analysis[]
 ): Analysis[] => {
-  const result = analyses.reduce<Analysis[]>((acc, analysis) => {
-    const filteredRuns = analysis.runs.filter(
-      (run) => run.producedAnalyses && run.producedAnalyses.length > 0
-    );
-    const newAnalysis = {
-      ...analysis,
-      runs: [...filteredRuns],
-    };
-    acc.push(newAnalysis);
-    return acc;
-  }, []);
+  const result = analyses.reduce<Analysis[]>(
+    (aanalysisAccumulator, analysis) => {
+      const filteredRuns = analysis.runs.filter(
+        (run) =>
+          run.state !== RunState.COMPLETE ||
+          (run.state === RunState.COMPLETE &&
+            run.producedAnalyses &&
+            run.producedAnalyses.length > 0)
+      );
+      const newAnalysis = {
+        ...analysis,
+        runs: [...filteredRuns],
+      };
+      aanalysisAccumulator.push(newAnalysis);
+      return aanalysisAccumulator;
+    },
+    []
+  );
   return result;
 };
 
