@@ -1,18 +1,25 @@
 import { RdpcDonorInfo } from "indexClinicalData/types";
-
 export interface Analysis {
   analysisId: string;
   analysisType: string;
   donors: Donor[];
   runs: Run[];
 }
-
+export interface Donor {
+  donorId: string;
+  specimens: Specimen[];
+}
 export interface SimpleAnalysis {
   analysisId: string;
 }
+export interface Specimen {
+  specimenId: string;
+  tumourNormalDesignation: TumourNormalDesignationValue;
+}
 
-export interface Donor {
-  donorId: string;
+export enum TumourNormalDesignationValue {
+  Normal = "Normal",
+  Tumour = "Tumour",
 }
 
 export interface Run {
@@ -47,6 +54,10 @@ export interface RunsByAnalysesByDonors {
   [donorId: string]: RunsByInputAnalyses;
 }
 
-export interface DonorRunStateMap {
+export interface DonorInfoMap {
   [donorId: string]: RdpcDonorInfo;
+}
+
+export interface SpecimensByDonors {
+  [donorId: string]: Specimen[];
 }

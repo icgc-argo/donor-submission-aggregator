@@ -8,6 +8,7 @@ export const seqAlignAnalysesWithMultiTNPairs_page_1 = [
     donors: [
       {
         donorId: "DO50339",
+        specimens: [],
       },
     ],
     runs: [
@@ -153,6 +154,7 @@ export const seqAlignAnalysesWithMultiTNPairs_page_1 = [
     donors: [
       {
         donorId: "DO50339",
+        specimens: [],
       },
     ],
     runs: [
@@ -300,6 +302,7 @@ export const seqAlignAnalysesWithMultiTNPairs_page_2 = [
     donors: [
       {
         donorId: "DO50395",
+        specimens: [],
       },
     ],
     runs: [
@@ -335,6 +338,7 @@ export const seqAlignAnalysesWithMultiTNPairs_page_2 = [
     donors: [
       {
         donorId: "DO50453",
+        specimens: [],
       },
     ],
     runs: [
@@ -373,6 +377,7 @@ export const seqAlignAnalysesWithOneTNPairs = [
     donors: [
       {
         donorId: "DO221541",
+        specimens: [],
       },
     ],
     runs: [
@@ -408,6 +413,7 @@ export const seqAlignAnalysesWithOneTNPairs = [
     donors: [
       {
         donorId: "DO221541",
+        specimens: [],
       },
     ],
     runs: [
