@@ -121,15 +121,16 @@ export const analysisStream = async function* ({
 };
 
 // iterates over analyses to extract specimens by grouping specimens by donorId,
-// when a donor appears under multiple analyses, this functions merges speicmens by donor id across analyses
-export const aggregateSpecimensByDonorId = (
+// note this function does not remove duplicate specimens, this is intended for
+// counting tumour/normal sample numbers.
+const aggregateSpecimensByDonorId = (
   analyses: Analysis[]
 ): SpecimensByDonors => {
   const result = analyses.reduce<SpecimensByDonors>(
     (specimenAccumulator, analysis) => {
       analysis.donors.forEach((donor) => {
         specimenAccumulator[donor.donorId] = specimenAccumulator[donor.donorId]
-          ? mergeSpecimens(specimenAccumulator[donor.donorId], donor.specimens)
+          ? [...specimenAccumulator[donor.donorId], ...donor.specimens]
           : donor.specimens;
       });
       return specimenAccumulator;
@@ -137,24 +138,6 @@ export const aggregateSpecimensByDonorId = (
     {}
   );
 
-  return result;
-};
-
-/**
- * Removes duplicate specimens in merged arrays
- * @param existingSpecimens
- * @param toMerge
- */
-const mergeSpecimens = (
-  existingSpecimens: Specimen[],
-  toMerge: Specimen[]
-): Specimen[] => {
-  const combined = existingSpecimens.concat(toMerge);
-  const map = new Map();
-  for (const specimen of combined) {
-    map.set(specimen.specimenId, specimen);
-  }
-  const result = [...map.values()];
   return result;
 };
 
@@ -382,17 +365,16 @@ export const getAllMergedDonorWithSpecimens = async ({
   return mergedDonors;
 };
 
-// merges specimens from all pages, duplicate donor ids can be found in multiple pages,
-// therefor removing duplicate specimens by donor id is necessary.
-export const mergeAllPagesSpecimensByDonorId = (
+// merges specimens from all pages, as same donor ids can be found in multiple pages
+const mergeAllPagesSpecimensByDonorId = (
   merged: SpecimensByDonors,
   toMerge: SpecimensByDonors
 ) => {
   Object.entries(toMerge).forEach(([donorId, specimens]) => {
-    const combined = merged[donorId]
-      ? mergeSpecimens(specimens, merged[donorId])
+    const mergedSpecimens = merged[donorId]
+      ? [...merged[donorId], ...specimens]
       : specimens;
-    merged[donorId] = combined;
+    merged[donorId] = mergedSpecimens;
   });
 };
 
