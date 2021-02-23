@@ -50,13 +50,13 @@
       "alignmentsFailed": {
         "type": "byte"
       },
-      "MutectCompleted": {
+      "mutectCompleted": {
         "type": "byte"
       },
-      "MutectRunning": {
+      "mutectRunning": {
         "type": "byte"
       },
-      "MutectFailed": {
+      "mutectFailed": {
         "type": "byte"
       },
       "sangerVcsCompleted": {
