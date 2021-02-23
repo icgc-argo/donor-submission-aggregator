@@ -137,7 +137,7 @@ describe("should index RDPC analyses to donor index", () => {
     });
   });
 
-  it.only("should index sequencing experiment and sequencing alignment analyses", async () => {
+  it("should index sequencing experiment and sequencing alignment analyses", async () => {
     const { body: exists } = await esClient.indices.exists({
       index: INDEX_NAME,
     });
@@ -242,7 +242,7 @@ describe("should index RDPC analyses to donor index", () => {
     }
   });
 
-  it("should handle incremental rdpc indexing with studyId", async () => {
+  it.only("should handle incremental rdpc indexing with studyId", async () => {
     // index testing clinical data
     const body = clinicalDataset.flatMap((doc) => [
       { index: { _index: INDEX_NAME } },
@@ -356,6 +356,39 @@ describe("should index RDPC analyses to donor index", () => {
         "sangerVcsRunning",
         hit._source.donorId === testDonorId
           ? expectedRDPCData[hit._source.donorId].sangerVcsRunning
+          : 0,
+      ]);
+      expect([
+        hit._source.donorId,
+        "mutectCompleted",
+        hit._source.mutectCompleted,
+      ]).to.deep.equal([
+        hit._source.donorId,
+        "mutectCompleted",
+        hit._source.donorId === testDonorId
+          ? expectedRDPCData[hit._source.donorId].mutectCompleted
+          : 0,
+      ]);
+      expect([
+        hit._source.donorId,
+        "mutectRunning",
+        hit._source.mutectRunning,
+      ]).to.deep.equal([
+        hit._source.donorId,
+        "mutectRunning",
+        hit._source.donorId === testDonorId
+          ? expectedRDPCData[hit._source.donorId].mutectRunning
+          : 0,
+      ]);
+      expect([
+        hit._source.donorId,
+        "mutectFailed",
+        hit._source.mutectFailed,
+      ]).to.deep.equal([
+        hit._source.donorId,
+        "mutectFailed",
+        hit._source.donorId === testDonorId
+          ? expectedRDPCData[hit._source.donorId].mutectFailed
           : 0,
       ]);
     });
