@@ -1,5 +1,6 @@
 import {
   countAlignmentRunState,
+  countMutectRunState,
   countSpecimenType,
   countVCRunState,
   getAllMergedDonor,
@@ -72,6 +73,7 @@ export const indexRdpcData = async ({
     url: rdpcUrl,
     donorIds: donorIdsToFilterBy,
     analysisType: AnalysisType.SEQ_EXPERIMENT,
+    isMutect: false,
     egoJwtManager,
     config,
     analysesFetcher,
@@ -82,6 +84,18 @@ export const indexRdpcData = async ({
     url: rdpcUrl,
     donorIds: donorIdsToFilterBy,
     analysisType: AnalysisType.SEQ_ALIGNMENT,
+    isMutect: false,
+    egoJwtManager,
+    config,
+    analysesFetcher,
+  });
+
+  const mergedMutectDonors = await getAllMergedDonor({
+    studyId: programId,
+    url: rdpcUrl,
+    donorIds: donorIdsToFilterBy,
+    analysisType: AnalysisType.SEQ_ALIGNMENT,
+    isMutect: true,
     egoJwtManager,
     config,
     analysesFetcher,
@@ -95,15 +109,19 @@ export const indexRdpcData = async ({
 
   const rdpcInfoByDonor_specimens = countSpecimenType(mergedSpecimensByDonor);
 
-  const donorInfo_runState = mergeDonorStateMaps(
+  const rdpcInfoByDonor_mutect = countMutectRunState(mergedMutectDonors);
+
+  const donorInfo_alignmentAndVC = mergeDonorStateMaps(
     rdpcInfoByDonor_alignment,
     rdpcInfoByDonor_VC
   );
 
-  const rdpcDocsMap = mergeDonorStateMaps(
-    donorInfo_runState,
+  const donorInfo = mergeDonorStateMaps(
+    donorInfo_alignmentAndVC,
     rdpcInfoByDonor_specimens
   );
+
+  const rdpcDocsMap = mergeDonorStateMaps(donorInfo, rdpcInfoByDonor_mutect);
 
   // get existing ES donors:
   const donorIds = Object.keys(rdpcDocsMap);

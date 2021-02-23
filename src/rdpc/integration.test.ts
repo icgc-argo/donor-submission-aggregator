@@ -12,7 +12,8 @@ import {
   expectedRDPCData,
 } from "./fixtures/integrationTest/dataset";
 import {
-  mockSeqAlignmentAnalyses,
+  mockSeqAlignmentAnalyses_mutect,
+  mockSeqAlignmentAnalyses_sanger,
   mockSeqExpAnalyses,
   mockSeqExpAnalysesWithSpecimens,
 } from "./fixtures/integrationTest/mockAnalyses";
@@ -45,8 +46,8 @@ describe("should index RDPC analyses to donor index", () => {
   const mockAnalysisFetcher: typeof fetchAnalyses = async ({
     studyId,
     rdpcUrl,
-    workflowRepoUrl,
     analysisType,
+    isMutect,
     from,
     size,
     egoJwtManager,
@@ -59,7 +60,11 @@ describe("should index RDPC analyses to donor index", () => {
         ? mockSeqExpAnalyses
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
-        : mockSeqAlignmentAnalyses
+        : isMutect
+        ? mockSeqAlignmentAnalyses_mutect
+            .filter((analysis) => analysis.donors.some(matchesDonorId))
+            .slice(from, from + size)
+        : mockSeqAlignmentAnalyses_sanger
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
     );
@@ -132,7 +137,7 @@ describe("should index RDPC analyses to donor index", () => {
     });
   });
 
-  it("should index sequencing experiment and sequencing alignment analyses", async () => {
+  it.only("should index sequencing experiment and sequencing alignment analyses", async () => {
     const { body: exists } = await esClient.indices.exists({
       index: INDEX_NAME,
     });
@@ -225,6 +230,15 @@ describe("should index RDPC analyses to donor index", () => {
       expect(hit._source.sangerVcsRunning).to.equal(
         expectedRDPCData[hit._source.donorId].sangerVcsRunning
       );
+      expect(hit._source.mutectCompleted).to.equal(
+        expectedRDPCData[hit._source.donorId].mutectCompleted
+      );
+      expect(hit._source.mutectRunning).to.equal(
+        expectedRDPCData[hit._source.donorId].mutectRunning
+      );
+      expect(hit._source.mutectFailed).to.equal(
+        expectedRDPCData[hit._source.donorId].mutectFailed
+      );
     }
   });
 
@@ -240,7 +254,7 @@ describe("should index RDPC analyses to donor index", () => {
       refresh: "wait_for",
     });
 
-    const testAnalysis = mockSeqAlignmentAnalyses[0];
+    const testAnalysis = mockSeqAlignmentAnalyses_sanger[0];
 
     const testDonorId = testAnalysis.donors[0].donorId;
 

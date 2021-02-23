@@ -50,6 +50,10 @@ export default (
       sangerVcsRunning: 0,
       sangerVcsFailed: 0,
 
+      mutectCompleted: 0,
+      mutectRunning: 0,
+      mutectFailed: 0,
+
       totalFilesCount: 0,
       filesToQcCount: 0,
 

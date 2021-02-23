@@ -26,7 +26,7 @@ import {
 import fetchAnalyses from "rdpc/fetchAnalyses";
 import { Analysis, AnalysisType } from "rdpc/types";
 import {
-  mockSeqAlignmentAnalyses,
+  mockSeqAlignmentAnalyses_sanger,
   mockSeqExpAnalyses,
   mockSeqExpAnalysesWithSpecimens,
 } from "rdpc/fixtures/integrationTest/mockAnalyses";
@@ -107,8 +107,8 @@ describe("kafka integration", () => {
   const mockAnalysisFetcher: typeof fetchAnalyses = async ({
     studyId,
     rdpcUrl,
-    workflowRepoUrl,
     analysisType,
+    isMutect,
     from,
     size,
     egoJwtManager,
@@ -122,7 +122,7 @@ describe("kafka integration", () => {
         ? mockSeqExpAnalyses
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
-        : mockSeqAlignmentAnalyses
+        : mockSeqAlignmentAnalyses_sanger
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size);
 

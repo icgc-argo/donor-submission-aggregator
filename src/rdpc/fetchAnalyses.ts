@@ -1,9 +1,14 @@
 import fetch from "node-fetch";
-import { Analysis } from "./types";
+import { Analysis, AnalysisType } from "./types";
 import logger from "logger";
 import promiseRetry from "promise-retry";
 import _ from "lodash";
 import { EgoAccessToken, EgoJwtManager } from "auth";
+import {
+  MUTECT_REPO_URL,
+  SANGER_VC_REPO_URL,
+  SEQ_ALIGN_REPO_URL,
+} from "config";
 
 const query = `
 fragment AnalysisData on Analysis {
@@ -75,8 +80,9 @@ const retryConfig = {
 const fetchAnalyses = async ({
   studyId,
   rdpcUrl,
-  workflowRepoUrl,
+  // workflowRepoUrl,
   analysisType,
+  isMutect,
   from,
   size,
   egoJwtManager,
@@ -84,8 +90,9 @@ const fetchAnalyses = async ({
 }: {
   studyId: string;
   rdpcUrl: string;
-  workflowRepoUrl: string;
+  // workflowRepoUrl: string;
   analysisType: string;
+  isMutect: boolean;
   from: number;
   size: number;
   egoJwtManager: EgoJwtManager;
@@ -95,7 +102,9 @@ const fetchAnalyses = async ({
   const accessToken = jwt.access_token;
   return await promiseRetry<Analysis[]>(async (retry) => {
     try {
-      logger.info(`Fetching ${analysisType} analyses from rdpc.....`);
+      const workflowRepoUrl = getWorkflowRepoUrl(analysisType, isMutect);
+
+      // logger.info(`Fetching ${analysisType} analyses from rdpc.....`);
 
       const response = await fetch(rdpcUrl, {
         method: "POST",
@@ -138,6 +147,30 @@ const fetchAnalyses = async ({
     );
     throw err;
   });
+};
+
+const getWorkflowRepoUrl = (
+  analysisType: string,
+  isMutect: boolean
+): string => {
+  let workflowRepoUrl = "";
+  if (analysisType === AnalysisType.SEQ_EXPERIMENT) {
+    workflowRepoUrl = SEQ_ALIGN_REPO_URL;
+    logger.info(
+      `Starting to query ${analysisType} analyses for alignment workflow runs`
+    );
+  } else if (analysisType === AnalysisType.SEQ_ALIGNMENT && isMutect) {
+    workflowRepoUrl = MUTECT_REPO_URL;
+    logger.info(
+      `Starting to query ${analysisType} analyses for mutect2 workflow runs`
+    );
+  } else {
+    workflowRepoUrl = SANGER_VC_REPO_URL;
+    logger.info(
+      `Starting to query ${analysisType} analyses for sanger variant calling workflow runs`
+    );
+  }
+  return workflowRepoUrl;
 };
 
 export default fetchAnalyses;
