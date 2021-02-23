@@ -26,6 +26,7 @@ import {
 import fetchAnalyses from "rdpc/fetchAnalyses";
 import { Analysis, AnalysisType } from "rdpc/types";
 import {
+  mockSeqAlignmentAnalyses_mutect,
   mockSeqAlignmentAnalyses_sanger,
   mockSeqExpAnalyses,
   mockSeqExpAnalysesWithSpecimens,
@@ -116,17 +117,19 @@ describe("kafka integration", () => {
   }): Promise<Analysis[]> => {
     const matchesDonorId = (donor: any) =>
       donorId ? donor.donorId === donorId : true;
-
-    const output =
+    return Promise.resolve(
       analysisType === AnalysisType.SEQ_EXPERIMENT
         ? mockSeqExpAnalyses
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
+        : isMutect
+        ? mockSeqAlignmentAnalyses_mutect
+            .filter((analysis) => analysis.donors.some(matchesDonorId))
+            .slice(from, from + size)
         : mockSeqAlignmentAnalyses_sanger
             .filter((analysis) => analysis.donors.some(matchesDonorId))
-            .slice(from, from + size);
-
-    return Promise.resolve(output);
+            .slice(from, from + size)
+    );
   };
 
   before(async () => {
@@ -289,7 +292,7 @@ describe("kafka integration", () => {
   });
 
   describe("programQueueProcessor", () => {
-    it("must index all clinical and RDPC data into Elasticsearch", async () => {
+    it.only("must index all clinical and RDPC data into Elasticsearch", async () => {
       // create a dummy index and attach it to alias, alias must exist for testing:
       await createIndexAndAlias("DUM-CA");
 
@@ -421,6 +424,15 @@ describe("kafka integration", () => {
         );
         expect(test_ca_hit.hits[0]._source.sangerVcsRunning).to.equal(
           expectedRDPCData["DO" + donorId].sangerVcsRunning
+        );
+        expect(test_ca_hit.hits[0]._source.mutectCompleted).to.equal(
+          expectedRDPCData["DO" + donorId].mutectCompleted
+        );
+        expect(test_ca_hit.hits[0]._source.mutectRunning).to.equal(
+          expectedRDPCData["DO" + donorId].mutectRunning
+        );
+        expect(test_ca_hit.hits[0]._source.mutectFailed).to.equal(
+          expectedRDPCData["DO" + donorId].mutectFailed
         );
       }
 
@@ -604,7 +616,6 @@ describe("kafka integration", () => {
         expect(test_ca_re_2_documents).to.equal(clinicalDataset.length);
       }
     );
-
     it("handles incremental analysis updates properly", async () => {
       await createIndexAndAlias(TEST_CA);
       const testAnalysis = mockSeqExpAnalyses[0];
