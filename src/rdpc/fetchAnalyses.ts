@@ -80,7 +80,6 @@ const retryConfig = {
 const fetchAnalyses = async ({
   studyId,
   rdpcUrl,
-  // workflowRepoUrl,
   analysisType,
   isMutect,
   from,
@@ -90,7 +89,6 @@ const fetchAnalyses = async ({
 }: {
   studyId: string;
   rdpcUrl: string;
-  // workflowRepoUrl: string;
   analysisType: string;
   isMutect: boolean;
   from: number;
@@ -103,8 +101,6 @@ const fetchAnalyses = async ({
   return await promiseRetry<Analysis[]>(async (retry) => {
     try {
       const workflowRepoUrl = getWorkflowRepoUrl(analysisType, isMutect);
-
-      // logger.info(`Fetching ${analysisType} analyses from rdpc.....`);
 
       const response = await fetch(rdpcUrl, {
         method: "POST",
@@ -153,24 +149,22 @@ const getWorkflowRepoUrl = (
   analysisType: string,
   isMutect: boolean
 ): string => {
-  let workflowRepoUrl = "";
   if (analysisType === AnalysisType.SEQ_EXPERIMENT) {
-    workflowRepoUrl = SEQ_ALIGN_REPO_URL;
     logger.info(
       `Starting to query ${analysisType} analyses for alignment workflow runs`
     );
+    return SEQ_ALIGN_REPO_URL;
   } else if (analysisType === AnalysisType.SEQ_ALIGNMENT && isMutect) {
-    workflowRepoUrl = MUTECT_REPO_URL;
     logger.info(
       `Starting to query ${analysisType} analyses for mutect2 workflow runs`
     );
+    return MUTECT_REPO_URL;
   } else {
-    workflowRepoUrl = SANGER_VC_REPO_URL;
     logger.info(
       `Starting to query ${analysisType} analyses for sanger variant calling workflow runs`
     );
+    return SANGER_VC_REPO_URL;
   }
-  return workflowRepoUrl;
 };
 
 export default fetchAnalyses;
