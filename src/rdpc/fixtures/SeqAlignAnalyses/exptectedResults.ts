@@ -1,3 +1,5 @@
+import { DonorInfoMap } from "rdpc/types";
+
 export const donorCentricWithMultipleTNPairs_page_1 = {
   DO50339: {
     "820885243": [
@@ -205,7 +207,7 @@ export const donorCentricWithOneTNPair = {
   },
 };
 
-export const donorByVCRunState = {
+export const donorByVCRunState: DonorInfoMap = {
   DO50339: {
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
@@ -215,6 +217,9 @@ export const donorByVCRunState = {
     sangerVcsCompleted: 1,
     sangerVcsRunning: 1,
     sangerVcsFailed: 1,
+    mutectCompleted: 0,
+    mutectFailed: 0,
+    mutectRunning: 0,
     totalFilesCount: 0,
     filesToQcCount: 0,
     releaseStatus: "NO_RELEASE",
@@ -229,6 +234,9 @@ export const donorByVCRunState = {
     sangerVcsCompleted: 1,
     sangerVcsRunning: 0,
     sangerVcsFailed: 0,
+    mutectCompleted: 0,
+    mutectFailed: 0,
+    mutectRunning: 0,
     totalFilesCount: 0,
     filesToQcCount: 0,
     releaseStatus: "NO_RELEASE",
@@ -243,6 +251,9 @@ export const donorByVCRunState = {
     sangerVcsCompleted: 1,
     sangerVcsRunning: 0,
     sangerVcsFailed: 0,
+    mutectCompleted: 0,
+    mutectFailed: 0,
+    mutectRunning: 0,
     totalFilesCount: 0,
     filesToQcCount: 0,
     releaseStatus: "NO_RELEASE",

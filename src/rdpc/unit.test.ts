@@ -100,7 +100,7 @@ describe("RDPC sequencing experiment analyses processing", () => {
     expect(JSON.stringify(latestRun_2)).to.equal(JSON.stringify(latestRun_2));
   });
 
-  it("should count the latest alignment run state for each donor", async () => {
+  it.only("should count the latest alignment run state for each donor", async () => {
     const donorState = countAlignmentRunState(mergedPagesDonorStateMap);
     expect(JSON.stringify(donorState)).to.equal(
       JSON.stringify(donorStateMap_expected)
@@ -144,7 +144,7 @@ describe("RDPC sequencing alignment analyses processing", () => {
     );
   });
 
-  it("should count the latest sanger VC run state for each donor", async () => {
+  it.only("should count the latest sanger VC run state for each donor", async () => {
     const donorState = countVCRunState(mergedDonorByInputAnalyses);
     expect(JSON.stringify(donorState)).to.equal(
       JSON.stringify(donorByVCRunState)

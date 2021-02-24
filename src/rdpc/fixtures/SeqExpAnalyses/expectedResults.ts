@@ -1,4 +1,4 @@
-import { RunState } from "rdpc/types";
+import { DonorInfoMap, RunState } from "rdpc/types";
 
 export const donorCentric_page_1_exptected = {
   DO35222: {
@@ -127,7 +127,7 @@ export const mergedPage_expected = {
   },
 };
 
-export const donorStateMap_expected = {
+export const donorStateMap_expected: DonorInfoMap = {
   DO35222: {
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
@@ -137,6 +137,9 @@ export const donorStateMap_expected = {
     sangerVcsCompleted: 0,
     sangerVcsRunning: 0,
     sangerVcsFailed: 0,
+    mutectCompleted: 0,
+    mutectFailed: 0,
+    mutectRunning: 0,
     totalFilesCount: 0,
     filesToQcCount: 0,
     releaseStatus: "NO_RELEASE",
@@ -151,6 +154,9 @@ export const donorStateMap_expected = {
     sangerVcsCompleted: 0,
     sangerVcsRunning: 0,
     sangerVcsFailed: 0,
+    mutectCompleted: 0,
+    mutectFailed: 0,
+    mutectRunning: 0,
     totalFilesCount: 0,
     filesToQcCount: 0,
     releaseStatus: "NO_RELEASE",
@@ -165,6 +171,9 @@ export const donorStateMap_expected = {
     sangerVcsCompleted: 0,
     sangerVcsRunning: 0,
     sangerVcsFailed: 0,
+    mutectCompleted: 0,
+    mutectFailed: 0,
+    mutectRunning: 0,
     totalFilesCount: 0,
     filesToQcCount: 0,
     releaseStatus: "NO_RELEASE",

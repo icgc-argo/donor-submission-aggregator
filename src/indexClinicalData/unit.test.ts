@@ -29,7 +29,7 @@ const TARGET_ES_INDEX = "test_prog";
 const asyncExec = promisify(exec);
 
 describe("transformToEsDonor", () => {
-  it("must transform properly", async () => {
+  it.only("must transform properly", async () => {
     const mongoDoc = createDonor(TEST_PROGRAM_SHORT_NAME);
     const esDoc = transformToEsDonor(mongoDoc);
     expect(esDoc).to.deep.equal({
@@ -50,6 +50,9 @@ describe("transformToEsDonor", () => {
       sangerVcsCompleted: 0,
       sangerVcsRunning: 0,
       sangerVcsFailed: 0,
+      mutectCompleted: 0,
+      mutectFailed: 0,
+      mutectRunning: 0,
       processingStatus: "REGISTERED",
       updatedAt: new Date(mongoDoc.updatedAt),
       createdAt: new Date(mongoDoc.createdAt),
