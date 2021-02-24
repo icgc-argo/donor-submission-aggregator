@@ -29,7 +29,7 @@ const TARGET_ES_INDEX = "test_prog";
 const asyncExec = promisify(exec);
 
 describe("transformToEsDonor", () => {
-  it.only("must transform properly", async () => {
+  it("must transform properly", async () => {
     const mongoDoc = createDonor(TEST_PROGRAM_SHORT_NAME);
     const esDoc = transformToEsDonor(mongoDoc);
     expect(esDoc).to.deep.equal({
