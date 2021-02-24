@@ -291,7 +291,7 @@ describe("kafka integration", () => {
     }
   });
 
-  describe("programQueueProcessor", () => {
+  describe.only("programQueueProcessor", () => {
     it("must index all clinical and RDPC data into Elasticsearch", async () => {
       // create a dummy index and attach it to alias, alias must exist for testing:
       await createIndexAndAlias("DUM-CA");
@@ -311,7 +311,7 @@ describe("kafka integration", () => {
         type: programQueueProcessor.knownEventTypes.CLINICAL,
       });
       // wait for indexing to complete
-      await new Promise((resolve) => {
+      await new Promise<void>((resolve) => {
         setTimeout(() => {
           resolve();
         }, 30000);
@@ -331,7 +331,7 @@ describe("kafka integration", () => {
         type: programQueueProcessor.knownEventTypes.CLINICAL,
       });
 
-      await new Promise((resolve) => {
+      await new Promise<void>((resolve) => {
         setTimeout(() => {
           resolve();
         }, 30000);
@@ -359,7 +359,7 @@ describe("kafka integration", () => {
         rdpcGatewayUrls: [RDPC_URL],
       });
 
-      await new Promise((resolve) => {
+      await new Promise<void>((resolve) => {
         setTimeout(() => {
           resolve();
         }, 30000);
@@ -461,7 +461,7 @@ describe("kafka integration", () => {
         testDonorIds.length + DB_COLLECTION_SIZE
       );
     });
-    it.only("must create new index with correct settings and index data", async () => {
+    it("must create new index with correct settings and index data", async () => {
       // make sure alias exist before test starts:
       await createIndexAndAlias(TEST_CA);
 
@@ -479,7 +479,7 @@ describe("kafka integration", () => {
         type: programQueueProcessor.knownEventTypes.CLINICAL,
       });
 
-      await new Promise((resolve) => {
+      await new Promise<void>((resolve) => {
         setTimeout(() => {
           resolve();
         }, 30000);
@@ -511,7 +511,7 @@ describe("kafka integration", () => {
         type: programQueueProcessor.knownEventTypes.CLINICAL,
       });
 
-      await new Promise((resolve) => {
+      await new Promise<void>((resolve) => {
         setTimeout(() => {
           resolve();
         }, 30000);
@@ -547,7 +547,7 @@ describe("kafka integration", () => {
       ).body?.hits?.total?.value;
       expect(test_us_documents).to.equal(DB_COLLECTION_SIZE);
     });
-    it.only(
+    it(
       "must not clone an index when index settings do not equal to default settings," +
         "it must create a new index with correct settings and reindex all documents from previous index",
       async () => {
@@ -579,7 +579,7 @@ describe("kafka integration", () => {
           type: programQueueProcessor.knownEventTypes.CLINICAL,
         });
 
-        await new Promise((resolve) => {
+        await new Promise<void>((resolve) => {
           setTimeout(() => {
             resolve();
           }, 30000);
@@ -616,7 +616,7 @@ describe("kafka integration", () => {
         expect(test_ca_re_2_documents).to.equal(clinicalDataset.length);
       }
     );
-    it.only("handles incremental analysis updates properly", async () => {
+    it("handles incremental analysis updates properly", async () => {
       await createIndexAndAlias(TEST_CA);
       const testAnalysis = mockSeqExpAnalyses[0];
       const testDonorId = testAnalysis.donors[0].donorId;
@@ -643,7 +643,7 @@ describe("kafka integration", () => {
       });
 
       // wait for indexing to complete
-      await new Promise((resolve) => {
+      await new Promise<void>((resolve) => {
         setTimeout(() => {
           resolve();
         }, 30000);
