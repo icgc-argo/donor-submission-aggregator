@@ -292,7 +292,7 @@ describe("kafka integration", () => {
   });
 
   describe("programQueueProcessor", () => {
-    it.only("must index all clinical and RDPC data into Elasticsearch", async () => {
+    it("must index all clinical and RDPC data into Elasticsearch", async () => {
       // create a dummy index and attach it to alias, alias must exist for testing:
       await createIndexAndAlias("DUM-CA");
 
@@ -461,7 +461,7 @@ describe("kafka integration", () => {
         testDonorIds.length + DB_COLLECTION_SIZE
       );
     });
-    it("must create new index with correct settings and index data", async () => {
+    it.only("must create new index with correct settings and index data", async () => {
       // make sure alias exist before test starts:
       await createIndexAndAlias(TEST_CA);
 
@@ -547,7 +547,7 @@ describe("kafka integration", () => {
       ).body?.hits?.total?.value;
       expect(test_us_documents).to.equal(DB_COLLECTION_SIZE);
     });
-    it(
+    it.only(
       "must not clone an index when index settings do not equal to default settings," +
         "it must create a new index with correct settings and reindex all documents from previous index",
       async () => {
@@ -616,7 +616,7 @@ describe("kafka integration", () => {
         expect(test_ca_re_2_documents).to.equal(clinicalDataset.length);
       }
     );
-    it("handles incremental analysis updates properly", async () => {
+    it.only("handles incremental analysis updates properly", async () => {
       await createIndexAndAlias(TEST_CA);
       const testAnalysis = mockSeqExpAnalyses[0];
       const testDonorId = testAnalysis.donors[0].donorId;
@@ -731,6 +731,39 @@ describe("kafka integration", () => {
           "sangerVcsRunning",
           hit._source.donorId === testDonorId
             ? expectedRDPCData[hit._source.donorId].sangerVcsRunning
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "mutectCompleted",
+          hit._source.mutectCompleted,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "mutectCompleted",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].mutectCompleted
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "mutectRunning",
+          hit._source.mutectRunning,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "mutectRunning",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].mutectRunning
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "mutectFailed",
+          hit._source.mutectFailed,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "mutectFailed",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].mutectFailed
             : 0,
         ]);
       });
