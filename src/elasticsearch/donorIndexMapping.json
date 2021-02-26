@@ -50,6 +50,15 @@
       "alignmentsFailed": {
         "type": "byte"
       },
+      "mutectCompleted": {
+        "type": "byte"
+      },
+      "mutectRunning": {
+        "type": "byte"
+      },
+      "mutectFailed": {
+        "type": "byte"
+      },
       "sangerVcsCompleted": {
         "type": "byte"
       },
@@ -59,7 +68,6 @@
       "sangerVcsFailed": {
         "type": "byte"
       },
-
       "processingStatus": {
         "type": "keyword"
       },
