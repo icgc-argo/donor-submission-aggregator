@@ -123,7 +123,8 @@ export const indexRdpcData = async ({
 
   const rdpcDocsMap = mergeDonorStateMaps(donorInfo, rdpcInfoByDonor_mutect);
 
-  // get existing ES donors:
+  // get existing ES donors from the previous index, because we only want to index RDPC donors that
+  // have already been registered in clinical.
   const donorIds = Object.keys(rdpcDocsMap);
   const esHits = await queryDocumentsByDonorIds(
     donorIds,

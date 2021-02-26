@@ -1,7 +1,30 @@
 import { MongoDonorDocument } from "indexClinicalData/clinicalMongo/donorModel";
-import { EsDonorDocument, ClinicalDonorInfo } from "./types";
+import { EsDonorDocument, ClinicalDonorInfo, RdpcDonorInfo } from "./types";
 import { mean } from "lodash";
 import { esDonorId } from "./utils";
+
+const defaultRDPCInfo: RdpcDonorInfo = {
+  publishedNormalAnalysis: 0,
+  publishedTumourAnalysis: 0,
+
+  alignmentsCompleted: 0,
+  alignmentsRunning: 0,
+  alignmentsFailed: 0,
+
+  sangerVcsCompleted: 0,
+  sangerVcsRunning: 0,
+  sangerVcsFailed: 0,
+
+  mutectCompleted: 0,
+  mutectRunning: 0,
+  mutectFailed: 0,
+
+  totalFilesCount: 0,
+  filesToQcCount: 0,
+
+  releaseStatus: "NO_RELEASE",
+  processingStatus: "REGISTERED",
+};
 
 export default (
   mongoDoc: MongoDonorDocument,
@@ -35,30 +58,8 @@ export default (
   };
 
   if (existingEsData) {
-    return { ...existingEsData, ...clinicalData };
+    return { ...defaultRDPCInfo, ...existingEsData, ...clinicalData };
   } else {
-    return {
-      ...clinicalData,
-      publishedNormalAnalysis: 0,
-      publishedTumourAnalysis: 0,
-
-      alignmentsCompleted: 0,
-      alignmentsRunning: 0,
-      alignmentsFailed: 0,
-
-      sangerVcsCompleted: 0,
-      sangerVcsRunning: 0,
-      sangerVcsFailed: 0,
-
-      mutectCompleted: 0,
-      mutectRunning: 0,
-      mutectFailed: 0,
-
-      totalFilesCount: 0,
-      filesToQcCount: 0,
-
-      releaseStatus: "NO_RELEASE",
-      processingStatus: "REGISTERED",
-    };
+    return { ...defaultRDPCInfo, ...clinicalData };
   }
 };
