@@ -5,14 +5,11 @@ import {
   DonorInfoMap,
   RunsByInputAnalyses,
   RunState,
-  AnalysisType,
   SpecimensByDonors,
-  Specimen,
   TumourNormalDesignationValue,
 } from "./types";
 import logger from "logger";
 import HashCode from "ts-hashcode";
-import { SANGER_VC_REPO_URL, SEQ_ALIGN_REPO_URL } from "config";
 import fetchAnalyses from "rdpc/fetchAnalyses";
 import { EgoJwtManager } from "auth";
 import fetchAnalysesWithSpecimens from "./fetchAnalysesWithSpecimens";
@@ -70,6 +67,7 @@ export const analysisStream = async function* ({
   studyId,
   rdpcUrl,
   analysisType,
+  isMutect,
   egoJwtManager,
   config,
   analysesFetcher = fetchAnalyses,
@@ -78,6 +76,7 @@ export const analysisStream = async function* ({
   studyId: string;
   rdpcUrl: string;
   analysisType: string;
+  isMutect: boolean;
   egoJwtManager: EgoJwtManager;
   config: {
     chunkSize: number;
@@ -90,17 +89,12 @@ export const analysisStream = async function* ({
     currentPage: 0,
   };
 
-  const workflowRepoUrl =
-    analysisType === AnalysisType.SEQ_ALIGNMENT
-      ? SANGER_VC_REPO_URL
-      : SEQ_ALIGN_REPO_URL;
-
   while (true) {
     const page = await analysesFetcher({
       studyId,
       rdpcUrl,
-      workflowRepoUrl,
       analysisType,
+      isMutect,
       from: streamState.currentPage,
       size: chunkSize,
       egoJwtManager,
@@ -234,6 +228,7 @@ export const getAllRunsByAnalysesByDonors = (
 export const getAllMergedDonor = async ({
   analysesFetcher = fetchAnalyses,
   analysisType,
+  isMutect,
   egoJwtManager,
   studyId,
   url,
@@ -243,6 +238,7 @@ export const getAllMergedDonor = async ({
   studyId: string;
   url: string;
   analysisType: string;
+  isMutect: boolean;
   egoJwtManager: EgoJwtManager;
   donorIds?: string[];
   config: {
@@ -260,6 +256,7 @@ export const getAllMergedDonor = async ({
         studyId,
         rdpcUrl: url,
         analysisType,
+        isMutect,
         egoJwtManager,
         config,
         analysesFetcher,
@@ -280,6 +277,7 @@ export const getAllMergedDonor = async ({
       studyId,
       rdpcUrl: url,
       analysisType,
+      isMutect,
       egoJwtManager,
       config,
       analysesFetcher,
@@ -408,6 +406,45 @@ export const countSpecimenType = (donors: SpecimensByDonors): DonorInfoMap => {
   return result;
 };
 
+export const countMutectRunState = (
+  donorMap: RunsByAnalysesByDonors
+): DonorInfoMap => {
+  const result: DonorInfoMap = {};
+  Object.entries(donorMap).forEach(([donorId, map]) => {
+    Object.entries(map).forEach(([inputAnalysesId, runs]) => {
+      runs.forEach((run) => {
+        if (run.state === RunState.COMPLETE) {
+          if (result[donorId]) {
+            result[donorId].mutectCompleted += 1;
+          } else {
+            initializeRdpcInfo(result, donorId);
+            result[donorId].mutectCompleted += 1;
+          }
+        }
+
+        if (run.state === RunState.RUNNING) {
+          if (result[donorId]) {
+            result[donorId].mutectRunning += 1;
+          } else {
+            initializeRdpcInfo(result, donorId);
+            result[donorId].mutectRunning += 1;
+          }
+        }
+
+        if (run.state === RunState.EXECUTOR_ERROR) {
+          if (result[donorId]) {
+            result[donorId].mutectFailed += 1;
+          } else {
+            initializeRdpcInfo(result, donorId);
+            result[donorId].mutectFailed += 1;
+          }
+        }
+      });
+    });
+  });
+
+  return result;
+};
 // Removes COMPLETE (not RUNNING OR EXECUTOR_ERROR) runs with suppressed producedAnalyses
 export const removeCompleteRunsWithSuppressedAnalyses = (
   analyses: Analysis[]
@@ -525,6 +562,9 @@ export const initializeRdpcInfo = (
     sangerVcsCompleted: 0,
     sangerVcsRunning: 0,
     sangerVcsFailed: 0,
+    mutectCompleted: 0,
+    mutectRunning: 0,
+    mutectFailed: 0,
     totalFilesCount: 0,
     filesToQcCount: 0,
     releaseStatus: "NO_RELEASE",
@@ -545,6 +585,7 @@ export const mergeDonorStateMaps = (
         publishedTumourAnalysis:
           (acc[donorId]?.publishedTumourAnalysis || 0) +
           rdpcInfo.publishedTumourAnalysis,
+
         alignmentsCompleted:
           (acc[donorId]?.alignmentsCompleted || 0) +
           rdpcInfo.alignmentsCompleted,
@@ -552,12 +593,20 @@ export const mergeDonorStateMaps = (
           (acc[donorId]?.alignmentsRunning || 0) + rdpcInfo.alignmentsRunning,
         alignmentsFailed:
           (acc[donorId]?.alignmentsFailed || 0) + rdpcInfo.alignmentsFailed,
+
         sangerVcsCompleted:
           (acc[donorId]?.sangerVcsCompleted || 0) + rdpcInfo.sangerVcsCompleted,
         sangerVcsRunning:
           (acc[donorId]?.sangerVcsRunning || 0) + rdpcInfo.sangerVcsRunning,
         sangerVcsFailed:
           (acc[donorId]?.sangerVcsFailed || 0) + rdpcInfo.sangerVcsFailed,
+
+        mutectCompleted:
+          (acc[donorId]?.mutectCompleted || 0) + rdpcInfo.mutectCompleted,
+        mutectRunning:
+          (acc[donorId]?.mutectRunning || 0) + rdpcInfo.mutectRunning,
+        mutectFailed: (acc[donorId]?.mutectFailed || 0) + rdpcInfo.mutectFailed,
+
         totalFilesCount:
           (acc[donorId]?.totalFilesCount || 0) + rdpcInfo.totalFilesCount,
         filesToQcCount:

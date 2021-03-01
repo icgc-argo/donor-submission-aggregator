@@ -12,7 +12,8 @@ import {
   expectedRDPCData,
 } from "./fixtures/integrationTest/dataset";
 import {
-  mockSeqAlignmentAnalyses,
+  mockSeqAlignmentAnalyses_mutect,
+  mockSeqAlignmentAnalyses_sanger,
   mockSeqExpAnalyses,
   mockSeqExpAnalysesWithSpecimens,
 } from "./fixtures/integrationTest/mockAnalyses";
@@ -45,8 +46,8 @@ describe("should index RDPC analyses to donor index", () => {
   const mockAnalysisFetcher: typeof fetchAnalyses = async ({
     studyId,
     rdpcUrl,
-    workflowRepoUrl,
     analysisType,
+    isMutect,
     from,
     size,
     egoJwtManager,
@@ -59,7 +60,11 @@ describe("should index RDPC analyses to donor index", () => {
         ? mockSeqExpAnalyses
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
-        : mockSeqAlignmentAnalyses
+        : isMutect
+        ? mockSeqAlignmentAnalyses_mutect
+            .filter((analysis) => analysis.donors.some(matchesDonorId))
+            .slice(from, from + size)
+        : mockSeqAlignmentAnalyses_sanger
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
     );
@@ -225,6 +230,15 @@ describe("should index RDPC analyses to donor index", () => {
       expect(hit._source.sangerVcsRunning).to.equal(
         expectedRDPCData[hit._source.donorId].sangerVcsRunning
       );
+      expect(hit._source.mutectCompleted).to.equal(
+        expectedRDPCData[hit._source.donorId].mutectCompleted
+      );
+      expect(hit._source.mutectRunning).to.equal(
+        expectedRDPCData[hit._source.donorId].mutectRunning
+      );
+      expect(hit._source.mutectFailed).to.equal(
+        expectedRDPCData[hit._source.donorId].mutectFailed
+      );
     }
   });
 
@@ -240,7 +254,7 @@ describe("should index RDPC analyses to donor index", () => {
       refresh: "wait_for",
     });
 
-    const testAnalysis = mockSeqAlignmentAnalyses[0];
+    const testAnalysis = mockSeqAlignmentAnalyses_sanger[0];
 
     const testDonorId = testAnalysis.donors[0].donorId;
 
@@ -342,6 +356,39 @@ describe("should index RDPC analyses to donor index", () => {
         "sangerVcsRunning",
         hit._source.donorId === testDonorId
           ? expectedRDPCData[hit._source.donorId].sangerVcsRunning
+          : 0,
+      ]);
+      expect([
+        hit._source.donorId,
+        "mutectCompleted",
+        hit._source.mutectCompleted,
+      ]).to.deep.equal([
+        hit._source.donorId,
+        "mutectCompleted",
+        hit._source.donorId === testDonorId
+          ? expectedRDPCData[hit._source.donorId].mutectCompleted
+          : 0,
+      ]);
+      expect([
+        hit._source.donorId,
+        "mutectRunning",
+        hit._source.mutectRunning,
+      ]).to.deep.equal([
+        hit._source.donorId,
+        "mutectRunning",
+        hit._source.donorId === testDonorId
+          ? expectedRDPCData[hit._source.donorId].mutectRunning
+          : 0,
+      ]);
+      expect([
+        hit._source.donorId,
+        "mutectFailed",
+        hit._source.mutectFailed,
+      ]).to.deep.equal([
+        hit._source.donorId,
+        "mutectFailed",
+        hit._source.donorId === testDonorId
+          ? expectedRDPCData[hit._source.donorId].mutectFailed
           : 0,
       ]);
     });

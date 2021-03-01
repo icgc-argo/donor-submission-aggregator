@@ -49,6 +49,10 @@ export const SANGER_VC_REPO_URL =
   process.env.SANGER_VC_REPO_URL ||
   "https://github.com/icgc-argo/sanger-variant-calling.git";
 
+export const MUTECT_REPO_URL =
+  process.env.MUTECT_REPO_URL ||
+  "https://github.com/icgc-argo/gatk-mutect2-variant-calling.git";
+
 export const CLINICAL_PROGRAM_UPDATE_TOPIC =
   process.env.CLINICAL_PROGRAM_UPDATE_TOPIC || "PROGRAM_UPDATE";
 
