@@ -128,8 +128,9 @@ const fetchAnalyses = async ({
       const jsonResponse = await response.json();
       const hasError = jsonResponse.errors?.length > 0;
       if (hasError) {
+        const error = JSON.stringify(jsonResponse.errors);
         logger.error(
-          `received error from rdpc... page: from => ${from} size => ${size}`
+          `received error from rdpc... page: from => ${from} size => ${size}. Error: ${error}`
         );
       }
       return jsonResponse.data.analyses.content as Analysis[];
