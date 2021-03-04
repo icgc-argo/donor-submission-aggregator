@@ -49,6 +49,10 @@ export const SANGER_VC_REPO_URL =
   process.env.SANGER_VC_REPO_URL ||
   "https://github.com/icgc-argo/sanger-variant-calling.git";
 
+export const MUTECT_REPO_URL =
+  process.env.MUTECT_REPO_URL ||
+  "https://github.com/icgc-argo/gatk-mutect2-variant-calling.git";
+
 export const CLINICAL_PROGRAM_UPDATE_TOPIC =
   process.env.CLINICAL_PROGRAM_UPDATE_TOPIC || "PROGRAM_UPDATE";
 
@@ -62,13 +66,13 @@ export const DLQ_TOPIC_NAME =
   process.env.DLQ_TOPIC_NAME || "donor_aggregator_dlq";
 
 export const KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL =
-  process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL || 6 * 1000;
+  process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL || 12 * 1000;
 
 export const KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT =
-  process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT || 60 * 1000;
+  process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT || 120 * 1000;
 
 export const KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT =
-  process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT || 120 * 1000;
+  process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT || 240 * 1000;
 
 export const KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP =
   process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP ||

@@ -1,9 +1,14 @@
 import fetch from "node-fetch";
-import { Analysis } from "./types";
+import { Analysis, AnalysisType } from "./types";
 import logger from "logger";
 import promiseRetry from "promise-retry";
 import _ from "lodash";
 import { EgoAccessToken, EgoJwtManager } from "auth";
+import {
+  MUTECT_REPO_URL,
+  SANGER_VC_REPO_URL,
+  SEQ_ALIGN_REPO_URL,
+} from "config";
 
 const query = `
 fragment AnalysisData on Analysis {
@@ -75,8 +80,8 @@ const retryConfig = {
 const fetchAnalyses = async ({
   studyId,
   rdpcUrl,
-  workflowRepoUrl,
   analysisType,
+  isMutect,
   from,
   size,
   egoJwtManager,
@@ -84,8 +89,8 @@ const fetchAnalyses = async ({
 }: {
   studyId: string;
   rdpcUrl: string;
-  workflowRepoUrl: string;
   analysisType: string;
+  isMutect: boolean;
   from: number;
   size: number;
   egoJwtManager: EgoJwtManager;
@@ -95,7 +100,7 @@ const fetchAnalyses = async ({
   const accessToken = jwt.access_token;
   return await promiseRetry<Analysis[]>(async (retry) => {
     try {
-      logger.info(`Fetching ${analysisType} analyses from rdpc.....`);
+      const workflowRepoUrl = getWorkflowRepoUrl(analysisType, isMutect);
 
       const response = await fetch(rdpcUrl, {
         method: "POST",
@@ -123,8 +128,9 @@ const fetchAnalyses = async ({
       const jsonResponse = await response.json();
       const hasError = jsonResponse.errors?.length > 0;
       if (hasError) {
+        const error = JSON.stringify(jsonResponse.errors);
         logger.error(
-          `received error from rdpc... page: from => ${from} size => ${size}`
+          `received error from rdpc... page: from => ${from} size => ${size}. Error: ${error}`
         );
       }
       return jsonResponse.data.analyses.content as Analysis[];
@@ -138,6 +144,28 @@ const fetchAnalyses = async ({
     );
     throw err;
   });
+};
+
+const getWorkflowRepoUrl = (
+  analysisType: string,
+  isMutect: boolean
+): string => {
+  if (analysisType === AnalysisType.SEQ_EXPERIMENT) {
+    logger.info(
+      `Starting to query ${analysisType} analyses for alignment workflow runs`
+    );
+    return SEQ_ALIGN_REPO_URL;
+  } else if (analysisType === AnalysisType.SEQ_ALIGNMENT && isMutect) {
+    logger.info(
+      `Starting to query ${analysisType} analyses for mutect2 workflow runs`
+    );
+    return MUTECT_REPO_URL;
+  } else {
+    logger.info(
+      `Starting to query ${analysisType} analyses for sanger variant calling workflow runs`
+    );
+    return SANGER_VC_REPO_URL;
+  }
 };
 
 export default fetchAnalyses;

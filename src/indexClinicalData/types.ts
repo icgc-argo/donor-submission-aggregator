@@ -20,6 +20,10 @@ export type RdpcDonorInfo = {
   sangerVcsRunning: number;
   sangerVcsFailed: number;
 
+  mutectCompleted: number;
+  mutectRunning: number;
+  mutectFailed: number;
+
   totalFilesCount: number;
   filesToQcCount: number;
 

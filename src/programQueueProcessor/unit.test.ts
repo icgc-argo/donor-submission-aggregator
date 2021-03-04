@@ -26,7 +26,8 @@ import {
 import fetchAnalyses from "rdpc/fetchAnalyses";
 import { Analysis, AnalysisType } from "rdpc/types";
 import {
-  mockSeqAlignmentAnalyses,
+  mockSeqAlignmentAnalyses_mutect,
+  mockSeqAlignmentAnalyses_sanger,
   mockSeqExpAnalyses,
   mockSeqExpAnalysesWithSpecimens,
 } from "rdpc/fixtures/integrationTest/mockAnalyses";
@@ -107,8 +108,8 @@ describe("kafka integration", () => {
   const mockAnalysisFetcher: typeof fetchAnalyses = async ({
     studyId,
     rdpcUrl,
-    workflowRepoUrl,
     analysisType,
+    isMutect,
     from,
     size,
     egoJwtManager,
@@ -116,17 +117,19 @@ describe("kafka integration", () => {
   }): Promise<Analysis[]> => {
     const matchesDonorId = (donor: any) =>
       donorId ? donor.donorId === donorId : true;
-
-    const output =
+    return Promise.resolve(
       analysisType === AnalysisType.SEQ_EXPERIMENT
         ? mockSeqExpAnalyses
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
-        : mockSeqAlignmentAnalyses
+        : isMutect
+        ? mockSeqAlignmentAnalyses_mutect
             .filter((analysis) => analysis.donors.some(matchesDonorId))
-            .slice(from, from + size);
-
-    return Promise.resolve(output);
+            .slice(from, from + size)
+        : mockSeqAlignmentAnalyses_sanger
+            .filter((analysis) => analysis.donors.some(matchesDonorId))
+            .slice(from, from + size)
+    );
   };
 
   before(async () => {
@@ -308,7 +311,7 @@ describe("kafka integration", () => {
         type: programQueueProcessor.knownEventTypes.CLINICAL,
       });
       // wait for indexing to complete
-      await new Promise((resolve) => {
+      await new Promise<void>((resolve) => {
         setTimeout(() => {
           resolve();
         }, 30000);
@@ -328,7 +331,7 @@ describe("kafka integration", () => {
         type: programQueueProcessor.knownEventTypes.CLINICAL,
       });
 
-      await new Promise((resolve) => {
+      await new Promise<void>((resolve) => {
         setTimeout(() => {
           resolve();
         }, 30000);
@@ -356,7 +359,7 @@ describe("kafka integration", () => {
         rdpcGatewayUrls: [RDPC_URL],
       });
 
-      await new Promise((resolve) => {
+      await new Promise<void>((resolve) => {
         setTimeout(() => {
           resolve();
         }, 30000);
@@ -422,6 +425,15 @@ describe("kafka integration", () => {
         expect(test_ca_hit.hits[0]._source.sangerVcsRunning).to.equal(
           expectedRDPCData["DO" + donorId].sangerVcsRunning
         );
+        expect(test_ca_hit.hits[0]._source.mutectCompleted).to.equal(
+          expectedRDPCData["DO" + donorId].mutectCompleted
+        );
+        expect(test_ca_hit.hits[0]._source.mutectRunning).to.equal(
+          expectedRDPCData["DO" + donorId].mutectRunning
+        );
+        expect(test_ca_hit.hits[0]._source.mutectFailed).to.equal(
+          expectedRDPCData["DO" + donorId].mutectFailed
+        );
       }
 
       // check if the number of TEST-US documents is expected:
@@ -467,7 +479,7 @@ describe("kafka integration", () => {
         type: programQueueProcessor.knownEventTypes.CLINICAL,
       });
 
-      await new Promise((resolve) => {
+      await new Promise<void>((resolve) => {
         setTimeout(() => {
           resolve();
         }, 30000);
@@ -499,7 +511,7 @@ describe("kafka integration", () => {
         type: programQueueProcessor.knownEventTypes.CLINICAL,
       });
 
-      await new Promise((resolve) => {
+      await new Promise<void>((resolve) => {
         setTimeout(() => {
           resolve();
         }, 30000);
@@ -567,7 +579,7 @@ describe("kafka integration", () => {
           type: programQueueProcessor.knownEventTypes.CLINICAL,
         });
 
-        await new Promise((resolve) => {
+        await new Promise<void>((resolve) => {
           setTimeout(() => {
             resolve();
           }, 30000);
@@ -604,7 +616,6 @@ describe("kafka integration", () => {
         expect(test_ca_re_2_documents).to.equal(clinicalDataset.length);
       }
     );
-
     it("handles incremental analysis updates properly", async () => {
       await createIndexAndAlias(TEST_CA);
       const testAnalysis = mockSeqExpAnalyses[0];
@@ -632,7 +643,7 @@ describe("kafka integration", () => {
       });
 
       // wait for indexing to complete
-      await new Promise((resolve) => {
+      await new Promise<void>((resolve) => {
         setTimeout(() => {
           resolve();
         }, 30000);
@@ -720,6 +731,39 @@ describe("kafka integration", () => {
           "sangerVcsRunning",
           hit._source.donorId === testDonorId
             ? expectedRDPCData[hit._source.donorId].sangerVcsRunning
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "mutectCompleted",
+          hit._source.mutectCompleted,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "mutectCompleted",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].mutectCompleted
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "mutectRunning",
+          hit._source.mutectRunning,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "mutectRunning",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].mutectRunning
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "mutectFailed",
+          hit._source.mutectFailed,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "mutectFailed",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].mutectFailed
             : 0,
         ]);
       });
