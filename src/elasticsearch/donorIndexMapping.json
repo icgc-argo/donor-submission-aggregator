@@ -40,7 +40,9 @@
       "publishedTumourAnalysis": {
         "type": "byte"
       },
-
+      "rawReadsFirstPublishedDate": {
+        "type": "date"
+      },
       "alignmentsCompleted": {
         "type": "byte"
       },
@@ -49,6 +51,9 @@
       },
       "alignmentsFailed": {
         "type": "byte"
+      },
+      "alignmentFirstPublishedDate": {
+        "type": "date"
       },
       "mutectCompleted": {
         "type": "byte"
@@ -59,6 +64,9 @@
       "mutectFailed": {
         "type": "byte"
       },
+      "mutectFirstPublishedDate": {
+        "type": "date"
+      },
       "sangerVcsCompleted": {
         "type": "byte"
       },
@@ -67,6 +75,9 @@
       },
       "sangerVcsFailed": {
         "type": "byte"
+      },
+      "sangerVcsFirstPublishedDate": {
+        "type": "date"
       },
       "processingStatus": {
         "type": "keyword"
