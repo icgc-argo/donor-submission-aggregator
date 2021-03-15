@@ -22,7 +22,7 @@ import {
   clinicalDataset,
   expectedRDPCData,
   testDonorIds,
-} from "rdpc/fixtures/integrationTest/dataset";
+} from "rdpc/test/fixtures/integrationTest/dataset";
 import fetchAnalyses from "rdpc/fetchAnalyses";
 import { Analysis, AnalysisType } from "rdpc/types";
 import {
@@ -30,7 +30,7 @@ import {
   mockSeqAlignmentAnalyses_sanger,
   mockSeqExpAnalyses,
   mockSeqExpAnalysesWithSpecimens,
-} from "rdpc/fixtures/integrationTest/mockAnalyses";
+} from "rdpc/test/fixtures/integrationTest/mockAnalyses";
 import esb from "elastic-builder";
 import { EsHit } from "indexClinicalData/types";
 import donorIndexMapping from "elasticsearch/donorIndexMapping.json";

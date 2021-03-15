@@ -15,11 +15,17 @@ query ($analysisFilter: AnalysisFilter, $analysisPage: Page){
       content {
         analysisId
         analysisType
+        experiment
+        firstPublishedAt
         donors {
           donorId
           specimens {
             specimenId
             tumourNormalDesignation
+            samples {
+              submitterSampleId
+              matchedNormalSubmitterSampleId
+            }
           }
         }
       }

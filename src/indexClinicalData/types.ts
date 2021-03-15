@@ -11,6 +11,7 @@ export type DonorMolecularDataProcessingStatus =
 export type RdpcDonorInfo = {
   publishedNormalAnalysis: number;
   publishedTumourAnalysis: number;
+  rawReadsFirstPublishedDate?: Date;
 
   alignmentsCompleted: number;
   alignmentsRunning: number;

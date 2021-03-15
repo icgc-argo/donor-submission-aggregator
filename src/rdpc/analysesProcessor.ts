@@ -1,4 +1,5 @@
 import {
+  Donor,
   Run,
   RunsByAnalysesByDonors,
   Analysis,
@@ -7,6 +8,10 @@ import {
   RunState,
   SpecimensByDonors,
   TumourNormalDesignationValue,
+  DonorData,
+  StringMap,
+  FlattenedSample,
+  SamplePair,
 } from "./types";
 import logger from "logger";
 import HashCode from "ts-hashcode";
@@ -19,7 +24,7 @@ type StreamState = {
   currentPage: number;
 };
 
-export const analysisStream_withSpecimens = async function* ({
+const analysisStream_withSpecimens = async function* ({
   studyId,
   rdpcUrl,
   egoJwtManager,
@@ -312,8 +317,8 @@ export const getAllMergedDonorWithSpecimens = async ({
     state?: StreamState;
   };
   analysesFetcher: typeof fetchAnalysesWithSpecimens;
-}): Promise<SpecimensByDonors> => {
-  let mergedDonors: SpecimensByDonors = {};
+}): Promise<StringMap<DonorData>> => {
+  const donorMap: StringMap<DonorData> = {};
 
   if (donorIds) {
     for (const donorId of donorIds) {
@@ -335,8 +340,11 @@ export const getAllMergedDonorWithSpecimens = async ({
         logger.info(
           `Streaming ${page.length} of sequencing experiment analyses with specimens...`
         );
-        const donorPerPage = aggregateSpecimensByDonorId(page);
-        mergeAllPagesSpecimensByDonorId(mergedDonors, donorPerPage);
+
+        const donorDataMapPerPage: StringMap<DonorData> = convertAnalysisToDonorData(
+          page
+        );
+        mergeAllPagesDonorData(donorMap, donorDataMapPerPage);
       }
     }
   } else {
@@ -347,6 +355,7 @@ export const getAllMergedDonorWithSpecimens = async ({
       config,
       analysesFetcher,
     });
+
     for await (const page of stream) {
       if (page.length === 0) {
         logger.info(
@@ -356,30 +365,129 @@ export const getAllMergedDonorWithSpecimens = async ({
       logger.info(
         `Streaming ${page.length} of sequencing experiment analyses with specimens...`
       );
-      const donorPerPage = aggregateSpecimensByDonorId(page);
-      mergeAllPagesSpecimensByDonorId(mergedDonors, donorPerPage);
+
+      const donorDataMapPerPage: StringMap<DonorData> = convertAnalysisToDonorData(
+        page
+      );
+      mergeAllPagesDonorData(donorMap, donorDataMapPerPage);
     }
   }
-  return mergedDonors;
+  return donorMap;
 };
 
-// merges specimens from all pages, as same donor ids can be found in multiple pages
-const mergeAllPagesSpecimensByDonorId = (
-  merged: SpecimensByDonors,
-  toMerge: SpecimensByDonors
+const convertAnalysisToDonorData = (
+  analyses: Analysis[]
+): StringMap<DonorData> => {
+  const donorDataMapPerPage: StringMap<DonorData> = analyses.reduce<
+    StringMap<DonorData>
+  >((donorDataAccumulator, analysis) => {
+    analysis.donors.forEach((donor) => {
+      // Analysis.experiment.experimental_strategy and experiment.library_strategy are the SAME fields,
+      // currently becuase of historical reasons, some analyses use experimental_strategy and some
+      // use library_strategy, tickets are made to ensure all analyses use experimental_strategy in
+      // the future, but for now we must consider both fields.
+      const experimentStrategy = analysis.experiment.experimental_strategy
+        ? analysis.experiment.experimental_strategy
+        : analysis.experiment.library_strategy;
+
+      const donorData = getDonorData(
+        donor,
+        analysis.firstPublishedAt,
+        experimentStrategy
+      );
+      mergeDonorData(donorDataAccumulator, donorData);
+    });
+    return donorDataAccumulator;
+  }, {});
+
+  return donorDataMapPerPage;
+};
+
+// merged has accumulated DonorData map, toMerge has the current DonorData map
+const mergeAllPagesDonorData = (
+  merged: StringMap<DonorData>,
+  toMerge: StringMap<DonorData>
 ) => {
-  Object.entries(toMerge).forEach(([donorId, specimens]) => {
-    const mergedSpecimens = merged[donorId]
-      ? [...merged[donorId], ...specimens]
-      : specimens;
-    merged[donorId] = mergedSpecimens;
+  Object.entries(toMerge).forEach(([donorId, donorData]) => {
+    if (merged[donorId]) {
+      merged[donorId].specimen = [
+        ...merged[donorId].specimen,
+        ...donorData.specimen,
+      ];
+      merged[donorId].samplePairs = [
+        ...merged[donorId].samplePairs,
+        ...donorData.samplePairs,
+      ];
+    } else {
+      merged[donorId] = donorData;
+    }
   });
 };
 
-export const countSpecimenType = (donors: SpecimensByDonors): DonorInfoMap => {
+const mergeDonorData = (map: StringMap<DonorData>, donorData: DonorData) => {
+  if (map[donorData.donorId]) {
+    map[donorData.donorId].specimen = [
+      ...map[donorData.donorId].specimen,
+      ...donorData.specimen,
+    ];
+    map[donorData.donorId].samplePairs = [
+      ...map[donorData.donorId].samplePairs,
+      ...donorData.samplePairs,
+    ];
+  } else {
+    map[donorData.donorId] = donorData;
+  }
+};
+
+// extracts specimen and sample from Donor to form a sample/specimen object
+const getDonorData = (
+  donor: Donor,
+  firstPublishedAt: string,
+  experimentStrategy: string
+): DonorData => {
+  // there is only 1 specimen and  1 sample in each sequencing experiment analysis,
+  // So we can flatten the spcimen[] and sample[]
+  const specimen = donor.specimens[0];
+  const sample = specimen.samples[0];
+
+  const flattenedSample: FlattenedSample = {
+    specimenId: specimen.specimenId,
+    tumourNormalDesignation:
+      specimen.tumourNormalDesignation === TumourNormalDesignationValue.Normal
+        ? TumourNormalDesignationValue.Normal
+        : TumourNormalDesignationValue.Tumour,
+    submitterSampleId: sample.submitterSampleId,
+    matchedNormalSubmitterSampleId:
+      sample.matchedNormalSubmitterSampleId === null
+        ? ""
+        : sample.matchedNormalSubmitterSampleId,
+    firstPublishedAt: firstPublishedAt,
+    experimentStrategy: experimentStrategy,
+  };
+
+  const samplePair: SamplePair =
+    flattenedSample.tumourNormalDesignation ===
+    TumourNormalDesignationValue.Normal
+      ? {
+          normalSample: flattenedSample,
+          firstPublishedAt: Number(flattenedSample.firstPublishedAt),
+        }
+      : {
+          tumourSample: flattenedSample,
+          firstPublishedAt: Number(flattenedSample.firstPublishedAt),
+        };
+
+  return {
+    donorId: donor.donorId,
+    specimen: donor.specimens,
+    samplePairs: [samplePair],
+  };
+};
+
+export const countSpecimenType = (map: StringMap<DonorData>): DonorInfoMap => {
   const result: DonorInfoMap = {};
-  Object.entries(donors).forEach(([donorId, specimens]) => {
-    for (const specimen of specimens) {
+  Object.entries(map).forEach(([donorId, donorData]) => {
+    for (const specimen of donorData.specimen) {
       if (
         specimen.tumourNormalDesignation === TumourNormalDesignationValue.Normal
       ) {
@@ -445,6 +553,7 @@ export const countMutectRunState = (
 
   return result;
 };
+
 // Removes COMPLETE (not RUNNING OR EXECUTOR_ERROR) runs with suppressed producedAnalyses
 export const removeCompleteRunsWithSuppressedAnalyses = (
   analyses: Analysis[]
@@ -549,6 +658,21 @@ export const countVCRunState = (
   return result;
 };
 
+export const samplePairToDonorInfo = (
+  samplePairs: StringMap<SamplePair>
+): DonorInfoMap => {
+  const donorInfo: DonorInfoMap = {};
+  Object.entries(samplePairs).forEach(([donorId, pair]) => {
+    if (pair.firstPublishedAt !== 0) {
+      initializeRdpcInfo(donorInfo, donorId);
+      donorInfo[donorId].rawReadsFirstPublishedDate = new Date(
+        pair.firstPublishedAt
+      );
+    }
+  });
+  return donorInfo;
+};
+
 export const initializeRdpcInfo = (
   result: DonorInfoMap,
   donorId: string
@@ -572,7 +696,7 @@ export const initializeRdpcInfo = (
   };
 };
 
-export const mergeDonorStateMaps = (
+export const mergeDonorInfo = (
   map: DonorInfoMap,
   mergeWith: DonorInfoMap
 ): DonorInfoMap => {
@@ -585,6 +709,7 @@ export const mergeDonorStateMaps = (
         publishedTumourAnalysis:
           (acc[donorId]?.publishedTumourAnalysis || 0) +
           rdpcInfo.publishedTumourAnalysis,
+        rawReadsFirstPublishedDate: rdpcInfo.rawReadsFirstPublishedDate,
 
         alignmentsCompleted:
           (acc[donorId]?.alignmentsCompleted || 0) +

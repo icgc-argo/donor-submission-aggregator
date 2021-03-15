@@ -17,9 +17,9 @@ import {
   mockSeqExpAnalyses,
   mockSeqExpAnalysesWithSpecimens,
 } from "./fixtures/integrationTest/mockAnalyses";
-import { Analysis, AnalysisType } from "./types";
+import { Analysis, AnalysisType } from "../types";
 import { EgoAccessToken, EgoJwtManager } from "auth";
-import fetchAnalysesWithSpecimens from "./fetchAnalysesWithSpecimens";
+import fetchAnalysesWithSpecimens from "../fetchAnalysesWithSpecimens";
 
 describe("should index RDPC analyses to donor index", () => {
   let elasticsearchContainer: StartedTestContainer;

@@ -6,6 +6,7 @@ import { esDonorId } from "./utils";
 const defaultRDPCInfo: RdpcDonorInfo = {
   publishedNormalAnalysis: 0,
   publishedTumourAnalysis: 0,
+  // rawReadsFirstPublishedDate: new Date(),
 
   alignmentsCompleted: 0,
   alignmentsRunning: 0,

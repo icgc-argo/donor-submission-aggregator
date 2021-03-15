@@ -1,11 +1,12 @@
 import {
+  samplePairToDonorInfo,
   countAlignmentRunState,
   countMutectRunState,
   countSpecimenType,
   countVCRunState,
   getAllMergedDonor,
   getAllMergedDonorWithSpecimens,
-  mergeDonorStateMaps,
+  mergeDonorInfo,
 } from "./analysesProcessor";
 import { STREAM_CHUNK_SIZE } from "config";
 import { queryDocumentsByDonorIds } from "indexClinicalData";
@@ -13,11 +14,15 @@ import { Client } from "@elastic/elasticsearch";
 import { EsDonorDocument, EsHit, RdpcDonorInfo } from "indexClinicalData/types";
 import { toEsBulkIndexActions } from "elasticsearch";
 import logger from "logger";
-import { AnalysisType } from "./types";
 import fetchAnalyses from "./fetchAnalyses";
 import fetchDonorIdsByAnalysis from "./fetchDonorIdsByAnalysis";
 import { EgoJwtManager } from "auth";
 import fetchAnalysesWithSpecimens from "./fetchAnalysesWithSpecimens";
+import {
+  findEarliestAvailableSamplePair,
+  findMatchedTNPairs,
+} from "./findMatchedTNPairs";
+import { AnalysisType } from "./types";
 
 const convertToEsDocument = (
   existingEsHit: EsDonorDocument,
@@ -59,7 +64,7 @@ export const indexRdpcData = async ({
       })
     : undefined;
 
-  const mergedSpecimensByDonor = await getAllMergedDonorWithSpecimens({
+  const mergedDonorDataMap = await getAllMergedDonorWithSpecimens({
     studyId: programId,
     url: rdpcUrl,
     egoJwtManager,
@@ -107,21 +112,31 @@ export const indexRdpcData = async ({
 
   const rdpcInfoByDonor_VC = countVCRunState(mergedVCDonors);
 
-  const rdpcInfoByDonor_specimens = countSpecimenType(mergedSpecimensByDonor);
+  const rdpcInfoByDonor_specimens = countSpecimenType(mergedDonorDataMap);
+
+  const donorsWithMatchedSamplePairs = findMatchedTNPairs(mergedDonorDataMap);
+
+  const donorsWithEarliestPair = findEarliestAvailableSamplePair(
+    donorsWithMatchedSamplePairs
+  );
+
+  const rdpcInfo_rawReadsDate = samplePairToDonorInfo(donorsWithEarliestPair);
 
   const rdpcInfoByDonor_mutect = countMutectRunState(mergedMutectDonors);
 
-  const donorInfo_alignmentAndVC = mergeDonorStateMaps(
+  const donorInfo_alignmentAndVC = mergeDonorInfo(
     rdpcInfoByDonor_alignment,
     rdpcInfoByDonor_VC
   );
 
-  const donorInfo = mergeDonorStateMaps(
+  const donorInfo = mergeDonorInfo(
     donorInfo_alignmentAndVC,
     rdpcInfoByDonor_specimens
   );
 
-  const rdpcDocsMap = mergeDonorStateMaps(donorInfo, rdpcInfoByDonor_mutect);
+  const donorInfo_dna_data = mergeDonorInfo(donorInfo, rdpcInfoByDonor_mutect);
+
+  const rdpcDocsMap = mergeDonorInfo(donorInfo_dna_data, rdpcInfo_rawReadsDate);
 
   // get existing ES donors from the previous index, because we only want to index RDPC donors that
   // have already been registered in clinical.
