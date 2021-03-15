@@ -51,14 +51,16 @@ import { isNotEmptyString } from "utils";
       );
       // validate programId:
       const regex = new RegExp(
-        "^[A-Z0-9][-_A-Z0-9]{2,7}[-](([A-Z][A-Z])|(\bINTL\b))$"
+        "^[A-Z0-9][-_A-Z0-9]{2,7}[-](([A-Z][A-Z])|(INTL))$"
       );
       const found = programId.match(regex);
 
       if (!found) {
         return res
           .status(400)
-          .send("programId is invalid, please enter a valid programId.");
+          .send(
+            `ProgramId (${programId}) is invalid, please enter a valid programId.`
+          );
       } else {
         await programQueueProcessor.enqueueEvent({
           programId: programId,
