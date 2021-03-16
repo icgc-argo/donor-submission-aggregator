@@ -19,7 +19,7 @@ export const findMatchedTNPairs = (
   Object.entries(map).forEach(([donorId, donorData]) => {
     const allSamplePairs: SamplePair[] = [];
     donorData.samplePairs.forEach((currentSample) => {
-      if (currentSample.tumourSample) {
+      if (currentSample.tumourSample && !currentSample.normalSample) {
         const matchedNormalSample = donorData.samplePairs.filter(
           (sample) =>
             sample.normalSample &&
@@ -29,55 +29,36 @@ export const findMatchedTNPairs = (
             sample.normalSample.experimentStrategy ===
               currentSample.tumourSample?.experimentStrategy &&
             sample.normalSample.submitterSampleId ===
-              currentSample.tumourSample?.matchedNormalSubmitterSampleId
+              currentSample.tumourSample.matchedNormalSubmitterSampleId
         );
 
         matchedNormalSample.forEach((matched) => {
-          const samplePair = {
-            normalSample: matched.normalSample,
-            tumourSample: currentSample.tumourSample,
-            firstPublishedAt: determinSamplePairFirstPublishedDate(
-              matched,
-              currentSample
-            ),
-          };
-          allSamplePairs.push(samplePair);
+          if (
+            matched.normalSample &&
+            !matched.tumourSample &&
+            currentSample.tumourSample &&
+            !currentSample.normalSample
+          ) {
+            const samplePair = {
+              normalSample: matched.normalSample,
+              tumourSample: currentSample.tumourSample,
+              firstPublishedAt: Math.max(
+                Number(matched.normalSample.firstPublishedAt),
+                Number(currentSample.tumourSample.firstPublishedAt)
+              ),
+            };
+            allSamplePairs.push(samplePair);
+          }
         });
       }
     });
 
-    if (donorsWithSamplePairs[donorId]) {
-      donorsWithSamplePairs[donorId] = [
-        ...donorsWithSamplePairs[donorId],
-        ...allSamplePairs,
-      ];
-    } else {
-      donorsWithSamplePairs[donorId] = allSamplePairs;
-    }
+    donorsWithSamplePairs[donorId] = (
+      donorsWithSamplePairs[donorId] || []
+    ).concat(allSamplePairs);
   });
 
   return donorsWithSamplePairs;
-};
-
-// returns the most recent first published date as the earliest available sample pair published date
-const determinSamplePairFirstPublishedDate = (
-  normal: SamplePair,
-  tumour: SamplePair
-): number => {
-  if (
-    normal.normalSample &&
-    !normal.tumourSample &&
-    tumour.tumourSample &&
-    !tumour.normalSample
-  ) {
-    return Math.max(
-      Number(normal.normalSample.firstPublishedAt),
-      Number(tumour.tumourSample.firstPublishedAt)
-    );
-  } else {
-    throw new Error(`determinFirstPublishedDatePerPair: Cannot determin first published date for sample pairs,
-        either tumour or normal sample is missing in SamplePair.`);
-  }
 };
 
 // Iterates over donor's T/N sample pairs and
