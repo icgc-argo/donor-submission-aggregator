@@ -1,71 +1,22 @@
 import {
-  Donor,
   Run,
   RunsByAnalysesByDonors,
   Analysis,
   DonorInfoMap,
   RunsByInputAnalyses,
   RunState,
-  SpecimensByDonors,
   TumourNormalDesignationValue,
   DonorData,
   StringMap,
-  FlattenedSample,
-  SamplePair,
 } from "./types";
 import logger from "logger";
 import HashCode from "ts-hashcode";
 import fetchAnalyses from "rdpc/fetchAnalyses";
 import { EgoJwtManager } from "auth";
-import fetchAnalysesWithSpecimens from "./fetchAnalysesWithSpecimens";
 import _ from "lodash";
 
 type StreamState = {
   currentPage: number;
-};
-
-const analysisStream_withSpecimens = async function* ({
-  studyId,
-  rdpcUrl,
-  egoJwtManager,
-  config,
-  analysesFetcher = fetchAnalysesWithSpecimens,
-  donorId,
-}: {
-  studyId: string;
-  rdpcUrl: string;
-  egoJwtManager: EgoJwtManager;
-  config: {
-    chunkSize: number;
-  };
-  analysesFetcher: typeof fetchAnalysesWithSpecimens;
-  donorId?: string;
-}): AsyncGenerator<Analysis[]> {
-  const chunkSize = config.chunkSize;
-  const streamState: StreamState = {
-    currentPage: 0,
-  };
-  while (true) {
-    const page = await analysesFetcher({
-      studyId,
-      rdpcUrl,
-      from: streamState.currentPage,
-      size: chunkSize,
-      egoJwtManager,
-      donorId,
-    });
-
-    // in case of api returns less analyses than chunk size, we need to stream from the last analysis
-    // to make sure there is no data loss:
-    streamState.currentPage +=
-      page.length < chunkSize ? page.length : chunkSize;
-
-    if (page.length > 0) {
-      yield page;
-    } else {
-      break;
-    }
-  }
 };
 
 export const analysisStream = async function* ({
@@ -117,27 +68,6 @@ export const analysisStream = async function* ({
       break;
     }
   }
-};
-
-// iterates over analyses to extract specimens by grouping specimens by donorId,
-// note this function does not remove duplicate specimens, this is intended for
-// counting tumour/normal sample numbers.
-const aggregateSpecimensByDonorId = (
-  analyses: Analysis[]
-): SpecimensByDonors => {
-  const result = analyses.reduce<SpecimensByDonors>(
-    (specimenAccumulator, analysis) => {
-      analysis.donors.forEach((donor) => {
-        specimenAccumulator[donor.donorId] = specimenAccumulator[donor.donorId]
-          ? [...specimenAccumulator[donor.donorId], ...donor.specimens]
-          : donor.specimens;
-      });
-      return specimenAccumulator;
-    },
-    {}
-  );
-
-  return result;
 };
 
 /**
@@ -300,190 +230,6 @@ export const getAllMergedDonor = async ({
   return mergedDonors;
 };
 
-export const getAllMergedDonorWithSpecimens = async ({
-  analysesFetcher = fetchAnalysesWithSpecimens,
-  egoJwtManager,
-  studyId,
-  url,
-  config,
-  donorIds,
-}: {
-  studyId: string;
-  url: string;
-  egoJwtManager: EgoJwtManager;
-  donorIds?: string[];
-  config: {
-    chunkSize: number;
-    state?: StreamState;
-  };
-  analysesFetcher: typeof fetchAnalysesWithSpecimens;
-}): Promise<StringMap<DonorData>> => {
-  const donorMap: StringMap<DonorData> = {};
-
-  if (donorIds) {
-    for (const donorId of donorIds) {
-      logger.info(`streaming analyses with Specimens for donor ${donorId}`);
-      const stream = analysisStream_withSpecimens({
-        studyId,
-        rdpcUrl: url,
-        egoJwtManager,
-        config,
-        analysesFetcher,
-        donorId,
-      });
-      for await (const page of stream) {
-        if (page.length === 0) {
-          logger.info(
-            `No sequencing experiment analyses with specimens fetched`
-          );
-        }
-        logger.info(
-          `Streaming ${page.length} of sequencing experiment analyses with specimens...`
-        );
-
-        const donorDataMapPerPage: StringMap<DonorData> = convertAnalysisToDonorData(
-          page
-        );
-        mergeAllPagesDonorData(donorMap, donorDataMapPerPage);
-      }
-    }
-  } else {
-    const stream = analysisStream_withSpecimens({
-      studyId,
-      rdpcUrl: url,
-      egoJwtManager,
-      config,
-      analysesFetcher,
-    });
-
-    for await (const page of stream) {
-      if (page.length === 0) {
-        logger.info(
-          `No sequencing experiment analyses with specimens for streaming`
-        );
-      }
-      logger.info(
-        `Streaming ${page.length} of sequencing experiment analyses with specimens...`
-      );
-
-      const donorDataMapPerPage: StringMap<DonorData> = convertAnalysisToDonorData(
-        page
-      );
-      mergeAllPagesDonorData(donorMap, donorDataMapPerPage);
-    }
-  }
-  return donorMap;
-};
-
-const convertAnalysisToDonorData = (
-  analyses: Analysis[]
-): StringMap<DonorData> => {
-  const donorDataMapPerPage: StringMap<DonorData> = analyses.reduce<
-    StringMap<DonorData>
-  >((donorDataAccumulator, analysis) => {
-    analysis.donors.forEach((donor) => {
-      // Analysis.experiment.experimental_strategy and experiment.library_strategy are the SAME fields,
-      // currently becuase of historical reasons, some analyses use experimental_strategy and some
-      // use library_strategy, tickets are made to ensure all analyses use experimental_strategy in
-      // the future, but for now we must consider both fields.
-      const experimentStrategy = analysis.experiment.experimental_strategy
-        ? analysis.experiment.experimental_strategy
-        : analysis.experiment.library_strategy;
-
-      const donorData = getDonorData(
-        donor,
-        analysis.firstPublishedAt,
-        experimentStrategy
-      );
-      mergeDonorData(donorDataAccumulator, donorData);
-    });
-    return donorDataAccumulator;
-  }, {});
-
-  return donorDataMapPerPage;
-};
-
-// merged has accumulated DonorData map, toMerge has the current DonorData map
-const mergeAllPagesDonorData = (
-  merged: StringMap<DonorData>,
-  toMerge: StringMap<DonorData>
-) => {
-  Object.entries(toMerge).forEach(([donorId, donorData]) => {
-    if (merged[donorId]) {
-      merged[donorId].specimen = [
-        ...merged[donorId].specimen,
-        ...donorData.specimen,
-      ];
-      merged[donorId].samplePairs = [
-        ...merged[donorId].samplePairs,
-        ...donorData.samplePairs,
-      ];
-    } else {
-      merged[donorId] = donorData;
-    }
-  });
-};
-
-const mergeDonorData = (map: StringMap<DonorData>, donorData: DonorData) => {
-  if (map[donorData.donorId]) {
-    map[donorData.donorId].specimen = [
-      ...map[donorData.donorId].specimen,
-      ...donorData.specimen,
-    ];
-    map[donorData.donorId].samplePairs = [
-      ...map[donorData.donorId].samplePairs,
-      ...donorData.samplePairs,
-    ];
-  } else {
-    map[donorData.donorId] = donorData;
-  }
-};
-
-// extracts specimen and sample from Donor to form a sample/specimen object
-const getDonorData = (
-  donor: Donor,
-  firstPublishedAt: string,
-  experimentStrategy: string
-): DonorData => {
-  // there is only 1 specimen and  1 sample in each sequencing experiment analysis,
-  // So we can flatten the spcimen[] and sample[]
-  const specimen = donor.specimens[0];
-  const sample = specimen.samples[0];
-
-  const flattenedSample: FlattenedSample = {
-    specimenId: specimen.specimenId,
-    tumourNormalDesignation:
-      specimen.tumourNormalDesignation === TumourNormalDesignationValue.Normal
-        ? TumourNormalDesignationValue.Normal
-        : TumourNormalDesignationValue.Tumour,
-    submitterSampleId: sample.submitterSampleId,
-    matchedNormalSubmitterSampleId:
-      sample.matchedNormalSubmitterSampleId === null
-        ? ""
-        : sample.matchedNormalSubmitterSampleId,
-    firstPublishedAt: firstPublishedAt,
-    experimentStrategy: experimentStrategy,
-  };
-
-  const samplePair: SamplePair =
-    flattenedSample.tumourNormalDesignation ===
-    TumourNormalDesignationValue.Normal
-      ? {
-          normalSample: flattenedSample,
-          firstPublishedAt: Number(flattenedSample.firstPublishedAt),
-        }
-      : {
-          tumourSample: flattenedSample,
-          firstPublishedAt: Number(flattenedSample.firstPublishedAt),
-        };
-
-  return {
-    donorId: donor.donorId,
-    specimen: donor.specimens,
-    samplePairs: [samplePair],
-  };
-};
-
 export const countSpecimenType = (map: StringMap<DonorData>): DonorInfoMap => {
   const result: DonorInfoMap = {};
   Object.entries(map).forEach(([donorId, donorData]) => {
@@ -555,6 +301,10 @@ export const countMutectRunState = (
 };
 
 // Removes COMPLETE (not RUNNING OR EXECUTOR_ERROR) runs with suppressed producedAnalyses
+// Export for testing purpose.
+// This function keeps 2 types of analyses:
+// 1. analyses with Running or EXECUTOR_ERROR runs(these runs do not has no produced analyses)
+// 2. analyses with COMPLETE runs that produced PUBLISHED analyses
 export const removeCompleteRunsWithSuppressedAnalyses = (
   analyses: Analysis[]
 ): Analysis[] => {
@@ -658,21 +408,6 @@ export const countVCRunState = (
   return result;
 };
 
-export const samplePairToDonorInfo = (
-  samplePairs: StringMap<SamplePair>
-): DonorInfoMap => {
-  const donorInfo: DonorInfoMap = {};
-  Object.entries(samplePairs).forEach(([donorId, pair]) => {
-    if (pair.firstPublishedAt !== 0) {
-      initializeRdpcInfo(donorInfo, donorId);
-      donorInfo[donorId].rawReadsFirstPublishedDate = new Date(
-        pair.firstPublishedAt
-      );
-    }
-  });
-  return donorInfo;
-};
-
 export const initializeRdpcInfo = (
   result: DonorInfoMap,
   donorId: string
@@ -709,7 +444,9 @@ export const mergeDonorInfo = (
         publishedTumourAnalysis:
           (acc[donorId]?.publishedTumourAnalysis || 0) +
           rdpcInfo.publishedTumourAnalysis,
-        rawReadsFirstPublishedDate: rdpcInfo.rawReadsFirstPublishedDate,
+        rawReadsFirstPublishedDate: acc[donorId]?.rawReadsFirstPublishedDate
+          ? acc[donorId].rawReadsFirstPublishedDate
+          : rdpcInfo.rawReadsFirstPublishedDate,
 
         alignmentsCompleted:
           (acc[donorId]?.alignmentsCompleted || 0) +
@@ -718,6 +455,9 @@ export const mergeDonorInfo = (
           (acc[donorId]?.alignmentsRunning || 0) + rdpcInfo.alignmentsRunning,
         alignmentsFailed:
           (acc[donorId]?.alignmentsFailed || 0) + rdpcInfo.alignmentsFailed,
+        alignmentFirstPublishedDate: acc[donorId]?.alignmentFirstPublishedDate
+          ? acc[donorId].alignmentFirstPublishedDate
+          : rdpcInfo.alignmentFirstPublishedDate,
 
         sangerVcsCompleted:
           (acc[donorId]?.sangerVcsCompleted || 0) + rdpcInfo.sangerVcsCompleted,

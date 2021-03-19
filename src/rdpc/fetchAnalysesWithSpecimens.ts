@@ -3,10 +3,10 @@ import logger from "logger";
 import fetch from "node-fetch";
 import promiseRetry from "promise-retry";
 import { PageQueryVar } from "rdpc/fetchAnalyses";
-import { Analysis, AnalysisState, AnalysisType } from "rdpc/types";
+import { Analysis, AnalysisState } from "rdpc/types";
 
 const query = `
-query ($analysisFilter: AnalysisFilter, $analysisPage: Page){
+query ($analysisFilter: AnalysisFilter, $analysisPage: Page) {
     analyses (
       filter: $analysisFilter,
       page: $analysisPage,
@@ -54,6 +54,7 @@ const retryConfig = {
 const fetchAnalysesWithSpecimens = async ({
   studyId,
   rdpcUrl,
+  analysisType,
   from,
   size,
   egoJwtManager,
@@ -61,6 +62,7 @@ const fetchAnalysesWithSpecimens = async ({
 }: {
   studyId: string;
   rdpcUrl: string;
+  analysisType: string;
   from: number;
   size: number;
   egoJwtManager: EgoJwtManager;
@@ -79,7 +81,7 @@ const fetchAnalysesWithSpecimens = async ({
           query,
           variables: {
             analysisFilter: {
-              analysisType: AnalysisType.SEQ_EXPERIMENT,
+              analysisType: analysisType,
               analysisState: AnalysisState.PUBLISHED,
               studyId,
               donorId,

@@ -1,17 +1,20 @@
 import {
-  samplePairToDonorInfo,
   countAlignmentRunState,
   countMutectRunState,
   countSpecimenType,
   countVCRunState,
   getAllMergedDonor,
-  getAllMergedDonorWithSpecimens,
   mergeDonorInfo,
 } from "./analysesProcessor";
 import { STREAM_CHUNK_SIZE } from "config";
 import { queryDocumentsByDonorIds } from "indexClinicalData";
 import { Client } from "@elastic/elasticsearch";
-import { EsDonorDocument, EsHit, RdpcDonorInfo } from "indexClinicalData/types";
+import {
+  EsDonorDocument,
+  EsHit,
+  FirstPublishedDateFields,
+  RdpcDonorInfo,
+} from "indexClinicalData/types";
 import { toEsBulkIndexActions } from "elasticsearch";
 import logger from "logger";
 import fetchAnalyses from "./fetchAnalyses";
@@ -23,6 +26,10 @@ import {
   findMatchedTNPairs,
 } from "./findMatchedTNPairs";
 import { AnalysisType } from "./types";
+import {
+  getAllMergedDonorWithSpecimens,
+  getFirstPublishedDate,
+} from "./analysesSpecimenProcessor";
 
 const convertToEsDocument = (
   existingEsHit: EsDonorDocument,
@@ -64,9 +71,20 @@ export const indexRdpcData = async ({
       })
     : undefined;
 
-  const mergedDonorDataMap = await getAllMergedDonorWithSpecimens({
+  const mergedDonorDataMap_seqExp = await getAllMergedDonorWithSpecimens({
     studyId: programId,
     url: rdpcUrl,
+    analysisType: AnalysisType.SEQ_EXPERIMENT,
+    egoJwtManager,
+    donorIds: donorIdsToFilterBy,
+    config: config,
+    analysesFetcher: analysesWithSpecimensFetcher,
+  });
+
+  const mergedDonorDataMap_seqAlign = await getAllMergedDonorWithSpecimens({
+    studyId: programId,
+    url: rdpcUrl,
+    analysisType: AnalysisType.SEQ_ALIGNMENT,
     egoJwtManager,
     donorIds: donorIdsToFilterBy,
     config: config,
@@ -106,24 +124,47 @@ export const indexRdpcData = async ({
     analysesFetcher,
   });
 
+  /** ---------- transform data to DonorInfoMap --------------- */
   const rdpcInfoByDonor_alignment = countAlignmentRunState(
     mergedAlignmentDonors
   );
 
   const rdpcInfoByDonor_VC = countVCRunState(mergedVCDonors);
 
-  const rdpcInfoByDonor_specimens = countSpecimenType(mergedDonorDataMap);
-
-  const donorsWithMatchedSamplePairs = findMatchedTNPairs(mergedDonorDataMap);
-
-  const donorsWithEarliestPair = findEarliestAvailableSamplePair(
-    donorsWithMatchedSamplePairs
-  );
-
-  const rdpcInfo_rawReadsDate = samplePairToDonorInfo(donorsWithEarliestPair);
-
   const rdpcInfoByDonor_mutect = countMutectRunState(mergedMutectDonors);
 
+  const rdpcInfoByDonor_specimens = countSpecimenType(
+    mergedDonorDataMap_seqExp
+  );
+
+  const donorsWithMatchedSamplePairs_seqExp = findMatchedTNPairs(
+    mergedDonorDataMap_seqExp
+  );
+
+  const donorsWithMatchedSamplePairs_seqAlign = findMatchedTNPairs(
+    mergedDonorDataMap_seqAlign
+  );
+
+  const donorsWithEarliestPair_seqExp = findEarliestAvailableSamplePair(
+    donorsWithMatchedSamplePairs_seqExp
+  );
+
+  const donorsWithEarliestPair_seqAlign = findEarliestAvailableSamplePair(
+    donorsWithMatchedSamplePairs_seqAlign
+  );
+
+  const rdpcInfo_rawReadsDate = getFirstPublishedDate(
+    donorsWithEarliestPair_seqExp,
+    FirstPublishedDateFields.RAW_READS_FIRST_PUBLISHED_DATE
+  );
+
+  const rdpcInfo_alignmentDate = getFirstPublishedDate(
+    donorsWithEarliestPair_seqAlign,
+    FirstPublishedDateFields.ALIGNMENT_FIRST_PUBLISHED_DATE
+  );
+  /** ---------- End of transform data to DonorInfoMap ---------------- */
+
+  /**  ---------- merge DonorInfoMap --------- */
   const donorInfo_alignmentAndVC = mergeDonorInfo(
     rdpcInfoByDonor_alignment,
     rdpcInfoByDonor_VC
@@ -136,7 +177,16 @@ export const indexRdpcData = async ({
 
   const donorInfo_dna_data = mergeDonorInfo(donorInfo, rdpcInfoByDonor_mutect);
 
-  const rdpcDocsMap = mergeDonorInfo(donorInfo_dna_data, rdpcInfo_rawReadsDate);
+  const donorInfo_dna_rawReads = mergeDonorInfo(
+    donorInfo_dna_data,
+    rdpcInfo_rawReadsDate
+  );
+
+  const rdpcDocsMap = mergeDonorInfo(
+    donorInfo_dna_rawReads,
+    rdpcInfo_alignmentDate
+  );
+  /**  ---------- End of merge DonorInfoMap --------- */
 
   // get existing ES donors from the previous index, because we only want to index RDPC donors that
   // have already been registered in clinical.
