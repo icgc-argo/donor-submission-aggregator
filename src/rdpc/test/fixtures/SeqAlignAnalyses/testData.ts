@@ -11,6 +11,11 @@ export const seqAlignAnalysesWithMultiTNPairs_page_1 = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-310c2500a5b54e6a925ddb922812d580",
@@ -157,6 +162,11 @@ export const seqAlignAnalysesWithMultiTNPairs_page_1 = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-310c2500a5b54e6a925ddb922812d580",
@@ -305,6 +315,11 @@ export const seqAlignAnalysesWithMultiTNPairs_page_2 = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-d8a4bd79df0949b7b4fe790c9f8b199a",
@@ -341,6 +356,11 @@ export const seqAlignAnalysesWithMultiTNPairs_page_2 = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-dbc3f342f85542459df9a5724ed6e83e",
@@ -380,6 +400,11 @@ export const seqAlignAnalysesWithOneTNPairs = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-db3aaa2a75134b5f8e1cfcfcb8c6cce9",
@@ -416,6 +441,11 @@ export const seqAlignAnalysesWithOneTNPairs = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-db3aaa2a75134b5f8e1cfcfcb8c6cce9",

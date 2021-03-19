@@ -8,6 +8,18 @@ import {
   removeCompleteRunsWithSuppressedAnalyses,
 } from "rdpc/analysesProcessor";
 import {
+  findEarliestAvailableSamplePair,
+  findMatchedTNPairs,
+} from "../findMatchedTNPairs";
+import {
+  donorsWithEarliestPair_expected,
+  matchedSamplePairs_expected,
+} from "./fixtures/DonorSpecimen/expected";
+import {
+  donorWithMatchedSamplePairs,
+  mergedDonorDataMap,
+} from "./fixtures/DonorSpecimen/testData";
+import {
   donorByVCRunState,
   donorCentricWithMultipleTNPairs_page_1,
   donorCentricWithMultipleTNPairs_page_2,
@@ -148,6 +160,22 @@ describe("RDPC sequencing alignment analyses processing", () => {
     const donorState = countVCRunState(mergedDonorByInputAnalyses);
     expect(JSON.stringify(donorState)).to.equal(
       JSON.stringify(donorByVCRunState)
+    );
+  });
+});
+
+describe("RDPC sequencing experiment analyses with specimen/sample processing", () => {
+  it("should find matched tumour/normal sample pairs", async () => {
+    const matchedPairs = findMatchedTNPairs(mergedDonorDataMap);
+    expect(JSON.stringify(matchedPairs)).to.equal(
+      JSON.stringify(matchedSamplePairs_expected)
+    );
+  });
+
+  it("should find the earliest available sample pair", async () => {
+    const result = findEarliestAvailableSamplePair(donorWithMatchedSamplePairs);
+    expect(JSON.stringify(result)).to.equals(
+      JSON.stringify(donorsWithEarliestPair_expected)
     );
   });
 });

@@ -15,6 +15,11 @@ export const mockSeqExpAnalyses: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-7c5957c2765e485a9fe28e662dd0921c",
@@ -45,6 +50,11 @@ export const mockSeqExpAnalyses: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-065c429407e14301a13c1c7f5507de77",
@@ -93,6 +103,11 @@ export const mockSeqExpAnalyses: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-5a3a4e31522349e1a38c62b681fb609e",
@@ -123,6 +138,11 @@ export const mockSeqExpAnalyses: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-acd31ecc0550444da7e6c8f489901310",
@@ -189,6 +209,11 @@ export const mockSeqExpAnalyses: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-a86e6a76a863402dbb8b86af562d9de0",
@@ -255,6 +280,11 @@ export const mockSeqExpAnalyses: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-6b304126c15447709620988e072c3bf1",
@@ -285,6 +315,11 @@ export const mockSeqExpAnalyses: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-65f2a1a88c4642ffb34ea34b46110643",
@@ -315,6 +350,11 @@ export const mockSeqExpAnalyses: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-a0776e323d5e4eb49b2c8e9ffce09758",
@@ -345,6 +385,11 @@ export const mockSeqExpAnalyses: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-97ab483bb5334fdfadcb4b05a4ee334f",
@@ -375,6 +420,11 @@ export const mockSeqExpAnalyses: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-e89aa90dd4b242e18f6887876779088a",
@@ -426,6 +476,11 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-cd5ee9084062405983f13d4c194f715f",
@@ -526,6 +581,11 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-4256dda180b54714bff6b25b7b33ba46",
@@ -626,6 +686,11 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-df8539b1bdbb4845b282f0c126fcc89d",
@@ -660,6 +725,11 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-4dda7f0058a449f99e35207330176472",
@@ -694,6 +764,11 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-40dc312b760b4d3180404b864c62ee0a",
@@ -728,6 +803,11 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-fc671df52c5f490086baaae52d0cefcf",
@@ -762,6 +842,11 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-7c9d31c50811438196c4edec81d1a3f5",
@@ -796,6 +881,11 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-4a97737e3c874699a0ecbbc97d582713",
@@ -1028,6 +1118,11 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-2d28024d8ab94fe39ab189db1d7735af",
@@ -1062,6 +1157,11 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-fc671df52c5f490086baaae52d0cefcf",
@@ -1099,6 +1199,11 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-cd5ee9084062405983f13d4c194f715f",
@@ -1199,6 +1304,11 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-4256dda180b54714bff6b25b7b33ba46",
@@ -1299,6 +1409,11 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-df8539b1bdbb4845b282f0c126fcc89d",
@@ -1333,6 +1448,11 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-4dda7f0058a449f99e35207330176472",
@@ -1367,6 +1487,11 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-40dc312b760b4d3180404b864c62ee0a",
@@ -1401,6 +1526,11 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-fc671df52c5f490086baaae52d0cefcf",
@@ -1435,6 +1565,11 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-7c9d31c50811438196c4edec81d1a3f5",
@@ -1469,6 +1604,11 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-4a97737e3c874699a0ecbbc97d582713",
@@ -1701,6 +1841,11 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-2d28024d8ab94fe39ab189db1d7735af",
@@ -1735,6 +1880,11 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-fc671df52c5f490086baaae52d0cefcf",
@@ -1766,6 +1916,11 @@ export const mockSeqExpAnalysesWithSpecimens: Analysis[] = [
   {
     analysisId: "63c4653b-f881-4148-8465-3bf8811148c8",
     analysisType: AnalysisType.SEQ_EXPERIMENT,
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     donors: [
       {
         donorId: "DO35102",
@@ -1773,6 +1928,12 @@ export const mockSeqExpAnalysesWithSpecimens: Analysis[] = [
           {
             specimenId: "SP77834",
             tumourNormalDesignation: TumourNormalDesignationValue.Tumour,
+            samples: [
+              {
+                submitterSampleId: "PCSI_0019_Pa_P_526",
+                matchedNormalSubmitterSampleId: "PCSI_0019_Si_R",
+              },
+            ],
           },
         ],
       },
@@ -1782,6 +1943,11 @@ export const mockSeqExpAnalysesWithSpecimens: Analysis[] = [
   {
     analysisId: "854f3c1f-8ca3-4aff-8f3c-1f8ca3faff8e",
     analysisType: AnalysisType.SEQ_EXPERIMENT,
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     donors: [
       {
         donorId: "DO35102",
@@ -1789,6 +1955,12 @@ export const mockSeqExpAnalysesWithSpecimens: Analysis[] = [
           {
             specimenId: "SP77838",
             tumourNormalDesignation: TumourNormalDesignationValue.Normal,
+            samples: [
+              {
+                submitterSampleId: "PCSI_0019_Si_R",
+                matchedNormalSubmitterSampleId: null,
+              },
+            ],
           },
         ],
       },

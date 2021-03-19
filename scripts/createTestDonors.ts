@@ -3,7 +3,7 @@ import { MONGO_URL } from "../src/config";
 import donorModel, {
   MongoDonorDocument,
 } from "../src/indexClinicalData/clinicalMongo/donorModel";
-import { testDonorIds } from "../src/rdpc/fixtures/integrationTest/dataset";
+import { testDonorIds } from "../src/rdpc/test/fixtures/integrationTest/dataset";
 import createDonor from "./createDonor";
 
 const PROGRAM_SHORT_NAME = process.env.PROGRAM_SHORT_NAME || "TEST-CA";
