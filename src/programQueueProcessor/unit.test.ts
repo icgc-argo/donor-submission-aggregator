@@ -23,13 +23,14 @@ import {
   expectedRDPCData,
   testDonorIds,
 } from "rdpc/test/fixtures/integrationTest/dataset";
-import fetchAnalyses from "rdpc/fetchAnalyses";
+import fetchAnalyses from "rdpc/query/fetchAnalyses";
 import { Analysis, AnalysisType } from "rdpc/types";
 import {
-  mockSeqAlignmentAnalyses_mutect,
-  mockSeqAlignmentAnalyses_sanger,
-  mockSeqExpAnalyses,
-  mockSeqExpAnalysesWithSpecimens,
+  seqAlignmentAnalyses_mutect,
+  seqAlignmentAnalyses_sanger,
+  seqExpAnalyses,
+  seqExpAnalysesWithSpecimens,
+  variantCallingAnalyses,
 } from "rdpc/test/fixtures/integrationTest/mockAnalyses";
 import esb from "elastic-builder";
 import { EsHit } from "indexClinicalData/types";
@@ -37,7 +38,8 @@ import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 import { generateIndexName } from "./util";
 import { getIndexSettings, getLatestIndexName } from "elasticsearch";
 import { EgoAccessToken, EgoJwtManager } from "auth";
-import fetchAnalysesWithSpecimens from "rdpc/fetchAnalysesWithSpecimens";
+import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
+import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
 
 const TEST_US = "TEST-US";
 const TEST_CA = "TEST-CA";
@@ -88,6 +90,23 @@ describe("kafka integration", () => {
     },
   };
 
+  const mockVariantCallingFetcher: typeof fetchVariantCallingAnalyses = ({
+    studyId,
+    rdpcUrl,
+    from,
+    size,
+    egoJwtManager,
+    donorId,
+  }): Promise<Analysis[]> => {
+    const matchesDonorId = (donor: any) =>
+      donorId ? donor.donorId === donorId : true;
+    return Promise.resolve(
+      variantCallingAnalyses
+        .filter((analysis) => analysis.donors.some(matchesDonorId))
+        .slice(from, from + size)
+    );
+  };
+
   const mockAnalysesWithSpecimensFetcher: typeof fetchAnalysesWithSpecimens = async ({
     studyId,
     rdpcUrl,
@@ -99,7 +118,7 @@ describe("kafka integration", () => {
     const matchesDonorId = (donor: any) =>
       donorId ? donor.donorId === donorId : true;
     return Promise.resolve(
-      mockSeqExpAnalysesWithSpecimens
+      seqExpAnalysesWithSpecimens
         .filter((analysis) => analysis.donors.some(matchesDonorId))
         .slice(from, from + size)
     );
@@ -119,14 +138,14 @@ describe("kafka integration", () => {
       donorId ? donor.donorId === donorId : true;
     return Promise.resolve(
       analysisType === AnalysisType.SEQ_EXPERIMENT
-        ? mockSeqExpAnalyses
+        ? seqExpAnalyses
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
         : isMutect
-        ? mockSeqAlignmentAnalyses_mutect
+        ? seqAlignmentAnalyses_mutect
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
-        : mockSeqAlignmentAnalyses_sanger
+        : seqAlignmentAnalyses_sanger
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
     );
@@ -292,7 +311,7 @@ describe("kafka integration", () => {
   });
 
   describe("programQueueProcessor", () => {
-    it("must index all clinical and RDPC data into Elasticsearch", async () => {
+    it.only("must index all clinical and RDPC data into Elasticsearch", async () => {
       // create a dummy index and attach it to alias, alias must exist for testing:
       await createIndexAndAlias("DUM-CA");
 
@@ -304,6 +323,7 @@ describe("kafka integration", () => {
         egoJwtManager: mockEgoJwtManager,
         analysisFetcher: mockAnalysisFetcher,
         analysisWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
+        fetchVC: mockVariantCallingFetcher,
       });
 
       await programQueueProcessor.enqueueEvent({
@@ -618,7 +638,7 @@ describe("kafka integration", () => {
     );
     it("handles incremental analysis updates properly", async () => {
       await createIndexAndAlias(TEST_CA);
-      const testAnalysis = mockSeqExpAnalyses[0];
+      const testAnalysis = seqExpAnalyses[0];
       const testDonorId = testAnalysis.donors[0].donorId;
 
       programQueueProcessor = await createProgramQueueProcessor({

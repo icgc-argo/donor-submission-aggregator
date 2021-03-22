@@ -6,20 +6,20 @@ import { EsHit } from "indexClinicalData/types";
 import { Duration, TemporalUnit } from "node-duration";
 import { indexRdpcData } from "rdpc";
 import { GenericContainer, StartedTestContainer, Wait } from "testcontainers";
-import fetchAnalyses from "rdpc/fetchAnalyses";
+import fetchAnalyses from "rdpc/query/fetchAnalyses";
 import {
   clinicalDataset,
   expectedRDPCData,
 } from "./fixtures/integrationTest/dataset";
 import {
-  mockSeqAlignmentAnalyses_mutect,
-  mockSeqAlignmentAnalyses_sanger,
-  mockSeqExpAnalyses,
-  mockSeqExpAnalysesWithSpecimens,
+  seqAlignmentAnalyses_mutect,
+  seqAlignmentAnalyses_sanger,
+  seqExpAnalyses,
+  seqExpAnalysesWithSpecimens,
 } from "./fixtures/integrationTest/mockAnalyses";
 import { Analysis, AnalysisType } from "../types";
 import { EgoAccessToken, EgoJwtManager } from "auth";
-import fetchAnalysesWithSpecimens from "../fetchAnalysesWithSpecimens";
+import fetchAnalysesWithSpecimens from "../query/fetchAnalysesWithSpecimens";
 
 describe("should index RDPC analyses to donor index", () => {
   let elasticsearchContainer: StartedTestContainer;
@@ -57,14 +57,14 @@ describe("should index RDPC analyses to donor index", () => {
       donorId ? donor.donorId === donorId : true;
     return Promise.resolve(
       analysisType === AnalysisType.SEQ_EXPERIMENT
-        ? mockSeqExpAnalyses
+        ? seqExpAnalyses
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
         : isMutect
-        ? mockSeqAlignmentAnalyses_mutect
+        ? seqAlignmentAnalyses_mutect
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
-        : mockSeqAlignmentAnalyses_sanger
+        : seqAlignmentAnalyses_sanger
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
     );
@@ -81,7 +81,7 @@ describe("should index RDPC analyses to donor index", () => {
     const matchesDonorId = (donor: any) =>
       donorId ? donor.donorId === donorId : true;
     return Promise.resolve(
-      mockSeqExpAnalysesWithSpecimens
+      seqExpAnalysesWithSpecimens
         .filter((analysis) => analysis.donors.some(matchesDonorId))
         .slice(from, from + size)
     );
@@ -188,7 +188,7 @@ describe("should index RDPC analyses to donor index", () => {
       })
     ).body?.hits?.total?.value;
     console.log("Total donors indexed: ", totalEsDocumentsCount);
-    expect(totalEsDocumentsCount).to.equal(mockSeqExpAnalyses.length);
+    expect(totalEsDocumentsCount).to.equal(seqExpAnalyses.length);
 
     // Verify if es documents have correct RDPC info:
     const esHits = await Promise.all(
@@ -254,7 +254,7 @@ describe("should index RDPC analyses to donor index", () => {
       refresh: "wait_for",
     });
 
-    const testAnalysis = mockSeqAlignmentAnalyses_sanger[0];
+    const testAnalysis = seqAlignmentAnalyses_sanger[0];
 
     const testDonorId = testAnalysis.donors[0].donorId;
 

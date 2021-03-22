@@ -17,10 +17,10 @@ import {
 } from "indexClinicalData/types";
 import { toEsBulkIndexActions } from "elasticsearch";
 import logger from "logger";
-import fetchAnalyses from "./fetchAnalyses";
-import fetchDonorIdsByAnalysis from "./fetchDonorIdsByAnalysis";
+import fetchAnalyses from "./query/fetchAnalyses";
+import fetchDonorIdsByAnalysis from "./query/fetchDonorIdsByAnalysis";
 import { EgoJwtManager } from "auth";
-import fetchAnalysesWithSpecimens from "./fetchAnalysesWithSpecimens";
+import fetchAnalysesWithSpecimens from "./query/fetchAnalysesWithSpecimens";
 import {
   findEarliestAvailableSamplePair,
   findMatchedTNPairs,
@@ -30,6 +30,12 @@ import {
   getAllMergedDonorWithSpecimens,
   getFirstPublishedDate,
 } from "./analysesSpecimenProcessor";
+import fetchVariantCallingAnalyses from "./query/fetchVariantCallingAnalyses";
+import {
+  getEarliestDateForDonor,
+  convertEalriestDateToDonorInfo,
+  getAllMergedDonor_variantCalling,
+} from "./variantCallingAnalysesProcessor";
 
 const convertToEsDocument = (
   existingEsHit: EsDonorDocument,
@@ -47,6 +53,7 @@ export const indexRdpcData = async ({
   egoJwtManager,
   analysesFetcher = fetchAnalyses,
   analysesWithSpecimensFetcher = fetchAnalysesWithSpecimens,
+  fetchVC = fetchVariantCallingAnalyses,
   fetchDonorIds = fetchDonorIdsByAnalysis,
   analysisId,
 }: {
@@ -56,6 +63,7 @@ export const indexRdpcData = async ({
   esClient: Client;
   egoJwtManager: EgoJwtManager;
   analysesFetcher?: typeof fetchAnalyses; // optional only for test
+  fetchVC?: typeof fetchVariantCallingAnalyses; // optional only for test
   analysesWithSpecimensFetcher?: typeof fetchAnalysesWithSpecimens; // optional only for test
   analysisId?: string;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
@@ -124,6 +132,23 @@ export const indexRdpcData = async ({
     analysesFetcher,
   });
 
+  const mergedDonors_sangerMutectInfo = await getAllMergedDonor_variantCalling({
+    studyId: programId,
+    url: rdpcUrl,
+    donorIds: donorIdsToFilterBy,
+    analysesFetcher: fetchVC,
+    egoJwtManager,
+    config,
+  });
+
+  const donorsWithEarliestDate = getEarliestDateForDonor(
+    mergedDonors_sangerMutectInfo
+  );
+
+  const rdpcInfoByDonor_sangerMutectDates = convertEalriestDateToDonorInfo(
+    donorsWithEarliestDate
+  );
+
   /** ---------- transform data to DonorInfoMap --------------- */
   const rdpcInfoByDonor_alignment = countAlignmentRunState(
     mergedAlignmentDonors
@@ -182,9 +207,14 @@ export const indexRdpcData = async ({
     rdpcInfo_rawReadsDate
   );
 
-  const rdpcDocsMap = mergeDonorInfo(
+  const donorInfo_dna_dates = mergeDonorInfo(
     donorInfo_dna_rawReads,
     rdpcInfo_alignmentDate
+  );
+
+  const rdpcDocsMap = mergeDonorInfo(
+    donorInfo_dna_dates,
+    rdpcInfoByDonor_sangerMutectDates
   );
   /**  ---------- End of merge DonorInfoMap --------- */
 

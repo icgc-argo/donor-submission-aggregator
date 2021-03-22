@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { Analysis, AnalysisType } from "./types";
+import { Analysis, AnalysisState, AnalysisType } from "../types";
 import logger from "logger";
 import promiseRetry from "promise-retry";
 import _ from "lodash";
@@ -9,6 +9,7 @@ import {
   SANGER_VC_REPO_URL,
   SEQ_ALIGN_REPO_URL,
 } from "config";
+import { QueryVariable, retryConfig } from "./type";
 
 const query = `
 fragment AnalysisData on Analysis {
@@ -52,30 +53,30 @@ query($analysisFilter: AnalysisFilter, $analysisPage: Page, $workflowRepoUrl: St
 }
 `;
 
-type AnalysisFilterQueryVar = {
-  analysisType?: string;
-  analysisState?: "PUBLISHED";
-  studyId?: string;
-  donorId?: string;
-};
+// type AnalysisFilterQueryVar = {
+//   analysisType?: string;
+//   analysisState?: "PUBLISHED";
+//   studyId?: string;
+//   donorId?: string;
+// };
 
-export type PageQueryVar = {
-  from: number;
-  size: number;
-};
+// export type PageQueryVar = {
+//   from: number;
+//   size: number;
+// };
 
-type QueryVariable = {
-  analysisFilter: AnalysisFilterQueryVar;
-  analysisPage: PageQueryVar;
-  workflowRepoUrl?: string;
-};
+// type QueryVariable = {
+//   analysisFilter: AnalysisFilterQueryVar;
+//   analysisPage: PageQueryVar;
+//   workflowRepoUrl?: string;
+// };
 
-const retryConfig = {
-  factor: 2,
-  retries: 5,
-  minTimeout: 10,
-  maxTimeout: Infinity,
-};
+// const retryConfig = {
+//   factor: 2,
+//   retries: 5,
+//   minTimeout: 10,
+//   maxTimeout: Infinity,
+// };
 
 const fetchAnalyses = async ({
   studyId,
@@ -108,7 +109,7 @@ const fetchAnalyses = async ({
           query,
           variables: {
             analysisFilter: {
-              analysisState: "PUBLISHED",
+              analysisState: AnalysisState.PUBLISHED,
               analysisType,
               studyId,
               donorId,

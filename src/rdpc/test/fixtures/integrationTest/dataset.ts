@@ -297,6 +297,8 @@ type TestFields = {
   mutectCompleted: Number;
   mutectRunning: Number;
   mutectFailed: Number;
+  sangerVcsFirstPublishedDate?: string;
+  mutectFirstPublishedDate?: string;
 };
 
 export const expectedRDPCData: { [k: string]: TestFields } = {
@@ -310,6 +312,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectCompleted: 2,
     mutectRunning: 0,
     mutectFailed: 0,
+    sangerVcsFirstPublishedDate: "2020-12-08T18:17:53.538Z",
+    mutectFirstPublishedDate: "2021-01-12T11:37:53.538Z",
   },
   ["DO35083"]: {
     alignmentsCompleted: 0,

@@ -2,8 +2,8 @@ import { EgoAccessToken, EgoJwtManager } from "auth";
 import logger from "logger";
 import fetch from "node-fetch";
 import promiseRetry from "promise-retry";
-import { PageQueryVar } from "rdpc/fetchAnalyses";
 import { Analysis, AnalysisState } from "rdpc/types";
+import { QueryVariable, retryConfig } from "./type";
 
 const query = `
 query ($analysisFilter: AnalysisFilter, $analysisPage: Page) {
@@ -32,24 +32,24 @@ query ($analysisFilter: AnalysisFilter, $analysisPage: Page) {
     }
 }`;
 
-type AnalysisFilterQueryVar = {
-  analysisType?: string;
-  analysisState?: string;
-  studyId?: string;
-  donorId?: string;
-};
+// type AnalysisFilterQueryVar = {
+//   analysisType?: string;
+//   analysisState?: string;
+//   studyId?: string;
+//   donorId?: string;
+// };
 
-type QueryVariable = {
-  analysisFilter: AnalysisFilterQueryVar;
-  analysisPage: PageQueryVar;
-};
+// type QueryVariable = {
+//   analysisFilter: AnalysisFilterQueryVar;
+//   analysisPage: PageQueryVar;
+// };
 
-const retryConfig = {
-  factor: 2,
-  retries: 5,
-  minTimeout: 10,
-  maxTimeout: Infinity,
-};
+// const retryConfig = {
+//   factor: 2,
+//   retries: 5,
+//   minTimeout: 10,
+//   maxTimeout: Infinity,
+// };
 
 const fetchAnalysesWithSpecimens = async ({
   studyId,

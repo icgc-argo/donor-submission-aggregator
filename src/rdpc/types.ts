@@ -6,6 +6,10 @@ export interface Analysis {
   donors: Donor[];
   runs: Run[];
   experiment: Experiment;
+  workflow: Workflow;
+}
+export interface Workflow {
+  workflowName: string;
 }
 export interface Experiment {
   experimental_strategy: string;
@@ -50,6 +54,7 @@ export enum RunState {
 export enum AnalysisType {
   SEQ_ALIGNMENT = "sequencing_alignment",
   SEQ_EXPERIMENT = "sequencing_experiment",
+  VARIANT_CALLING = "variant_calling",
 }
 
 export enum AnalysisState {
@@ -95,4 +100,15 @@ export interface FlattenedSample {
   matchedNormalSubmitterSampleId: string;
   firstPublishedAt: string;
   experimentStrategy: string;
+}
+
+export interface SangerAndMutectInfo {
+  sangerVC: WorkflowData[];
+  mutect: WorkflowData[];
+}
+
+export interface WorkflowData {
+  analysisId: string;
+  workflowName: string;
+  firstPublishedAt: string;
 }

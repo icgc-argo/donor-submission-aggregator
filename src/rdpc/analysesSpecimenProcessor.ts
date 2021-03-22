@@ -2,7 +2,7 @@ import { EgoJwtManager } from "auth";
 import { FirstPublishedDateFields } from "indexClinicalData/types";
 import logger from "logger";
 import { initializeRdpcInfo } from "./analysesProcessor";
-import fetchAnalysesWithSpecimens from "./fetchAnalysesWithSpecimens";
+import fetchAnalysesWithSpecimens from "./query/fetchAnalysesWithSpecimens";
 import {
   Analysis,
   Donor,

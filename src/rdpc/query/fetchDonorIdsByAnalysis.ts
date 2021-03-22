@@ -2,6 +2,7 @@ import { EgoAccessToken, EgoJwtManager } from "auth";
 import logger from "logger";
 import fetch from "node-fetch";
 import promiseRetry from "promise-retry";
+import { retryConfig } from "./type";
 
 const query = `
 query($analysisId: String) {
@@ -34,12 +35,12 @@ type QueryVariable = {
   analysisId: string;
 };
 
-const retryConfig = {
-  factor: 2,
-  retries: 5,
-  minTimeout: 10,
-  maxTimeout: Infinity,
-};
+// const retryConfig = {
+//   factor: 2,
+//   retries: 5,
+//   minTimeout: 10,
+//   maxTimeout: Infinity,
+// };
 
 const fetchDonorIdsByAnalysis = async ({
   analysisId,
