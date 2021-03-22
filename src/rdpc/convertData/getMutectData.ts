@@ -1,0 +1,36 @@
+import { EgoJwtManager } from "auth";
+import { countMutectRunState, getAllMergedDonor } from "../analysesProcessor";
+import fetchAnalyses from "../fetchAnalyses";
+import { DonorInfoMap } from "../types";
+
+export const getMutectdata = async (
+  studyId: string,
+  url: string,
+  analysisType: string,
+  isMutect: boolean,
+  egoJwtManager: EgoJwtManager,
+  analysesFetcher: typeof fetchAnalyses,
+  config: {
+    chunkSize: number;
+    state?: StreamState;
+  },
+  donorIds?: string[]
+): Promise<DonorInfoMap> => {
+  const mergedMutectDonors = await getAllMergedDonor({
+    studyId: studyId,
+    url: url,
+    donorIds: donorIds,
+    analysisType: analysisType,
+    isMutect: isMutect,
+    egoJwtManager,
+    config,
+    analysesFetcher,
+  });
+
+  const rdpcInfoByDonor_mutect = countMutectRunState(mergedMutectDonors);
+  return rdpcInfoByDonor_mutect;
+};
+
+type StreamState = {
+  currentPage: number;
+};

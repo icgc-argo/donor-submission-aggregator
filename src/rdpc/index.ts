@@ -1,35 +1,20 @@
-import {
-  countAlignmentRunState,
-  countMutectRunState,
-  countSpecimenType,
-  countVCRunState,
-  getAllMergedDonor,
-  mergeDonorInfo,
-} from "./analysesProcessor";
+import { mergeDonorInfo } from "./analysesProcessor";
 import { STREAM_CHUNK_SIZE } from "config";
 import { queryDocumentsByDonorIds } from "indexClinicalData";
 import { Client } from "@elastic/elasticsearch";
-import {
-  EsDonorDocument,
-  EsHit,
-  FirstPublishedDateFields,
-  RdpcDonorInfo,
-} from "indexClinicalData/types";
+import { EsDonorDocument, EsHit, RdpcDonorInfo } from "indexClinicalData/types";
 import { toEsBulkIndexActions } from "elasticsearch";
 import logger from "logger";
 import fetchAnalyses from "./fetchAnalyses";
 import fetchDonorIdsByAnalysis from "./fetchDonorIdsByAnalysis";
 import { EgoJwtManager } from "auth";
 import fetchAnalysesWithSpecimens from "./fetchAnalysesWithSpecimens";
-import {
-  findEarliestAvailableSamplePair,
-  findMatchedTNPairs,
-} from "./findMatchedTNPairs";
 import { AnalysisType } from "./types";
-import {
-  getAllMergedDonorWithSpecimens,
-  getFirstPublishedDate,
-} from "./analysesSpecimenProcessor";
+import { getMutectdata } from "./convertData/getMutectData";
+import { getSangerData } from "./convertData/getSangerData";
+import { getAlignmentData } from "./convertData/getAlignmentData";
+import { getSeqExpSpecimenData } from "./convertData/getSeqExpSpecimenData";
+import { getSeqAlignSpecimenData } from "./convertData/getSeqAlignSpecimenData";
 
 const convertToEsDocument = (
   existingEsHit: EsDonorDocument,
@@ -71,103 +56,72 @@ export const indexRdpcData = async ({
       })
     : undefined;
 
-  const mergedDonorDataMap_seqExp = await getAllMergedDonorWithSpecimens({
-    studyId: programId,
-    url: rdpcUrl,
-    analysisType: AnalysisType.SEQ_EXPERIMENT,
+  // contains 3 fields:
+  // publishedNormalAnalysi, publishedTumourAnalysis, rawReadsFirstPublishedDate
+  const rdpcInfoByDonor_specimens = await getSeqExpSpecimenData(
+    programId,
+    rdpcUrl,
+    AnalysisType.SEQ_EXPERIMENT,
     egoJwtManager,
-    donorIds: donorIdsToFilterBy,
-    config: config,
-    analysesFetcher: analysesWithSpecimensFetcher,
-  });
-
-  const mergedDonorDataMap_seqAlign = await getAllMergedDonorWithSpecimens({
-    studyId: programId,
-    url: rdpcUrl,
-    analysisType: AnalysisType.SEQ_ALIGNMENT,
-    egoJwtManager,
-    donorIds: donorIdsToFilterBy,
-    config: config,
-    analysesFetcher: analysesWithSpecimensFetcher,
-  });
-
-  const mergedAlignmentDonors = await getAllMergedDonor({
-    studyId: programId,
-    url: rdpcUrl,
-    donorIds: donorIdsToFilterBy,
-    analysisType: AnalysisType.SEQ_EXPERIMENT,
-    isMutect: false,
-    egoJwtManager,
+    analysesWithSpecimensFetcher,
     config,
-    analysesFetcher,
-  });
+    donorIdsToFilterBy
+  );
 
-  const mergedVCDonors = await getAllMergedDonor({
-    studyId: programId,
-    url: rdpcUrl,
-    donorIds: donorIdsToFilterBy,
-    analysisType: AnalysisType.SEQ_ALIGNMENT,
-    isMutect: false,
+  // contains 1 field: alignmentFirstPublishedDate
+  const rdpcInfo_alignmentDate = await getSeqAlignSpecimenData(
+    programId,
+    rdpcUrl,
+    AnalysisType.SEQ_ALIGNMENT,
     egoJwtManager,
+    analysesWithSpecimensFetcher,
     config,
-    analysesFetcher,
-  });
+    donorIdsToFilterBy
+  );
 
-  const mergedMutectDonors = await getAllMergedDonor({
-    studyId: programId,
-    url: rdpcUrl,
-    donorIds: donorIdsToFilterBy,
-    analysisType: AnalysisType.SEQ_ALIGNMENT,
-    isMutect: true,
+  // contains 3 fields:
+  // alignmentsCompleted, alignmentsRunning, alignmentsFailed
+  const rdpcInfoByDonor_alignment = await getAlignmentData(
+    programId,
+    rdpcUrl,
+    AnalysisType.SEQ_EXPERIMENT,
+    false,
     egoJwtManager,
-    config,
     analysesFetcher,
-  });
-
-  /** ---------- transform data to DonorInfoMap --------------- */
-  const rdpcInfoByDonor_alignment = countAlignmentRunState(
-    mergedAlignmentDonors
+    config,
+    donorIdsToFilterBy
   );
 
-  const rdpcInfoByDonor_VC = countVCRunState(mergedVCDonors);
-
-  const rdpcInfoByDonor_mutect = countMutectRunState(mergedMutectDonors);
-
-  const rdpcInfoByDonor_specimens = countSpecimenType(
-    mergedDonorDataMap_seqExp
+  // contains 3 fields:
+  // sangerVcsCompleted, sangerVcsRunning, sangerVcsFailed
+  const rdpcInfoByDonor_sanger = await getSangerData(
+    programId,
+    rdpcUrl,
+    AnalysisType.SEQ_ALIGNMENT,
+    false,
+    egoJwtManager,
+    analysesFetcher,
+    config,
+    donorIdsToFilterBy
   );
 
-  const donorsWithMatchedSamplePairs_seqExp = findMatchedTNPairs(
-    mergedDonorDataMap_seqExp
+  // contains 3 fields:
+  // mutectCompleted, mutectRunning, mutectFailed
+  const rdpcInfoByDonor_mutect = await getMutectdata(
+    programId,
+    rdpcUrl,
+    AnalysisType.SEQ_ALIGNMENT,
+    true,
+    egoJwtManager,
+    analysesFetcher,
+    config,
+    donorIdsToFilterBy
   );
-
-  const donorsWithMatchedSamplePairs_seqAlign = findMatchedTNPairs(
-    mergedDonorDataMap_seqAlign
-  );
-
-  const donorsWithEarliestPair_seqExp = findEarliestAvailableSamplePair(
-    donorsWithMatchedSamplePairs_seqExp
-  );
-
-  const donorsWithEarliestPair_seqAlign = findEarliestAvailableSamplePair(
-    donorsWithMatchedSamplePairs_seqAlign
-  );
-
-  const rdpcInfo_rawReadsDate = getFirstPublishedDate(
-    donorsWithEarliestPair_seqExp,
-    FirstPublishedDateFields.RAW_READS_FIRST_PUBLISHED_DATE
-  );
-
-  const rdpcInfo_alignmentDate = getFirstPublishedDate(
-    donorsWithEarliestPair_seqAlign,
-    FirstPublishedDateFields.ALIGNMENT_FIRST_PUBLISHED_DATE
-  );
-  /** ---------- End of transform data to DonorInfoMap ---------------- */
 
   /**  ---------- merge DonorInfoMap --------- */
   const donorInfo_alignmentAndVC = mergeDonorInfo(
     rdpcInfoByDonor_alignment,
-    rdpcInfoByDonor_VC
+    rdpcInfoByDonor_sanger
   );
 
   const donorInfo = mergeDonorInfo(
@@ -177,13 +131,8 @@ export const indexRdpcData = async ({
 
   const donorInfo_dna_data = mergeDonorInfo(donorInfo, rdpcInfoByDonor_mutect);
 
-  const donorInfo_dna_rawReads = mergeDonorInfo(
-    donorInfo_dna_data,
-    rdpcInfo_rawReadsDate
-  );
-
   const rdpcDocsMap = mergeDonorInfo(
-    donorInfo_dna_rawReads,
+    donorInfo_dna_data,
     rdpcInfo_alignmentDate
   );
   /**  ---------- End of merge DonorInfoMap --------- */
