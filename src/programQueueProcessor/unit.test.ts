@@ -311,7 +311,7 @@ describe("kafka integration", () => {
   });
 
   describe("programQueueProcessor", () => {
-    it.only("must index all clinical and RDPC data into Elasticsearch", async () => {
+    it("must index all clinical and RDPC data into Elasticsearch", async () => {
       // create a dummy index and attach it to alias, alias must exist for testing:
       await createIndexAndAlias("DUM-CA");
 
@@ -644,8 +644,9 @@ describe("kafka integration", () => {
         expect(test_ca_re_2_documents).to.equal(clinicalDataset.length);
       }
     );
-    it("handles incremental analysis updates properly", async () => {
+    it.only("handles incremental analysis updates properly", async () => {
       await createIndexAndAlias(TEST_CA);
+      // test donor DO35082 for incremental update:
       const testAnalysis = seqExpAnalyses[0];
       const testDonorId = testAnalysis.donors[0].donorId;
 
@@ -656,6 +657,7 @@ describe("kafka integration", () => {
         rollCallClient: rollcallClient,
         analysisFetcher: mockAnalysisFetcher,
         analysisWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
+        fetchVC: mockVariantCallingFetcher,
         fetchDonorIds: () => Promise.resolve([testDonorId]),
       });
 
@@ -793,6 +795,26 @@ describe("kafka integration", () => {
           hit._source.donorId === testDonorId
             ? expectedRDPCData[hit._source.donorId].mutectFailed
             : 0,
+        ]);
+
+        expect([
+          hit._source.donorId,
+          "sangerVcsFirstPublishedDate",
+          hit._source.sangerVcsFirstPublishedDate,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "sangerVcsFirstPublishedDate",
+          expectedRDPCData[hit._source.donorId].sangerVcsFirstPublishedDate,
+        ]);
+
+        expect([
+          hit._source.donorId,
+          "mutectFirstPublishedDate",
+          hit._source.mutectFirstPublishedDate,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "mutectFirstPublishedDate",
+          expectedRDPCData[hit._source.donorId].mutectFirstPublishedDate,
         ]);
       });
     });
