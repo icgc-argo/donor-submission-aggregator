@@ -5,6 +5,7 @@ import {
 } from "../analysesProcessor";
 import fetchAnalyses from "../fetchAnalyses";
 import { DonorInfoMap } from "../types";
+import { StreamState } from "./type";
 
 export const getAlignmentData = async (
   studyId: string,
@@ -32,8 +33,4 @@ export const getAlignmentData = async (
 
   const rdpcInfoByDonor = countAlignmentRunState(mergedAlignmenttDonors);
   return rdpcInfoByDonor;
-};
-
-type StreamState = {
-  currentPage: number;
 };

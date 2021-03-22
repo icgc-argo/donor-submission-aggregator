@@ -10,6 +10,7 @@ import {
   findMatchedTNPairs,
 } from "../findMatchedTNPairs";
 import { DonorInfoMap } from "../types";
+import { StreamState } from "./type";
 
 export const getSeqAlignSpecimenData = async (
   studyId: string,
@@ -43,8 +44,4 @@ export const getSeqAlignSpecimenData = async (
   );
 
   return rdpcInfo_alignmentDate;
-};
-
-type StreamState = {
-  currentPage: number;
 };

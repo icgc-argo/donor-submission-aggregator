@@ -2,6 +2,7 @@ import { EgoJwtManager } from "auth";
 import { countVCRunState, getAllMergedDonor } from "../analysesProcessor";
 import fetchAnalyses from "../fetchAnalyses";
 import { DonorInfoMap } from "../types";
+import { StreamState } from "./type";
 
 export const getSangerData = async (
   studyId: string,
@@ -29,8 +30,4 @@ export const getSangerData = async (
 
   const rdpcInfoByDonor = countVCRunState(mergedMutectDonors);
   return rdpcInfoByDonor;
-};
-
-type StreamState = {
-  currentPage: number;
 };

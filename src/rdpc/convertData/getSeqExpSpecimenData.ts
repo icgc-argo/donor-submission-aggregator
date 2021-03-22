@@ -11,6 +11,7 @@ import {
   findMatchedTNPairs,
 } from "../findMatchedTNPairs";
 import { DonorInfoMap } from "../types";
+import { StreamState } from "./type";
 
 export const getSeqExpSpecimenData = async (
   studyId: string,
@@ -51,8 +52,4 @@ export const getSeqExpSpecimenData = async (
   // merge 2 rdpcInfoMap:
   const result = mergeDonorInfo(rdpcInfo_TNcounts, rdpcInfo_rawReadsDate);
   return result;
-};
-
-type StreamState = {
-  currentPage: number;
 };
