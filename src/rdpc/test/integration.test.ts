@@ -156,7 +156,7 @@ describe("should index RDPC analyses to donor index", () => {
     });
   });
 
-  it.only("should index sequencing experiment and sequencing alignment analyses", async () => {
+  it("should index sequencing experiment and sequencing alignment analyses", async () => {
     const { body: exists } = await esClient.indices.exists({
       index: INDEX_NAME,
     });
@@ -268,7 +268,7 @@ describe("should index RDPC analyses to donor index", () => {
     }
   });
 
-  it("should handle incremental rdpc indexing with studyId", async () => {
+  it.only("should handle incremental rdpc indexing with studyId", async () => {
     // index testing clinical data
     const body = clinicalDataset.flatMap((doc) => [
       { index: { _index: INDEX_NAME } },
