@@ -268,7 +268,7 @@ describe("should index RDPC analyses to donor index", () => {
     }
   });
 
-  it.only("should handle incremental rdpc indexing with studyId", async () => {
+  it("should handle incremental rdpc indexing with studyId", async () => {
     // index testing clinical data
     const body = clinicalDataset.flatMap((doc) => [
       { index: { _index: INDEX_NAME } },
