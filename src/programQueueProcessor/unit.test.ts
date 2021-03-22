@@ -454,6 +454,14 @@ describe("kafka integration", () => {
         expect(test_ca_hit.hits[0]._source.mutectFailed).to.equal(
           expectedRDPCData["DO" + donorId].mutectFailed
         );
+        expect(
+          test_ca_hit.hits[0]._source.sangerVcsFirstPublishedDate
+        ).to.equal(
+          expectedRDPCData["DO" + donorId].sangerVcsFirstPublishedDate
+        );
+        expect(test_ca_hit.hits[0]._source.mutectFirstPublishedDate).to.equal(
+          expectedRDPCData["DO" + donorId].mutectFirstPublishedDate
+        );
       }
 
       // check if the number of TEST-US documents is expected:
