@@ -16,10 +16,12 @@ import {
   seqAlignmentAnalyses_sanger,
   seqExpAnalyses,
   seqExpAnalysesWithSpecimens,
+  variantCallingAnalyses,
 } from "./fixtures/integrationTest/mockAnalyses";
 import { Analysis, AnalysisType } from "../types";
 import { EgoAccessToken, EgoJwtManager } from "auth";
 import fetchAnalysesWithSpecimens from "../query/fetchAnalysesWithSpecimens";
+import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
 
 describe("should index RDPC analyses to donor index", () => {
   let elasticsearchContainer: StartedTestContainer;
@@ -87,6 +89,23 @@ describe("should index RDPC analyses to donor index", () => {
     );
   };
 
+  const mockVariantCallingFetcher: typeof fetchVariantCallingAnalyses = ({
+    studyId,
+    rdpcUrl,
+    from,
+    size,
+    egoJwtManager,
+    donorId,
+  }): Promise<Analysis[]> => {
+    const matchesDonorId = (donor: any) =>
+      donorId ? donor.donorId === donorId : true;
+    return Promise.resolve(
+      variantCallingAnalyses
+        .filter((analysis) => analysis.donors.some(matchesDonorId))
+        .slice(from, from + size)
+    );
+  };
+
   before(async () => {
     try {
       elasticsearchContainer = await new GenericContainer(
@@ -137,7 +156,7 @@ describe("should index RDPC analyses to donor index", () => {
     });
   });
 
-  it("should index sequencing experiment and sequencing alignment analyses", async () => {
+  it.only("should index sequencing experiment and sequencing alignment analyses", async () => {
     const { body: exists } = await esClient.indices.exists({
       index: INDEX_NAME,
     });
@@ -179,6 +198,7 @@ describe("should index RDPC analyses to donor index", () => {
       egoJwtManager: mockEgoJwtManager,
       analysesFetcher: mockAnalysisFetcher,
       analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
+      fetchVC: mockVariantCallingFetcher,
     });
 
     const totalEsDocumentsCount = (
@@ -239,6 +259,12 @@ describe("should index RDPC analyses to donor index", () => {
       expect(hit._source.mutectFailed).to.equal(
         expectedRDPCData[hit._source.donorId].mutectFailed
       );
+      expect(hit._source.sangerVcsFirstPublishedDate).to.equal(
+        expectedRDPCData[hit._source.donorId].sangerVcsFirstPublishedDate
+      );
+      expect(hit._source.mutectFirstPublishedDate).to.equal(
+        expectedRDPCData[hit._source.donorId].mutectFirstPublishedDate
+      );
     }
   });
 
@@ -267,6 +293,7 @@ describe("should index RDPC analyses to donor index", () => {
       analysisId: testAnalysis.analysisId,
       analysesFetcher: mockAnalysisFetcher,
       analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
+      fetchVC: mockVariantCallingFetcher,
       fetchDonorIds: ({ analysisId, rdpcUrl }) =>
         Promise.resolve([testDonorId]),
     });
@@ -390,6 +417,24 @@ describe("should index RDPC analyses to donor index", () => {
         hit._source.donorId === testDonorId
           ? expectedRDPCData[hit._source.donorId].mutectFailed
           : 0,
+      ]);
+      expect([
+        hit._source.donorId,
+        "sangerVcsFirstPublishedDate",
+        hit._source.sangerVcsFirstPublishedDate,
+      ]).to.deep.equal([
+        hit._source.donorId,
+        "sangerVcsFirstPublishedDate",
+        expectedRDPCData[hit._source.donorId].sangerVcsFirstPublishedDate,
+      ]);
+      expect([
+        hit._source.donorId,
+        "mutectFirstPublishedDate",
+        hit._source.mutectFirstPublishedDate,
+      ]).to.deep.equal([
+        hit._source.donorId,
+        "mutectFirstPublishedDate",
+        expectedRDPCData[hit._source.donorId].mutectFirstPublishedDate,
       ]);
     });
   });

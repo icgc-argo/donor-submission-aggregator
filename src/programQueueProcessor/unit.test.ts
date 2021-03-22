@@ -644,7 +644,7 @@ describe("kafka integration", () => {
         expect(test_ca_re_2_documents).to.equal(clinicalDataset.length);
       }
     );
-    it.only("handles incremental analysis updates properly", async () => {
+    it("handles incremental analysis updates properly", async () => {
       await createIndexAndAlias(TEST_CA);
       // test donor DO35082 for incremental update:
       const testAnalysis = seqExpAnalyses[0];
