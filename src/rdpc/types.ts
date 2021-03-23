@@ -65,10 +65,6 @@ export enum AnalysisState {
 export interface RunsByInputAnalyses {
   [inputAnalyses: string]: Run[];
 }
-export interface RunWithFirstPublishedDate {
-  run: Run[];
-  firstPublishedAt: Date;
-}
 export interface RunsByAnalysesByDonors {
   [donorId: string]: RunsByInputAnalyses;
 }
