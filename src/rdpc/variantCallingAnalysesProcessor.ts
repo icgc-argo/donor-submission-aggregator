@@ -79,7 +79,7 @@ export const convertEalriestDateToDonorInfo = (
   return result;
 };
 
-// find the earliest dates for donor's sanger and mutect
+// find the earliest dates by comparing sanger/mutect analysis's first published dates
 export const getEarliestDateForDonor = (
   donors: StringMap<SangerAndMutectInfo>
 ): StringMap<SangerAndMutectInfo> => {
@@ -165,8 +165,7 @@ export const getAllMergedDonor_variantCalling = async ({
   return mergedDonors;
 };
 
-// todo remove export
-export const mergeAllDonors = (
+const mergeAllDonors = (
   merged: StringMap<SangerAndMutectInfo>,
   mergeWith: StringMap<SangerAndMutectInfo>
 ) => {
@@ -183,8 +182,7 @@ export const mergeAllDonors = (
   });
 };
 
-// todo remove export
-export const convertAnalysis = (
+const convertAnalysis = (
   analyses: Analysis[]
 ): StringMap<SangerAndMutectInfo> => {
   const result: StringMap<SangerAndMutectInfo> = {};
@@ -216,7 +214,6 @@ export const convertAnalysis = (
       return infoAccumulator;
     }, {});
 
-    // merge infoMapPerAnalysis to result
     mergeAllDonors(result, infoMapPerAnalysis);
   });
   return result;
