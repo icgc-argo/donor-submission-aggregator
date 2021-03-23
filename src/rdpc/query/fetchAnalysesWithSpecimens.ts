@@ -32,25 +32,6 @@ query ($analysisFilter: AnalysisFilter, $analysisPage: Page) {
     }
 }`;
 
-// type AnalysisFilterQueryVar = {
-//   analysisType?: string;
-//   analysisState?: string;
-//   studyId?: string;
-//   donorId?: string;
-// };
-
-// type QueryVariable = {
-//   analysisFilter: AnalysisFilterQueryVar;
-//   analysisPage: PageQueryVar;
-// };
-
-// const retryConfig = {
-//   factor: 2,
-//   retries: 5,
-//   minTimeout: 10,
-//   maxTimeout: Infinity,
-// };
-
 const fetchAnalysesWithSpecimens = async ({
   studyId,
   rdpcUrl,

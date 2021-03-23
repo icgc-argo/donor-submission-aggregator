@@ -53,31 +53,6 @@ query($analysisFilter: AnalysisFilter, $analysisPage: Page, $workflowRepoUrl: St
 }
 `;
 
-// type AnalysisFilterQueryVar = {
-//   analysisType?: string;
-//   analysisState?: "PUBLISHED";
-//   studyId?: string;
-//   donorId?: string;
-// };
-
-// export type PageQueryVar = {
-//   from: number;
-//   size: number;
-// };
-
-// type QueryVariable = {
-//   analysisFilter: AnalysisFilterQueryVar;
-//   analysisPage: PageQueryVar;
-//   workflowRepoUrl?: string;
-// };
-
-// const retryConfig = {
-//   factor: 2,
-//   retries: 5,
-//   minTimeout: 10,
-//   maxTimeout: Infinity,
-// };
-
 const fetchAnalyses = async ({
   studyId,
   rdpcUrl,

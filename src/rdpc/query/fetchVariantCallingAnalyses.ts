@@ -3,7 +3,7 @@ import logger from "logger";
 import fetch from "node-fetch";
 import promiseRetry from "promise-retry";
 import { Analysis, AnalysisType } from "../types";
-import { AnalysisFilterQueryVar, QueryVariable, retryConfig } from "./type";
+import { QueryVariable, retryConfig } from "./type";
 
 const query = `
 query ($analysisFilter: AnalysisFilter, $analysisPage: Page){
@@ -29,30 +29,6 @@ query ($analysisFilter: AnalysisFilter, $analysisPage: Page){
     }
 }
 `;
-
-// type AnalysisFilterQueryVar = {
-//     analysisType?: string;
-//     analysisState?: "PUBLISHED";
-//     studyId?: string;
-//     donorId?: string;
-// };
-
-// type QueryVariable = {
-//     analysisFilter: AnalysisFilterQueryVar;
-//     analysisPage: PageQueryVar;
-//   };
-
-// export type PageQueryVar = {
-//     from: number;
-//     size: number;
-//   };
-
-// const retryConfig = {
-//   factor: 2,
-//   retries: 5,
-//   minTimeout: 10,
-//   maxTimeout: Infinity,
-// };
 
 const fetchVariantCallingAnalyses = async ({
   studyId,
