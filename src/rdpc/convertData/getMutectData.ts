@@ -4,7 +4,7 @@ import fetchAnalyses from "../fetchAnalyses";
 import { DonorInfoMap } from "../types";
 import { StreamState } from "./type";
 
-export const getMutectdata = async (
+export const getMutectData = async (
   studyId: string,
   url: string,
   analysisType: string,
