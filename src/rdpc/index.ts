@@ -10,11 +10,11 @@ import fetchDonorIdsByAnalysis from "./fetchDonorIdsByAnalysis";
 import { EgoJwtManager } from "auth";
 import fetchAnalysesWithSpecimens from "./fetchAnalysesWithSpecimens";
 import { AnalysisType } from "./types";
-import { getMutectdata } from "./convertData/getMutectData";
 import { getSangerData } from "./convertData/getSangerData";
 import { getAlignmentData } from "./convertData/getAlignmentData";
 import { getSeqExpSpecimenData } from "./convertData/getSeqExpSpecimenData";
 import { getSeqAlignSpecimenData } from "./convertData/getSeqAlignSpecimenData";
+import { getMutectData } from "./convertData/getMutectData";
 
 const convertToEsDocument = (
   existingEsHit: EsDonorDocument,
@@ -107,7 +107,7 @@ export const indexRdpcData = async ({
 
   // contains 3 fields:
   // mutectCompleted, mutectRunning, mutectFailed
-  const rdpcInfoByDonor_mutect = await getMutectdata(
+  const rdpcInfoByDonor_mutect = await getMutectData(
     programId,
     rdpcUrl,
     AnalysisType.SEQ_ALIGNMENT,
