@@ -3,7 +3,7 @@ import logger from "logger";
 import fetch from "node-fetch";
 import promiseRetry from "promise-retry";
 import { Analysis, AnalysisType } from "../types";
-import { QueryVariable, retryConfig } from "./type";
+import { QueryVariable, retryConfig } from "./types";
 
 const query = `
 query ($analysisFilter: AnalysisFilter, $analysisPage: Page){

@@ -9,7 +9,7 @@ import {
   SANGER_VC_REPO_URL,
   SEQ_ALIGN_REPO_URL,
 } from "config";
-import { QueryVariable, retryConfig } from "./type";
+import { QueryVariable, retryConfig } from "./types";
 
 const query = `
 fragment AnalysisData on Analysis {
