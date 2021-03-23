@@ -2,8 +2,14 @@ import { RdpcDonorInfo } from "indexClinicalData/types";
 export interface Analysis {
   analysisId: string;
   analysisType: string;
+  firstPublishedAt: string;
   donors: Donor[];
   runs: Run[];
+  experiment: Experiment;
+}
+export interface Experiment {
+  experimental_strategy: string;
+  library_strategy: string;
 }
 export interface Donor {
   donorId: string;
@@ -15,6 +21,11 @@ export interface SimpleAnalysis {
 export interface Specimen {
   specimenId: string;
   tumourNormalDesignation: TumourNormalDesignationValue;
+  samples: Sample[];
+}
+export interface Sample {
+  submitterSampleId: string;
+  matchedNormalSubmitterSampleId: string | null;
 }
 
 export enum TumourNormalDesignationValue {
@@ -49,7 +60,10 @@ export enum AnalysisState {
 export interface RunsByInputAnalyses {
   [inputAnalyses: string]: Run[];
 }
-
+export interface RunWithFirstPublishedDate {
+  run: Run[];
+  firstPublishedAt: Date;
+}
 export interface RunsByAnalysesByDonors {
   [donorId: string]: RunsByInputAnalyses;
 }
@@ -57,7 +71,28 @@ export interface RunsByAnalysesByDonors {
 export interface DonorInfoMap {
   [donorId: string]: RdpcDonorInfo;
 }
+export interface DonorData {
+  donorId: string;
+  specimen: Specimen[];
+  samplePairs: SamplePair[];
+}
 
+export interface StringMap<T> {
+  [key: string]: T;
+}
 export interface SpecimensByDonors {
   [donorId: string]: Specimen[];
+}
+export interface SamplePair {
+  firstPublishedAt: number;
+  normalSample?: FlattenedSample;
+  tumourSample?: FlattenedSample;
+}
+export interface FlattenedSample {
+  specimenId: string;
+  tumourNormalDesignation: TumourNormalDesignationValue;
+  submitterSampleId: string;
+  matchedNormalSubmitterSampleId: string;
+  firstPublishedAt: string;
+  experimentStrategy: string;
 }

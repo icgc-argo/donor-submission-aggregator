@@ -1,23 +1,20 @@
-import {
-  countAlignmentRunState,
-  countMutectRunState,
-  countSpecimenType,
-  countVCRunState,
-  getAllMergedDonor,
-  getAllMergedDonorWithSpecimens,
-  mergeDonorStateMaps,
-} from "./analysesProcessor";
+import { mergeDonorInfo } from "./analysesProcessor";
 import { STREAM_CHUNK_SIZE } from "config";
 import { queryDocumentsByDonorIds } from "indexClinicalData";
 import { Client } from "@elastic/elasticsearch";
 import { EsDonorDocument, EsHit, RdpcDonorInfo } from "indexClinicalData/types";
 import { toEsBulkIndexActions } from "elasticsearch";
 import logger from "logger";
-import { AnalysisType } from "./types";
 import fetchAnalyses from "./fetchAnalyses";
 import fetchDonorIdsByAnalysis from "./fetchDonorIdsByAnalysis";
 import { EgoJwtManager } from "auth";
 import fetchAnalysesWithSpecimens from "./fetchAnalysesWithSpecimens";
+import { AnalysisType } from "./types";
+import { getSangerData } from "./convertData/getSangerData";
+import { getAlignmentData } from "./convertData/getAlignmentData";
+import { getSeqExpSpecimenData } from "./convertData/getSeqExpSpecimenData";
+import { getSeqAlignSpecimenData } from "./convertData/getSeqAlignSpecimenData";
+import { getMutectData } from "./convertData/getMutectData";
 
 const convertToEsDocument = (
   existingEsHit: EsDonorDocument,
@@ -59,69 +56,86 @@ export const indexRdpcData = async ({
       })
     : undefined;
 
-  const mergedSpecimensByDonor = await getAllMergedDonorWithSpecimens({
-    studyId: programId,
-    url: rdpcUrl,
+  // contains 3 fields:
+  // publishedNormalAnalysi, publishedTumourAnalysis, rawReadsFirstPublishedDate
+  const rdpcInfoByDonor_specimens = await getSeqExpSpecimenData(
+    programId,
+    rdpcUrl,
+    AnalysisType.SEQ_EXPERIMENT,
     egoJwtManager,
-    donorIds: donorIdsToFilterBy,
-    config: config,
-    analysesFetcher: analysesWithSpecimensFetcher,
-  });
-
-  const mergedAlignmentDonors = await getAllMergedDonor({
-    studyId: programId,
-    url: rdpcUrl,
-    donorIds: donorIdsToFilterBy,
-    analysisType: AnalysisType.SEQ_EXPERIMENT,
-    isMutect: false,
-    egoJwtManager,
+    analysesWithSpecimensFetcher,
     config,
-    analysesFetcher,
-  });
-
-  const mergedVCDonors = await getAllMergedDonor({
-    studyId: programId,
-    url: rdpcUrl,
-    donorIds: donorIdsToFilterBy,
-    analysisType: AnalysisType.SEQ_ALIGNMENT,
-    isMutect: false,
-    egoJwtManager,
-    config,
-    analysesFetcher,
-  });
-
-  const mergedMutectDonors = await getAllMergedDonor({
-    studyId: programId,
-    url: rdpcUrl,
-    donorIds: donorIdsToFilterBy,
-    analysisType: AnalysisType.SEQ_ALIGNMENT,
-    isMutect: true,
-    egoJwtManager,
-    config,
-    analysesFetcher,
-  });
-
-  const rdpcInfoByDonor_alignment = countAlignmentRunState(
-    mergedAlignmentDonors
+    donorIdsToFilterBy
   );
 
-  const rdpcInfoByDonor_VC = countVCRunState(mergedVCDonors);
+  // contains 1 field: alignmentFirstPublishedDate
+  const rdpcInfo_alignmentDate = await getSeqAlignSpecimenData(
+    programId,
+    rdpcUrl,
+    AnalysisType.SEQ_ALIGNMENT,
+    egoJwtManager,
+    analysesWithSpecimensFetcher,
+    config,
+    donorIdsToFilterBy
+  );
 
-  const rdpcInfoByDonor_specimens = countSpecimenType(mergedSpecimensByDonor);
+  // contains 3 fields:
+  // alignmentsCompleted, alignmentsRunning, alignmentsFailed
+  const rdpcInfoByDonor_alignment = await getAlignmentData(
+    programId,
+    rdpcUrl,
+    AnalysisType.SEQ_EXPERIMENT,
+    false,
+    egoJwtManager,
+    analysesFetcher,
+    config,
+    donorIdsToFilterBy
+  );
 
-  const rdpcInfoByDonor_mutect = countMutectRunState(mergedMutectDonors);
+  // contains 3 fields:
+  // sangerVcsCompleted, sangerVcsRunning, sangerVcsFailed
+  const rdpcInfoByDonor_sanger = await getSangerData(
+    programId,
+    rdpcUrl,
+    AnalysisType.SEQ_ALIGNMENT,
+    false,
+    egoJwtManager,
+    analysesFetcher,
+    config,
+    donorIdsToFilterBy
+  );
 
-  const donorInfo_alignmentAndVC = mergeDonorStateMaps(
+  // contains 3 fields:
+  // mutectCompleted, mutectRunning, mutectFailed
+  const rdpcInfoByDonor_mutect = await getMutectData(
+    programId,
+    rdpcUrl,
+    AnalysisType.SEQ_ALIGNMENT,
+    true,
+    egoJwtManager,
+    analysesFetcher,
+    config,
+    donorIdsToFilterBy
+  );
+
+  /**  ---------- merge DonorInfoMap --------- */
+  const donorInfo_alignmentAndVC = mergeDonorInfo(
     rdpcInfoByDonor_alignment,
-    rdpcInfoByDonor_VC
+    rdpcInfoByDonor_sanger
   );
 
-  const donorInfo = mergeDonorStateMaps(
+  const donorInfo = mergeDonorInfo(
     donorInfo_alignmentAndVC,
     rdpcInfoByDonor_specimens
   );
 
-  const rdpcDocsMap = mergeDonorStateMaps(donorInfo, rdpcInfoByDonor_mutect);
+  const donorInfo_dna_data = mergeDonorInfo(donorInfo, rdpcInfoByDonor_mutect);
+
+  const rdpcDocsMap = mergeDonorInfo(
+    donorInfo_dna_data,
+    rdpcInfo_alignmentDate
+  );
+  /**  ---------- End of merge DonorInfoMap --------- */
 
   // get existing ES donors from the previous index, because we only want to index RDPC donors that
   // have already been registered in clinical.

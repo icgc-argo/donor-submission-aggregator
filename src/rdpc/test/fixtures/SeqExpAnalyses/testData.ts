@@ -11,6 +11,11 @@ export const seqExpAnalysesWithMultipleRuns_page_1 = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-a86e6a76a863402dbb8b86af562d9de0",
@@ -81,6 +86,11 @@ export const seqExpAnalysesWithMultipleRuns_page_1 = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-ff9ac3f9d7dc41f4abce9c015077d949",
@@ -135,6 +145,11 @@ export const seqExpAnalysesWithMultipleRuns_page_2 = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-1c19f8cb06dd4b8ea29b296ad9679517",
@@ -224,6 +239,11 @@ export const seqExpAnalysesWithMultipleRuns_page_2 = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-4b90558cd2a54592bb1dfce7310d8f6b",
@@ -658,6 +678,11 @@ export const analysesWithEmptyProducedAnalyses = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-afcd45e183a94f649e6c81fafe4ed6b5",
@@ -693,6 +718,11 @@ export const analysesWithEmptyProducedAnalyses = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-585b98b1cebb4cb3809017955b4b0042",
@@ -728,6 +758,11 @@ export const analysesWithEmptyProducedAnalyses = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-6048e9521f684490beb6f04618ff70b7",
@@ -755,6 +790,11 @@ export const analysesWithActiveRunsOnly = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-2c3b0eba6b7c472a89ce976c341f1fce",
@@ -797,6 +837,11 @@ export const analysesWithActiveRunsOnly = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-09d46a1e38b24e38a6e2cf18de3e74a9",
@@ -827,6 +872,11 @@ export const analysesWithValidCompleteAndActiveRuns = [
         specimens: [],
       },
     ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    firstPublishedAt: "",
     runs: [
       {
         runId: "wes-113b0eba6b7c472a89ce976c341f1fce",

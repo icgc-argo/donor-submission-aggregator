@@ -8,13 +8,20 @@ export type DonorMolecularDataProcessingStatus =
   | "PROCESSING"
   | "REGISTERED";
 
+export enum FirstPublishedDateFields {
+  RAW_READS_FIRST_PUBLISHED_DATE = "rawReadsFirstPublishedDate",
+  ALIGNMENT_FIRST_PUBLISHED_DATE = "alignmentFirstPublishedDate",
+}
+
 export type RdpcDonorInfo = {
   publishedNormalAnalysis: number;
   publishedTumourAnalysis: number;
+  rawReadsFirstPublishedDate?: Date;
 
   alignmentsCompleted: number;
   alignmentsRunning: number;
   alignmentsFailed: number;
+  alignmentFirstPublishedDate?: Date;
 
   sangerVcsCompleted: number;
   sangerVcsRunning: number;
