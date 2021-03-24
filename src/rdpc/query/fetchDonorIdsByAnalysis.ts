@@ -2,7 +2,7 @@ import { EgoAccessToken, EgoJwtManager } from "auth";
 import logger from "logger";
 import fetch from "node-fetch";
 import promiseRetry from "promise-retry";
-import { retryConfig } from "./types";
+import { retryConfig } from "./fetchAnalyses";
 
 const query = `
 query($analysisId: String) {

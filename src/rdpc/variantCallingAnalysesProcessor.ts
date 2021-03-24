@@ -136,11 +136,9 @@ export const getAllMergedDonor_variantCalling = async ({
         donorId,
       });
       for await (const page of stream) {
-        if (page.length === 0) {
-          logger.info(`No variant calling analyses for streaming`);
-        }
-        logger.info(`Streaming ${page.length} of variant calling analyses...`);
-
+        logger.info(
+          `Streaming ${page.length} of variant calling analyses for sanger/mutect first published dates...`
+        );
         const donorPerPage = convertAnalysis(page);
         mergeAllDonors(mergedDonors, donorPerPage);
       }
@@ -154,10 +152,9 @@ export const getAllMergedDonor_variantCalling = async ({
       analysesFetcher,
     });
     for await (const page of stream) {
-      if (page.length === 0) {
-        logger.info(`No variant calling analyses for streaming`);
-      }
-      logger.info(`Streaming ${page.length} of variant calling analyses...`);
+      logger.info(
+        `Streaming ${page.length} of variant calling analyses for sanger/mutect first published dates...`
+      );
       const donorPerPage = convertAnalysis(page);
       mergeAllDonors(mergedDonors, donorPerPage);
     }

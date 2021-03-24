@@ -198,9 +198,6 @@ export const getAllMergedDonor = async ({
         donorId,
       });
       for await (const page of stream) {
-        if (page.length === 0) {
-          logger.info(`No ${analysisType} analyses for streaming`);
-        }
         logger.info(`Streaming ${page.length} of ${analysisType} analyses...`);
         const filteredAnalyses = removeCompleteRunsWithSuppressedAnalyses(page);
         const donorPerPage = toDonorCentric(filteredAnalyses);
@@ -218,9 +215,6 @@ export const getAllMergedDonor = async ({
       analysesFetcher,
     });
     for await (const page of stream) {
-      if (page.length === 0) {
-        logger.info(`No ${analysisType} analyses for streaming`);
-      }
       logger.info(`Streaming ${page.length} of ${analysisType} analyses...`);
       const filteredAnalyses = removeCompleteRunsWithSuppressedAnalyses(page);
       const donorPerPage = toDonorCentric(filteredAnalyses);

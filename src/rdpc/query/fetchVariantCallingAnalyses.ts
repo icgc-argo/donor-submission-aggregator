@@ -3,7 +3,8 @@ import logger from "logger";
 import fetch from "node-fetch";
 import promiseRetry from "promise-retry";
 import { Analysis, AnalysisType } from "../types";
-import { QueryVariable, retryConfig } from "./types";
+import { retryConfig } from "./fetchAnalyses";
+import { QueryVariable } from "./types";
 
 const query = `
 query ($analysisFilter: AnalysisFilter, $analysisPage: Page){
@@ -78,9 +79,9 @@ const fetchVariantCallingAnalyses = async ({
         logger.error(
           `received error from rdpc... page: from => ${from} size => ${size}. Error: ${error}`
         );
+        throw new Error(error);
       }
-      const result = jsonResponse.data.analyses.content as Analysis[];
-      return result;
+      return jsonResponse.data.analyses.content as Analysis[];
     } catch (err) {
       logger.warn(
         `Failed to fetch variant calling analyses: ${err}, retrying...`

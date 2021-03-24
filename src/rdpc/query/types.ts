@@ -15,10 +15,3 @@ export type QueryVariable = {
   analysisPage: PageQueryVar;
   workflowRepoUrl?: string;
 };
-
-export const retryConfig = {
-  factor: 2,
-  retries: 5,
-  minTimeout: 10,
-  maxTimeout: Infinity,
-};

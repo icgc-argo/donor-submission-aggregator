@@ -9,7 +9,7 @@ import {
   SANGER_VC_REPO_URL,
   SEQ_ALIGN_REPO_URL,
 } from "config";
-import { QueryVariable, retryConfig } from "./types";
+import { QueryVariable } from "./types";
 
 const query = `
 fragment AnalysisData on Analysis {
@@ -108,15 +108,19 @@ const fetchAnalyses = async ({
         logger.error(
           `received error from rdpc... page: from => ${from} size => ${size}. Error: ${error}`
         );
+        throw new Error(error);
       }
       return jsonResponse.data.analyses.content as Analysis[];
     } catch (err) {
-      logger.warn(`Failed to fetch analyses: ${err}, retrying...`);
+      logger.warn(
+        `Failed to fetch ${analysisType} analyses: ${err}, retrying...`
+      );
       return retry(err);
     }
   }, retryConfig).catch((err) => {
     logger.error(
-      `Failed to fetch analyses of program: ${studyId} from RDPC ${rdpcUrl} after ${retryConfig.retries} attempts: ${err}`
+      `Failed to fetch analyses of program:
+       ${studyId} from RDPC ${rdpcUrl} after ${retryConfig.retries} attempts: ${err}`
     );
     throw err;
   });
@@ -142,6 +146,13 @@ const getWorkflowRepoUrl = (
     );
     return SANGER_VC_REPO_URL;
   }
+};
+
+export const retryConfig = {
+  factor: 2,
+  retries: 2,
+  minTimeout: 10,
+  maxTimeout: Infinity,
 };
 
 export default fetchAnalyses;
