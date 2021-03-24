@@ -2,7 +2,6 @@ import { EgoAccessToken, EgoJwtManager } from "auth";
 import logger from "logger";
 import fetch from "node-fetch";
 import promiseRetry from "promise-retry";
-import { retryConfig } from "./fetchAnalyses";
 
 const query = `
 query($analysisId: String) {
@@ -87,6 +86,13 @@ const fetchDonorIdsByAnalysis = async ({
     );
     throw err;
   });
+};
+
+const retryConfig = {
+  factor: 2,
+  retries: 3,
+  minTimeout: 1000,
+  maxTimeout: Infinity,
 };
 
 export default fetchDonorIdsByAnalysis;
