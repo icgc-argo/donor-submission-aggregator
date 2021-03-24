@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { Analysis, AnalysisType } from "./types";
+import { Analysis, AnalysisState, AnalysisType } from "../types";
 import logger from "logger";
 import promiseRetry from "promise-retry";
 import _ from "lodash";
@@ -9,6 +9,7 @@ import {
   SANGER_VC_REPO_URL,
   SEQ_ALIGN_REPO_URL,
 } from "config";
+import { QueryVariable } from "./types";
 
 const query = `
 fragment AnalysisData on Analysis {
@@ -52,31 +53,6 @@ query($analysisFilter: AnalysisFilter, $analysisPage: Page, $workflowRepoUrl: St
 }
 `;
 
-type AnalysisFilterQueryVar = {
-  analysisType?: string;
-  analysisState?: "PUBLISHED";
-  studyId?: string;
-  donorId?: string;
-};
-
-export type PageQueryVar = {
-  from: number;
-  size: number;
-};
-
-type QueryVariable = {
-  analysisFilter: AnalysisFilterQueryVar;
-  analysisPage: PageQueryVar;
-  workflowRepoUrl?: string;
-};
-
-const retryConfig = {
-  factor: 2,
-  retries: 5,
-  minTimeout: 10,
-  maxTimeout: Infinity,
-};
-
 const fetchAnalyses = async ({
   studyId,
   rdpcUrl,
@@ -108,7 +84,7 @@ const fetchAnalyses = async ({
           query,
           variables: {
             analysisFilter: {
-              analysisState: "PUBLISHED",
+              analysisState: AnalysisState.PUBLISHED,
               analysisType,
               studyId,
               donorId,
@@ -132,15 +108,19 @@ const fetchAnalyses = async ({
         logger.error(
           `received error from rdpc... page: from => ${from} size => ${size}. Error: ${error}`
         );
+        throw new Error(error);
       }
       return jsonResponse.data.analyses.content as Analysis[];
     } catch (err) {
-      logger.warn(`Failed to fetch analyses: ${err}, retrying...`);
+      logger.warn(
+        `Failed to fetch ${analysisType} analyses: ${err}, retrying...`
+      );
       return retry(err);
     }
   }, retryConfig).catch((err) => {
     logger.error(
-      `Failed to fetch analyses of program: ${studyId} from RDPC ${rdpcUrl} after ${retryConfig.retries} attempts: ${err}`
+      `Failed to fetch analyses of program:
+       ${studyId} from RDPC ${rdpcUrl} after ${retryConfig.retries} attempts: ${err}`
     );
     throw err;
   });
@@ -166,6 +146,13 @@ const getWorkflowRepoUrl = (
     );
     return SANGER_VC_REPO_URL;
   }
+};
+
+const retryConfig = {
+  factor: 2,
+  retries: 3,
+  minTimeout: 3000,
+  maxTimeout: Infinity,
 };
 
 export default fetchAnalyses;

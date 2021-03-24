@@ -1,6 +1,6 @@
 import { EgoJwtManager } from "auth";
+import fetchAnalyses from "rdpc/query/fetchAnalyses";
 import { countVCRunState, getAllMergedDonor } from "../analysesProcessor";
-import fetchAnalyses from "../fetchAnalyses";
 import { DonorInfoMap } from "../types";
 import { StreamState } from "./type";
 

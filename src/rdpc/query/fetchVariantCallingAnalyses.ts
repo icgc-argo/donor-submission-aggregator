@@ -2,59 +2,37 @@ import { EgoAccessToken, EgoJwtManager } from "auth";
 import logger from "logger";
 import fetch from "node-fetch";
 import promiseRetry from "promise-retry";
-import { PageQueryVar } from "rdpc/fetchAnalyses";
-import { Analysis, AnalysisState } from "rdpc/types";
+import { Analysis, AnalysisType } from "../types";
+import { QueryVariable } from "./types";
 
 const query = `
-query ($analysisFilter: AnalysisFilter, $analysisPage: Page) {
+query ($analysisFilter: AnalysisFilter, $analysisPage: Page){
     analyses (
       filter: $analysisFilter,
       page: $analysisPage,
       sorts:{fieldName:analysisId, order: asc}
+
     ) {
       content {
         analysisId
         analysisType
-        experiment
         firstPublishedAt
+
+        workflow{
+          workflowName
+        }
+
         donors {
           donorId
-          specimens {
-            specimenId
-            tumourNormalDesignation
-            samples {
-              submitterSampleId
-              matchedNormalSubmitterSampleId
-            }
-          }
         }
       }
     }
-}`;
+}
+`;
 
-type AnalysisFilterQueryVar = {
-  analysisType?: string;
-  analysisState?: string;
-  studyId?: string;
-  donorId?: string;
-};
-
-type QueryVariable = {
-  analysisFilter: AnalysisFilterQueryVar;
-  analysisPage: PageQueryVar;
-};
-
-const retryConfig = {
-  factor: 2,
-  retries: 5,
-  minTimeout: 10,
-  maxTimeout: Infinity,
-};
-
-const fetchAnalysesWithSpecimens = async ({
+const fetchVariantCallingAnalyses = async ({
   studyId,
   rdpcUrl,
-  analysisType,
   from,
   size,
   egoJwtManager,
@@ -62,7 +40,6 @@ const fetchAnalysesWithSpecimens = async ({
 }: {
   studyId: string;
   rdpcUrl: string;
-  analysisType: string;
   from: number;
   size: number;
   egoJwtManager: EgoJwtManager;
@@ -72,17 +49,14 @@ const fetchAnalysesWithSpecimens = async ({
   const accessToken = jwt.access_token;
   return await promiseRetry<Analysis[]>(async (retry) => {
     try {
-      logger.info(
-        `Fetching sequencing experiment analyses with specimens from rdpc.....`
-      );
       const response = await fetch(rdpcUrl, {
         method: "POST",
         body: JSON.stringify({
           query,
           variables: {
             analysisFilter: {
-              analysisType: analysisType,
-              analysisState: AnalysisState.PUBLISHED,
+              analysisState: "PUBLISHED",
+              analysisType: AnalysisType.VARIANT_CALLING,
               studyId,
               donorId,
             },
@@ -100,23 +74,32 @@ const fetchAnalysesWithSpecimens = async ({
       const jsonResponse = await response.json();
       const hasError = jsonResponse.errors?.length > 0;
       if (hasError) {
+        const error = JSON.stringify(jsonResponse.errors);
         logger.error(
-          `received error from rdpc... page: from => ${from} size => ${size}`
+          `received error from rdpc... page: from => ${from} size => ${size}. Error: ${error}`
         );
+        throw new Error(error);
       }
       return jsonResponse.data.analyses.content as Analysis[];
     } catch (err) {
       logger.warn(
-        `Failed to fetch sequencing experiment analyses with specimens: ${err}, retrying...`
+        `Failed to fetch variant calling analyses: ${err}, retrying...`
       );
       return retry(err);
     }
   }, retryConfig).catch((err) => {
     logger.error(
-      `Failed to fetch analyses with specimens of program: ${studyId} from RDPC ${rdpcUrl} after ${retryConfig.retries} attempts: ${err}`
+      `Failed to fetch analyses of program: ${studyId} from RDPC ${rdpcUrl} after ${retryConfig.retries} attempts: ${err}`
     );
     throw err;
   });
 };
 
-export default fetchAnalysesWithSpecimens;
+const retryConfig = {
+  factor: 2,
+  retries: 3,
+  minTimeout: 1000,
+  maxTimeout: Infinity,
+};
+
+export default fetchVariantCallingAnalyses;

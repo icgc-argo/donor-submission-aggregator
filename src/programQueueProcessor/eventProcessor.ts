@@ -13,11 +13,12 @@ import logger from "logger";
 import { KnownEventType, ProgramQueueProcessor, QueueRecord } from "./types";
 import { indexRdpcData } from "rdpc/index";
 import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
-import fetchAnalyses from "rdpc/fetchAnalyses";
-import fetchDonorIdsByAnalysis from "rdpc/fetchDonorIdsByAnalysis";
+import fetchAnalyses from "rdpc/query/fetchAnalyses";
+import fetchDonorIdsByAnalysis from "rdpc/query/fetchDonorIdsByAnalysis";
 import { DLQ_TOPIC_NAME, MAX_RETRIES } from "config";
 import { EgoJwtManager } from "auth";
-import fetchAnalysesWithSpecimens from "rdpc/fetchAnalysesWithSpecimens";
+import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
+import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
 
 const parseProgramQueueEvent = (message: string): QueueRecord =>
   JSON.parse(message);
@@ -149,6 +150,7 @@ export default async ({
   egoJwtManager,
   analysisFetcher = fetchAnalyses,
   analysisWithSpecimensFetcher = fetchAnalysesWithSpecimens,
+  fetchVC = fetchVariantCallingAnalyses,
   fetchDonorIds = fetchDonorIdsByAnalysis,
   statusReporter,
   sendDlqMessage,
@@ -160,6 +162,7 @@ export default async ({
   egoJwtManager: EgoJwtManager;
   analysisFetcher?: typeof fetchAnalyses;
   analysisWithSpecimensFetcher?: typeof fetchAnalysesWithSpecimens;
+  fetchVC?: typeof fetchVariantCallingAnalyses;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
   statusReporter?: StatusReporter;
 }) => {
@@ -215,6 +218,7 @@ export default async ({
                   egoJwtManager: egoJwtManager,
                   analysesFetcher: analysisFetcher,
                   analysesWithSpecimensFetcher: analysisWithSpecimensFetcher,
+                  fetchVC,
                   fetchDonorIds,
                   analysisId: queuedEvent.analysisId,
                 });
@@ -234,6 +238,7 @@ export default async ({
                   egoJwtManager,
                   analysesFetcher: analysisFetcher,
                   analysesWithSpecimensFetcher: analysisWithSpecimensFetcher,
+                  fetchVC,
                   fetchDonorIds,
                 });
               }

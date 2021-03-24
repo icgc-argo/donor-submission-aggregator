@@ -1,11 +1,11 @@
 import { EgoJwtManager } from "auth";
 import { FirstPublishedDateFields } from "indexClinicalData/types";
+import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
 import { countSpecimenType, mergeDonorInfo } from "../analysesProcessor";
 import {
   getAllMergedDonorWithSpecimens,
   getFirstPublishedDate,
 } from "../analysesSpecimenProcessor";
-import fetchAnalysesWithSpecimens from "../fetchAnalysesWithSpecimens";
 import {
   findEarliestAvailableSamplePair,
   findMatchedTNPairs,

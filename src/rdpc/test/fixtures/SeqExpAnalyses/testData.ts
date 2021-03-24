@@ -15,6 +15,9 @@ export const seqExpAnalysesWithMultipleRuns_page_1 = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -90,6 +93,9 @@ export const seqExpAnalysesWithMultipleRuns_page_1 = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -148,6 +154,9 @@ export const seqExpAnalysesWithMultipleRuns_page_2 = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [
@@ -242,6 +251,9 @@ export const seqExpAnalysesWithMultipleRuns_page_2 = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [
@@ -682,6 +694,9 @@ export const analysesWithEmptyProducedAnalyses = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -721,6 +736,9 @@ export const analysesWithEmptyProducedAnalyses = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [
@@ -762,6 +780,9 @@ export const analysesWithEmptyProducedAnalyses = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -793,6 +814,9 @@ export const analysesWithActiveRunsOnly = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [
@@ -841,6 +865,9 @@ export const analysesWithActiveRunsOnly = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -875,6 +902,9 @@ export const analysesWithValidCompleteAndActiveRuns = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [

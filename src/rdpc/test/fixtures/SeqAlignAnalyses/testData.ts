@@ -15,6 +15,9 @@ export const seqAlignAnalysesWithMultiTNPairs_page_1 = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -165,6 +168,9 @@ export const seqAlignAnalysesWithMultiTNPairs_page_1 = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [
@@ -319,6 +325,9 @@ export const seqAlignAnalysesWithMultiTNPairs_page_2 = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -359,6 +368,9 @@ export const seqAlignAnalysesWithMultiTNPairs_page_2 = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [
@@ -404,6 +416,9 @@ export const seqAlignAnalysesWithOneTNPairs = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -444,6 +459,9 @@ export const seqAlignAnalysesWithOneTNPairs = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [

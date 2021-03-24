@@ -34,13 +34,6 @@ type QueryVariable = {
   analysisId: string;
 };
 
-const retryConfig = {
-  factor: 2,
-  retries: 5,
-  minTimeout: 10,
-  maxTimeout: Infinity,
-};
-
 const fetchDonorIdsByAnalysis = async ({
   analysisId,
   rdpcUrl,
@@ -93,6 +86,13 @@ const fetchDonorIdsByAnalysis = async ({
     );
     throw err;
   });
+};
+
+const retryConfig = {
+  factor: 2,
+  retries: 3,
+  minTimeout: 1000,
+  maxTimeout: Infinity,
 };
 
 export default fetchDonorIdsByAnalysis;

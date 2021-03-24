@@ -26,10 +26,12 @@ export type RdpcDonorInfo = {
   sangerVcsCompleted: number;
   sangerVcsRunning: number;
   sangerVcsFailed: number;
+  sangerVcsFirstPublishedDate?: Date;
 
   mutectCompleted: number;
   mutectRunning: number;
   mutectFailed: number;
+  mutectFirstPublishedDate?: Date;
 
   totalFilesCount: number;
   filesToQcCount: number;
