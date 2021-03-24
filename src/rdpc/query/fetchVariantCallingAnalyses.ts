@@ -3,7 +3,6 @@ import logger from "logger";
 import fetch from "node-fetch";
 import promiseRetry from "promise-retry";
 import { Analysis, AnalysisType } from "../types";
-import { retryConfig } from "./fetchAnalyses";
 import { QueryVariable } from "./types";
 
 const query = `
@@ -94,6 +93,13 @@ const fetchVariantCallingAnalyses = async ({
     );
     throw err;
   });
+};
+
+const retryConfig = {
+  factor: 2,
+  retries: 3,
+  minTimeout: 1000,
+  maxTimeout: Infinity,
 };
 
 export default fetchVariantCallingAnalyses;

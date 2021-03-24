@@ -3,7 +3,6 @@ import logger from "logger";
 import fetch from "node-fetch";
 import promiseRetry from "promise-retry";
 import { Analysis, AnalysisState } from "rdpc/types";
-import { retryConfig } from "./fetchAnalyses";
 import { QueryVariable } from "./types";
 
 const query = `
@@ -101,6 +100,13 @@ const fetchAnalysesWithSpecimens = async ({
     );
     throw err;
   });
+};
+
+const retryConfig = {
+  factor: 2,
+  retries: 3,
+  minTimeout: 1000,
+  maxTimeout: Infinity,
 };
 
 export default fetchAnalysesWithSpecimens;

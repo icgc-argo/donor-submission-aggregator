@@ -148,10 +148,10 @@ const getWorkflowRepoUrl = (
   }
 };
 
-export const retryConfig = {
+const retryConfig = {
   factor: 2,
-  retries: 2,
-  minTimeout: 10,
+  retries: 3,
+  minTimeout: 3000,
   maxTimeout: Infinity,
 };
 
