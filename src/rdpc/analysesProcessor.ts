@@ -11,7 +11,7 @@ import {
 } from "./types";
 import logger from "logger";
 import HashCode from "ts-hashcode";
-import fetchAnalyses from "rdpc/fetchAnalyses";
+import fetchAnalyses from "rdpc/query/fetchAnalyses";
 import { EgoJwtManager } from "auth";
 import _ from "lodash";
 
@@ -198,9 +198,6 @@ export const getAllMergedDonor = async ({
         donorId,
       });
       for await (const page of stream) {
-        if (page.length === 0) {
-          logger.info(`No ${analysisType} analyses for streaming`);
-        }
         logger.info(`Streaming ${page.length} of ${analysisType} analyses...`);
         const filteredAnalyses = removeCompleteRunsWithSuppressedAnalyses(page);
         const donorPerPage = toDonorCentric(filteredAnalyses);
@@ -218,9 +215,6 @@ export const getAllMergedDonor = async ({
       analysesFetcher,
     });
     for await (const page of stream) {
-      if (page.length === 0) {
-        logger.info(`No ${analysisType} analyses for streaming`);
-      }
       logger.info(`Streaming ${page.length} of ${analysisType} analyses...`);
       const filteredAnalyses = removeCompleteRunsWithSuppressedAnalyses(page);
       const donorPerPage = toDonorCentric(filteredAnalyses);
@@ -465,12 +459,18 @@ export const mergeDonorInfo = (
           (acc[donorId]?.sangerVcsRunning || 0) + rdpcInfo.sangerVcsRunning,
         sangerVcsFailed:
           (acc[donorId]?.sangerVcsFailed || 0) + rdpcInfo.sangerVcsFailed,
+        sangerVcsFirstPublishedDate: acc[donorId]?.sangerVcsFirstPublishedDate
+          ? acc[donorId].sangerVcsFirstPublishedDate
+          : rdpcInfo.sangerVcsFirstPublishedDate,
 
         mutectCompleted:
           (acc[donorId]?.mutectCompleted || 0) + rdpcInfo.mutectCompleted,
         mutectRunning:
           (acc[donorId]?.mutectRunning || 0) + rdpcInfo.mutectRunning,
         mutectFailed: (acc[donorId]?.mutectFailed || 0) + rdpcInfo.mutectFailed,
+        mutectFirstPublishedDate: acc[donorId]?.mutectFirstPublishedDate
+          ? acc[donorId].mutectFirstPublishedDate
+          : rdpcInfo.mutectFirstPublishedDate,
 
         totalFilesCount:
           (acc[donorId]?.totalFilesCount || 0) + rdpcInfo.totalFilesCount,

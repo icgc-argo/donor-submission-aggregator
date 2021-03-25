@@ -5,7 +5,7 @@ import {
   TumourNormalDesignationValue,
 } from "rdpc/types";
 
-export const mockSeqExpAnalyses: Analysis[] = [
+export const seqExpAnalyses: Analysis[] = [
   {
     analysisId: "ab784c58-39bd-4441-b84c-5839bdf4410f",
     analysisType: "sequencing_experiment",
@@ -18,6 +18,9 @@ export const mockSeqExpAnalyses: Analysis[] = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [
@@ -53,6 +56,9 @@ export const mockSeqExpAnalyses: Analysis[] = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [
@@ -107,6 +113,9 @@ export const mockSeqExpAnalyses: Analysis[] = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -141,6 +150,9 @@ export const mockSeqExpAnalyses: Analysis[] = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [
@@ -213,6 +225,9 @@ export const mockSeqExpAnalyses: Analysis[] = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -284,6 +299,9 @@ export const mockSeqExpAnalyses: Analysis[] = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -318,6 +336,9 @@ export const mockSeqExpAnalyses: Analysis[] = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [
@@ -354,6 +375,9 @@ export const mockSeqExpAnalyses: Analysis[] = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -389,6 +413,9 @@ export const mockSeqExpAnalyses: Analysis[] = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -423,6 +450,9 @@ export const mockSeqExpAnalyses: Analysis[] = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [
@@ -466,7 +496,7 @@ export const mockSeqExpAnalyses: Analysis[] = [
   },
 ];
 
-export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
+export const seqAlignmentAnalyses_sanger: Analysis[] = [
   {
     analysisId: "e72b062d-f3dc-45dc-ab06-2df3dc75dc4b",
     analysisType: "sequencing_alignment",
@@ -479,6 +509,9 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [
@@ -585,6 +618,9 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -690,6 +726,9 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -728,6 +767,9 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [
@@ -768,6 +810,9 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -806,6 +851,9 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [
@@ -846,6 +894,9 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -884,6 +935,9 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [
@@ -1122,6 +1176,9 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -1161,6 +1218,9 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -1189,7 +1249,7 @@ export const mockSeqAlignmentAnalyses_sanger: Analysis[] = [
   },
 ];
 
-export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
+export const seqAlignmentAnalyses_mutect: Analysis[] = [
   {
     analysisId: "e72b062d-f3dc-45dc-ab06-2df3dc75dc4b",
     analysisType: "sequencing_alignment",
@@ -1202,6 +1262,9 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [
@@ -1308,6 +1371,9 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -1413,6 +1479,9 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -1451,6 +1520,9 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [
@@ -1491,6 +1563,9 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -1529,6 +1604,9 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [
@@ -1569,6 +1647,9 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -1607,6 +1688,9 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     runs: [
@@ -1845,6 +1929,9 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -1884,6 +1971,9 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     runs: [
       {
@@ -1912,13 +2002,16 @@ export const mockSeqAlignmentAnalyses_mutect: Analysis[] = [
   },
 ];
 
-export const mockSeqExpAnalysesWithSpecimens: Analysis[] = [
+export const seqExpAnalysesWithSpecimens: Analysis[] = [
   {
     analysisId: "63c4653b-f881-4148-8465-3bf8811148c8",
     analysisType: AnalysisType.SEQ_EXPERIMENT,
     experiment: {
       library_strategy: "",
       experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
     },
     firstPublishedAt: "",
     donors: [
@@ -1947,6 +2040,9 @@ export const mockSeqExpAnalysesWithSpecimens: Analysis[] = [
       library_strategy: "",
       experimental_strategy: "",
     },
+    workflow: {
+      workflowName: "",
+    },
     firstPublishedAt: "",
     donors: [
       {
@@ -1966,5 +2062,122 @@ export const mockSeqExpAnalysesWithSpecimens: Analysis[] = [
       },
     ],
     runs: [],
+  },
+];
+
+export const variantCallingAnalyses: Analysis[] = [
+  {
+    analysisId: "06ef7db4-8acd-4c25-af7d-b48acd1c25ba",
+    analysisType: "variant_calling",
+    firstPublishedAt: "1607451473538",
+    workflow: {
+      workflowName: "Sanger WXS Variant Calling",
+    },
+    donors: [
+      {
+        donorId: "DO35082",
+        specimens: [],
+      },
+    ],
+    runs: [],
+    experiment: {
+      experimental_strategy: "",
+      library_strategy: "",
+    },
+  },
+  {
+    analysisId: "05ef7db4-8acd-4c25-af7d-b48acd1c25ba",
+    analysisType: "variant_calling",
+    firstPublishedAt: "1617451473538",
+    workflow: {
+      workflowName: "Sanger WXS Variant Calling",
+    },
+    donors: [
+      {
+        donorId: "DO35082",
+        specimens: [],
+      },
+    ],
+    runs: [],
+    experiment: {
+      experimental_strategy: "",
+      library_strategy: "",
+    },
+  },
+  {
+    analysisId: "04ef7db4-8acd-4c25-af7d-b48acd1c25ba",
+    analysisType: "variant_calling",
+    firstPublishedAt: "1627451473538",
+    workflow: {
+      workflowName: "Sanger WXS Variant Calling",
+    },
+    donors: [
+      {
+        donorId: "DO35082",
+        specimens: [],
+      },
+    ],
+    runs: [],
+    experiment: {
+      experimental_strategy: "",
+      library_strategy: "",
+    },
+  },
+  {
+    analysisId: "99ef7db4-8acd-4c25-af7d-b48acd1c25ba",
+    analysisType: "variant_calling",
+    firstPublishedAt: "1610451473538",
+    workflow: {
+      workflowName: "GATK Mutect2 Variant Calling",
+    },
+    donors: [
+      {
+        donorId: "DO35082",
+        specimens: [],
+      },
+    ],
+    runs: [],
+    experiment: {
+      experimental_strategy: "",
+      library_strategy: "",
+    },
+  },
+  {
+    analysisId: "19ef7db4-8acd-4c25-af7d-b48acd1c25ba",
+    analysisType: "variant_calling",
+    firstPublishedAt: "1620451473538",
+    workflow: {
+      workflowName: "GATK Mutect2 Variant Calling",
+    },
+    donors: [
+      {
+        donorId: "DO35082",
+        specimens: [],
+      },
+    ],
+    runs: [],
+    experiment: {
+      experimental_strategy: "",
+      library_strategy: "",
+    },
+  },
+  {
+    analysisId: "29ef7db4-8acd-4c25-af7d-b48acd1c25ba",
+    analysisType: "variant_calling",
+    firstPublishedAt: "1630451473538",
+    workflow: {
+      workflowName: "GATK Mutect2 Variant Calling",
+    },
+    donors: [
+      {
+        donorId: "DO35082",
+        specimens: [],
+      },
+    ],
+    runs: [],
+    experiment: {
+      experimental_strategy: "",
+      library_strategy: "",
+    },
   },
 ];

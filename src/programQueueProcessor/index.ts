@@ -14,10 +14,11 @@ import logger from "logger";
 import initializeProgramQueueTopic from "./initializeProgramQueueTopic";
 import { ProgramQueueProcessor, QueueRecord, KnownEventType } from "./types";
 import createEventProcessor from "./eventProcessor";
-import fetchAnalyses from "rdpc/fetchAnalyses";
-import fetchDonorIdsByAnalysis from "rdpc/fetchDonorIdsByAnalysis";
+import fetchAnalyses from "rdpc/query/fetchAnalyses";
+import fetchDonorIdsByAnalysis from "rdpc/query/fetchDonorIdsByAnalysis";
 import { EgoJwtManager } from "auth";
-import fetchAnalysesWithSpecimens from "rdpc/fetchAnalysesWithSpecimens";
+import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
+import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
 
 const createProgramQueueRecord = (record: QueueRecord): ProducerRecord => {
   return {
@@ -39,6 +40,7 @@ const createProgramQueueProcessor = async ({
   statusReporter,
   analysisFetcher = fetchAnalyses,
   analysisWithSpecimensFetcher = fetchAnalysesWithSpecimens,
+  fetchVC = fetchVariantCallingAnalyses,
   fetchDonorIds = fetchDonorIdsByAnalysis,
 }: {
   kafka: Kafka;
@@ -48,6 +50,7 @@ const createProgramQueueProcessor = async ({
   statusReporter?: StatusReporter;
   analysisFetcher?: typeof fetchAnalyses;
   analysisWithSpecimensFetcher?: typeof fetchAnalysesWithSpecimens;
+  fetchVC?: typeof fetchVariantCallingAnalyses;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
 }): Promise<ProgramQueueProcessor> => {
   const consumer = kafka.consumer({
@@ -93,6 +96,7 @@ const createProgramQueueProcessor = async ({
       rollCallClient,
       analysisFetcher,
       analysisWithSpecimensFetcher,
+      fetchVC,
       statusReporter,
       fetchDonorIds,
       sendDlqMessage,

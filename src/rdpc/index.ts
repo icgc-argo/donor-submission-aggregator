@@ -5,16 +5,18 @@ import { Client } from "@elastic/elasticsearch";
 import { EsDonorDocument, EsHit, RdpcDonorInfo } from "indexClinicalData/types";
 import { toEsBulkIndexActions } from "elasticsearch";
 import logger from "logger";
-import fetchAnalyses from "./fetchAnalyses";
-import fetchDonorIdsByAnalysis from "./fetchDonorIdsByAnalysis";
+import fetchAnalyses from "./query/fetchAnalyses";
+import fetchDonorIdsByAnalysis from "./query/fetchDonorIdsByAnalysis";
 import { EgoJwtManager } from "auth";
-import fetchAnalysesWithSpecimens from "./fetchAnalysesWithSpecimens";
 import { AnalysisType } from "./types";
+import fetchVariantCallingAnalyses from "./query/fetchVariantCallingAnalyses";
 import { getSangerData } from "./convertData/getSangerData";
 import { getAlignmentData } from "./convertData/getAlignmentData";
 import { getSeqExpSpecimenData } from "./convertData/getSeqExpSpecimenData";
 import { getSeqAlignSpecimenData } from "./convertData/getSeqAlignSpecimenData";
 import { getMutectData } from "./convertData/getMutectData";
+import fetchAnalysesWithSpecimens from "./query/fetchAnalysesWithSpecimens";
+import { getVariantCallingData } from "./convertData/getVariantCallingData";
 
 const convertToEsDocument = (
   existingEsHit: EsDonorDocument,
@@ -32,6 +34,7 @@ export const indexRdpcData = async ({
   egoJwtManager,
   analysesFetcher = fetchAnalyses,
   analysesWithSpecimensFetcher = fetchAnalysesWithSpecimens,
+  fetchVC = fetchVariantCallingAnalyses,
   fetchDonorIds = fetchDonorIdsByAnalysis,
   analysisId,
 }: {
@@ -41,6 +44,7 @@ export const indexRdpcData = async ({
   esClient: Client;
   egoJwtManager: EgoJwtManager;
   analysesFetcher?: typeof fetchAnalyses; // optional only for test
+  fetchVC?: typeof fetchVariantCallingAnalyses; // optional only for test
   analysesWithSpecimensFetcher?: typeof fetchAnalysesWithSpecimens; // optional only for test
   analysisId?: string;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
@@ -64,6 +68,16 @@ export const indexRdpcData = async ({
     AnalysisType.SEQ_EXPERIMENT,
     egoJwtManager,
     analysesWithSpecimensFetcher,
+    config,
+    donorIdsToFilterBy
+  );
+
+  // contains 2 fields: mutectFirstPublishedDate, sangerVcsFirstPublishedDate
+  const rdpcInfoByDonor_sangerMutectDates = await getVariantCallingData(
+    programId,
+    rdpcUrl,
+    egoJwtManager,
+    fetchVC,
     config,
     donorIdsToFilterBy
   );
@@ -131,9 +145,14 @@ export const indexRdpcData = async ({
 
   const donorInfo_dna_data = mergeDonorInfo(donorInfo, rdpcInfoByDonor_mutect);
 
-  const rdpcDocsMap = mergeDonorInfo(
+  const donorInfo_dna_dates = mergeDonorInfo(
     donorInfo_dna_data,
     rdpcInfo_alignmentDate
+  );
+
+  const rdpcDocsMap = mergeDonorInfo(
+    donorInfo_dna_dates,
+    rdpcInfoByDonor_sangerMutectDates
   );
   /**  ---------- End of merge DonorInfoMap --------- */
 

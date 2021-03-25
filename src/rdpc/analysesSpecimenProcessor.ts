@@ -2,7 +2,7 @@ import { EgoJwtManager } from "auth";
 import { FirstPublishedDateFields } from "indexClinicalData/types";
 import logger from "logger";
 import { initializeRdpcInfo } from "./analysesProcessor";
-import fetchAnalysesWithSpecimens from "./fetchAnalysesWithSpecimens";
+import fetchAnalysesWithSpecimens from "./query/fetchAnalysesWithSpecimens";
 import {
   Analysis,
   Donor,
@@ -51,13 +51,9 @@ export const getAllMergedDonorWithSpecimens = async ({
         donorId,
       });
       for await (const page of stream) {
-        if (page.length === 0) {
-          logger.info(`No ${analysisType} analyses with specimens fetched`);
-        }
         logger.info(
           `Streaming ${page.length} of ${analysisType} analyses with specimens and samples...`
         );
-
         const donorDataMapPerPage: StringMap<DonorData> = convertAnalysisToDonorData(
           page
         );
@@ -75,13 +71,9 @@ export const getAllMergedDonorWithSpecimens = async ({
     });
 
     for await (const page of stream) {
-      if (page.length === 0) {
-        logger.info(`No ${analysisType} analyses with specimens for streaming`);
-      }
       logger.info(
         `Streaming ${page.length} of ${analysisType} analyses with specimens and samples...`
       );
-
       const donorDataMapPerPage: StringMap<DonorData> = convertAnalysisToDonorData(
         page
       );
