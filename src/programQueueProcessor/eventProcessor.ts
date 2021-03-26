@@ -55,10 +55,19 @@ const newIndexAndInitializeMapping = async (
   return newResolvedIndex;
 };
 
+/**
+ *
+ * @param programId
+ * @param esClient
+ * @param rollCallClient
+ * @param cloneExisting Indicator that the existing index can be used as a starting point for the new index. If false, a new index will be created without cloning the existing index.
+ * @returns New index from roll call, with existing documents if cloneExisting is true
+ */
 const getNewResolvedIndex = async (
   programId: string,
   esClient: Client,
-  rollCallClient: RollCallClient
+  rollCallClient: RollCallClient,
+  cloneExisting: boolean
 ): Promise<ResolvedIndex> => {
   let newResolvedIndex: ResolvedIndex | null = null;
 
@@ -78,6 +87,7 @@ const getNewResolvedIndex = async (
       throw err;
     }
   }
+
   if (existingIndexName) {
     const response = await getIndexSettings(esClient, existingIndexName);
     const indexSettings = response.body[existingIndexName].settings.index;
@@ -85,31 +95,34 @@ const getNewResolvedIndex = async (
     const currentNumOfReplicas = parseInt(indexSettings.number_of_replicas);
 
     // check if existing latest index settings match default settings
-    if (
+    const indexSettingsMatch =
       currentNumOfReplicas ===
         donorIndexMapping.settings["index.number_of_replicas"] &&
       currentNumOfShards ===
-        donorIndexMapping.settings["index.number_of_shards"]
-    ) {
+        donorIndexMapping.settings["index.number_of_shards"];
+
+    const doClone = cloneExisting && indexSettingsMatch;
+
+    logger.info(`Obtaining new index, clone = ${doClone}`);
+    newResolvedIndex = await newIndexAndInitializeMapping(
+      rollCallClient,
+      esClient,
+      programId,
+      doClone
+    );
+
+    if (cloneExisting && !indexSettingsMatch) {
+      // We want an index with all existing documents but could not clone due to settings mismatch,
+      //   so let's copy over all the existing documents into our new index!
       logger.info(
-        "Existing index settings match default settings, obtaining a new index name from rollcall, clone=true."
-      );
-      newResolvedIndex = await newIndexAndInitializeMapping(
-        rollCallClient,
-        esClient,
-        programId,
-        true
-      );
-    } else {
-      // because existing index settings do not match default, migrate this index
-      logger.info(
-        "Existing index settings do not match default settings, obtaining a new index name from rollcall, clone=false."
-      );
-      newResolvedIndex = await newIndexAndInitializeMapping(
-        rollCallClient,
-        esClient,
-        programId,
-        false
+        `Existing index could not be cloned due to incorrect existing settings: ${JSON.stringify(
+          {
+            number_of_replicas:
+              donorIndexMapping.settings["index.number_of_replicas"],
+            number_of_shards:
+              donorIndexMapping.settings["index.number_of_shards"],
+          }
+        )}`
       );
 
       logger.info(
@@ -132,7 +145,7 @@ const getNewResolvedIndex = async (
     }
   } else {
     // if no index exists for program, get a new index name
-    logger.info("Obtaining a new index name from rollcall, clone=false.");
+    logger.info("Obtaining new index, first for program.");
     newResolvedIndex = await newIndexAndInitializeMapping(
       rollCallClient,
       esClient,
@@ -147,8 +160,8 @@ const createEventProcessor = async ({
   rollCallClient,
   esClient,
   egoJwtManager,
-  analysisFetcher = fetchAnalyses,
-  analysisWithSpecimensFetcher = fetchAnalysesWithSpecimens,
+  analysesFetcher = fetchAnalyses,
+  analysesWithSpecimensFetcher = fetchAnalysesWithSpecimens,
   fetchVC = fetchVariantCallingAnalyses,
   fetchDonorIds = fetchDonorIdsByAnalysis,
   statusReporter,
@@ -158,8 +171,8 @@ const createEventProcessor = async ({
   esClient: Client;
   sendDlqMessage: ProgramQueueProcessor["sendDlqMessage"];
   egoJwtManager: EgoJwtManager;
-  analysisFetcher?: typeof fetchAnalyses;
-  analysisWithSpecimensFetcher?: typeof fetchAnalysesWithSpecimens;
+  analysesFetcher?: typeof fetchAnalyses;
+  analysesWithSpecimensFetcher?: typeof fetchAnalysesWithSpecimens;
   fetchVC?: typeof fetchVariantCallingAnalyses;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
   statusReporter?: StatusReporter;
@@ -176,65 +189,70 @@ const createEventProcessor = async ({
 
     logger.info(`Begin processing event: ${queuedEvent.type} - ${programId}`);
 
+    // For sync events we want to regenerate the entire index, so do not clone.
+    // Clone for all other event types (RDPC and CLINICAL)
+    const doClone = queuedEvent.type !== KnownEventType.SYNC;
+
     try {
       await withRetry(async (retry, attemptIndex) => {
         const newResolvedIndex = await getNewResolvedIndex(
           programId,
           esClient,
-          rollCallClient
+          rollCallClient,
+          doClone
         );
         const targetIndexName = newResolvedIndex.indexName;
 
         try {
           await setIndexWritable(esClient, targetIndexName, true);
           logger.info(`Enabled index writing for: ${targetIndexName}`);
-
-          if (queuedEvent.type === KnownEventType.CLINICAL) {
-            await indexClinicalData(
-              queuedEvent.programId,
-              targetIndexName,
-              esClient
-            );
-          } else if (queuedEvent.type === KnownEventType.RDPC) {
-            for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
-              await indexRdpcData({
-                programId,
-                rdpcUrl,
-                targetIndexName,
-                esClient,
-                egoJwtManager: egoJwtManager,
-                analysesFetcher: analysisFetcher,
-                analysesWithSpecimensFetcher: analysisWithSpecimensFetcher,
-                fetchVC,
-                fetchDonorIds,
-                analysisId: queuedEvent.analysisId,
-              });
-            }
-          } else {
-            // SYNC
-            await indexClinicalData(
-              queuedEvent.programId,
-              targetIndexName,
-              esClient
-            );
-            for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
-              await indexRdpcData({
-                programId,
-                rdpcUrl,
-                targetIndexName: targetIndexName,
-                esClient,
-                egoJwtManager,
-                analysesFetcher: analysisFetcher,
-                analysesWithSpecimensFetcher: analysisWithSpecimensFetcher,
-                fetchVC,
-                fetchDonorIds,
-              });
-            }
+          switch (queuedEvent.type) {
+            case KnownEventType.CLINICAL:
+              // Re-index all of clinical for this program.
+              // Ideally, this would only update only the affected donors - an update to clinical is required to communicate this information in the kafka event.
+              await indexClinicalData(programId, targetIndexName, esClient);
+              break;
+            case KnownEventType.RDPC:
+              // Update RDPC data. Analysis ID is expected in the event so only documents affected by that analysis will be updated.
+              for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
+                await indexRdpcData({
+                  programId,
+                  rdpcUrl,
+                  targetIndexName,
+                  esClient,
+                  egoJwtManager,
+                  analysesFetcher,
+                  analysesWithSpecimensFetcher,
+                  fetchVC,
+                  fetchDonorIds,
+                  analysisId: queuedEvent.analysisId,
+                });
+              }
+              break;
+            case KnownEventType.SYNC:
+              // Generate Clinical and RPDC data for all analyses. We expect an empty index here (doClone = false)
+              //   so all donor data for this program needs to be gathered and added before release.
+              await indexClinicalData(programId, targetIndexName, esClient);
+              for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
+                await indexRdpcData({
+                  programId,
+                  rdpcUrl,
+                  targetIndexName: targetIndexName,
+                  esClient,
+                  egoJwtManager,
+                  analysesFetcher,
+                  analysesWithSpecimensFetcher,
+                  fetchVC,
+                  fetchDonorIds,
+                });
+              }
+              break;
           }
+          logger.info(`Releasing index: ${targetIndexName}`);
           await rollCallClient.release(newResolvedIndex);
         } catch (err) {
           logger.warn(
-            `failed to index program ${programId} on attempt #${attemptIndex}: ${err}`
+            `Failed to index program ${programId} on attempt #${attemptIndex}: ${err}`
           );
           await handleIndexingFailure({
             esClient,
@@ -243,16 +261,17 @@ const createEventProcessor = async ({
           retry(err);
         }
 
-        await setIndexWritable(esClient, targetIndexName, true);
-        logger.info(`Disabled index writing for: ${targetIndexName}`); // TODO: write test to ensure the produced index has writing disabled.
+        await setIndexWritable(esClient, targetIndexName, false);
+        logger.info(`Disabled index writing for: ${targetIndexName}`);
       }, RETRY_CONFIG_RDPC_GATEWAY);
     } catch (err) {
       logger.error(
-        `FAILED TO INDEX PROGRAM ${programId} after ${
+        `Failed to index program ${programId} after ${
           RETRY_CONFIG_RDPC_GATEWAY.retries
         } attempts: ${JSON.stringify(err)}`,
         err
       );
+      // Message processing failed, make sure it is sent to the Dead Letter Queue.
       await sendDlqMessage(DLQ_TOPIC_NAME, message.value.toString());
     }
 
