@@ -25,7 +25,7 @@ type EgoAppCredential = {
 };
 
 export type EgoJwtManager = {
-  getLatestJwt: (options: { noCache?: boolean }) => Promise<EgoAccessToken>;
+  getLatestJwt: (options?: { noCache?: boolean }) => Promise<EgoAccessToken>;
 };
 
 export const createEgoJwtManager = async (): Promise<EgoJwtManager> => {
