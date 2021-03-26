@@ -91,7 +91,6 @@ const createProgramQueueProcessor = async ({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: await createEventProcessor({
       esClient,
-      programQueueTopic,
       egoJwtManager,
       rollCallClient,
       analysisFetcher,

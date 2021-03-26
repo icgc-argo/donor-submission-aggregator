@@ -15,29 +15,28 @@ import { indexRdpcData } from "rdpc/index";
 import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 import fetchAnalyses from "rdpc/query/fetchAnalyses";
 import fetchDonorIdsByAnalysis from "rdpc/query/fetchDonorIdsByAnalysis";
-import { DLQ_TOPIC_NAME, MAX_RETRIES } from "config";
+import { DLQ_TOPIC_NAME, RETRY_CONFIG_RDPC_GATEWAY } from "config";
 import { EgoJwtManager } from "auth";
 import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
 import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
 
-const parseProgramQueueEvent = (message: string): QueueRecord =>
-  JSON.parse(message);
-
 const handleIndexingFailure = async ({
   esClient,
-  rollCallIndex,
+  targetIndexName,
 }: {
   esClient: Client;
-  rollCallIndex: ResolvedIndex;
+  targetIndexName: string;
 }) => {
+  // If there was any issues building the index data, writing to the index, or saving the index
+  //   then we should delete the index instead of leaving the incomplete index in ES
   await esClient.indices
     .delete({
-      index: rollCallIndex.indexName,
+      index: targetIndexName,
     })
     .catch((err) => {
-      logger.warn(`could not delete index ${rollCallIndex.indexName}: ${err}`);
+      logger.error(`Error deleting index ${targetIndexName}: ${err}`);
     });
-  logger.warn(`index ${rollCallIndex.indexName} was removed`);
+  logger.info(`Index was removed: ${targetIndexName}`);
 };
 
 const newIndexAndInitializeMapping = async (
@@ -50,7 +49,7 @@ const newIndexAndInitializeMapping = async (
     programId.toLowerCase(),
     cloneFromReleasedIndex
   );
-  logger.info(`obtained new index name: ${newResolvedIndex.indexName}`);
+  logger.info(`Obtained new index name: ${newResolvedIndex.indexName}`);
   await initIndexMapping(newResolvedIndex.indexName, esClient);
   return newResolvedIndex;
 };
@@ -62,7 +61,7 @@ const getNewResolvedIndex = async (
 ): Promise<ResolvedIndex> => {
   let newResolvedIndex: ResolvedIndex | null = null;
 
-  let existingIndexName = "";
+  let existingIndexName: string | undefined;
   try {
     existingIndexName = await getLatestIndexName(esClient, programId);
   } catch (err) {
@@ -143,10 +142,10 @@ const getNewResolvedIndex = async (
   return newResolvedIndex;
 };
 
+// createEventProcessor
 export default async ({
   rollCallClient,
   esClient,
-  programQueueTopic,
   egoJwtManager,
   analysisFetcher = fetchAnalyses,
   analysisWithSpecimensFetcher = fetchAnalysesWithSpecimens,
@@ -157,7 +156,6 @@ export default async ({
 }: {
   rollCallClient: RollCallClient;
   esClient: Client;
-  programQueueTopic: string;
   sendDlqMessage: ProgramQueueProcessor["sendDlqMessage"];
   egoJwtManager: EgoJwtManager;
   analysisFetcher?: typeof fetchAnalyses;
@@ -166,108 +164,101 @@ export default async ({
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
   statusReporter?: StatusReporter;
 }) => {
-  return async ({ message }: EachMessagePayload) => {
-    if (message && message.value) {
-      const queuedEvent = parseProgramQueueEvent(message.value.toString());
-      const { programId } = queuedEvent;
-      logger.info(
-        `starts processing ${queuedEvent.type} event for program ${programId}`
-      );
-      const retryConfig = {
-        factor: 2,
-        retries: MAX_RETRIES,
-        minTimeout: 1000,
-        maxTimeout: Infinity,
-      };
-
-      try {
-        await withRetry(async (retry, attemptIndex) => {
-          const newResolvedIndex = await getNewResolvedIndex(
-            programId,
-            esClient,
-            rollCallClient
-          );
-
-          try {
-            await esClient.indices.putSettings({
-              index: newResolvedIndex.indexName.toLowerCase(),
-              body: {
-                settings: {
-                  "index.blocks.write": "false",
-                },
-              },
-            });
-
-            logger.info(
-              `Enabled WRITE to index : ${newResolvedIndex.indexName}`
-            );
-
-            if (queuedEvent.type === KnownEventType.CLINICAL) {
-              await indexClinicalData(
-                queuedEvent.programId,
-                newResolvedIndex.indexName,
-                esClient
-              );
-            } else if (queuedEvent.type === KnownEventType.RDPC) {
-              for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
-                await indexRdpcData({
-                  programId,
-                  rdpcUrl,
-                  targetIndexName: newResolvedIndex.indexName,
-                  esClient,
-                  egoJwtManager: egoJwtManager,
-                  analysesFetcher: analysisFetcher,
-                  analysesWithSpecimensFetcher: analysisWithSpecimensFetcher,
-                  fetchVC,
-                  fetchDonorIds,
-                  analysisId: queuedEvent.analysisId,
-                });
-              }
-            } else {
-              await indexClinicalData(
-                queuedEvent.programId,
-                newResolvedIndex.indexName,
-                esClient
-              );
-              for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
-                await indexRdpcData({
-                  programId,
-                  rdpcUrl,
-                  targetIndexName: newResolvedIndex.indexName,
-                  esClient,
-                  egoJwtManager,
-                  analysesFetcher: analysisFetcher,
-                  analysesWithSpecimensFetcher: analysisWithSpecimensFetcher,
-                  fetchVC,
-                  fetchDonorIds,
-                });
-              }
-            }
-            await rollCallClient.release(newResolvedIndex);
-          } catch (err) {
-            logger.warn(
-              `failed to index program ${programId} on attempt #${attemptIndex}: ${err}`
-            );
-            await handleIndexingFailure({
-              esClient: esClient,
-              rollCallIndex: newResolvedIndex,
-            });
-            retry(err);
-          }
-        }, retryConfig);
-      } catch (err) {
-        logger.error(
-          `FAILED TO INDEX PROGRAM ${programId} after ${
-            retryConfig.retries
-          } attempts: ${JSON.stringify(err)}`,
-          err
-        );
-        await sendDlqMessage(DLQ_TOPIC_NAME, message.value.toString());
-      }
-
-      statusReporter?.endProcessingProgram(programId);
-    } else {
-      throw new Error(`missing message from topic ${programQueueTopic}`);
+  return async ({ message, topic }: EachMessagePayload) => {
+    if (!message?.value) {
+      // Require a message with a value
+      throw new Error(`Missing message from topic ${topic}`);
     }
+
+    const queuedEvent = JSON.parse(message.value.toString());
+    const { programId } = queuedEvent;
+    logger.info(`Begin processing event: ${queuedEvent.type} - ${programId}`);
+
+    try {
+      await withRetry(async (retry, attemptIndex) => {
+        const newResolvedIndex = await getNewResolvedIndex(
+          programId,
+          esClient,
+          rollCallClient
+        );
+        const targetIndexName = newResolvedIndex.indexName;
+
+        try {
+          await esClient.indices.putSettings({
+            index: targetIndexName.toLowerCase(),
+            body: {
+              settings: {
+                "index.blocks.write": "false",
+              },
+            },
+          });
+
+          logger.info(`Enabled WRITE to index : ${targetIndexName}`);
+
+          if (queuedEvent.type === KnownEventType.CLINICAL) {
+            await indexClinicalData(
+              queuedEvent.programId,
+              targetIndexName,
+              esClient
+            );
+          } else if (queuedEvent.type === KnownEventType.RDPC) {
+            for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
+              await indexRdpcData({
+                programId,
+                rdpcUrl,
+                targetIndexName,
+                esClient,
+                egoJwtManager: egoJwtManager,
+                analysesFetcher: analysisFetcher,
+                analysesWithSpecimensFetcher: analysisWithSpecimensFetcher,
+                fetchVC,
+                fetchDonorIds,
+                analysisId: queuedEvent.analysisId,
+              });
+            }
+          } else {
+            // SYNC
+            await indexClinicalData(
+              queuedEvent.programId,
+              targetIndexName,
+              esClient
+            );
+            for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
+              await indexRdpcData({
+                programId,
+                rdpcUrl,
+                targetIndexName: targetIndexName,
+                esClient,
+                egoJwtManager,
+                analysesFetcher: analysisFetcher,
+                analysesWithSpecimensFetcher: analysisWithSpecimensFetcher,
+                fetchVC,
+                fetchDonorIds,
+              });
+            }
+          }
+          await rollCallClient.release(newResolvedIndex);
+        } catch (err) {
+          logger.warn(
+            `failed to index program ${programId} on attempt #${attemptIndex}: ${err}`
+          );
+          await handleIndexingFailure({
+            esClient,
+            targetIndexName,
+          });
+          retry(err);
+        }
+      }, RETRY_CONFIG_RDPC_GATEWAY);
+    } catch (err) {
+      logger.error(
+        `FAILED TO INDEX PROGRAM ${programId} after ${
+          RETRY_CONFIG_RDPC_GATEWAY.retries
+        } attempts: ${JSON.stringify(err)}`,
+        err
+      );
+      await sendDlqMessage(DLQ_TOPIC_NAME, message.value.toString());
+    }
+
+    statusReporter?.endProcessingProgram(programId);
   };
 };
