@@ -7,6 +7,7 @@ import {
   getIndexSettings,
   getLatestIndexName,
   initIndexMapping,
+  setIndexWritable,
 } from "elasticsearch";
 import withRetry from "promise-retry";
 import logger from "logger";
@@ -142,8 +143,7 @@ const getNewResolvedIndex = async (
   return newResolvedIndex;
 };
 
-// createEventProcessor
-export default async ({
+const createEventProcessor = async ({
   rollCallClient,
   esClient,
   egoJwtManager,
@@ -169,9 +169,9 @@ export default async ({
       // Require a message with a value
       throw new Error(`Missing message from topic ${topic}`);
     }
-
     const queuedEvent = JSON.parse(message.value.toString());
     const { programId } = queuedEvent;
+
     logger.info(`Begin processing event: ${queuedEvent.type} - ${programId}`);
 
     try {
@@ -184,16 +184,8 @@ export default async ({
         const targetIndexName = newResolvedIndex.indexName;
 
         try {
-          await esClient.indices.putSettings({
-            index: targetIndexName.toLowerCase(),
-            body: {
-              settings: {
-                "index.blocks.write": "false",
-              },
-            },
-          });
-
-          logger.info(`Enabled WRITE to index : ${targetIndexName}`);
+          await setIndexWritable(esClient, targetIndexName, true);
+          logger.info(`Enabled index writing for: ${targetIndexName}`);
 
           if (queuedEvent.type === KnownEventType.CLINICAL) {
             await indexClinicalData(
@@ -248,6 +240,9 @@ export default async ({
           });
           retry(err);
         }
+
+        await setIndexWritable(esClient, targetIndexName, true);
+        logger.info(`Disabled index writing for: ${targetIndexName}`); // TODO: write test to ensure the produced index has writing disabled.
       }, RETRY_CONFIG_RDPC_GATEWAY);
     } catch (err) {
       logger.error(
@@ -262,3 +257,4 @@ export default async ({
     statusReporter?.endProcessingProgram(programId);
   };
 };
+export default createEventProcessor;

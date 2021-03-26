@@ -137,3 +137,17 @@ export const getIndexSettings = async (
   })) as SettingsResponse;
   return response;
 };
+
+export const setIndexWritable = async (
+  esClient: Client,
+  indexName: string,
+  enabled: boolean
+): Promise<SettingsResponse> =>
+  await esClient.indices.putSettings({
+    index: indexName.toLowerCase(),
+    body: {
+      settings: {
+        "index.blocks.write": enabled,
+      },
+    },
+  });
