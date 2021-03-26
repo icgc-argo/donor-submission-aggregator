@@ -172,6 +172,8 @@ const createEventProcessor = async ({
     const queuedEvent = JSON.parse(message.value.toString());
     const { programId } = queuedEvent;
 
+    statusReporter?.startProcessingProgram(programId);
+
     logger.info(`Begin processing event: ${queuedEvent.type} - ${programId}`);
 
     try {
