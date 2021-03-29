@@ -75,7 +75,7 @@ import { isNotEmptyString } from "utils";
       logger.error("Error in processing index program request: " + error);
       return res
         .status(500)
-        .send(`Failed to queue program ${programId} for indexing`);
+        .send(`Failed to queue program ${programId} for indexing.`);
     }
   });
 
