@@ -37,7 +37,6 @@ export const createEgoJwtManager = async (): Promise<EgoJwtManager> => {
         egoTokenUtil = await createEgoUtil();
         return await getJwt();
       case false:
-        const decodedToken = egoTokenUtil.decodeToken(cachedJwt.access_token);
         cachedJwt = egoTokenUtil.isValidJwt() ? await getJwt() : cachedJwt;
         return cachedJwt;
     }
