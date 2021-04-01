@@ -147,7 +147,9 @@ export const setIndexWritable = async (
     index: indexName.toLowerCase(),
     body: {
       settings: {
-        "index.blocks.write": enabled,
+        // This looks backwards, but if index.blocks.write is true then the index cannot be written to. it BLOCKS any writing
+        //  https://www.elastic.co/guide/en/elasticsearch/reference/master/index-modules-blocks.html
+        "index.blocks.write": !enabled,
       },
     },
   });
