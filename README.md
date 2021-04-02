@@ -89,4 +89,4 @@ This event is published by RDPC, donor aggregator listens to topic `song_analysi
 - SYNC
 
 This event can be published manually by directly sending messages to topic `donor_aggregator_program_queues` or by this endpoint: https://donor-submission-aggregator.qa.argo.cancercollaboratory.org/api-docs/#/Index%20Program/post_index_program__program_id_.
-SYNC event triggers index on both clinical and RDPC data.
+SYNC event triggers index on both clinical and RDPC data. It does not clone the existing index, instead generating a new index and populating it with the current donors available from the Clinical service.
