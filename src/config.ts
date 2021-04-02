@@ -150,5 +150,12 @@ if (USE_VAULT && VAULT_AUTH_METHOD === "kubernetes") {
 
 export const MAX_RETRIES = Number(process.env.MAX_RETRIES) || 5;
 
+export const RETRY_CONFIG_RDPC_GATEWAY = {
+  factor: 2,
+  retries: MAX_RETRIES,
+  minTimeout: 1000,
+  maxTimeout: Infinity,
+};
+
 export const FEATURE_RDPC_INDEXING_ENABLED =
   process.env.FEATURE_RDPC_INDEXING_ENABLED === "true";

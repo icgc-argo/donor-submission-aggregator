@@ -321,8 +321,8 @@ describe("kafka integration", () => {
         esClient,
         rollCallClient: rollcallClient,
         egoJwtManager: mockEgoJwtManager,
-        analysisFetcher: mockAnalysisFetcher,
-        analysisWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
+        analysesFetcher: mockAnalysisFetcher,
+        analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
         fetchVC: mockVariantCallingFetcher,
       });
 
@@ -655,8 +655,8 @@ describe("kafka integration", () => {
         esClient,
         egoJwtManager: mockEgoJwtManager,
         rollCallClient: rollcallClient,
-        analysisFetcher: mockAnalysisFetcher,
-        analysisWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
+        analysesFetcher: mockAnalysisFetcher,
+        analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
         fetchVC: mockVariantCallingFetcher,
         fetchDonorIds: () => Promise.resolve([testDonorId]),
       });

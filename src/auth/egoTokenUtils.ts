@@ -6,12 +6,7 @@ import urljoin from "url-join";
 
 export default async () => {
   const egoPubliKey: string = await getPublicKey();
-  const TokenUtils = createEgoUtils(egoPubliKey);
-  return {
-    ...TokenUtils,
-    isExpiredToken: (decodedToken: ReturnType<typeof TokenUtils.decodeToken>) =>
-      decodedToken.exp < new Date().getUTCMilliseconds(),
-  };
+  return createEgoUtils(egoPubliKey);
 };
 
 const getPublicKey = async (): Promise<string> => {
