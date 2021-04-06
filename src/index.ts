@@ -67,11 +67,15 @@ import { isNotEmptyString } from "utils";
           type: programQueueProcessor.knownEventTypes.SYNC,
           rdpcGatewayUrls: [RDPC_URL],
         });
-        return res.status(200).send(`program ${programId} has been indexed.`);
+        return res
+          .status(200)
+          .send(`Program ${programId} has been queued for indexing.`);
       }
     } catch (error) {
-      logger.error("error in processing index program request: " + error);
-      return res.status(500).send(`failed to index program ${programId}`);
+      logger.error("Error in processing index program request: " + error);
+      return res
+        .status(500)
+        .send(`Failed to queue program ${programId} for indexing.`);
     }
   });
 

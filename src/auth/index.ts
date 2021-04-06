@@ -25,18 +25,21 @@ type EgoAppCredential = {
 };
 
 export type EgoJwtManager = {
-  getLatestJwt: () => Promise<EgoAccessToken>;
+  getLatestJwt: (options?: { noCache?: boolean }) => Promise<EgoAccessToken>;
 };
 
 export const createEgoJwtManager = async (): Promise<EgoJwtManager> => {
   let cachedJwt = await getJwt();
-  const getLatestJwt = async () => {
-    const egoTokenUtil = await createEgoUtil();
-    const decodedToken = egoTokenUtil.decodeToken(cachedJwt.access_token);
-    cachedJwt = egoTokenUtil.isExpiredToken(decodedToken)
-      ? await getJwt()
-      : cachedJwt;
-    return cachedJwt;
+  let egoTokenUtil = await createEgoUtil();
+  const getLatestJwt = async ({ noCache = false }) => {
+    switch (noCache) {
+      case true:
+        egoTokenUtil = await createEgoUtil();
+        return await getJwt();
+      case false:
+        cachedJwt = egoTokenUtil.isValidJwt() ? await getJwt() : cachedJwt;
+        return cachedJwt;
+    }
   };
   return { getLatestJwt };
 };

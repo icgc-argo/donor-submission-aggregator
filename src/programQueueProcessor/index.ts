@@ -38,8 +38,8 @@ const createProgramQueueProcessor = async ({
   egoJwtManager,
   rollCallClient,
   statusReporter,
-  analysisFetcher = fetchAnalyses,
-  analysisWithSpecimensFetcher = fetchAnalysesWithSpecimens,
+  analysesFetcher = fetchAnalyses,
+  analysesWithSpecimensFetcher = fetchAnalysesWithSpecimens,
   fetchVC = fetchVariantCallingAnalyses,
   fetchDonorIds = fetchDonorIdsByAnalysis,
 }: {
@@ -48,8 +48,8 @@ const createProgramQueueProcessor = async ({
   rollCallClient: RollCallClient;
   egoJwtManager: EgoJwtManager;
   statusReporter?: StatusReporter;
-  analysisFetcher?: typeof fetchAnalyses;
-  analysisWithSpecimensFetcher?: typeof fetchAnalysesWithSpecimens;
+  analysesFetcher?: typeof fetchAnalyses;
+  analysesWithSpecimensFetcher?: typeof fetchAnalysesWithSpecimens;
   fetchVC?: typeof fetchVariantCallingAnalyses;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
 }): Promise<ProgramQueueProcessor> => {
@@ -91,11 +91,10 @@ const createProgramQueueProcessor = async ({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: await createEventProcessor({
       esClient,
-      programQueueTopic,
       egoJwtManager,
       rollCallClient,
-      analysisFetcher,
-      analysisWithSpecimensFetcher,
+      analysesFetcher,
+      analysesWithSpecimensFetcher,
       fetchVC,
       statusReporter,
       fetchDonorIds,
