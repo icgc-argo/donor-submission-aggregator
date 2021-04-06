@@ -31,7 +31,7 @@ export type EgoJwtManager = {
 export const createEgoJwtManager = async (): Promise<EgoJwtManager> => {
   let cachedJwt = await getJwt();
   let egoTokenUtil = await createEgoUtil();
-  const getLatestJwt = async ({ noCache = false }) => {
+  const getLatestJwt = async ({ noCache = false } = {}) => {
     switch (noCache) {
       case true:
         egoTokenUtil = await createEgoUtil();
