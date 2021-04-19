@@ -61,7 +61,7 @@ export const indexRdpcData = async ({
     : undefined;
 
   // contains 3 fields:
-  // publishedNormalAnalysi, publishedTumourAnalysis, rawReadsFirstPublishedDate
+  // publishedNormalAnalysis, publishedTumourAnalysis, rawReadsFirstPublishedDate
   const rdpcInfoByDonor_specimens = await getSeqExpSpecimenData(
     programId,
     rdpcUrl,
