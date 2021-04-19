@@ -45,10 +45,10 @@ export default (
     submitterDonorId: mongoDoc.submitterId,
     programId: mongoDoc.programId,
 
-    submittedCoreDataPercent: submittedCoreDataPercent,
-    coreDataCompletedDate: coreDataCompletedDate,
+    submittedCoreDataPercent,
+    coreDataCompletedDate,
 
-    submittedExtendedDataPercent: submittedExtendedDataPercent,
+    submittedExtendedDataPercent,
 
     registeredNormalSamples: mongoDoc.specimens
       .filter((specimen) => specimen.tumourNormalDesignation === "Normal")
