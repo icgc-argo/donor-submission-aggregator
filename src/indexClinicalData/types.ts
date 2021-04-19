@@ -42,6 +42,7 @@ export type RdpcDonorInfo = {
 
 export type ClinicalDonorInfo = {
   submittedCoreDataPercent: number;
+  coreDataCompletedDate?: Date;
   submittedExtendedDataPercent: number;
   validWithCurrentDictionary: boolean;
   donorId: string;

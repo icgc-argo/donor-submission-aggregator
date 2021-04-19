@@ -32,8 +32,12 @@ export default (
 ): EsDonorDocument => {
   const submittedCoreDataPercent =
     mean(Object.values(mongoDoc?.completionStats?.coreCompletion || {})) || 0;
+  
+  const coreDataCompletedDate = submittedCoreDataPercent === 1
+    ? existingEsData?.coreDataCompletedDate || new Date(mongoDoc.updatedAt)
+    : undefined;
 
-  const submittedExtendedDataPercent = 0; // this calcualtion is not yet defined
+  const submittedExtendedDataPercent = 0; // this calculation is not yet defined
 
   const clinicalData: ClinicalDonorInfo = {
     validWithCurrentDictionary: mongoDoc.schemaMetadata.isValid,
@@ -42,6 +46,7 @@ export default (
     programId: mongoDoc.programId,
 
     submittedCoreDataPercent: submittedCoreDataPercent,
+    coreDataCompletedDate: coreDataCompletedDate,
 
     submittedExtendedDataPercent: submittedExtendedDataPercent,
 
