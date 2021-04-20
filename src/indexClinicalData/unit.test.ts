@@ -29,38 +29,47 @@ const TARGET_ES_INDEX = "test_prog";
 const asyncExec = promisify(exec);
 
 describe("transformToEsDonor", () => {
-  it("must transform properly", async () => {
+  const getExpectedResult = (mongoDoc: MongoDonorDocument, isCoreDataComplete?: boolean = false) => ({
+    validWithCurrentDictionary: true,
+    releaseStatus: "NO_RELEASE",
+    donorId: `DO${mongoDoc.donorId}`,
+    submitterDonorId: mongoDoc.submitterId,
+    programId: TEST_PROGRAM_SHORT_NAME,
+    submittedCoreDataPercent: isCoreDataComplete ? 1 : 0.6,
+    coreDataCompletedDate: isCoreDataComplete ? new Date(mongoDoc.updatedAt) : undefined,
+    submittedExtendedDataPercent: 0, // this calculation is not yet defined
+    registeredNormalSamples: 5,
+    registeredTumourSamples: 10,
+    publishedNormalAnalysis: 0,
+    publishedTumourAnalysis: 0,
+    alignmentsCompleted: 0,
+    alignmentsRunning: 0,
+    alignmentsFailed: 0,
+    sangerVcsCompleted: 0,
+    sangerVcsRunning: 0,
+    sangerVcsFailed: 0,
+    mutectCompleted: 0,
+    mutectFailed: 0,
+    mutectRunning: 0,
+    processingStatus: "REGISTERED",
+    updatedAt: new Date(mongoDoc.updatedAt),
+    createdAt: new Date(mongoDoc.createdAt),
+    totalFilesCount: 0,
+    filesToQcCount: 0,
+  } as EsDonorDocument);
+
+  it("must transform properly, with incomplete core data", async () => {
     const mongoDoc = createDonor(TEST_PROGRAM_SHORT_NAME);
     const esDoc = transformToEsDonor(mongoDoc);
-    expect(esDoc).to.deep.equal({
-      validWithCurrentDictionary: true,
-      releaseStatus: "NO_RELEASE",
-      donorId: `DO${mongoDoc.donorId}`,
-      submitterDonorId: mongoDoc.submitterId,
-      programId: TEST_PROGRAM_SHORT_NAME,
-      submittedCoreDataPercent: 0.6,
-      coreDataCompletedDate: undefined,
-      submittedExtendedDataPercent: 0, // this calculation is not yet defined
-      registeredNormalSamples: 5,
-      registeredTumourSamples: 10,
-      publishedNormalAnalysis: 0,
-      publishedTumourAnalysis: 0,
-      alignmentsCompleted: 0,
-      alignmentsRunning: 0,
-      alignmentsFailed: 0,
-      sangerVcsCompleted: 0,
-      sangerVcsRunning: 0,
-      sangerVcsFailed: 0,
-      mutectCompleted: 0,
-      mutectFailed: 0,
-      mutectRunning: 0,
-      processingStatus: "REGISTERED",
-      updatedAt: new Date(mongoDoc.updatedAt),
-      createdAt: new Date(mongoDoc.createdAt),
-      totalFilesCount: 0,
-      filesToQcCount: 0,
-    } as EsDonorDocument);
+    const expectedResult = getExpectedResult(mongoDoc);
+    expect(esDoc).to.deep.equal(expectedResult);
   });
+
+  it("must transform properly, with core data completed", async () => {
+    const mongoDoc = createDonor(TEST_PROGRAM_SHORT_NAME);
+    const esDoc = transformToEsDonor(mongoDoc);
+    const expectedResult = getExpectedResult(mongoDoc, true);
+    expect(esDoc).to.deep.equal(expectedResult);
 });
 
 describe("indexing programs", () => {
@@ -262,7 +271,7 @@ describe("indexing programs", () => {
   });
 });
 
-const createDonor = (programShortName: string) => {
+const createDonor = (programShortName: string, isCoreDataComplete?: boolean = false) => {
   const submitterId = uuid();
   return {
     programId: programShortName,
@@ -280,9 +289,9 @@ const createDonor = (programShortName: string) => {
     completionStats: {
       coreCompletion: {
         donor: 1,
-        specimens: 0,
+        specimens: isCoreDataComplete ? 1 : 0,
         primaryDiagnosis: 1,
-        followUps: 0,
+        followUps: isCoreDataComplete ? 1 : 0,
         treatments: 1,
       },
       overriddenCoreCompletion: [],
