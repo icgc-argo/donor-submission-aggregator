@@ -39,6 +39,7 @@ describe("transformToEsDonor", () => {
       submitterDonorId: mongoDoc.submitterId,
       programId: TEST_PROGRAM_SHORT_NAME,
       submittedCoreDataPercent: 0.6,
+      coreDataCompletedDate: undefined,
       submittedExtendedDataPercent: 0, // this calculation is not yet defined
       registeredNormalSamples: 5,
       registeredTumourSamples: 10,
