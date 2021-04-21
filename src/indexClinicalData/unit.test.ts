@@ -169,10 +169,10 @@ describe("indexing programs", () => {
       // simulate the modification of the donor and its insertion into mongo
 
       const newCoreCompletionStats = {
-        donor: 200,
-        specimens: 200,
-        primaryDiagnosis: 100,
-        followUps: 500,
+        donor: 0.4,
+        specimens: 0.4,
+        primaryDiagnosis: 0.25,
+        followUps: 1,
         treatments: 0,
       };
 
@@ -180,6 +180,8 @@ describe("indexing programs", () => {
         ...existingDonor,
         completionStats: {
           coreCompletion: newCoreCompletionStats,
+          coreCompletionDate: undefined,
+          coreCompletionPercentage: 0.41,
           overriddenCoreCompletion: [],
         },
       };
@@ -284,6 +286,8 @@ const createDonor = (programShortName: string) => {
         followUps: 0,
         treatments: 1,
       },
+      coreCompletionDate: undefined,
+      coreCompletionPercentage: 0.666666666666667,
       overriddenCoreCompletion: [],
     },
     clinicalInfo: {},
