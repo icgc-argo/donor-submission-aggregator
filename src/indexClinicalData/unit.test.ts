@@ -171,7 +171,7 @@ describe("indexing programs", () => {
       const newCoreCompletionStats = {
         donor: 0.4,
         specimens: 0.4,
-        primaryDiagnosis: 0.25,
+        primaryDiagnosis: 0.2,
         followUps: 1,
         treatments: 0,
       };
@@ -181,7 +181,7 @@ describe("indexing programs", () => {
         completionStats: {
           coreCompletion: newCoreCompletionStats,
           coreCompletionDate: undefined,
-          coreCompletionPercentage: 0.41,
+          coreCompletionPercentage: 0.4,
           overriddenCoreCompletion: [],
         },
       };
