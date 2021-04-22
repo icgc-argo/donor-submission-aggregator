@@ -17,12 +17,14 @@ export interface Donor {
   treatments?: Array<Treatment>;
   createdAt?: string;
   updatedAt?: string;
-  completionStats?: CompeletionStats;
+  completionStats?: CompletionStats;
 }
 
-export interface CompeletionStats {
-  coreCompletion: CoreCompletionStats;
-  overriddenCoreCompletion: CoreClinicalEntites[];
+export interface CompletionStats {
+  coreCompletionDate?: string;
+  coreCompletion: CoreCompletionFields;
+  coreCompletionPercentage: number;
+  overriddenCoreCompletion: CoreClinicalEntities[];
 }
 
 export interface SchemaMetadata {
@@ -66,7 +68,7 @@ export interface ClinicalInfo {
   [field: string]: string | number | boolean | undefined;
 }
 
-export interface CoreCompletionStats {
+export interface CoreCompletionFields {
   donor: number;
   specimens: number;
   primaryDiagnosis: number;
@@ -74,4 +76,4 @@ export interface CoreCompletionStats {
   treatments: number;
 }
 
-export type CoreClinicalEntites = keyof CoreCompletionStats;
+export type CoreClinicalEntities = keyof CoreCompletionFields;
