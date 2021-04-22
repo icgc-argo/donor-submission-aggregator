@@ -28,7 +28,6 @@ export default (programShortName: string, donorId: number) => {
         followUps: 0,
         treatments: 1,
       },
-      coreCompletionDate: undefined,
       coreCompletionPercentage: 0.333333333333333,
       overriddenCoreCompletion: [],
     },

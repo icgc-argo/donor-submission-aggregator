@@ -39,7 +39,6 @@ describe("transformToEsDonor", () => {
       submitterDonorId: mongoDoc.submitterId,
       programId: TEST_PROGRAM_SHORT_NAME,
       submittedCoreDataPercent: 0.666666666666667,
-      coreCompletionDate: undefined,
       submittedExtendedDataPercent: 0, // this calculation is not yet defined
       registeredNormalSamples: 5,
       registeredTumourSamples: 10,
@@ -181,7 +180,6 @@ describe("indexing programs", () => {
         ...existingDonor,
         completionStats: {
           coreCompletion: newCoreCompletionStats,
-          coreCompletionDate: undefined,
           coreCompletionPercentage: 0.4,
           overriddenCoreCompletion: [],
         },
@@ -204,7 +202,6 @@ describe("indexing programs", () => {
       expect(esHits.length).to.equal(1);
       expect(esHits[0]._source).to.deep.include({
         submittedCoreDataPercent: modifiedSubmittedCoreValue,
-        coreCompletionDate: undefined,
         ...uniqueRDPCinfo,
       });
     });
@@ -288,7 +285,6 @@ const createDonor = (programShortName: string) => {
         followUps: 0,
         treatments: 1,
       },
-      coreCompletionDate: undefined,
       coreCompletionPercentage: 0.666666666666667,
       overriddenCoreCompletion: [],
     },

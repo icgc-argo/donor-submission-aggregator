@@ -38,9 +38,6 @@ export default (
     programId: mongoDoc.programId,
 
     submittedCoreDataPercent: mongoDoc.completionStats?.coreCompletionPercentage || 0,
-    coreCompletionDate: mongoDoc.completionStats?.coreCompletionDate
-      ? new Date(mongoDoc.completionStats.coreCompletionDate)
-      : undefined,
 
     submittedExtendedDataPercent: submittedExtendedDataPercent,
 
@@ -56,9 +53,13 @@ export default (
     createdAt: new Date(mongoDoc.createdAt),
   };
 
-  if (existingEsData) {
-    return { ...defaultRDPCInfo, ...existingEsData, ...clinicalData };
-  } else {
-    return { ...defaultRDPCInfo, ...clinicalData };
+  if (mongoDoc.completionStats?.coreCompletionDate) {
+    clinicalData.coreCompletionDate = new Date(mongoDoc.completionStats.coreCompletionDate);
   }
+
+  return { 
+    ...defaultRDPCInfo,
+    ...(existingEsData || {}),
+    ...clinicalData
+  };
 };
