@@ -1,6 +1,5 @@
 import { MongoDonorDocument } from "indexClinicalData/clinicalMongo/donorModel";
 import { EsDonorDocument, ClinicalDonorInfo, RdpcDonorInfo } from "./types";
-import { mean } from "lodash";
 import { esDonorId } from "./utils";
 
 const defaultRDPCInfo: RdpcDonorInfo = {
@@ -39,7 +38,9 @@ export default (
     programId: mongoDoc.programId,
 
     submittedCoreDataPercent: mongoDoc.completionStats?.coreCompletionPercentage || 0,
-    coreCompletionDate: mongoDoc.completionStats?.coreCompletionDate,
+    coreCompletionDate: mongoDoc.completionStats?.coreCompletionDate
+      ? new Date(mongoDoc.completionStats.coreCompletionDate)
+      : undefined,
 
     submittedExtendedDataPercent: submittedExtendedDataPercent,
 
