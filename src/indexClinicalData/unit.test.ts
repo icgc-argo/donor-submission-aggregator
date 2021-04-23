@@ -38,7 +38,7 @@ describe("transformToEsDonor", () => {
       donorId: `DO${mongoDoc.donorId}`,
       submitterDonorId: mongoDoc.submitterId,
       programId: TEST_PROGRAM_SHORT_NAME,
-      submittedCoreDataPercent: 0.6,
+      submittedCoreDataPercent: 0.666666666666667,
       submittedExtendedDataPercent: 0, // this calculation is not yet defined
       registeredNormalSamples: 5,
       registeredTumourSamples: 10,
@@ -169,10 +169,10 @@ describe("indexing programs", () => {
       // simulate the modification of the donor and its insertion into mongo
 
       const newCoreCompletionStats = {
-        donor: 200,
-        specimens: 200,
-        primaryDiagnosis: 100,
-        followUps: 500,
+        donor: 0.4,
+        specimens: 0.4,
+        primaryDiagnosis: 0.2,
+        followUps: 1,
         treatments: 0,
       };
 
@@ -180,6 +180,7 @@ describe("indexing programs", () => {
         ...existingDonor,
         completionStats: {
           coreCompletion: newCoreCompletionStats,
+          coreCompletionPercentage: 0.4,
           overriddenCoreCompletion: [],
         },
       };
@@ -284,6 +285,7 @@ const createDonor = (programShortName: string) => {
         followUps: 0,
         treatments: 1,
       },
+      coreCompletionPercentage: 0.666666666666667,
       overriddenCoreCompletion: [],
     },
     clinicalInfo: {},
