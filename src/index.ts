@@ -154,6 +154,7 @@ import { isNotEmptyString } from "utils";
                   type: programQueueProcessor.knownEventTypes.RDPC,
                   rdpcGatewayUrls: [RDPC_URL],
                   analysisId: event.analysisId,
+                  action: event.action,
                 });
               } else {
                 await programQueueProcessor.sendDlqMessage(
