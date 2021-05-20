@@ -73,6 +73,9 @@ export const mockAnalysesWithSpecimensFetcher_incremental_after_unpublish: typeo
   egoJwtManager,
   donorId,
 }): Promise<Analysis[]> => {
+  console.log(
+    "calling mockAnalysesWithSpecimensFetcher_incremental_after_unpublish"
+  );
   const matchesDonorId = (donor: any) =>
     donorId ? donor.donorId === donorId : true;
   return Promise.resolve(
