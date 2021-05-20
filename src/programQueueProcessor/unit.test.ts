@@ -930,7 +930,7 @@ describe("kafka integration", () => {
 
       const unpublishedAnalysis = seqExpAnalysesWithSpecimens_incremental[1];
       console.log(
-        `Normal sample analysis ${unpublishedAnalysis} has been unpublished.`
+        `Normal sample analysis ${unpublishedAnalysis.analysisId} has been unpublished.`
       );
 
       // Assume the normal analysis of seqExpAnalyses_incremental is unpublished, mock a new analyses fetcher:
@@ -986,10 +986,8 @@ describe("kafka integration", () => {
         ]).to.deep.equal([
           hit._source.donorId,
           "publishedNormalAnalysis",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
-                .publishedNormalAnalysis
-            : 0,
+          expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+            .publishedNormalAnalysis,
         ]);
         expect([
           hit._source.donorId,
@@ -998,10 +996,8 @@ describe("kafka integration", () => {
         ]).to.deep.equal([
           hit._source.donorId,
           "publishedTumourAnalysis",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
-                .publishedTumourAnalysis
-            : 0,
+          expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+            .publishedTumourAnalysis,
         ]);
         expect([
           hit._source.donorId,
@@ -1010,10 +1006,8 @@ describe("kafka integration", () => {
         ]).to.deep.equal([
           hit._source.donorId,
           "alignmentsCompleted",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
-                .alignmentsCompleted
-            : 0,
+          expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+            .alignmentsCompleted,
         ]);
         expect([
           hit._source.donorId,
@@ -1022,10 +1016,8 @@ describe("kafka integration", () => {
         ]).to.deep.equal([
           hit._source.donorId,
           "alignmentsFailed",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
-                .alignmentsFailed
-            : 0,
+          expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+            .alignmentsFailed,
         ]);
         expect([
           hit._source.donorId,
@@ -1034,10 +1026,8 @@ describe("kafka integration", () => {
         ]).to.deep.equal([
           hit._source.donorId,
           "alignmentsRunning",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
-                .alignmentsRunning
-            : 0,
+          expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+            .alignmentsRunning,
         ]);
         expect([
           hit._source.donorId,
@@ -1046,10 +1036,8 @@ describe("kafka integration", () => {
         ]).to.deep.equal([
           hit._source.donorId,
           "sangerVcsCompleted",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
-                .sangerVcsCompleted
-            : 0,
+          expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+            .sangerVcsCompleted,
         ]);
         expect([
           hit._source.donorId,
@@ -1058,10 +1046,8 @@ describe("kafka integration", () => {
         ]).to.deep.equal([
           hit._source.donorId,
           "sangerVcsFailed",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
-                .sangerVcsFailed
-            : 0,
+          expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+            .sangerVcsFailed,
         ]);
         expect([
           hit._source.donorId,
@@ -1070,10 +1056,8 @@ describe("kafka integration", () => {
         ]).to.deep.equal([
           hit._source.donorId,
           "sangerVcsRunning",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
-                .sangerVcsRunning
-            : 0,
+          expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+            .sangerVcsRunning,
         ]);
         expect([
           hit._source.donorId,
@@ -1082,10 +1066,8 @@ describe("kafka integration", () => {
         ]).to.deep.equal([
           hit._source.donorId,
           "mutectCompleted",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
-                .mutectCompleted
-            : 0,
+          expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+            .mutectCompleted,
         ]);
         expect([
           hit._source.donorId,
@@ -1094,10 +1076,8 @@ describe("kafka integration", () => {
         ]).to.deep.equal([
           hit._source.donorId,
           "mutectRunning",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
-                .mutectRunning
-            : 0,
+          expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+            .mutectRunning,
         ]);
         expect([
           hit._source.donorId,
@@ -1106,10 +1086,8 @@ describe("kafka integration", () => {
         ]).to.deep.equal([
           hit._source.donorId,
           "mutectFailed",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
-                .mutectFailed
-            : 0,
+          expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+            .mutectFailed,
         ]);
         expect([
           hit._source.donorId,

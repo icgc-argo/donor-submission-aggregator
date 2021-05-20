@@ -2324,7 +2324,8 @@ export const seqExpAnalysesWithSpecimens_incremental: Analysis[] = [
   },
 ];
 
-// after 00784c58-39bd-4441-b84c-5839bdf4410f is unpublished, it gets removed
+// after normal sample 00784c58-39bd-4441-b84c-5839bdf4410f is unpublished, query should
+// only return the tumour sample
 export const seqExpAnalysesWithSpecimens_incremental_after_unpublish: Analysis[] = [
   {
     analysisId: "ab784c58-39bd-4441-b84c-5839bdf4410f",
