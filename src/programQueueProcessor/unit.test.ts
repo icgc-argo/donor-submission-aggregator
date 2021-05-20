@@ -21,6 +21,8 @@ import { ProgramQueueProcessor } from "./types";
 import {
   clinicalDataset,
   expectedRDPCData,
+  expectedRDPCData_incremental,
+  expectedRDPCData_incremental_after_unpublish,
   testDonorIds,
 } from "rdpc/test/fixtures/integrationTest/dataset";
 import fetchAnalyses from "rdpc/query/fetchAnalyses";
@@ -30,6 +32,10 @@ import {
   seqAlignmentAnalyses_sanger,
   seqExpAnalyses,
   seqExpAnalysesWithSpecimens,
+  seqExpAnalysesWithSpecimens_incremental,
+  seqExpAnalysesWithSpecimens_incremental_after_unpublish,
+  seqExpAnalyses_incremental,
+  seqExpAnalyses_incremental_after_unpublish,
   variantCallingAnalyses,
 } from "rdpc/test/fixtures/integrationTest/mockAnalyses";
 import esb from "elastic-builder";
@@ -125,6 +131,40 @@ describe("kafka integration", () => {
     );
   };
 
+  const mockAnalysesWithSpecimensFetcher_incremental: typeof fetchAnalysesWithSpecimens = async ({
+    studyId,
+    rdpcUrl,
+    from,
+    size,
+    egoJwtManager,
+    donorId,
+  }): Promise<Analysis[]> => {
+    const matchesDonorId = (donor: any) =>
+      donorId ? donor.donorId === donorId : true;
+    return Promise.resolve(
+      seqExpAnalysesWithSpecimens_incremental
+        .filter((analysis) => analysis.donors.some(matchesDonorId))
+        .slice(from, from + size)
+    );
+  };
+
+  const mockAnalysesWithSpecimensFetcher_incremental_after_unpublish: typeof fetchAnalysesWithSpecimens = async ({
+    studyId,
+    rdpcUrl,
+    from,
+    size,
+    egoJwtManager,
+    donorId,
+  }): Promise<Analysis[]> => {
+    const matchesDonorId = (donor: any) =>
+      donorId ? donor.donorId === donorId : true;
+    return Promise.resolve(
+      seqExpAnalysesWithSpecimens_incremental_after_unpublish
+        .filter((analysis) => analysis.donors.some(matchesDonorId))
+        .slice(from, from + size)
+    );
+  };
+
   const mockAnalysisFetcher: typeof fetchAnalyses = async ({
     studyId,
     rdpcUrl,
@@ -140,6 +180,60 @@ describe("kafka integration", () => {
     return Promise.resolve(
       analysisType === AnalysisType.SEQ_EXPERIMENT
         ? seqExpAnalyses
+            .filter((analysis) => analysis.donors.some(matchesDonorId))
+            .slice(from, from + size)
+        : isMutect
+        ? seqAlignmentAnalyses_mutect
+            .filter((analysis) => analysis.donors.some(matchesDonorId))
+            .slice(from, from + size)
+        : seqAlignmentAnalyses_sanger
+            .filter((analysis) => analysis.donors.some(matchesDonorId))
+            .slice(from, from + size)
+    );
+  };
+
+  const mockAnalysisFetcher_incremental: typeof fetchAnalyses = async ({
+    studyId,
+    rdpcUrl,
+    analysisType,
+    isMutect,
+    from,
+    size,
+    egoJwtManager,
+    donorId,
+  }): Promise<Analysis[]> => {
+    const matchesDonorId = (donor: any) =>
+      donorId ? donor.donorId === donorId : true;
+    return Promise.resolve(
+      analysisType === AnalysisType.SEQ_EXPERIMENT
+        ? seqExpAnalyses_incremental
+            .filter((analysis) => analysis.donors.some(matchesDonorId))
+            .slice(from, from + size)
+        : isMutect
+        ? seqAlignmentAnalyses_mutect
+            .filter((analysis) => analysis.donors.some(matchesDonorId))
+            .slice(from, from + size)
+        : seqAlignmentAnalyses_sanger
+            .filter((analysis) => analysis.donors.some(matchesDonorId))
+            .slice(from, from + size)
+    );
+  };
+
+  const mockAnalysisFetcher_incremental_after_unpublish: typeof fetchAnalyses = async ({
+    studyId,
+    rdpcUrl,
+    analysisType,
+    isMutect,
+    from,
+    size,
+    egoJwtManager,
+    donorId,
+  }): Promise<Analysis[]> => {
+    const matchesDonorId = (donor: any) =>
+      donorId ? donor.donorId === donorId : true;
+    return Promise.resolve(
+      analysisType === AnalysisType.SEQ_EXPERIMENT
+        ? seqExpAnalyses_incremental_after_unpublish
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
         : isMutect
@@ -817,6 +911,396 @@ describe("kafka integration", () => {
           hit._source.donorId,
           "mutectFirstPublishedDate",
           expectedRDPCData[hit._source.donorId].mutectFirstPublishedDate,
+        ]);
+      });
+    });
+
+    it.only("should update index when receiving an UNPUBLISH event", async () => {
+      await createIndexAndAlias(TEST_CA);
+      const testAnalysis = seqExpAnalyses_incremental[0];
+      const testDonorId = testAnalysis.donors[0].donorId;
+
+      programQueueProcessor = await createProgramQueueProcessor({
+        kafka: kafkaClient,
+        esClient,
+        egoJwtManager: mockEgoJwtManager,
+        rollCallClient: rollcallClient,
+        analysesFetcher: mockAnalysisFetcher_incremental,
+        analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher_incremental,
+        fetchVC: mockVariantCallingFetcher,
+        fetchDonorIds: () => Promise.resolve([testDonorId]),
+      });
+
+      console.log("Receiving a SYNC event...");
+      await programQueueProcessor.enqueueEvent({
+        programId: TEST_CA,
+        rdpcGatewayUrls: [""],
+        type: programQueueProcessor.knownEventTypes.SYNC,
+      });
+
+      // wait for indexing to complete
+      await new Promise<void>((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, 30000);
+      });
+
+      const esHits = await Promise.all(
+        testDonorIds.map(async (donorId) => {
+          const esQuery = esb
+            .requestBodySearch()
+            .size(testDonorIds.length)
+            .query(esb.termQuery("donorId", `DO${donorId}`));
+          const esHit: EsHit = await esClient
+            .search({
+              index: ROLLCALL_ALIAS_NAME,
+              body: esQuery,
+            })
+            .then((res) => res.body.hits.hits[0])
+            .catch((err) => null);
+          return esHit;
+        })
+      );
+
+      esHits.forEach((hit) => {
+        expect([
+          hit._source.donorId,
+          "publishedNormalAnalysis",
+          hit._source.publishedNormalAnalysis,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "publishedNormalAnalysis",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData_incremental[hit._source.donorId]
+                .publishedNormalAnalysis
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "publishedTumourAnalysis",
+          hit._source.publishedTumourAnalysis,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "publishedTumourAnalysis",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData_incremental[hit._source.donorId]
+                .publishedTumourAnalysis
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "alignmentsCompleted",
+          hit._source.alignmentsCompleted,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "alignmentsCompleted",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData_incremental[hit._source.donorId]
+                .alignmentsCompleted
+            : 0,
+        ]);
+
+        expect([
+          hit._source.donorId,
+          "alignmentsRunning",
+          hit._source.alignmentsRunning,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "alignmentsRunning",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].alignmentsRunning
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "sangerVcsCompleted",
+          hit._source.sangerVcsCompleted,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "sangerVcsCompleted",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].sangerVcsCompleted
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "sangerVcsFailed",
+          hit._source.sangerVcsFailed,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "sangerVcsFailed",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].sangerVcsFailed
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "sangerVcsRunning",
+          hit._source.sangerVcsRunning,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "sangerVcsRunning",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].sangerVcsRunning
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "mutectCompleted",
+          hit._source.mutectCompleted,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "mutectCompleted",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].mutectCompleted
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "mutectRunning",
+          hit._source.mutectRunning,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "mutectRunning",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].mutectRunning
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "mutectFailed",
+          hit._source.mutectFailed,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "mutectFailed",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].mutectFailed
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "sangerVcsFirstPublishedDate",
+          hit._source.sangerVcsFirstPublishedDate,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "sangerVcsFirstPublishedDate",
+          expectedRDPCData[hit._source.donorId].sangerVcsFirstPublishedDate,
+        ]);
+        expect([
+          hit._source.donorId,
+          "mutectFirstPublishedDate",
+          hit._source.mutectFirstPublishedDate,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "mutectFirstPublishedDate",
+          expectedRDPCData[hit._source.donorId].mutectFirstPublishedDate,
+        ]);
+      });
+
+      const unpublishedAnalysis = seqExpAnalysesWithSpecimens_incremental[1];
+      console.log(
+        `Normal sample analysis ${unpublishedAnalysis} has been unpublished.`
+      );
+
+      // Assume the normal analysis of seqExpAnalyses_incremental is unpublished, mock a new analyses fetcher:
+      programQueueProcessor = await createProgramQueueProcessor({
+        kafka: kafkaClient,
+        esClient,
+        egoJwtManager: mockEgoJwtManager,
+        rollCallClient: rollcallClient,
+        analysesFetcher: mockAnalysisFetcher_incremental_after_unpublish,
+        analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher_incremental_after_unpublish,
+        fetchVC: mockVariantCallingFetcher,
+        fetchDonorIds: () => Promise.resolve([testDonorId]),
+      });
+
+      console.log(`Receiving an UNPUBLISH event...`);
+      await programQueueProcessor.enqueueEvent({
+        programId: TEST_CA,
+        rdpcGatewayUrls: [""],
+        type: programQueueProcessor.knownEventTypes.RDPC,
+        analysisId: unpublishedAnalysis.analysisId,
+        action: Action.UNPUBLISH,
+      });
+
+      // wait for indexing to complete
+      await new Promise<void>((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, 30000);
+      });
+
+      const esHits_after_unpublish = await Promise.all(
+        testDonorIds.map(async (donorId) => {
+          const esQuery = esb
+            .requestBodySearch()
+            .size(testDonorIds.length)
+            .query(esb.termQuery("donorId", `DO${donorId}`));
+          const esHit: EsHit = await esClient
+            .search({
+              index: ROLLCALL_ALIAS_NAME,
+              body: esQuery,
+            })
+            .then((res) => res.body.hits.hits[0])
+            .catch((err) => null);
+          return esHit;
+        })
+      );
+
+      esHits_after_unpublish.forEach((hit) => {
+        expect([
+          hit._source.donorId,
+          "publishedNormalAnalysis",
+          hit._source.publishedNormalAnalysis,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "publishedNormalAnalysis",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+                .publishedNormalAnalysis
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "publishedTumourAnalysis",
+          hit._source.publishedTumourAnalysis,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "publishedTumourAnalysis",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+                .publishedTumourAnalysis
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "alignmentsCompleted",
+          hit._source.alignmentsCompleted,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "alignmentsCompleted",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+                .alignmentsCompleted
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "alignmentsFailed",
+          hit._source.alignmentsFailed,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "alignmentsFailed",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+                .alignmentsFailed
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "alignmentsRunning",
+          hit._source.alignmentsRunning,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "alignmentsRunning",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+                .alignmentsRunning
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "sangerVcsCompleted",
+          hit._source.sangerVcsCompleted,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "sangerVcsCompleted",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+                .sangerVcsCompleted
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "sangerVcsFailed",
+          hit._source.sangerVcsFailed,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "sangerVcsFailed",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+                .sangerVcsFailed
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "sangerVcsRunning",
+          hit._source.sangerVcsRunning,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "sangerVcsRunning",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+                .sangerVcsRunning
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "mutectCompleted",
+          hit._source.mutectCompleted,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "mutectCompleted",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+                .mutectCompleted
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "mutectRunning",
+          hit._source.mutectRunning,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "mutectRunning",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+                .mutectRunning
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "mutectFailed",
+          hit._source.mutectFailed,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "mutectFailed",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+                .mutectFailed
+            : 0,
+        ]);
+
+        expect([
+          hit._source.donorId,
+          "sangerVcsFirstPublishedDate",
+          hit._source.sangerVcsFirstPublishedDate,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "sangerVcsFirstPublishedDate",
+          expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+            .sangerVcsFirstPublishedDate,
+        ]);
+
+        expect([
+          hit._source.donorId,
+          "mutectFirstPublishedDate",
+          hit._source.mutectFirstPublishedDate,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "mutectFirstPublishedDate",
+          expectedRDPCData_incremental_after_unpublish[hit._source.donorId]
+            .mutectFirstPublishedDate,
         ]);
       });
     });

@@ -288,6 +288,8 @@ export const clinicalDataset: EsDonorDocument[] = [
 ];
 
 type TestFields = {
+  publishedNormalAnalysis: Number;
+  publishedTumourAnalysis: Number;
   alignmentsCompleted: Number;
   alignmentsRunning: Number;
   alignmentsFailed: Number;
@@ -303,6 +305,8 @@ type TestFields = {
 
 export const expectedRDPCData: { [k: string]: TestFields } = {
   ["DO35082"]: {
+    publishedNormalAnalysis: 1,
+    publishedTumourAnalysis: 1,
     alignmentsCompleted: 1,
     alignmentsRunning: 0,
     alignmentsFailed: 0,
@@ -316,6 +320,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectFirstPublishedDate: "2021-01-12T11:37:53.538Z",
   },
   ["DO35083"]: {
+    publishedNormalAnalysis: 0,
+    publishedTumourAnalysis: 0,
     alignmentsCompleted: 0,
     alignmentsRunning: 0,
     alignmentsFailed: 1,
@@ -327,6 +333,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectFailed: 0,
   },
   ["DO35084"]: {
+    publishedNormalAnalysis: 0,
+    publishedTumourAnalysis: 0,
     alignmentsCompleted: 0,
     alignmentsRunning: 1,
     alignmentsFailed: 0,
@@ -338,6 +346,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectFailed: 0,
   },
   ["DO35085"]: {
+    publishedNormalAnalysis: 0,
+    publishedTumourAnalysis: 0,
     alignmentsCompleted: 1,
     alignmentsRunning: 0,
     alignmentsFailed: 0,
@@ -349,6 +359,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectFailed: 0,
   },
   ["DO35086"]: {
+    publishedNormalAnalysis: 0,
+    publishedTumourAnalysis: 0,
     alignmentsCompleted: 1,
     alignmentsRunning: 0,
     alignmentsFailed: 0,
@@ -360,6 +372,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectFailed: 0,
   },
   ["DO35087"]: {
+    publishedNormalAnalysis: 0,
+    publishedTumourAnalysis: 0,
     alignmentsCompleted: 1,
     alignmentsRunning: 0,
     alignmentsFailed: 0,
@@ -371,6 +385,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectFailed: 0,
   },
   ["DO35088"]: {
+    publishedNormalAnalysis: 0,
+    publishedTumourAnalysis: 0,
     alignmentsCompleted: 1,
     alignmentsRunning: 0,
     alignmentsFailed: 0,
@@ -382,6 +398,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectFailed: 0,
   },
   ["DO35089"]: {
+    publishedNormalAnalysis: 0,
+    publishedTumourAnalysis: 0,
     alignmentsCompleted: 1,
     alignmentsRunning: 0,
     alignmentsFailed: 0,
@@ -393,6 +411,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectFailed: 0,
   },
   ["DO35090"]: {
+    publishedNormalAnalysis: 0,
+    publishedTumourAnalysis: 0,
     alignmentsCompleted: 1,
     alignmentsRunning: 0,
     alignmentsFailed: 0,
@@ -404,6 +424,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectFailed: 0,
   },
   ["DO35091"]: {
+    publishedNormalAnalysis: 0,
+    publishedTumourAnalysis: 0,
     alignmentsCompleted: 1,
     alignmentsRunning: 0,
     alignmentsFailed: 0,
@@ -413,5 +435,43 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectCompleted: 1,
     mutectRunning: 0,
     mutectFailed: 0,
+  },
+};
+
+export const expectedRDPCData_incremental: { [k: string]: TestFields } = {
+  ["DO35082"]: {
+    publishedNormalAnalysis: 1,
+    publishedTumourAnalysis: 1,
+    alignmentsCompleted: 2,
+    alignmentsRunning: 0,
+    alignmentsFailed: 0,
+    sangerVcsCompleted: 2,
+    sangerVcsRunning: 0,
+    sangerVcsFailed: 0,
+    mutectCompleted: 2,
+    mutectRunning: 0,
+    mutectFailed: 0,
+    sangerVcsFirstPublishedDate: "2020-12-08T18:17:53.538Z",
+    mutectFirstPublishedDate: "2021-01-12T11:37:53.538Z",
+  },
+};
+
+export const expectedRDPCData_incremental_after_unpublish: {
+  [k: string]: TestFields;
+} = {
+  ["DO35082"]: {
+    publishedNormalAnalysis: 0,
+    publishedTumourAnalysis: 1,
+    alignmentsCompleted: 1,
+    alignmentsRunning: 0,
+    alignmentsFailed: 0,
+    sangerVcsCompleted: 2,
+    sangerVcsRunning: 0,
+    sangerVcsFailed: 0,
+    mutectCompleted: 2,
+    mutectRunning: 0,
+    mutectFailed: 0,
+    sangerVcsFirstPublishedDate: "2020-12-08T18:17:53.538Z",
+    mutectFirstPublishedDate: "2021-01-12T11:37:53.538Z",
   },
 };

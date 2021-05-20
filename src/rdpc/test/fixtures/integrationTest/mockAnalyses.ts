@@ -2181,3 +2181,220 @@ export const variantCallingAnalyses: Analysis[] = [
     },
   },
 ];
+
+export const seqExpAnalyses_incremental: Analysis[] = [
+  {
+    analysisId: "ab784c58-39bd-4441-b84c-5839bdf4410f",
+    analysisType: "sequencing_experiment",
+    donors: [
+      {
+        donorId: "DO35082",
+        specimens: [],
+      },
+    ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
+    },
+    firstPublishedAt: "",
+    runs: [
+      {
+        runId: "wes-7c5957c2765e485a9fe28e662dd0921c",
+        state: RunState.COMPLETE,
+        repository: "https://github.com/icgc-argo/dna-seq-processing-wfs.git",
+        inputAnalyses: [
+          {
+            analysisId: "ab784c58-39bd-4441-b84c-5839bdf4410f",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    analysisId: "00784c58-39bd-4441-b84c-5839bdf4410f",
+    analysisType: "sequencing_experiment",
+    donors: [
+      {
+        donorId: "DO35082",
+        specimens: [],
+      },
+    ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
+    },
+    firstPublishedAt: "",
+    runs: [
+      {
+        runId: "wes-7c5957c2765e485a9fe28e662dd0921c",
+        state: RunState.COMPLETE,
+        repository: "https://github.com/icgc-argo/dna-seq-processing-wfs.git",
+        inputAnalyses: [
+          {
+            analysisId: "00784c58-39bd-4441-b84c-5839bdf4410f",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "0170697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "02585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
+      },
+    ],
+  },
+];
+
+export const seqExpAnalysesWithSpecimens_incremental: Analysis[] = [
+  {
+    analysisId: "ab784c58-39bd-4441-b84c-5839bdf4410f",
+    analysisType: AnalysisType.SEQ_EXPERIMENT,
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
+    },
+    firstPublishedAt: "",
+    donors: [
+      {
+        donorId: "DO35082",
+        specimens: [
+          {
+            specimenId: "SP77834",
+            tumourNormalDesignation: TumourNormalDesignationValue.Tumour,
+            samples: [
+              {
+                submitterSampleId: "PCSI_0019_Pa_P_526",
+                matchedNormalSubmitterSampleId: "PCSI_0019_Si_R",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    runs: [],
+  },
+  {
+    analysisId: "00784c58-39bd-4441-b84c-5839bdf4410f",
+    analysisType: AnalysisType.SEQ_EXPERIMENT,
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
+    },
+    firstPublishedAt: "",
+    donors: [
+      {
+        donorId: "DO35082",
+        specimens: [
+          {
+            specimenId: "SP77834",
+            tumourNormalDesignation: TumourNormalDesignationValue.Normal,
+            samples: [
+              {
+                submitterSampleId: "PCSI_0019_Pa_P_526",
+                matchedNormalSubmitterSampleId: "PCSI_0019_Si_R",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    runs: [],
+  },
+];
+
+// after 00784c58-39bd-4441-b84c-5839bdf4410f is unpublished, it gets removed
+export const seqExpAnalysesWithSpecimens_incremental_after_unpublish: Analysis[] = [
+  {
+    analysisId: "ab784c58-39bd-4441-b84c-5839bdf4410f",
+    analysisType: AnalysisType.SEQ_EXPERIMENT,
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
+    },
+    firstPublishedAt: "",
+    donors: [
+      {
+        donorId: "DO35082",
+        specimens: [
+          {
+            specimenId: "SP77834",
+            tumourNormalDesignation: TumourNormalDesignationValue.Tumour,
+            samples: [
+              {
+                submitterSampleId: "PCSI_0019_Pa_P_526",
+                matchedNormalSubmitterSampleId: "PCSI_0019_Si_R",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    runs: [],
+  },
+];
+
+export const seqExpAnalyses_incremental_after_unpublish: Analysis[] = [
+  {
+    analysisId: "ab784c58-39bd-4441-b84c-5839bdf4410f",
+    analysisType: "sequencing_experiment",
+    donors: [
+      {
+        donorId: "DO35082",
+        specimens: [],
+      },
+    ],
+    experiment: {
+      library_strategy: "",
+      experimental_strategy: "",
+    },
+    workflow: {
+      workflowName: "",
+    },
+    firstPublishedAt: "",
+    runs: [
+      {
+        runId: "wes-7c5957c2765e485a9fe28e662dd0921c",
+        state: RunState.COMPLETE,
+        repository: "https://github.com/icgc-argo/dna-seq-processing-wfs.git",
+        inputAnalyses: [
+          {
+            analysisId: "ab784c58-39bd-4441-b84c-5839bdf4410f",
+          },
+        ],
+        producedAnalyses: [
+          {
+            analysisId: "d970697a-507a-41e3-b069-7a507a81e37d",
+          },
+          {
+            analysisId: "55585c52-1c3c-42aa-985c-521c3c52aa4b",
+          },
+        ],
+      },
+    ],
+  },
+];
