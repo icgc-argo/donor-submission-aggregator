@@ -979,6 +979,8 @@ describe("kafka integration", () => {
       );
 
       esHits_after_unpublish.forEach((hit) => {
+        console.log(`esHits_after_unpublish ------  ${JSON.stringify(hit)}`);
+
         expect([
           hit._source.donorId,
           "publishedNormalAnalysis",

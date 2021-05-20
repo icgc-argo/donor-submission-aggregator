@@ -77,9 +77,14 @@ export const indexRdpcData = async ({
     donorIdsToFilterBy
   );
 
+  console.log(`before --- ${JSON.stringify(rdpcInfoByDonor_specimens)}`);
   donorIdsToFilterBy?.forEach((donorId) => {
     if (!rdpcInfoByDonor_specimens.hasOwnProperty(donorId)) {
+      console.log(
+        `to filter donor ${donorId}, rdpcInfoByDonor_specimens does not have ${donorId}, initialize rdpc info `
+      );
       rdpcInfoByDonor_specimens[donorId] = initialRdpcInfo;
+      console.log(`after --- ${JSON.stringify(rdpcInfoByDonor_specimens)}`);
     }
   });
 
