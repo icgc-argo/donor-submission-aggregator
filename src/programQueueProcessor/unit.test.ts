@@ -858,7 +858,8 @@ describe("kafka integration", () => {
           hit._source.donorId,
           "alignmentsRunning",
           hit._source.donorId === testDonorId
-            ? expectedRDPCData[hit._source.donorId].alignmentsRunning
+            ? expectedRDPCData_incremental[hit._source.donorId]
+                .alignmentsRunning
             : 0,
         ]);
         expect([
@@ -869,7 +870,8 @@ describe("kafka integration", () => {
           hit._source.donorId,
           "sangerVcsCompleted",
           hit._source.donorId === testDonorId
-            ? expectedRDPCData[hit._source.donorId].sangerVcsCompleted
+            ? expectedRDPCData_incremental[hit._source.donorId]
+                .sangerVcsCompleted
             : 0,
         ]);
         expect([
@@ -880,7 +882,7 @@ describe("kafka integration", () => {
           hit._source.donorId,
           "sangerVcsFailed",
           hit._source.donorId === testDonorId
-            ? expectedRDPCData[hit._source.donorId].sangerVcsFailed
+            ? expectedRDPCData_incremental[hit._source.donorId].sangerVcsFailed
             : 0,
         ]);
         expect([
@@ -891,7 +893,7 @@ describe("kafka integration", () => {
           hit._source.donorId,
           "sangerVcsRunning",
           hit._source.donorId === testDonorId
-            ? expectedRDPCData[hit._source.donorId].sangerVcsRunning
+            ? expectedRDPCData_incremental[hit._source.donorId].sangerVcsRunning
             : 0,
         ]);
         expect([
@@ -902,7 +904,7 @@ describe("kafka integration", () => {
           hit._source.donorId,
           "mutectCompleted",
           hit._source.donorId === testDonorId
-            ? expectedRDPCData[hit._source.donorId].mutectCompleted
+            ? expectedRDPCData_incremental[hit._source.donorId].mutectCompleted
             : 0,
         ]);
         expect([
@@ -913,7 +915,7 @@ describe("kafka integration", () => {
           hit._source.donorId,
           "mutectRunning",
           hit._source.donorId === testDonorId
-            ? expectedRDPCData[hit._source.donorId].mutectRunning
+            ? expectedRDPCData_incremental[hit._source.donorId].mutectRunning
             : 0,
         ]);
         expect([
@@ -924,7 +926,7 @@ describe("kafka integration", () => {
           hit._source.donorId,
           "mutectFailed",
           hit._source.donorId === testDonorId
-            ? expectedRDPCData[hit._source.donorId].mutectFailed
+            ? expectedRDPCData_incremental[hit._source.donorId].mutectFailed
             : 0,
         ]);
         expect([
@@ -934,7 +936,8 @@ describe("kafka integration", () => {
         ]).to.deep.equal([
           hit._source.donorId,
           "sangerVcsFirstPublishedDate",
-          expectedRDPCData[hit._source.donorId].sangerVcsFirstPublishedDate,
+          expectedRDPCData_incremental[hit._source.donorId]
+            .sangerVcsFirstPublishedDate,
         ]);
         expect([
           hit._source.donorId,
@@ -943,7 +946,8 @@ describe("kafka integration", () => {
         ]).to.deep.equal([
           hit._source.donorId,
           "mutectFirstPublishedDate",
-          expectedRDPCData[hit._source.donorId].mutectFirstPublishedDate,
+          expectedRDPCData_incremental[hit._source.donorId]
+            .mutectFirstPublishedDate,
         ]);
       });
 
