@@ -87,11 +87,6 @@ const fetchAnalysesWithSpecimens = async ({
         );
         throw new Error(error);
       }
-      console.log(
-        `fetch analyses with specimens ------- ${JSON.stringify(
-          jsonResponse.data.analyses.content
-        )}`
-      );
       return jsonResponse.data.analyses.content as Analysis[];
     } catch (err) {
       logger.warn(
