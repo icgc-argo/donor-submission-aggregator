@@ -52,7 +52,7 @@ const fetchDonorIdsByAnalysis = async ({
   const accessToken = jwt.access_token;
   return await promiseRetry<string[]>(async (retry) => {
     try {
-      const analysisState = determinAnalysisState(action);
+      const analysisState = determineAnalysisState(action);
       const output = await fetch(rdpcUrl, {
         method: "POST",
         headers: {
@@ -102,7 +102,7 @@ const retryConfig = {
   maxTimeout: Infinity,
 };
 
-const determinAnalysisState = (action: string) => {
+const determineAnalysisState = (action: string) => {
   let analysisState = "";
   switch (action) {
     case Action.PUBLISH:
