@@ -41,7 +41,7 @@ query($analysisFilter: AnalysisFilter, $analysisPage: Page, $workflowRepoUrl: St
               analysisType
           }
           producedAnalyses
-            (filter: { analysisState: PUBLISHED}) {
+            (filter: { analysisState: PUBLISHED }) {
               analysisId
               analysisState
               analysisType

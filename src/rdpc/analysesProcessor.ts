@@ -14,6 +14,7 @@ import HashCode from "ts-hashcode";
 import fetchAnalyses from "rdpc/query/fetchAnalyses";
 import { EgoJwtManager } from "auth";
 import _ from "lodash";
+import { RdpcDonorInfo } from "indexClinicalData/types";
 
 type StreamState = {
   currentPage: number;
@@ -406,24 +407,26 @@ export const initializeRdpcInfo = (
   result: DonorInfoMap,
   donorId: string
 ): void => {
-  result[donorId] = {
-    publishedNormalAnalysis: 0,
-    publishedTumourAnalysis: 0,
-    alignmentsCompleted: 0,
-    alignmentsRunning: 0,
-    alignmentsFailed: 0,
-    sangerVcsCompleted: 0,
-    sangerVcsRunning: 0,
-    sangerVcsFailed: 0,
-    mutectCompleted: 0,
-    mutectRunning: 0,
-    mutectFailed: 0,
-    totalFilesCount: 0,
-    filesToQcCount: 0,
-    releaseStatus: "NO_RELEASE",
-    processingStatus: "REGISTERED",
-  };
+  result[donorId] = { ...initialRdpcInfo };
 };
+
+export const initialRdpcInfo: Readonly<RdpcDonorInfo> = Object.freeze({
+  publishedNormalAnalysis: 0,
+  publishedTumourAnalysis: 0,
+  alignmentsCompleted: 0,
+  alignmentsRunning: 0,
+  alignmentsFailed: 0,
+  sangerVcsCompleted: 0,
+  sangerVcsRunning: 0,
+  sangerVcsFailed: 0,
+  mutectCompleted: 0,
+  mutectRunning: 0,
+  mutectFailed: 0,
+  totalFilesCount: 0,
+  filesToQcCount: 0,
+  releaseStatus: "NO_RELEASE",
+  processingStatus: "REGISTERED",
+});
 
 export const mergeDonorInfo = (
   map: DonorInfoMap,

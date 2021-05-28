@@ -1,5 +1,3 @@
-import { ApiResponse } from "@elastic/elasticsearch";
-
 export enum KnownEventSource {
   CLINICAL = "CLINICAL",
   RDPC = "RDPC",
@@ -13,6 +11,7 @@ export type QueueRecord = { programId: string; requeued?: boolean } & (
       type: KnownEventType.RDPC;
       rdpcGatewayUrls: Array<string>;
       analysisId?: string;
+      action?: string;
     }
   | {
       type: KnownEventType.SYNC;

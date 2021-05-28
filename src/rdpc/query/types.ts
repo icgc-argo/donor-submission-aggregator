@@ -15,3 +15,9 @@ export type QueryVariable = {
   analysisPage: PageQueryVar;
   workflowRepoUrl?: string;
 };
+
+export enum Action {
+  PUBLISH = "PUBLISH",
+  UNPUBLISH = "UNPUBLISH",
+  SUPPRESS = "SUPPRESS",
+}

@@ -1,4 +1,4 @@
-import { mergeDonorInfo } from "./analysesProcessor";
+import { initialRdpcInfo, mergeDonorInfo } from "./analysesProcessor";
 import { STREAM_CHUNK_SIZE } from "config";
 import { queryDocumentsByDonorIds } from "indexClinicalData";
 import { Client } from "@elastic/elasticsearch";
@@ -17,6 +17,7 @@ import { getSeqAlignSpecimenData } from "./convertData/getSeqAlignSpecimenData";
 import { getMutectData } from "./convertData/getMutectData";
 import fetchAnalysesWithSpecimens from "./query/fetchAnalysesWithSpecimens";
 import { getVariantCallingData } from "./convertData/getVariantCallingData";
+import _ from "lodash";
 
 const convertToEsDocument = (
   existingEsHit: EsDonorDocument,
@@ -37,6 +38,7 @@ export const indexRdpcData = async ({
   fetchVC = fetchVariantCallingAnalyses,
   fetchDonorIds = fetchDonorIdsByAnalysis,
   analysisId,
+  action,
 }: {
   programId: string;
   rdpcUrl: string;
@@ -47,21 +49,24 @@ export const indexRdpcData = async ({
   fetchVC?: typeof fetchVariantCallingAnalyses; // optional only for test
   analysesWithSpecimensFetcher?: typeof fetchAnalysesWithSpecimens; // optional only for test
   analysisId?: string;
+  action?: string;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
 }) => {
   logger.info(`Processing program: ${programId} from ${rdpcUrl}.`);
   const config = { chunkSize: STREAM_CHUNK_SIZE };
 
-  const donorIdsToFilterBy = analysisId
-    ? await fetchDonorIds({
-        rdpcUrl,
-        analysisId,
-        egoJwtManager,
-      })
-    : undefined;
+  const donorIdsToFilterBy =
+    analysisId && action
+      ? await fetchDonorIds({
+          rdpcUrl,
+          analysisId,
+          action,
+          egoJwtManager,
+        })
+      : undefined;
 
   // contains 3 fields:
-  // publishedNormalAnalysi, publishedTumourAnalysis, rawReadsFirstPublishedDate
+  // publishedNormalAnalysis, publishedTumourAnalysis, rawReadsFirstPublishedDate
   const rdpcInfoByDonor_specimens = await getSeqExpSpecimenData(
     programId,
     rdpcUrl,
@@ -71,6 +76,12 @@ export const indexRdpcData = async ({
     config,
     donorIdsToFilterBy
   );
+
+  donorIdsToFilterBy?.forEach((donorId) => {
+    if (!rdpcInfoByDonor_specimens.hasOwnProperty(donorId)) {
+      rdpcInfoByDonor_specimens[donorId] = { ...initialRdpcInfo };
+    }
+  });
 
   // contains 2 fields: mutectFirstPublishedDate, sangerVcsFirstPublishedDate
   const rdpcInfoByDonor_sangerMutectDates = await getVariantCallingData(

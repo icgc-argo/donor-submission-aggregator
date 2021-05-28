@@ -60,6 +60,7 @@ export enum AnalysisType {
 export enum AnalysisState {
   PUBLISHED = "PUBLISHED",
   UNPUBLISHED = "UNPUBLISHED",
+  SUPPRESSED = "SUPPRESSED",
 }
 
 export interface RunsByInputAnalyses {

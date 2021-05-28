@@ -23,23 +23,19 @@ import {
   expectedRDPCData,
   testDonorIds,
 } from "rdpc/test/fixtures/integrationTest/dataset";
-import fetchAnalyses from "rdpc/query/fetchAnalyses";
-import { Analysis, AnalysisType } from "rdpc/types";
-import {
-  seqAlignmentAnalyses_mutect,
-  seqAlignmentAnalyses_sanger,
-  seqExpAnalyses,
-  seqExpAnalysesWithSpecimens,
-  variantCallingAnalyses,
-} from "rdpc/test/fixtures/integrationTest/mockAnalyses";
+import { seqExpAnalyses } from "rdpc/test/fixtures/integrationTest/mockAnalyses";
 import esb from "elastic-builder";
 import { EsHit } from "indexClinicalData/types";
 import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 import { generateIndexName } from "./util";
 import { getIndexSettings, getLatestIndexName } from "elasticsearch";
 import { EgoAccessToken, EgoJwtManager } from "auth";
-import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
-import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
+import { Action } from "rdpc/query/types";
+import {
+  mockAnalysesWithSpecimensFetcher,
+  mockAnalysisFetcher,
+  mockVariantCallingFetcher,
+} from "./MockFetch";
 
 const TEST_US = "TEST-US";
 const TEST_CA = "TEST-CA";
@@ -88,67 +84,6 @@ describe("kafka integration", () => {
         groups: "",
       };
     },
-  };
-
-  const mockVariantCallingFetcher: typeof fetchVariantCallingAnalyses = ({
-    studyId,
-    rdpcUrl,
-    from,
-    size,
-    egoJwtManager,
-    donorId,
-  }): Promise<Analysis[]> => {
-    const matchesDonorId = (donor: any) =>
-      donorId ? donor.donorId === donorId : true;
-    return Promise.resolve(
-      variantCallingAnalyses
-        .filter((analysis) => analysis.donors.some(matchesDonorId))
-        .slice(from, from + size)
-    );
-  };
-
-  const mockAnalysesWithSpecimensFetcher: typeof fetchAnalysesWithSpecimens = async ({
-    studyId,
-    rdpcUrl,
-    from,
-    size,
-    egoJwtManager,
-    donorId,
-  }): Promise<Analysis[]> => {
-    const matchesDonorId = (donor: any) =>
-      donorId ? donor.donorId === donorId : true;
-    return Promise.resolve(
-      seqExpAnalysesWithSpecimens
-        .filter((analysis) => analysis.donors.some(matchesDonorId))
-        .slice(from, from + size)
-    );
-  };
-
-  const mockAnalysisFetcher: typeof fetchAnalyses = async ({
-    studyId,
-    rdpcUrl,
-    analysisType,
-    isMutect,
-    from,
-    size,
-    egoJwtManager,
-    donorId,
-  }): Promise<Analysis[]> => {
-    const matchesDonorId = (donor: any) =>
-      donorId ? donor.donorId === donorId : true;
-    return Promise.resolve(
-      analysisType === AnalysisType.SEQ_EXPERIMENT
-        ? seqExpAnalyses
-            .filter((analysis) => analysis.donors.some(matchesDonorId))
-            .slice(from, from + size)
-        : isMutect
-        ? seqAlignmentAnalyses_mutect
-            .filter((analysis) => analysis.donors.some(matchesDonorId))
-            .slice(from, from + size)
-        : seqAlignmentAnalyses_sanger
-            .filter((analysis) => analysis.donors.some(matchesDonorId))
-            .slice(from, from + size)
-    );
   };
 
   before(async () => {
@@ -670,6 +605,7 @@ describe("kafka integration", () => {
         type: programQueueProcessor.knownEventTypes.RDPC,
         rdpcGatewayUrls: [""], // the urls don't matter since we're mocking all the rdpc fetchers
         analysisId: testAnalysis.analysisId,
+        action: Action.PUBLISH,
       });
 
       // wait for indexing to complete
