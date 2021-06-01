@@ -45,7 +45,7 @@ spec:
         }
     }
     options {
-      timeout(time: 15, unit: 'MINUTES') 
+      timeout(time: 20, unit: 'MINUTES')
     }
     stages {
       stage('Prepare') {
@@ -129,7 +129,7 @@ spec:
         container("node") {
           script {
             if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "develop") {
-              withCredentials([string(credentialsId: 'JenkinsFailuresSlackChannelURL', variable: 'JenkinsFailuresSlackChannelURL')]) { 
+              withCredentials([string(credentialsId: 'JenkinsFailuresSlackChannelURL', variable: 'JenkinsFailuresSlackChannelURL')]) {
                 sh "curl -X POST -H 'Content-type: application/json' --data '{\"text\":\"Build Failed: ${env.JOB_NAME} [${env.BUILD_NUMBER}] (${env.BUILD_URL}) \"}' ${JenkinsFailuresSlackChannelURL}"
               }
             }
@@ -140,7 +140,7 @@ spec:
         container("node") {
           script {
             if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "develop") {
-              withCredentials([string(credentialsId: 'JenkinsFailuresSlackChannelURL', variable: 'JenkinsFailuresSlackChannelURL')]) { 
+              withCredentials([string(credentialsId: 'JenkinsFailuresSlackChannelURL', variable: 'JenkinsFailuresSlackChannelURL')]) {
                 sh "curl -X POST -H 'Content-type: application/json' --data '{\"text\":\"Build Fixed: ${env.JOB_NAME} [${env.BUILD_NUMBER}] (${env.BUILD_URL}) \"}' ${JenkinsFailuresSlackChannelURL}"
               }
             }
