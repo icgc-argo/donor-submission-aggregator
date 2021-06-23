@@ -187,7 +187,14 @@ const convertAnalysis = (
     const infoMapPerAnalysis = analysis.donors.reduce<
       StringMap<SangerAndMutectInfo>
     >((infoAccumulator, donor) => {
-      const workflowName = analysis.workflow.workflowName.toLocaleLowerCase();
+      let workflowName = "";
+      if (analysis.workflow && analysis.workflow.workflowName) {
+        workflowName = analysis.workflow.workflowName.toLocaleLowerCase();
+      } else {
+        logger.warn(`Incomplete RDPC Data: analysis id: ${analysis.analysisId} does not have 'workflow' or 'workflowname',
+        this analysis will not be indexed.`);
+      }
+
       const info: SangerAndMutectInfo = {
         sangerVC: [],
         mutect: [],
@@ -195,7 +202,7 @@ const convertAnalysis = (
 
       const workflowData = {
         analysisId: analysis.analysisId,
-        workflowName: analysis.workflow.workflowName,
+        workflowName: workflowName,
         firstPublishedAt: analysis.firstPublishedAt,
       };
 
