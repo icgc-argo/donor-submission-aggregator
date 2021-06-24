@@ -79,7 +79,7 @@ describe("initIndexMapping", () => {
         },
       });
     } catch (error) {
-      console.log(`putsettings---- + ${error}`);
+      console.log(`putsettings---- + ${JSON.stringify(error)}`);
     }
 
     await initIndexMapping(TEST_INDEX, esClient);
