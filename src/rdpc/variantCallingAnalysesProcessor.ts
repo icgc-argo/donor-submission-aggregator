@@ -192,7 +192,7 @@ const convertAnalysis = (
         workflowName = analysis.workflow.workflowName.toLocaleLowerCase();
       } else {
         logger.warn(`Incomplete RDPC Data: analysis id: ${analysis.analysisId} does not have 'workflow' or 'workflowname',
-        this analysis will not be indexed.`);
+        this analysis won't be included in the donor's aggregated stats.`);
       }
 
       const info: SangerAndMutectInfo = {
