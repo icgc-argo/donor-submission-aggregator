@@ -62,6 +62,15 @@ describe("initIndexMapping", () => {
     });
   });
   it.only("must initialize index mappping properly", async () => {
+    try {
+      await esClient.indices.putSettings({
+        index: TEST_INDEX,
+        body: donorIndexMapping.settings,
+      });
+    } catch (error) {
+      console.log(`putsettings---- + ${error}`);
+    }
+
     await initIndexMapping(TEST_INDEX, esClient);
     const { body: exists } = await esClient.indices.exists({
       index: TEST_INDEX,
