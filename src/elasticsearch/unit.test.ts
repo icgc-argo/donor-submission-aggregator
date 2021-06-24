@@ -65,7 +65,18 @@ describe("initIndexMapping", () => {
     try {
       await esClient.indices.putSettings({
         index: TEST_INDEX,
-        body: donorIndexMapping.settings,
+        body: {
+          settings: {
+            analysis: {
+              analyzer: {
+                whitespaceAnalyzer: {
+                  tokenizer: "whitespace",
+                  filter: ["lowercase"],
+                },
+              },
+            },
+          },
+        },
       });
     } catch (error) {
       console.log(`putsettings---- + ${error}`);
