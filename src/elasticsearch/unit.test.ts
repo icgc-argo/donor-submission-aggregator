@@ -72,9 +72,9 @@ describe("initIndexMapping", () => {
       index: TEST_INDEX,
     });
 
-    console.log(JSON.stringify("-----------" + mappingResponse));
+    console.log("unit -----------" + JSON.stringify(mappingResponse));
 
-    console.log(JSON.stringify("+++++" + donorIndexMapping.mappings));
+    console.log("+++++" + JSON.stringify(donorIndexMapping.mappings));
 
     expect(mappingResponse.body[TEST_INDEX].mappings).to.deep.equal(
       donorIndexMapping.mappings
