@@ -1,10 +1,22 @@
 {
   "settings": {
     "index.number_of_shards": 3,
-    "index.number_of_replicas": 2
+    "index.number_of_replicas": 2,
+    "analysis": {
+      "analyzer": {
+        "whitespaceAnalyzer": {
+          "tokenizer": "whitespace",
+          "filter": ["lowercase"]
+        }
+      }
+    }
   },
   "mappings": {
     "properties": {
+      "combinedDonorId": {
+        "type": "text",
+        "analyzer": "whitespaceAnalyzer"
+      },
       "programId": {
         "type": "keyword"
       },
@@ -15,10 +27,12 @@
         "type": "keyword"
       },
       "donorId": {
-        "type": "keyword"
+        "type": "keyword",
+        "copy_to": ["combinedDonorId"]
       },
       "submitterDonorId": {
-        "type": "keyword"
+        "type": "keyword",
+        "copy_to": ["combinedDonorId"]
       },
       "submittedCoreDataPercent": {
         "type": "scaled_float",
