@@ -63,6 +63,14 @@ describe("initIndexMapping", () => {
   });
   it.only("must initialize index mappping properly", async () => {
     try {
+      await esClient.indices.close({
+        index: TEST_INDEX,
+      });
+    } catch (error) {
+      console.log(`close index --- ${error}`);
+    }
+
+    try {
       await esClient.indices.putSettings({
         index: TEST_INDEX,
         body: {
@@ -79,7 +87,15 @@ describe("initIndexMapping", () => {
         },
       });
     } catch (error) {
-      console.log(`putsettings---- + ${JSON.stringify(error)}`);
+      console.log(`putsettings---- ${JSON.stringify(error)}`);
+    }
+
+    try {
+      await esClient.indices.open({
+        index: TEST_INDEX,
+      });
+    } catch (error) {
+      console.log(`open index --- ${error}`);
     }
 
     await initIndexMapping(TEST_INDEX, esClient);
