@@ -61,13 +61,13 @@ describe("initIndexMapping", () => {
       index: TEST_INDEX,
     });
   });
-  it.only("must initialize index mappping properly", async () => {
+  it("must initialize index mappping properly", async () => {
     try {
       await esClient.indices.close({
         index: TEST_INDEX,
       });
     } catch (error) {
-      console.log(`close index --- ${error}`);
+      console.log(`close index before updating settings --- ${error}`);
     }
 
     try {
@@ -87,7 +87,7 @@ describe("initIndexMapping", () => {
         },
       });
     } catch (error) {
-      console.log(`putsettings---- ${JSON.stringify(error)}`);
+      console.log(`putsettings ---- ${JSON.stringify(error)}`);
     }
 
     try {
@@ -95,7 +95,7 @@ describe("initIndexMapping", () => {
         index: TEST_INDEX,
       });
     } catch (error) {
-      console.log(`open index --- ${error}`);
+      console.log(`reopen index --- ${error}`);
     }
 
     await initIndexMapping(TEST_INDEX, esClient);
@@ -107,10 +107,6 @@ describe("initIndexMapping", () => {
     const mappingResponse = await esClient.indices.getMapping({
       index: TEST_INDEX,
     });
-
-    console.log("unit -----------" + JSON.stringify(mappingResponse));
-
-    console.log("+++++" + JSON.stringify(donorIndexMapping.mappings));
 
     expect(mappingResponse.body[TEST_INDEX].mappings).to.deep.equal(
       donorIndexMapping.mappings
