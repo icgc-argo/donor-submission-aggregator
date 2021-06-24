@@ -61,7 +61,7 @@ describe("initIndexMapping", () => {
       index: TEST_INDEX,
     });
   });
-  it("must initialize index mappping properly", async () => {
+  it.only("must initialize index mappping properly", async () => {
     await initIndexMapping(TEST_INDEX, esClient);
     const { body: exists } = await esClient.indices.exists({
       index: TEST_INDEX,
@@ -71,6 +71,10 @@ describe("initIndexMapping", () => {
     const mappingResponse = await esClient.indices.getMapping({
       index: TEST_INDEX,
     });
+
+    console.log(JSON.stringify("-----------" + mappingResponse));
+
+    console.log(JSON.stringify("+++++" + donorIndexMapping.mappings));
 
     expect(mappingResponse.body[TEST_INDEX].mappings).to.deep.equal(
       donorIndexMapping.mappings
