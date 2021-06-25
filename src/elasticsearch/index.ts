@@ -71,7 +71,7 @@ export const initIndexMapping = async (index: string, esClient: Client) => {
       body: esMapping.mappings,
     });
   } catch (error) {
-    logger.error(`initIndexMapping -- ${error}`);
+    logger.error(`initIndexMapping -- ${JSON.stringify(error)}`);
   }
 };
 
