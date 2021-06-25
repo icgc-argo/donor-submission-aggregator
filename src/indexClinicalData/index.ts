@@ -67,13 +67,17 @@ export default async (
       } else return transformToEsDonor(donor);
     });
 
-    await esClient.bulk({
-      body: toEsBulkIndexActions<EsDonorDocument>(
-        targetIndexName,
-        (donor) => preExistingDonorHits[donor.donorId]?._id
-      )(esDocuments),
-      refresh: "true",
-    });
+    try {
+      await esClient.bulk({
+        body: toEsBulkIndexActions<EsDonorDocument>(
+          targetIndexName,
+          (donor) => preExistingDonorHits[donor.donorId]?._id
+        )(esDocuments),
+        refresh: "true",
+      });
+    } catch (error) {
+      logger.error(`index clinical data --- ${JSON.stringify(error)}`);
+    }
 
     logger.profile(timer);
   }

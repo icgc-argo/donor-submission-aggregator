@@ -65,10 +65,14 @@ export const createEsClient = async (): Promise<Client> => {
 
 export const initIndexMapping = async (index: string, esClient: Client) => {
   const serializedIndexName = index.toLowerCase();
-  await esClient.indices.putMapping({
-    index: serializedIndexName,
-    body: esMapping.mappings,
-  });
+  try {
+    await esClient.indices.putMapping({
+      index: serializedIndexName,
+      body: esMapping.mappings,
+    });
+  } catch (error) {
+    logger.error(`initIndexMapping -- ${JSON.stringify(error)}`);
+  }
 };
 
 export const toEsBulkIndexActions = <T = {}>(

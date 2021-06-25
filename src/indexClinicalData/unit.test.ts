@@ -102,9 +102,49 @@ describe("indexing programs", () => {
       `PROGRAM_SHORT_NAME=${TEST_PROGRAM_SHORT_NAME} COLLECTION_SIZE=${DB_COLLECTION_SIZE} MONGO_URL=${MONGO_URL} npm run createMongoDonors`
     );
     console.log("beforeEach >>>>>>>>>>>", stdout);
+
     await esClient.indices.create({
       index: TARGET_ES_INDEX,
     });
+
+    try {
+      await esClient.indices.close({
+        index: TARGET_ES_INDEX,
+      });
+    } catch (error) {
+      console.log(
+        `close index before updating settings --- ${JSON.stringify(error)}`
+      );
+    }
+
+    try {
+      await esClient.indices.putSettings({
+        index: TARGET_ES_INDEX,
+        body: {
+          settings: {
+            analysis: {
+              analyzer: {
+                whitespaceAnalyzer: {
+                  tokenizer: "whitespace",
+                  filter: ["lowercase"],
+                },
+              },
+            },
+          },
+        },
+      });
+    } catch (error) {
+      console.log(`putsettings ---- ${JSON.stringify(error)}`);
+    }
+
+    try {
+      await esClient.indices.open({
+        index: TARGET_ES_INDEX,
+      });
+    } catch (error) {
+      console.log(`reopen index --- ${JSON.stringify(error)}`);
+    }
+
     await initIndexMapping(TARGET_ES_INDEX, esClient);
   });
   afterEach(async function () {
@@ -360,11 +400,15 @@ const writeEsDocumentsToIndex = async (
   index: string,
   documents: Array<EsDonorDocument>
 ) => {
-  await client.bulk({
-    body: toEsBulkIndexActions<EsDonorDocument>(
-      index,
-      (donor) => donor.donorId
-    )(documents),
-    refresh: "true",
-  });
+  try {
+    await client.bulk({
+      body: toEsBulkIndexActions<EsDonorDocument>(
+        index,
+        (donor) => donor.donorId
+      )(documents),
+      refresh: "true",
+    });
+  } catch (error) {
+    console.log(`writeEsDocumentsToIndex --- ${error}`);
+  }
 };

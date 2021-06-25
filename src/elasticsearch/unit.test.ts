@@ -62,6 +62,42 @@ describe("initIndexMapping", () => {
     });
   });
   it("must initialize index mappping properly", async () => {
+    try {
+      await esClient.indices.close({
+        index: TEST_INDEX,
+      });
+    } catch (error) {
+      console.log(`close index before updating settings --- ${error}`);
+    }
+
+    try {
+      await esClient.indices.putSettings({
+        index: TEST_INDEX,
+        body: {
+          settings: {
+            analysis: {
+              analyzer: {
+                whitespaceAnalyzer: {
+                  tokenizer: "whitespace",
+                  filter: ["lowercase"],
+                },
+              },
+            },
+          },
+        },
+      });
+    } catch (error) {
+      console.log(`putsettings ---- ${JSON.stringify(error)}`);
+    }
+
+    try {
+      await esClient.indices.open({
+        index: TEST_INDEX,
+      });
+    } catch (error) {
+      console.log(`reopen index --- ${error}`);
+    }
+
     await initIndexMapping(TEST_INDEX, esClient);
     const { body: exists } = await esClient.indices.exists({
       index: TEST_INDEX,
