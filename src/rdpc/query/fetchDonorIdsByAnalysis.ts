@@ -53,21 +53,29 @@ const fetchDonorIdsByAnalysis = async ({
   return await promiseRetry<string[]>(async (retry) => {
     try {
       const analysisState = determineAnalysisState(action);
+      const body = JSON.stringify({
+        query,
+        variables: {
+          analysisId,
+          analysisState,
+        } as QueryVariable,
+      });
+      logger.info(`RDPC API Request body: ${body}`);
       const output = await fetch(rdpcUrl, {
         method: "POST",
         headers: {
           "Content-type": "application/json",
           authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({
-          query,
-          variables: {
-            analysisId,
-            analysisState,
-          } as QueryVariable,
-        }),
+        body,
       })
-        .then((res) => res.json())
+        .then((res) => {
+          const jsonResponse = res.json();
+          logger.info(
+            `RDPC-API Response for analisys: ${JSON.stringify(jsonResponse)}`
+          );
+          return jsonResponse;
+        })
         .then((res: { data: QueryResponseData }) => {
           const { data } = res;
           if (data.analyses.content) {
