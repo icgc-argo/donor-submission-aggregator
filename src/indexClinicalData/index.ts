@@ -60,10 +60,6 @@ export default async (
     // convets index array to a map
     const preExistingDonorHits = Object.fromEntries(donorIdDocumentPairs);
 
-    console.log(
-      `preExistingDonorHits ---${JSON.stringify(preExistingDonorHits)}`
-    );
-
     const esDocuments = chunk.map((donor) => {
       const donorId = esDonorId(donor);
       if (preExistingDonorHits.hasOwnProperty(donorId)) {
@@ -80,7 +76,7 @@ export default async (
         refresh: "true",
       });
     } catch (error) {
-      console.log(`index clinical data --- ${error}`);
+      logger.error(`index clinical data --- ${JSON.stringify(error)}`);
     }
 
     logger.profile(timer);

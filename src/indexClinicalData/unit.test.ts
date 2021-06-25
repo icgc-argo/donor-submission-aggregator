@@ -112,7 +112,9 @@ describe("indexing programs", () => {
         index: TARGET_ES_INDEX,
       });
     } catch (error) {
-      console.log(`close index before updating settings --- ${error}`);
+      console.log(
+        `close index before updating settings --- ${JSON.stringify(error)}`
+      );
     }
 
     try {
@@ -140,7 +142,7 @@ describe("indexing programs", () => {
         index: TARGET_ES_INDEX,
       });
     } catch (error) {
-      console.log(`reopen index --- ${error}`);
+      console.log(`reopen index --- ${JSON.stringify(error)}`);
     }
 
     await initIndexMapping(TARGET_ES_INDEX, esClient);
