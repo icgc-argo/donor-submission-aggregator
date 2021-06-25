@@ -60,6 +60,10 @@ export default async (
     // convets index array to a map
     const preExistingDonorHits = Object.fromEntries(donorIdDocumentPairs);
 
+    console.log(
+      `preExistingDonorHits ---${JSON.stringify(preExistingDonorHits)}`
+    );
+
     const esDocuments = chunk.map((donor) => {
       const donorId = esDonorId(donor);
       if (preExistingDonorHits.hasOwnProperty(donorId)) {
@@ -67,13 +71,17 @@ export default async (
       } else return transformToEsDonor(donor);
     });
 
-    await esClient.bulk({
-      body: toEsBulkIndexActions<EsDonorDocument>(
-        targetIndexName,
-        (donor) => preExistingDonorHits[donor.donorId]?._id
-      )(esDocuments),
-      refresh: "true",
-    });
+    try {
+      await esClient.bulk({
+        body: toEsBulkIndexActions<EsDonorDocument>(
+          targetIndexName,
+          (donor) => preExistingDonorHits[donor.donorId]?._id
+        )(esDocuments),
+        refresh: "true",
+      });
+    } catch (error) {
+      console.log(`index clinical data --- ${error}`);
+    }
 
     logger.profile(timer);
   }

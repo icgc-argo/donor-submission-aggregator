@@ -144,7 +144,7 @@ describe("indexing programs", () => {
   });
 
   describe("mergeIndexedData", () => {
-    it("must sucessfully clone previously indexed RDPC data when a donor is updated", async function () {
+    it.only("must sucessfully clone previously indexed RDPC data when a donor is updated", async function () {
       // manually create and insert a donor into ES with notable RDPC data
 
       const existingDonor = createDonor(TEST_PROGRAM_SHORT_NAME);
@@ -206,7 +206,7 @@ describe("indexing programs", () => {
       });
     });
 
-    it("must not incorrectly merge any old data for a new unrelated donor", async function () {
+    it.only("must not incorrectly merge any old data for a new unrelated donor", async function () {
       const rdpcInfoKeys: Array<keyof RdpcDonorInfo> = [
         "publishedTumourAnalysis",
         "publishedTumourAnalysis",
@@ -360,11 +360,15 @@ const writeEsDocumentsToIndex = async (
   index: string,
   documents: Array<EsDonorDocument>
 ) => {
-  await client.bulk({
-    body: toEsBulkIndexActions<EsDonorDocument>(
-      index,
-      (donor) => donor.donorId
-    )(documents),
-    refresh: "true",
-  });
+  try {
+    await client.bulk({
+      body: toEsBulkIndexActions<EsDonorDocument>(
+        index,
+        (donor) => donor.donorId
+      )(documents),
+      refresh: "true",
+    });
+  } catch (error) {
+    console.log(`writeEsDocumentsToIndex --- ${error}`);
+  }
 };
