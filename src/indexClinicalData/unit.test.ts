@@ -182,7 +182,7 @@ describe("indexing programs", () => {
   });
 
   describe("mergeIndexedData", () => {
-    it.only("must sucessfully clone previously indexed RDPC data when a donor is updated", async function () {
+    it("must sucessfully clone previously indexed RDPC data when a donor is updated", async function () {
       // manually create and insert a donor into ES with notable RDPC data
 
       const existingDonor = createDonor(TEST_PROGRAM_SHORT_NAME);
@@ -244,7 +244,7 @@ describe("indexing programs", () => {
       });
     });
 
-    it.only("must not incorrectly merge any old data for a new unrelated donor", async function () {
+    it("must not incorrectly merge any old data for a new unrelated donor", async function () {
       const rdpcInfoKeys: Array<keyof RdpcDonorInfo> = [
         "publishedTumourAnalysis",
         "publishedTumourAnalysis",
