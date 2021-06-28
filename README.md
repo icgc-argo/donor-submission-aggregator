@@ -40,7 +40,10 @@ For local devlopment, you can post messages to trigger indexing:
 }
 ```
 
-- for `song_analysis`, make a `POST` request to `http://localhost:8082/topics/song_analysis`, request body can be:
+- for `song_analysis`, there are 2 types of messages:
+- Type 1:
+  - Message to index the entire program
+  - How to post a test message: make a `POST` request to `http://localhost:8082/topics/song_analysis`, must provide `studyId` and `type` in request body:
 
 ```
 {
@@ -53,23 +56,46 @@ For local devlopment, you can post messages to trigger indexing:
            "studyId": "PACA-CA"
        }
    }
-
  ]
+}
+```
+
+- Type 2: Incremental update:
+  - Message to update certain donors within a program
+  - Must include `studyId`, `analysisId` in the request body
+
+```
+{
+"records":
+[
+  {
+      "key": "ROSI-RU",
+      "value": {
+          "analysisId": "6e2cdfbe-59bb-4c7c-acdf-be59bb7c7c26",
+          "studyId" : "ROSI-RU",
+          "state" : "UNPUBLISHED",
+          "action" : "PUBLISH",
+          "songServerId" : "song.collab"
+      }
+  }
+]
 }
 ```
 
 - for `donor_aggregator_program_queues`, a sample message looks like:
 
 ```
+
 {
-   "topic": "donor_aggregator_program_queues",
-   "key": "OCCAMS-GB",
-   "value": "{
-     "programId":"OCCAMS-GB",
-     "type":"SYNC",
-     "rdpcGatewayUrls": ["https://api.rdpc.cancercollaboratory.org/graphql"]
-     }",
- }
+"topic": "donor_aggregator_program_queues",
+"key": "OCCAMS-GB",
+"value": "{
+"programId":"OCCAMS-GB",
+"type":"SYNC",
+"rdpcGatewayUrls": ["https://api.rdpc.cancercollaboratory.org/graphql"]
+}",
+}
+
 ```
 
 - Topic `donor_aggregator_program_queues` stores messages collected from `PROGRAM_UPDATE` and `song_analysis`.
@@ -82,7 +108,9 @@ For local devlopment, you can post messages to trigger indexing:
 
 This event is published by argo-clinical service, donor aggregator listens to topic `PROGRAM_UPDATE` for new events and starts indexing the program clinical data.
 
-- RDPC
+-
+
+* RDPC
 
 This event is published by RDPC, donor aggregator listens to topic `song_analysis` for new events and starts querying RDPC API for analyses data, when complete, it starts indexing the entire program if no `analysis_id` is provided in the message.
 

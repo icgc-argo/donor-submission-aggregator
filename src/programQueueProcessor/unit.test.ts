@@ -30,7 +30,6 @@ import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 import { generateIndexName } from "./util";
 import { getIndexSettings, getLatestIndexName } from "elasticsearch";
 import { EgoAccessToken, EgoJwtManager } from "auth";
-import { Action } from "rdpc/query/types";
 import {
   mockAnalysesWithSpecimensFetcher,
   mockAnalysisFetcher,
@@ -605,7 +604,6 @@ describe("kafka integration", () => {
         type: programQueueProcessor.knownEventTypes.RDPC,
         rdpcGatewayUrls: [""], // the urls don't matter since we're mocking all the rdpc fetchers
         analysisId: testAnalysis.analysisId,
-        action: Action.PUBLISH,
       });
 
       // wait for indexing to complete

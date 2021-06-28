@@ -1,5 +1,4 @@
 import logger from "logger";
-import { Action } from "rdpc/query/types";
 import { isNotAbsent } from "utils";
 
 const parseRdpcProgramUpdateEvent = (
@@ -10,7 +9,7 @@ const parseRdpcProgramUpdateEvent = (
     return obj;
   } else {
     logger.warn(
-      "Failed to process message. Message must have studyId, and/or analysisId + action, it's either not a RDPC update event or message has invalid/missing fields."
+      "Failed to process message. Message must have studyId, and/or analysisId, it's either not a RDPC update event or message has invalid/missing fields."
     );
     return {
       studyId: "",
@@ -28,7 +27,6 @@ type RdpcProgramUpdateEvent = {
   studyId: string;
   state?: RDPC_EVENT_STATE;
   analysisId?: string;
-  action?: Action;
 };
 
 const isProgramUpdateEvent = (
@@ -38,16 +36,6 @@ const isProgramUpdateEvent = (
     const event = data as RdpcProgramUpdateEvent;
 
     if (isNotAbsent(event.studyId) && typeof event.studyId === "string") {
-      // analysisId and action are optional in the message,
-      // when they are not present, only studyId is required for indexing the entire program,
-      // when they are present, hey must both exist as they are needed
-      // for fetchDonorIdsByAnalysis.
-      if (
-        (isNotAbsent(event.analysisId) && !isNotAbsent(event.action)) ||
-        (!isNotAbsent(event.analysisId) && isNotAbsent(event.action))
-      ) {
-        return false;
-      }
       return true;
     }
     return false;

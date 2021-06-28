@@ -2,15 +2,12 @@ import { EgoAccessToken, EgoJwtManager } from "auth";
 import logger from "logger";
 import fetch from "node-fetch";
 import promiseRetry from "promise-retry";
-import { AnalysisState } from "rdpc/types";
-import { Action } from "./types";
 
 const query = `
-query($analysisId: String, $analysisState: AnalysisState ) {
+query($analysisId: String ) {
   analyses(
     filter: {
       analysisId: $analysisId
-      analysisState: $analysisState
     }
   ) {
     content{
@@ -34,17 +31,14 @@ type QueryResponseData = {
 
 type QueryVariable = {
   analysisId: string;
-  analysisState: string;
 };
 
 const fetchDonorIdsByAnalysis = async ({
   analysisId,
-  action,
   rdpcUrl,
   egoJwtManager,
 }: {
   analysisId: string;
-  action: string;
   rdpcUrl: string;
   egoJwtManager: EgoJwtManager;
 }) => {
@@ -52,15 +46,13 @@ const fetchDonorIdsByAnalysis = async ({
   const accessToken = jwt.access_token;
   return await promiseRetry<string[]>(async (retry) => {
     try {
-      const analysisState = determineAnalysisState(action);
       const body = JSON.stringify({
         query,
         variables: {
           analysisId,
-          analysisState,
         } as QueryVariable,
       });
-      logger.info(`RDPC API Request body: ${body}`);
+      logger.info(`fetchDonorIdsByAnalysis: RDPC API Request body: ${body}`);
       const output = await fetch(rdpcUrl, {
         method: "POST",
         headers: {
@@ -108,22 +100,6 @@ const retryConfig = {
   retries: 3,
   minTimeout: 1000,
   maxTimeout: Infinity,
-};
-
-const determineAnalysisState = (action: string) => {
-  let analysisState = "";
-  switch (action) {
-    case Action.PUBLISH:
-      analysisState = AnalysisState.PUBLISHED;
-      break;
-    case Action.UNPUBLISH:
-      analysisState = AnalysisState.UNPUBLISHED;
-      break;
-    case Action.SUPPRESS:
-      analysisState = AnalysisState.SUPPRESSED;
-      break;
-  }
-  return analysisState;
 };
 
 export default fetchDonorIdsByAnalysis;

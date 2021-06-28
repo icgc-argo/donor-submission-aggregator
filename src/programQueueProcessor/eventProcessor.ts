@@ -226,7 +226,6 @@ const createEventProcessor = async ({
                   fetchVC,
                   fetchDonorIds,
                   analysisId: queuedEvent.analysisId,
-                  action: queuedEvent.action,
                 });
               }
               break;

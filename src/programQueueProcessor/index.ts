@@ -68,6 +68,7 @@ const createProgramQueueProcessor = async ({
 
   const enqueueEvent = async (event: QueueRecord) => {
     await producer.send(createProgramQueueRecord(event));
+    logger.debug(`enqueuing event: ${JSON.stringify(event)}`);
     logger.info(`enqueued ${event.type} event for program ${event.programId}`);
   };
 
