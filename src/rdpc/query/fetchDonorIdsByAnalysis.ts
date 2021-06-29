@@ -52,7 +52,6 @@ const fetchDonorIdsByAnalysis = async ({
           analysisId,
         } as QueryVariable,
       });
-      logger.info(`fetchDonorIdsByAnalysis: RDPC API Request body: ${body}`);
       const output = await fetch(rdpcUrl, {
         method: "POST",
         headers: {
@@ -63,9 +62,6 @@ const fetchDonorIdsByAnalysis = async ({
       })
         .then((res) => {
           const jsonResponse = res.json();
-          logger.info(
-            `RDPC-API Response for analisys: ${JSON.stringify(jsonResponse)}`
-          );
           return jsonResponse;
         })
         .then((res: { data: QueryResponseData }) => {
