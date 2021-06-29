@@ -124,6 +124,9 @@ import { isNotEmptyString } from "utils";
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: async ({ topic, message }) => {
       logger.info(`received event from topic ${topic}`);
+      logger.debug(
+        `message offset: ${message.offset} in topic ${topic}, message timestamp: ${message.timestamp}`
+      );
       if (message && message.value) {
         switch (topic) {
           case CLINICAL_PROGRAM_UPDATE_TOPIC:
@@ -154,7 +157,6 @@ import { isNotEmptyString } from "utils";
                   type: programQueueProcessor.knownEventTypes.RDPC,
                   rdpcGatewayUrls: [RDPC_URL],
                   analysisId: event.analysisId,
-                  action: event.action,
                 });
               } else {
                 await programQueueProcessor.sendDlqMessage(
