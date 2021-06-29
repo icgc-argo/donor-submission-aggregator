@@ -2,15 +2,12 @@ import { EgoAccessToken, EgoJwtManager } from "auth";
 import logger from "logger";
 import fetch from "node-fetch";
 import promiseRetry from "promise-retry";
-import { AnalysisState } from "rdpc/types";
-import { Action } from "./types";
 
 const query = `
-query($analysisId: String, $analysisState: AnalysisState ) {
+query($analysisId: String ) {
   analyses(
     filter: {
       analysisId: $analysisId
-      analysisState: $analysisState
     }
   ) {
     content{
@@ -34,17 +31,14 @@ type QueryResponseData = {
 
 type QueryVariable = {
   analysisId: string;
-  analysisState: string;
 };
 
 const fetchDonorIdsByAnalysis = async ({
   analysisId,
-  action,
   rdpcUrl,
   egoJwtManager,
 }: {
   analysisId: string;
-  action: string;
   rdpcUrl: string;
   egoJwtManager: EgoJwtManager;
 }) => {
@@ -52,22 +46,24 @@ const fetchDonorIdsByAnalysis = async ({
   const accessToken = jwt.access_token;
   return await promiseRetry<string[]>(async (retry) => {
     try {
-      const analysisState = determineAnalysisState(action);
+      const body = JSON.stringify({
+        query,
+        variables: {
+          analysisId,
+        } as QueryVariable,
+      });
       const output = await fetch(rdpcUrl, {
         method: "POST",
         headers: {
           "Content-type": "application/json",
           authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({
-          query,
-          variables: {
-            analysisId,
-            analysisState,
-          } as QueryVariable,
-        }),
+        body,
       })
-        .then((res) => res.json())
+        .then((res) => {
+          const jsonResponse = res.json();
+          return jsonResponse;
+        })
         .then((res: { data: QueryResponseData }) => {
           const { data } = res;
           if (data.analyses.content) {
@@ -100,22 +96,6 @@ const retryConfig = {
   retries: 3,
   minTimeout: 1000,
   maxTimeout: Infinity,
-};
-
-const determineAnalysisState = (action: string) => {
-  let analysisState = "";
-  switch (action) {
-    case Action.PUBLISH:
-      analysisState = AnalysisState.PUBLISHED;
-      break;
-    case Action.UNPUBLISH:
-      analysisState = AnalysisState.UNPUBLISHED;
-      break;
-    case Action.SUPPRESS:
-      analysisState = AnalysisState.SUPPRESSED;
-      break;
-  }
-  return analysisState;
 };
 
 export default fetchDonorIdsByAnalysis;

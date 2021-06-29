@@ -11,7 +11,6 @@ export type QueueRecord = { programId: string; requeued?: boolean } & (
       type: KnownEventType.RDPC;
       rdpcGatewayUrls: Array<string>;
       analysisId?: string;
-      action?: string;
     }
   | {
       type: KnownEventType.SYNC;

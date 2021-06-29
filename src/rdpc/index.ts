@@ -38,7 +38,6 @@ export const indexRdpcData = async ({
   fetchVC = fetchVariantCallingAnalyses,
   fetchDonorIds = fetchDonorIdsByAnalysis,
   analysisId,
-  action,
 }: {
   programId: string;
   rdpcUrl: string;
@@ -49,21 +48,18 @@ export const indexRdpcData = async ({
   fetchVC?: typeof fetchVariantCallingAnalyses; // optional only for test
   analysesWithSpecimensFetcher?: typeof fetchAnalysesWithSpecimens; // optional only for test
   analysisId?: string;
-  action?: string;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
 }) => {
   logger.info(`Processing program: ${programId} from ${rdpcUrl}.`);
   const config = { chunkSize: STREAM_CHUNK_SIZE };
 
-  const donorIdsToFilterBy =
-    analysisId && action
-      ? await fetchDonorIds({
-          rdpcUrl,
-          analysisId,
-          action,
-          egoJwtManager,
-        })
-      : undefined;
+  const donorIdsToFilterBy = analysisId
+    ? await fetchDonorIds({
+        rdpcUrl,
+        analysisId,
+        egoJwtManager,
+      })
+    : undefined;
 
   // contains 3 fields:
   // publishedNormalAnalysis, publishedTumourAnalysis, rawReadsFirstPublishedDate
