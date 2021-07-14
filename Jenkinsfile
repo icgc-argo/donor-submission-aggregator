@@ -23,9 +23,9 @@ spec:
   - name: docker
     image: docker:18-git
     tty: true
-    volumeMounts:
-    - mountPath: /var/run/docker.sock
-      name: docker-sock
+    env:
+    - name: DOCKER_HOST
+      value: tcp://localhost:2375
   - name: dind-daemon
     image: docker:18.06-dind
     args: ["--registry-mirror", "https://registry.dev.argo.cancercollaboratory.org"]
@@ -37,10 +37,6 @@ spec:
   volumes:
   - name: docker-graph-storage
     emptyDir: {}
-  - name: docker-sock
-    hostPath:
-      path: /var/run/docker.sock
-      type: File
 """
         }
     }
