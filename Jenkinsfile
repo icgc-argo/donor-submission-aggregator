@@ -31,9 +31,12 @@ spec:
     args: ["--registry-mirror", "https://registry.dev.argo.cancercollaboratory.org"]
     securityContext:
       privileged: true
+      runAsUser: 0
     volumeMounts:
     - name: docker-graph-storage
       mountPath: /var/lib/docker
+  securityContext:
+    runAsUser: 1000
   volumes:
   - name: docker-graph-storage
     emptyDir: {}
