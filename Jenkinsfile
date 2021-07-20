@@ -26,6 +26,8 @@ spec:
     env:
     - name: DOCKER_HOST
       value: tcp://localhost:2375
+    - name: HOME
+      value: /home/jenkins/agent
   - name: dind-daemon
     image: docker:18.06-dind
     args: ["--registry-mirror", "https://registry.dev.argo.cancercollaboratory.org"]
