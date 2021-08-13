@@ -38,6 +38,7 @@ export const createEgoJwtManager = async (): Promise<EgoJwtManager> => {
         return await getJwt();
       case false:
         const isTokenValid = egoTokenUtil.isValidJwt(cachedJwt.access_token);
+        // todo remove loggings once jwt issue is gone.
         logger.info(`Is current JWT token valid? ${isTokenValid}`);
         isTokenValid
           ? logger.info(
