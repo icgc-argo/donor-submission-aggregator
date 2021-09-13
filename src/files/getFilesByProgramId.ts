@@ -1,0 +1,52 @@
+import { EgoAccessToken, EgoJwtManager } from "auth";
+import { FILES_SERVICE_URL, FILES_STREAM_SIZE } from "config";
+import logger from "logger";
+import fetch from "node-fetch";
+import promiseRetry from "promise-retry";
+import { File } from "./types";
+
+export const getFilesByProgramId = async (
+  egoJwtManager: EgoJwtManager,
+  programId: string,
+  page: number
+): Promise<File[]> => {
+  const jwt = (await egoJwtManager.getLatestJwt()) as EgoAccessToken;
+  const accessToken = jwt.access_token;
+  const url = `${FILES_SERVICE_URL}/files?page=${page}&limit=${FILES_STREAM_SIZE}&programId=${programId}`;
+
+  logger.info(`Getting files from: ${url}`);
+
+  return await promiseRetry<File[]>(async (retry) => {
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json",
+          authorization: `Bearer ${accessToken}`,
+        },
+      });
+      const jsonResponse = await response.json();
+      const hasError = jsonResponse.errors?.length > 0;
+      if (hasError) {
+        const error = JSON.stringify(jsonResponse.errors);
+        logger.error(`Received error from files-service: ${error}`);
+        throw new Error(error);
+      }
+      return jsonResponse.files as File[];
+    } catch (err) {
+      logger.warn(`Failed to get files of program ${programId}, retrying...`);
+      return retry(err);
+    }
+  }, retryConfig).catch((err) => {
+    logger.error(`Failed to get files of program ${programId} from files-service after
+      ${retryConfig.retries} attempts: ${err}`);
+    throw err;
+  });
+};
+
+const retryConfig = {
+  factor: 2,
+  retries: 3,
+  minTimeout: 3000,
+  maxTimeout: Infinity,
+};

@@ -15,6 +15,7 @@ import fetchAnalyses from "rdpc/query/fetchAnalyses";
 import { EgoJwtManager } from "auth";
 import _ from "lodash";
 import { RdpcDonorInfo } from "indexClinicalData/types";
+import { DonorMolecularDataReleaseStatus } from "files/types";
 
 type StreamState = {
   currentPage: number;
@@ -424,7 +425,7 @@ export const initialRdpcInfo: Readonly<RdpcDonorInfo> = Object.freeze({
   mutectFailed: 0,
   totalFilesCount: 0,
   filesToQcCount: 0,
-  releaseStatus: "NO_RELEASE",
+  releaseStatus: DonorMolecularDataReleaseStatus.NO_RELEASE,
   processingStatus: "REGISTERED",
 });
 
@@ -479,7 +480,7 @@ export const mergeDonorInfo = (
           (acc[donorId]?.totalFilesCount || 0) + rdpcInfo.totalFilesCount,
         filesToQcCount:
           (acc[donorId]?.filesToQcCount || 0) + rdpcInfo.filesToQcCount,
-        releaseStatus: "NO_RELEASE",
+        releaseStatus: rdpcInfo.releaseStatus,
         processingStatus: "REGISTERED",
       };
       return acc;

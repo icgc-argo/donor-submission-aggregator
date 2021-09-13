@@ -1,3 +1,4 @@
+import { DonorMolecularDataReleaseStatus } from "files/types";
 import { EsDonorDocument } from "indexClinicalData/types";
 
 // DonorIds of clinicalDataset
@@ -17,7 +18,7 @@ export const testDonorIds = [
 export const clinicalDataset: EsDonorDocument[] = [
   {
     validWithCurrentDictionary: true,
-    releaseStatus: "NO_RELEASE",
+    releaseStatus: DonorMolecularDataReleaseStatus.NO_RELEASE,
     donorId: "DO35082",
     submitterDonorId: "PCSI_0001",
     programId: "TEST-CA",
@@ -44,7 +45,7 @@ export const clinicalDataset: EsDonorDocument[] = [
   },
   {
     validWithCurrentDictionary: true,
-    releaseStatus: "NO_RELEASE",
+    releaseStatus: DonorMolecularDataReleaseStatus.NO_RELEASE,
     donorId: "DO35083",
     submitterDonorId: "PCSI_0002",
     programId: "TEST-CA",
@@ -71,7 +72,7 @@ export const clinicalDataset: EsDonorDocument[] = [
   },
   {
     validWithCurrentDictionary: true,
-    releaseStatus: "NO_RELEASE",
+    releaseStatus: DonorMolecularDataReleaseStatus.NO_RELEASE,
     donorId: "DO35084",
     submitterDonorId: "PCSI_0003",
     programId: "TEST-CA",
@@ -98,7 +99,7 @@ export const clinicalDataset: EsDonorDocument[] = [
   },
   {
     validWithCurrentDictionary: true,
-    releaseStatus: "NO_RELEASE",
+    releaseStatus: DonorMolecularDataReleaseStatus.NO_RELEASE,
     donorId: "DO35085",
     submitterDonorId: "PCSI_0004",
     programId: "TEST-CA",
@@ -125,7 +126,7 @@ export const clinicalDataset: EsDonorDocument[] = [
   },
   {
     validWithCurrentDictionary: true,
-    releaseStatus: "NO_RELEASE",
+    releaseStatus: DonorMolecularDataReleaseStatus.NO_RELEASE,
     donorId: "DO35086",
     submitterDonorId: "PCSI_0005",
     programId: "TEST-CA",
@@ -152,7 +153,7 @@ export const clinicalDataset: EsDonorDocument[] = [
   },
   {
     validWithCurrentDictionary: true,
-    releaseStatus: "NO_RELEASE",
+    releaseStatus: DonorMolecularDataReleaseStatus.NO_RELEASE,
     donorId: "DO35087",
     submitterDonorId: "PCSI_0006",
     programId: "TEST-CA",
@@ -179,7 +180,7 @@ export const clinicalDataset: EsDonorDocument[] = [
   },
   {
     validWithCurrentDictionary: true,
-    releaseStatus: "NO_RELEASE",
+    releaseStatus: DonorMolecularDataReleaseStatus.NO_RELEASE,
     donorId: "DO35088",
     submitterDonorId: "PCSI_0007",
     programId: "TEST-CA",
@@ -206,7 +207,7 @@ export const clinicalDataset: EsDonorDocument[] = [
   },
   {
     validWithCurrentDictionary: true,
-    releaseStatus: "NO_RELEASE",
+    releaseStatus: DonorMolecularDataReleaseStatus.NO_RELEASE,
     donorId: "DO35089",
     submitterDonorId: "PCSI_0008",
     programId: "TEST-CA",
@@ -233,7 +234,7 @@ export const clinicalDataset: EsDonorDocument[] = [
   },
   {
     validWithCurrentDictionary: true,
-    releaseStatus: "NO_RELEASE",
+    releaseStatus: DonorMolecularDataReleaseStatus.NO_RELEASE,
     donorId: "DO35090",
     submitterDonorId: "PCSI_0009",
     programId: "TEST-CA",
@@ -260,7 +261,7 @@ export const clinicalDataset: EsDonorDocument[] = [
   },
   {
     validWithCurrentDictionary: true,
-    releaseStatus: "NO_RELEASE",
+    releaseStatus: DonorMolecularDataReleaseStatus.NO_RELEASE,
     donorId: "DO35091",
     submitterDonorId: "PCSI_0010",
     programId: "TEST-CA",

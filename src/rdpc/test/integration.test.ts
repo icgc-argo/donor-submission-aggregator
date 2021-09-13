@@ -23,7 +23,7 @@ import { EgoAccessToken, EgoJwtManager } from "auth";
 import fetchAnalysesWithSpecimens from "../query/fetchAnalysesWithSpecimens";
 import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
 
-describe("should index RDPC analyses to donor index", () => {
+describe.only("should index RDPC analyses to donor index", () => {
   let elasticsearchContainer: StartedTestContainer;
   let esClient: Client;
   const ES_PORT = 10092;

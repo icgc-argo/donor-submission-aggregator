@@ -14,14 +14,11 @@ import mongoose from "mongoose";
 import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
 
-import {
-  EsDonorDocument,
-  DonorMolecularDataReleaseStatus,
-  RdpcDonorInfo,
-} from "./types";
+import { EsDonorDocument, RdpcDonorInfo } from "./types";
 import { initIndexMapping, toEsBulkIndexActions } from "elasticsearch";
 import { esDonorId } from "./utils";
 import { mean, range, random } from "lodash";
+import { DonorMolecularDataReleaseStatus } from "files/types";
 
 const TEST_PROGRAM_SHORT_NAME = "TESTPROG-CA";
 const DB_COLLECTION_SIZE = 10010;
@@ -194,7 +191,7 @@ describe("indexing programs", () => {
         alignmentsCompleted: 44,
         sangerVcsCompleted: 55,
         totalFilesCount: 66,
-        releaseStatus: "PARTIALLY_RELEASED" as DonorMolecularDataReleaseStatus,
+        releaseStatus: DonorMolecularDataReleaseStatus.PARTIALLY_RELEASED,
       };
 
       const preExistingEsDonor: EsDonorDocument = {
