@@ -10,43 +10,9 @@ import {
   FileReleaseState,
 } from "./types";
 
-export const getFilesByPage = async ({
-  filesFetcher,
-  egoJwtManager,
-  programId,
-  donorIds,
-}: {
-  programId: string;
-  egoJwtManager: EgoJwtManager;
-  donorIds?: string[];
-  filesFetcher: typeof getFilesByProgramId;
-}): Promise<StringMap<File[]>> => {
-  const donorFiles: StringMap<File[]> = {};
-
-  // todo query file service for file[] by donorIds, will be done under ticket 216
-  if (donorIds) {
-    for (const donorId of donorIds) {
-      logger.info(`streaming analyses for donor ${donorId}`);
-      const stream = fileStream(programId, egoJwtManager, filesFetcher);
-      for await (const page of stream) {
-        logger.info(
-          `Streaming ${page.length} of files for donorId ${donorId}...`
-        );
-        const filesPerPage = groupFilesByDonorId(page);
-        mergeAllPages(donorFiles, filesPerPage);
-      }
-    }
-  } else {
-    const stream = fileStream(programId, egoJwtManager, filesFetcher);
-    for await (const page of stream) {
-      logger.info(`Streaming ${page.length} files...`);
-      const filesPerPage = groupFilesByDonorId(page);
-      mergeAllPages(donorFiles, filesPerPage);
-    }
-  }
-  return donorFiles;
-};
-
+/** Gets file data from file-service, group files by donorId, and determine
+ *  donor's file release status based on the number of file status.
+ */
 export const determineReleaseStatus = async (
   programId: string,
   egoJwtManager: EgoJwtManager,
@@ -64,7 +30,6 @@ export const determineReleaseStatus = async (
 
   Object.entries(files).forEach(([donorId, files]) => {
     const filesByReleaseState = _.groupBy(files, (file) => file.releaseState);
-    console.log(`filesByReleaseState-- ${JSON.stringify(filesByReleaseState)}`);
     const releaseStates = Object.keys(filesByReleaseState);
 
     initializeRdpcInfo(result, donorId);
@@ -100,7 +65,7 @@ export const determineReleaseStatus = async (
 
       case 3:
         // PARTIALLY_RELEASED - a mix of PUBLIC and RESTRICTED or QUEUED amongst their files.
-        result[donorId].releaseStatus ==
+        result[donorId].releaseStatus =
           DonorMolecularDataReleaseStatus.PARTIALLY_RELEASED;
         break;
 
@@ -108,9 +73,44 @@ export const determineReleaseStatus = async (
         break;
     }
   });
-
-  console.log(`result-- ${JSON.stringify(result)}`);
   return result;
+};
+
+const getFilesByPage = async ({
+  filesFetcher,
+  egoJwtManager,
+  programId,
+  donorIds,
+}: {
+  programId: string;
+  egoJwtManager: EgoJwtManager;
+  donorIds?: string[];
+  filesFetcher: typeof getFilesByProgramId;
+}): Promise<StringMap<File[]>> => {
+  const donorFiles: StringMap<File[]> = {};
+
+  // todo query file service for file[] by donorIds, will be implemeted in ticket 216
+  if (donorIds) {
+    for (const donorId of donorIds) {
+      logger.info(`streaming files for donor ${donorId}`);
+      const stream = fileStream(programId, egoJwtManager, filesFetcher);
+      for await (const page of stream) {
+        logger.info(
+          `Streaming ${page.length} of files for donorId ${donorId}...`
+        );
+        const filesPerPage = groupFilesByDonorId(page);
+        mergeAllPages(donorFiles, filesPerPage);
+      }
+    }
+  } else {
+    const stream = fileStream(programId, egoJwtManager, filesFetcher);
+    for await (const page of stream) {
+      logger.info(`Streaming ${page.length} files...`);
+      const filesPerPage = groupFilesByDonorId(page);
+      mergeAllPages(donorFiles, filesPerPage);
+    }
+  }
+  return donorFiles;
 };
 
 const fileStream = async function* (
@@ -128,8 +128,6 @@ const fileStream = async function* (
       currentPage
     );
 
-    // in case of api returns less files than chunk size, we need to stream from the last page
-    // to make sure there is no data loss:
     currentPage++;
 
     if (filesPerPage.length > 0) {
@@ -158,9 +156,7 @@ const groupFilesByDonorId = (files: File[]): StringMap<File[]> => {
     } else {
       fileAcc[file.donorId].push(file);
     }
-    // console.log(`fileAcc ----- ${JSON.stringify(fileAcc)}`)
     return fileAcc;
   }, {});
-  // console.log(`result ----- ${JSON.stringify(result)}`)
   return result;
 };

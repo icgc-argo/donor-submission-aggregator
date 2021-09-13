@@ -15,15 +15,11 @@ export const indexFileData = async (
   targetIndexName: string,
   esClient: Client
 ) => {
-  // This funtion calls files-service to get file release state and
-  // populates releaseStatus field:
   const donorFileInfo = await determineReleaseStatus(
     programId,
     egoJwtManager,
-    getFilesByProgramId
+    fetchFileData
   );
-
-  console.log(`donorFileInfoMap.... ${JSON.stringify(donorFileInfo)}`);
 
   const donorIds = Object.keys(donorFileInfo);
   const esHits = await queryDocumentsByDonorIds(

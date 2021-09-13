@@ -91,7 +91,7 @@ describe("should index file data", () => {
     });
   });
 
-  it.only("should convert file data from files-service and populate releaseStatus field in ES index.", async () => {
+  it("should convert file data from files-service and populate releaseStatus field in ES index.", async () => {
     const { body: exists } = await esClient.indices.exists({
       index: INDEX_NAME,
     });
