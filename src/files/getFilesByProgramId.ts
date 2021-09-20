@@ -3,6 +3,8 @@ import { FILES_SERVICE_URL, FILES_STREAM_SIZE } from "config";
 import logger from "logger";
 import fetch from "node-fetch";
 import promiseRetry from "promise-retry";
+import { URL } from "url";
+import urljoin from "url-join";
 import { File } from "./types";
 
 export const getFilesByProgramId = async (
@@ -12,13 +14,15 @@ export const getFilesByProgramId = async (
 ): Promise<File[]> => {
   const jwt = (await egoJwtManager.getLatestJwt()) as EgoAccessToken;
   const accessToken = jwt.access_token;
-  const url = `${FILES_SERVICE_URL}/files?page=${page}&limit=${FILES_STREAM_SIZE}&programId=${programId}`;
-
-  logger.info(`Getting files from: ${url}`);
+  const fileQueryUrl = new URL(urljoin(FILES_SERVICE_URL, "files"));
+  fileQueryUrl.searchParams.append("page", page.toString());
+  fileQueryUrl.searchParams.append("limit", FILES_STREAM_SIZE.toString());
+  fileQueryUrl.searchParams.append("programId", programId);
+  logger.info(`Getting files from: ${fileQueryUrl}`);
 
   return await promiseRetry<File[]>(async (retry) => {
     try {
-      const response = await fetch(url, {
+      const response = await fetch(fileQueryUrl, {
         method: "GET",
         headers: {
           "Content-type": "application/json",

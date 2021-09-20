@@ -35,6 +35,11 @@ export const determineReleaseStatus = async (
     initializeRdpcInfo(result, donorId);
 
     switch (releaseStates.length) {
+      case 0:
+        // 0 release status should never occur, but bad data could happen.
+        result[donorId].releaseStatus =
+          DonorMolecularDataReleaseStatus.NO_RELEASE;
+
       case 1:
         // FULLY_RELEASED - all files for donor have release_state of PUBLIC
         if (releaseStates[0] === FileReleaseState.PUBLIC) {
@@ -69,7 +74,13 @@ export const determineReleaseStatus = async (
           DonorMolecularDataReleaseStatus.PARTIALLY_RELEASED;
         break;
 
+      // Intentionally fall through to default so we can handle 3 or more states. More than 3 states should never occur.
       default:
+        result[donorId].releaseStatus =
+          DonorMolecularDataReleaseStatus.PARTIALLY_RELEASED;
+        logger.error(
+          `[filesProcessor]: donor id ${donorId} has more than 3 file release status than should be possible.`
+        );
         break;
     }
   });
@@ -89,7 +100,7 @@ const getFilesByPage = async ({
 }): Promise<StringMap<File[]>> => {
   const donorFiles: StringMap<File[]> = {};
 
-  // todo query file service for file[] by donorIds, will be implemeted in ticket 216
+  // TODO query file service for file[] by donorIds, will be implemeted in ticket 216
   if (donorIds) {
     for (const donorId of donorIds) {
       logger.info(`streaming files for donor ${donorId}`);

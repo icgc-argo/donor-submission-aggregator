@@ -13,12 +13,10 @@ export const EGO_CLIENT_ID =
 export const EGO_CLIENT_SECRET =
   process.env.EGO_CLIENT_SECRET || "donor-submission-aggregator-secret";
 export const EGO_PUBLIC_KEY = process.env.EGO_PUBLIC_KEY as string;
-export const RDPC_URL =
-  process.env.RDPC_URL || "https://api.rdpc-qa.cancercollaboratory.org/graphql";
+export const RDPC_URL = process.env.RDPC_URL || "http://localhost:8000";
 
 export const FILES_SERVICE_URL =
-  process.env.FILES_SERVICE_URL ||
-  "https://files.qa.argo.cancercollaboratory.org";
+  process.env.FILES_SERVICE_URL || "http://localhost:8000";
 export const MONGO_URL =
   process.env.MONGO_URL || "mongodb://localhost:27017/clinical";
 export const MONGO_USER = process.env.MONGO_USER;
@@ -170,4 +168,4 @@ export const FEATURE_RDPC_INDEXING_ENABLED =
   process.env.FEATURE_RDPC_INDEXING_ENABLED === "true";
 
 export const FEATURE_INDEX_FILE_ENABLED =
-  process.env.FEATURE_INDEX_FILE_ENABLED === "true";
+  process.env.FEATURE_INDEX_FILE_ENABLED === "false";
