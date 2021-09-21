@@ -1,3 +1,4 @@
+import { DonorMolecularDataReleaseStatus } from "files/types";
 import { DonorInfoMap, RunState } from "rdpc/types";
 
 export const donorCentric_page_1_exptected = {
@@ -142,7 +143,7 @@ export const donorStateMap_expected: DonorInfoMap = {
     mutectFailed: 0,
     totalFilesCount: 0,
     filesToQcCount: 0,
-    releaseStatus: "NO_RELEASE",
+    releaseStatus: DonorMolecularDataReleaseStatus.NO_RELEASE,
     processingStatus: "REGISTERED",
   },
   DO35228: {
@@ -159,7 +160,7 @@ export const donorStateMap_expected: DonorInfoMap = {
     mutectFailed: 0,
     totalFilesCount: 0,
     filesToQcCount: 0,
-    releaseStatus: "NO_RELEASE",
+    releaseStatus: DonorMolecularDataReleaseStatus.NO_RELEASE,
     processingStatus: "REGISTERED",
   },
   DO35198: {
@@ -176,7 +177,7 @@ export const donorStateMap_expected: DonorInfoMap = {
     mutectFailed: 0,
     totalFilesCount: 0,
     filesToQcCount: 0,
-    releaseStatus: "NO_RELEASE",
+    releaseStatus: DonorMolecularDataReleaseStatus.NO_RELEASE,
     processingStatus: "REGISTERED",
   },
 };

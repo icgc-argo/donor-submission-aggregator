@@ -11,15 +11,22 @@ import {
 } from "elasticsearch";
 import withRetry from "promise-retry";
 import logger from "logger";
-import { KnownEventType, ProgramQueueProcessor, QueueRecord } from "./types";
+import { KnownEventType, ProgramQueueProcessor } from "./types";
 import { indexRdpcData } from "rdpc/index";
 import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 import fetchAnalyses from "rdpc/query/fetchAnalyses";
 import fetchDonorIdsByAnalysis from "rdpc/query/fetchDonorIdsByAnalysis";
-import { DLQ_TOPIC_NAME, RETRY_CONFIG_RDPC_GATEWAY } from "config";
+import {
+  DLQ_TOPIC_NAME,
+  FEATURE_INDEX_FILE_ENABLED,
+  FILES_STREAM_SIZE,
+  RETRY_CONFIG_RDPC_GATEWAY,
+} from "config";
 import { EgoJwtManager } from "auth";
 import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
 import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
+import { indexFileData } from "files";
+import { getFilesByProgramId } from "files/getFilesByProgramId";
 
 const handleIndexingFailure = async ({
   esClient,
@@ -164,6 +171,7 @@ const createEventProcessor = async ({
   analysesWithSpecimensFetcher = fetchAnalysesWithSpecimens,
   fetchVC = fetchVariantCallingAnalyses,
   fetchDonorIds = fetchDonorIdsByAnalysis,
+  fileData = getFilesByProgramId,
   statusReporter,
   sendDlqMessage,
 }: {
@@ -175,6 +183,7 @@ const createEventProcessor = async ({
   analysesWithSpecimensFetcher?: typeof fetchAnalysesWithSpecimens;
   fetchVC?: typeof fetchVariantCallingAnalyses;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
+  fileData?: typeof getFilesByProgramId;
   statusReporter?: StatusReporter;
 }) => {
   return async ({ message, topic }: EachMessagePayload) => {
@@ -231,7 +240,7 @@ const createEventProcessor = async ({
               break;
             case KnownEventType.SYNC:
               // Generate Clinical and RPDC data for all analyses. We expect an empty index here (doClone = false)
-              //   so all donor data for this program needs to be gathered and added before release.
+              // so all donor data for this program needs to be gathered and added before release.
               await indexClinicalData(programId, targetIndexName, esClient);
               for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
                 await indexRdpcData({
@@ -245,6 +254,16 @@ const createEventProcessor = async ({
                   fetchVC,
                   fetchDonorIds,
                 });
+              }
+
+              if (FEATURE_INDEX_FILE_ENABLED) {
+                await indexFileData(
+                  programId,
+                  egoJwtManager,
+                  fileData,
+                  targetIndexName,
+                  esClient
+                );
               }
               break;
           }

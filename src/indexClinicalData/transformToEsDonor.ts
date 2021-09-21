@@ -1,3 +1,4 @@
+import { DonorMolecularDataReleaseStatus } from "files/types";
 import { MongoDonorDocument } from "indexClinicalData/clinicalMongo/donorModel";
 import { EsDonorDocument, ClinicalDonorInfo, RdpcDonorInfo } from "./types";
 import { esDonorId } from "./utils";
@@ -21,7 +22,7 @@ const defaultRDPCInfo: RdpcDonorInfo = {
   totalFilesCount: 0,
   filesToQcCount: 0,
 
-  releaseStatus: "NO_RELEASE",
+  releaseStatus: DonorMolecularDataReleaseStatus.NO_RELEASE,
   processingStatus: "REGISTERED",
 };
 
@@ -37,7 +38,8 @@ export default (
     submitterDonorId: mongoDoc.submitterId,
     programId: mongoDoc.programId,
 
-    submittedCoreDataPercent: mongoDoc.completionStats?.coreCompletionPercentage || 0,
+    submittedCoreDataPercent:
+      mongoDoc.completionStats?.coreCompletionPercentage || 0,
 
     submittedExtendedDataPercent: submittedExtendedDataPercent,
 
@@ -54,12 +56,14 @@ export default (
   };
 
   if (mongoDoc.completionStats?.coreCompletionDate) {
-    clinicalData.coreCompletionDate = new Date(mongoDoc.completionStats.coreCompletionDate);
+    clinicalData.coreCompletionDate = new Date(
+      mongoDoc.completionStats.coreCompletionDate
+    );
   }
 
-  return { 
+  return {
     ...defaultRDPCInfo,
     ...(existingEsData || {}),
-    ...clinicalData
+    ...clinicalData,
   };
 };

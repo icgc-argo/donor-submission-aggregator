@@ -22,6 +22,7 @@ export enum KnownEventType {
   CLINICAL = "CLINICAL",
   RDPC = "RDPC",
   SYNC = "SYNC",
+  FILE = "FILE",
 }
 
 export type ProgramQueueProcessor = {
