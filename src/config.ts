@@ -168,4 +168,4 @@ export const FEATURE_RDPC_INDEXING_ENABLED =
   process.env.FEATURE_RDPC_INDEXING_ENABLED === "true";
 
 export const FEATURE_INDEX_FILE_ENABLED =
-  process.env.FEATURE_INDEX_FILE_ENABLED === "false";
+  process.env.FEATURE_INDEX_FILE_ENABLED === "true";
