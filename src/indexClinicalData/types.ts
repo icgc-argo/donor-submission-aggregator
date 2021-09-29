@@ -1,7 +1,4 @@
-export type DonorMolecularDataReleaseStatus =
-  | "FULLY_RELEASED"
-  | "PARTIALLY_RELEASED"
-  | "NO_RELEASE";
+import { DonorMolecularDataReleaseStatus } from "files/types";
 
 export type DonorMolecularDataProcessingStatus =
   | "COMPLETE"

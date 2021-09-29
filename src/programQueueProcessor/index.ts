@@ -19,6 +19,7 @@ import fetchDonorIdsByAnalysis from "rdpc/query/fetchDonorIdsByAnalysis";
 import { EgoJwtManager } from "auth";
 import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
 import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
+import { getFilesByProgramId } from "files/getFilesByProgramId";
 
 const createProgramQueueRecord = (record: QueueRecord): ProducerRecord => {
   return {
@@ -42,6 +43,7 @@ const createProgramQueueProcessor = async ({
   analysesWithSpecimensFetcher = fetchAnalysesWithSpecimens,
   fetchVC = fetchVariantCallingAnalyses,
   fetchDonorIds = fetchDonorIdsByAnalysis,
+  fileData = getFilesByProgramId,
 }: {
   kafka: Kafka;
   esClient: Client;
@@ -52,6 +54,7 @@ const createProgramQueueProcessor = async ({
   analysesWithSpecimensFetcher?: typeof fetchAnalysesWithSpecimens;
   fetchVC?: typeof fetchVariantCallingAnalyses;
   fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
+  fileData?: typeof getFilesByProgramId;
 }): Promise<ProgramQueueProcessor> => {
   const consumer = kafka.consumer({
     groupId: KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP,
@@ -99,6 +102,7 @@ const createProgramQueueProcessor = async ({
       fetchVC,
       statusReporter,
       fetchDonorIds,
+      fileData,
       sendDlqMessage,
     }),
   });

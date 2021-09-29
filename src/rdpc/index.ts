@@ -19,7 +19,7 @@ import fetchAnalysesWithSpecimens from "./query/fetchAnalysesWithSpecimens";
 import { getVariantCallingData } from "./convertData/getVariantCallingData";
 import _ from "lodash";
 
-const convertToEsDocument = (
+export const convertToEsDocument = (
   existingEsHit: EsDonorDocument,
   rdpcInfo?: RdpcDonorInfo
 ): EsDonorDocument => {

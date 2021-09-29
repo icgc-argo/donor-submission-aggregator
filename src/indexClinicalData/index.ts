@@ -68,6 +68,9 @@ export default async (
     });
 
     try {
+      logger.info(
+        `Begin bulk indexing clinical data of program ${programShortName}...`
+      );
       await esClient.bulk({
         body: toEsBulkIndexActions<EsDonorDocument>(
           targetIndexName,
@@ -76,7 +79,7 @@ export default async (
         refresh: "true",
       });
     } catch (error) {
-      logger.error(`index clinical data --- ${JSON.stringify(error)}`);
+      logger.error(`Error in index clinical data --- ${JSON.stringify(error)}`);
     }
 
     logger.profile(timer);

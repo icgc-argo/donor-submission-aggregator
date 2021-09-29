@@ -85,17 +85,15 @@ For local devlopment, you can post messages to trigger indexing:
 - for `donor_aggregator_program_queues`, a sample message looks like:
 
 ```
-
 {
-"topic": "donor_aggregator_program_queues",
-"key": "OCCAMS-GB",
-"value": "{
-"programId":"OCCAMS-GB",
-"type":"SYNC",
-"rdpcGatewayUrls": ["https://api.rdpc.cancercollaboratory.org/graphql"]
-}",
+  "topic": "donor_aggregator_program_queues",
+  "key": "OCCAMS-GB",
+  "value": "{
+    "programId":"OCCAMS-GB",
+    "type":"SYNC",
+    "rdpcGatewayUrls": ["https://api.rdpc.cancercollaboratory.org/graphql"]
+  }"
 }
-
 ```
 
 - Topic `donor_aggregator_program_queues` stores messages collected from `PROGRAM_UPDATE` and `song_analysis`.
