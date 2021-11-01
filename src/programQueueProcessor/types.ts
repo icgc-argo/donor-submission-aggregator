@@ -1,9 +1,11 @@
+import { Program } from "eventParsers/parseFilePublicReleaseEvent";
+
 export enum KnownEventSource {
   CLINICAL = "CLINICAL",
   RDPC = "RDPC",
 }
 
-export type QueueRecord = { programId: string; requeued?: boolean } & (
+export type QueueRecord = { programId?: string; requeued?: boolean } & (
   | {
       type: KnownEventType.CLINICAL;
     }
@@ -11,6 +13,13 @@ export type QueueRecord = { programId: string; requeued?: boolean } & (
       type: KnownEventType.RDPC;
       rdpcGatewayUrls: Array<string>;
       analysisId?: string;
+    }
+  | {
+      type: KnownEventType.FILE;
+      fileReleaseId: string;
+      publishedAt: string;
+      label: string;
+      programs: Program[];
     }
   | {
       type: KnownEventType.SYNC;
@@ -29,6 +38,7 @@ export type ProgramQueueProcessor = {
   knownEventTypes: {
     CLINICAL: KnownEventType.CLINICAL;
     RDPC: KnownEventType.RDPC;
+    FILE: KnownEventType.FILE;
     SYNC: KnownEventType.SYNC;
   };
   enqueueEvent: (event: QueueRecord) => Promise<void>;

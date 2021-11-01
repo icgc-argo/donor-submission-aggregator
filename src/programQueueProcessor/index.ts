@@ -111,6 +111,7 @@ const createProgramQueueProcessor = async ({
   return {
     knownEventTypes: {
       CLINICAL: KnownEventType.CLINICAL as KnownEventType.CLINICAL,
+      FILE: KnownEventType.FILE as KnownEventType.FILE,
       RDPC: KnownEventType.RDPC as KnownEventType.RDPC,
       SYNC: KnownEventType.SYNC as KnownEventType.SYNC,
     },
