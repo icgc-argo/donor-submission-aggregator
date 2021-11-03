@@ -223,7 +223,7 @@ const createEventProcessor = async ({
               await indexClinicalData(programId, targetIndexName, esClient);
               break;
 
-            case KnownEventType.FILE:
+            case KnownEventType.FILE_RELEASE:
               if (FEATURE_INDEX_FILE_ENABLED) {
                 const programs: Program[] = queuedEvent.programs;
                 for (const program of programs) {

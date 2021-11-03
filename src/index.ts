@@ -124,9 +124,9 @@ import parseFilePublicReleaseEvent from "eventParsers/parseFilePublicReleaseEven
       topic: KAFKA_PUBLIC_RELEASE_TOPIC,
     }),
   ]);
-  logger.info(`subscribed to source events ${CLINICAL_PROGRAM_UPDATE_TOPIC}`);
-  logger.info(`subscribed to source events ${RDPC_PROGRAM_UPDATE_TOPIC}`);
-  logger.info(`subscribed to source events ${KAFKA_PUBLIC_RELEASE_TOPIC}`);
+  logger.info(
+    `subscribed to source events ${CLINICAL_PROGRAM_UPDATE_TOPIC}, ${RDPC_PROGRAM_UPDATE_TOPIC}, ${KAFKA_PUBLIC_RELEASE_TOPIC}.`
+  );
   await consumer.run({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: async ({ topic, message }) => {

@@ -15,7 +15,7 @@ export type QueueRecord = { programId?: string; requeued?: boolean } & (
       analysisId?: string;
     }
   | {
-      type: KnownEventType.FILE;
+      type: KnownEventType.FILE_RELEASE;
       fileReleaseId: string;
       publishedAt: string;
       label: string;
@@ -31,14 +31,14 @@ export enum KnownEventType {
   CLINICAL = "CLINICAL",
   RDPC = "RDPC",
   SYNC = "SYNC",
-  FILE = "FILE",
+  FILE_RELEASE = "FILE_RELEASE",
 }
 
 export type ProgramQueueProcessor = {
   knownEventTypes: {
     CLINICAL: KnownEventType.CLINICAL;
     RDPC: KnownEventType.RDPC;
-    FILE: KnownEventType.FILE;
+    FILE: KnownEventType.FILE_RELEASE;
     SYNC: KnownEventType.SYNC;
   };
   enqueueEvent: (event: QueueRecord) => Promise<void>;
