@@ -21,12 +21,12 @@ export const determineReleaseStatus = async (
 ): Promise<DonorInfoMap> => {
   const result: DonorInfoMap = {};
   // gets files grouped by donor id
-  const files = await getFilesByPage({
-    programId: programId,
-    egoJwtManager: egoJwtManager,
-    filesFetcher: filesFetcher,
-    donorIds: donorIds,
-  });
+  const files = await getFilesByPage(
+    filesFetcher,
+    programId,
+    egoJwtManager,
+    donorIds
+  );
 
   Object.entries(files).forEach(([donorId, files]) => {
     const filesByReleaseState = _.groupBy(files, (file) => file.releaseState);
@@ -87,20 +87,14 @@ export const determineReleaseStatus = async (
   return result;
 };
 
-const getFilesByPage = async ({
-  filesFetcher,
-  egoJwtManager,
-  programId,
-  donorIds,
-}: {
-  programId: string;
-  egoJwtManager: EgoJwtManager;
-  donorIds?: string[];
-  filesFetcher: typeof getFilesByProgramId;
-}): Promise<StringMap<File[]>> => {
+const getFilesByPage = async (
+  filesFetcher: typeof getFilesByProgramId,
+  programId: string,
+  egoJwtManager: EgoJwtManager,
+  donorIds?: string[]
+): Promise<StringMap<File[]>> => {
   const donorFiles: StringMap<File[]> = {};
 
-  // TODO query file service for file[] by donorIds, will be implemeted in ticket 216
   if (donorIds) {
     for (const donorId of donorIds) {
       logger.info(`streaming files for donor ${donorId}`);

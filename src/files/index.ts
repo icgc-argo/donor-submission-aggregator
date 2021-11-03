@@ -13,12 +13,14 @@ export const indexFileData = async (
   egoJwtManager: EgoJwtManager,
   fetchFileData: typeof getFilesByProgramId,
   targetIndexName: string,
-  esClient: Client
+  esClient: Client,
+  donorsUpdated?: string[]
 ) => {
   const donorFileInfo = await determineReleaseStatus(
     programId,
     egoJwtManager,
-    fetchFileData
+    fetchFileData,
+    donorsUpdated
   );
 
   const donorIds = Object.keys(donorFileInfo);

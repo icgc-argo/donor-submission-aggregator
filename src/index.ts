@@ -22,6 +22,8 @@ import {
   RDPC_URL,
   FEATURE_RDPC_INDEXING_ENABLED,
   DLQ_TOPIC_NAME,
+  KAFKA_PUBLIC_RELEASE_TOPIC,
+  FEATURE_INDEX_FILE_ENABLED,
 } from "config";
 import applyStatusReport from "./statusReport";
 import logger from "logger";
@@ -30,6 +32,7 @@ import parseClinicalProgramUpdateEvent from "eventParsers/parseClinicalProgramUp
 import parseRdpcProgramUpdateEvent from "eventParsers/parseRdpcProgramUpdateEvent";
 import { createEgoJwtManager } from "auth";
 import { isNotEmptyString } from "utils";
+import parseFilePublicReleaseEvent from "eventParsers/parseFilePublicReleaseEvent";
 
 (async () => {
   /**
@@ -117,9 +120,13 @@ import { isNotEmptyString } from "utils";
     consumer.subscribe({
       topic: RDPC_PROGRAM_UPDATE_TOPIC,
     }),
+    consumer.subscribe({
+      topic: KAFKA_PUBLIC_RELEASE_TOPIC,
+    }),
   ]);
-  logger.info(`subscribed to source events ${CLINICAL_PROGRAM_UPDATE_TOPIC}`);
-  logger.info(`subscribed to source events ${RDPC_PROGRAM_UPDATE_TOPIC}`);
+  logger.info(
+    `subscribed to source events ${CLINICAL_PROGRAM_UPDATE_TOPIC}, ${RDPC_PROGRAM_UPDATE_TOPIC}, ${KAFKA_PUBLIC_RELEASE_TOPIC}.`
+  );
   await consumer.run({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: async ({ topic, message }) => {
@@ -166,6 +173,27 @@ import { isNotEmptyString } from "utils";
               }
             }
             break;
+
+          case KAFKA_PUBLIC_RELEASE_TOPIC:
+            if (FEATURE_INDEX_FILE_ENABLED) {
+              const event = parseFilePublicReleaseEvent(
+                message.value.toString()
+              );
+              if (isNotEmptyString(event.id)) {
+                await programQueueProcessor.enqueueEvent({
+                  type: programQueueProcessor.knownEventTypes.FILE,
+                  fileReleaseId: event.id,
+                  publishedAt: event.publishedAt,
+                  label: event.label,
+                  programs: event.programs,
+                });
+              } else {
+                await programQueueProcessor.sendDlqMessage(
+                  DLQ_TOPIC_NAME,
+                  message.value.toString()
+                );
+              }
+            }
 
           default:
             break;

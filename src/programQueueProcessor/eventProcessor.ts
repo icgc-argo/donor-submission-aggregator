@@ -27,6 +27,7 @@ import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
 import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
 import { indexFileData } from "files";
 import { getFilesByProgramId } from "files/getFilesByProgramId";
+import { Program } from "eventParsers/parseFilePublicReleaseEvent";
 
 const handleIndexingFailure = async ({
   esClient,
@@ -221,6 +222,23 @@ const createEventProcessor = async ({
               // Ideally, this would only update only the affected donors - an update to clinical is required to communicate this information in the kafka event.
               await indexClinicalData(programId, targetIndexName, esClient);
               break;
+
+            case KnownEventType.FILE_RELEASE:
+              if (FEATURE_INDEX_FILE_ENABLED) {
+                const programs: Program[] = queuedEvent.programs;
+                for (const program of programs) {
+                  await indexFileData(
+                    programId,
+                    egoJwtManager,
+                    fileData,
+                    targetIndexName,
+                    esClient,
+                    program.donorsUpdated
+                  );
+                }
+              }
+              break;
+
             case KnownEventType.RDPC:
               // Update RDPC data. Analysis ID is expected in the event so only documents affected by that analysis will be updated.
               for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
