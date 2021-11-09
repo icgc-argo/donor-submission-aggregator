@@ -1,7 +1,7 @@
 import { EgoJwtManager } from "auth";
 import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
 import {
-  convertEalriestDateToDonorInfo,
+  convertEarliestDateToDonorInfo,
   getAllMergedDonor_variantCalling,
   getEarliestDateForDonor,
 } from "rdpc/variantCallingAnalysesProcessor";
@@ -30,7 +30,7 @@ export const getVariantCallingData = async (
 
   const donorsWithEarliestDate = getEarliestDateForDonor(mergedDonors);
 
-  const sangerMutectDates = convertEalriestDateToDonorInfo(
+  const sangerMutectDates = convertEarliestDateToDonorInfo(
     donorsWithEarliestDate
   );
 

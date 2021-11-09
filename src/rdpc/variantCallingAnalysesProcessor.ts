@@ -55,7 +55,7 @@ export const variantCallingStream = async function* ({
   }
 };
 
-export const convertEalriestDateToDonorInfo = (
+export const convertEarliestDateToDonorInfo = (
   donors: StringMap<SangerAndMutectInfo>
 ): DonorInfoMap => {
   const result: DonorInfoMap = {};
