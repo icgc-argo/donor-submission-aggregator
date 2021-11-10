@@ -1,5 +1,5 @@
 import { initialRdpcInfo, mergeDonorInfo } from "./analysesProcessor";
-import { STREAM_CHUNK_SIZE } from "config";
+import { STREAM_CHUNK_SIZE, WORKFLOW_NAMES } from "config";
 import { queryDocumentsByDonorIds } from "indexClinicalData";
 import { Client } from "@elastic/elasticsearch";
 import { EsDonorDocument, EsHit, RdpcDonorInfo } from "indexClinicalData/types";
@@ -106,7 +106,7 @@ export const indexRdpcData = async ({
     programId,
     rdpcUrl,
     AnalysisType.SEQ_EXPERIMENT,
-    false,
+    WORKFLOW_NAMES.ALIGNMENT,
     egoJwtManager,
     analysesFetcher,
     config,
@@ -119,7 +119,7 @@ export const indexRdpcData = async ({
     programId,
     rdpcUrl,
     AnalysisType.SEQ_ALIGNMENT,
-    false,
+    WORKFLOW_NAMES.SANGER,
     egoJwtManager,
     analysesFetcher,
     config,
@@ -132,7 +132,20 @@ export const indexRdpcData = async ({
     programId,
     rdpcUrl,
     AnalysisType.SEQ_ALIGNMENT,
-    true,
+    WORKFLOW_NAMES.MUTECT,
+    egoJwtManager,
+    analysesFetcher,
+    config,
+    donorIdsToFilterBy
+  );
+
+  // contains 3 fields:
+  // openAccessCompleted, openAccessRunning, openAccessFailed
+  const rdpcInfoByDonor_openAccess = await getMutectData(
+    programId,
+    rdpcUrl,
+    AnalysisType.SEQ_ALIGNMENT,
+    WORKFLOW_NAMES.OPEN_ACCESS,
     egoJwtManager,
     analysesFetcher,
     config,
@@ -161,11 +174,16 @@ export const indexRdpcData = async ({
     donorInfo_dna_dates,
     rdpcInfoByDonor_sangerMutectDates
   );
+
+  const rdpcDocsMap_openAccess = mergeDonorInfo(
+    rdpcDocsMap,
+    rdpcInfoByDonor_openAccess
+  );
   /**  ---------- End of merge DonorInfoMap --------- */
 
   // get existing ES donors from the previous index, because we only want to index RDPC donors that
   // have already been registered in clinical.
-  const donorIds = Object.keys(rdpcDocsMap);
+  const donorIds = Object.keys(rdpcDocsMap_openAccess);
   const esHits = await queryDocumentsByDonorIds(
     donorIds,
     esClient,

@@ -99,9 +99,10 @@ export interface FlattenedSample {
   experimentStrategy: string;
 }
 
-export interface SangerAndMutectInfo {
+export interface WorkflowInfo {
   sangerVC: WorkflowData[];
   mutect: WorkflowData[];
+  openAccess: WorkflowData[];
 }
 
 export interface WorkflowData {

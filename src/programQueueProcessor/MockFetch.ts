@@ -9,6 +9,7 @@ import {
   variantCallingAnalyses,
 } from "rdpc/test/fixtures/integrationTest/mockAnalyses";
 import { Analysis, AnalysisType } from "rdpc/types";
+import { WORKFLOW_NAMES } from "config";
 
 export const mockVariantCallingFetcher: typeof fetchVariantCallingAnalyses = ({
   studyId,
@@ -44,11 +45,12 @@ export const mockAnalysesWithSpecimensFetcher: typeof fetchAnalysesWithSpecimens
   );
 };
 
+// TODO: OPEN_ACCESS add seqAlignmentAnalyses_openAccess
 export const mockAnalysisFetcher: typeof fetchAnalyses = async ({
   studyId,
   rdpcUrl,
   analysisType,
-  isMutect,
+  workflowName,
   from,
   size,
   egoJwtManager,
@@ -61,7 +63,7 @@ export const mockAnalysisFetcher: typeof fetchAnalyses = async ({
       ? seqExpAnalyses
           .filter((analysis) => analysis.donors.some(matchesDonorId))
           .slice(from, from + size)
-      : isMutect
+      : workflowName === WORKFLOW_NAMES.MUTECT
       ? seqAlignmentAnalyses_mutect
           .filter((analysis) => analysis.donors.some(matchesDonorId))
           .slice(from, from + size)

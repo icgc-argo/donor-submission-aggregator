@@ -19,6 +19,10 @@ const defaultRDPCInfo: RdpcDonorInfo = {
   mutectRunning: 0,
   mutectFailed: 0,
 
+  openAccessCompleted: 0,
+  openAccessRunning: 0,
+  openAccessFailed: 0,
+
   totalFilesCount: 0,
   filesToQcCount: 0,
 

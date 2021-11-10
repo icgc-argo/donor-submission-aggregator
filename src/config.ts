@@ -60,6 +60,10 @@ export const MUTECT_REPO_URL =
   process.env.MUTECT_REPO_URL ||
   "https://github.com/icgc-argo/gatk-mutect2-variant-calling.git";
 
+export const OPEN_ACCESS_REPO_URL =
+  process.env.OPEN_ACCESS_REPO_URL ||
+  "https://github.com/icgc-argo-workflows/open-access-variant-filtering.git";
+
 /**
  * Kafka Configs
  */
@@ -175,3 +179,10 @@ export const FEATURE_RDPC_INDEXING_ENABLED =
 
 export const FEATURE_INDEX_FILE_ENABLED =
   process.env.FEATURE_INDEX_FILE_ENABLED === "true";
+
+export const WORKFLOW_NAMES = {
+  ALIGNMENT: "alignment",
+  SANGER: "sanger",
+  MUTECT: "mutect2",
+  OPEN_ACCESS: "open access",
+};

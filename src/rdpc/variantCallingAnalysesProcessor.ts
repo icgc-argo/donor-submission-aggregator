@@ -3,12 +3,8 @@ import _ from "lodash";
 import logger from "logger";
 import { initializeRdpcInfo } from "./analysesProcessor";
 import fetchVariantCallingAnalyses from "./query/fetchVariantCallingAnalyses";
-import {
-  Analysis,
-  DonorInfoMap,
-  SangerAndMutectInfo,
-  StringMap,
-} from "./types";
+import { Analysis, DonorInfoMap, WorkflowInfo, StringMap } from "./types";
+import { WORKFLOW_NAMES } from "config";
 
 export const variantCallingStream = async function* ({
   studyId,
@@ -56,7 +52,7 @@ export const variantCallingStream = async function* ({
 };
 
 export const convertEarliestDateToDonorInfo = (
-  donors: StringMap<SangerAndMutectInfo>
+  donors: StringMap<WorkflowInfo>
 ): DonorInfoMap => {
   const result: DonorInfoMap = {};
 
@@ -74,18 +70,25 @@ export const convertEarliestDateToDonorInfo = (
         Number(info.mutect[0].firstPublishedAt)
       );
     }
+
+    if (info.openAccess[0]) {
+      result[donorId].openAccessFirstPublishedDate = new Date(
+        Number(info.openAccess[0].firstPublishedAt)
+      );
+    }
   });
 
   return result;
 };
 
-// find the earliest dates by comparing sanger/mutect analysis's first published dates
+// find the earliest dates by comparing workflow analyses' first published dates
 export const getEarliestDateForDonor = (
-  donors: StringMap<SangerAndMutectInfo>
-): StringMap<SangerAndMutectInfo> => {
-  const result: StringMap<SangerAndMutectInfo> = {};
+  donors: StringMap<WorkflowInfo>
+): StringMap<WorkflowInfo> => {
+  const result: StringMap<WorkflowInfo> = {};
   Object.entries(donors).forEach(([donorId, info]) => {
-    const wfInfo: SangerAndMutectInfo = { sangerVC: [], mutect: [] };
+    const wfInfo: WorkflowInfo = { sangerVC: [], mutect: [], openAccess: [] };
+
     const earliestSanger = _.head(
       _.sortBy(info.sangerVC, (sanger) => Number(sanger.firstPublishedAt))
     );
@@ -99,6 +102,16 @@ export const getEarliestDateForDonor = (
     if (earliestMutect) {
       wfInfo.mutect.push(earliestMutect);
     }
+
+    const earliestOpenAccess = _.head(
+      _.sortBy(info.openAccess, (openAccess) =>
+        Number(openAccess.firstPublishedAt)
+      )
+    );
+    if (earliestOpenAccess) {
+      wfInfo.openAccess.push(earliestOpenAccess);
+    }
+
     result[donorId] = wfInfo;
   });
   return result;
@@ -121,8 +134,8 @@ export const getAllMergedDonor_variantCalling = async ({
     state?: StreamState;
   };
   analysesFetcher: typeof fetchVariantCallingAnalyses;
-}): Promise<StringMap<SangerAndMutectInfo>> => {
-  const mergedDonors: StringMap<SangerAndMutectInfo> = {};
+}): Promise<StringMap<WorkflowInfo>> => {
+  const mergedDonors: StringMap<WorkflowInfo> = {};
 
   if (donorIds) {
     for (const donorId of donorIds) {
@@ -163,8 +176,8 @@ export const getAllMergedDonor_variantCalling = async ({
 };
 
 const mergeAllDonors = (
-  merged: StringMap<SangerAndMutectInfo>,
-  mergeWith: StringMap<SangerAndMutectInfo>
+  merged: StringMap<WorkflowInfo>,
+  mergeWith: StringMap<WorkflowInfo>
 ) => {
   Object.entries(mergeWith).forEach(([donorId, info]) => {
     if (merged[donorId]) {
@@ -173,50 +186,58 @@ const mergeAllDonors = (
         ...info.sangerVC,
       ];
       merged[donorId].mutect = [...merged[donorId].mutect, ...info.mutect];
+      merged[donorId].openAccess = [
+        ...merged[donorId].openAccess,
+        ...info.openAccess,
+      ];
     } else {
       merged[donorId] = info;
     }
   });
 };
 
-const convertAnalysis = (
-  analyses: Analysis[]
-): StringMap<SangerAndMutectInfo> => {
-  const result: StringMap<SangerAndMutectInfo> = {};
+const convertAnalysis = (analyses: Analysis[]): StringMap<WorkflowInfo> => {
+  const result: StringMap<WorkflowInfo> = {};
   analyses.forEach((analysis) => {
-    const infoMapPerAnalysis = analysis.donors.reduce<
-      StringMap<SangerAndMutectInfo>
-    >((infoAccumulator, donor) => {
-      let workflowName = "";
-      if (analysis.workflow && analysis.workflow.workflowName) {
-        workflowName = analysis.workflow.workflowName.toLocaleLowerCase();
-      } else {
-        logger.warn(`Incomplete RDPC Data: analysis id: ${analysis.analysisId} does not have 'workflow' or 'workflowname',
+    const infoMapPerAnalysis = analysis.donors.reduce<StringMap<WorkflowInfo>>(
+      (infoAccumulator, donor) => {
+        let workflowName = "";
+        if (analysis.workflow && analysis.workflow.workflowName) {
+          workflowName = analysis.workflow.workflowName.toLocaleLowerCase();
+        } else {
+          logger.warn(`Incomplete RDPC Data: analysis id: ${analysis.analysisId} does not have 'workflow' or 'workflowname',
         this analysis won't be included in the donor's aggregated stats.`);
-      }
+        }
 
-      const info: SangerAndMutectInfo = {
-        sangerVC: [],
-        mutect: [],
-      };
+        const info: WorkflowInfo = {
+          sangerVC: [],
+          mutect: [],
+          openAccess: [],
+        };
 
-      const workflowData = {
-        analysisId: analysis.analysisId,
-        workflowName: workflowName,
-        firstPublishedAt: analysis.firstPublishedAt,
-      };
+        const workflowData = {
+          analysisId: analysis.analysisId,
+          workflowName: workflowName,
+          firstPublishedAt: analysis.firstPublishedAt,
+        };
 
-      if (workflowName.includes("mutect2")) {
-        info.mutect.push(workflowData);
-      }
+        if (workflowName.includes(WORKFLOW_NAMES.MUTECT)) {
+          info.mutect.push(workflowData);
+        }
 
-      if (workflowName.includes("sanger")) {
-        info.sangerVC.push(workflowData);
-      }
+        if (workflowName.includes(WORKFLOW_NAMES.SANGER)) {
+          info.sangerVC.push(workflowData);
+        }
 
-      infoAccumulator[donor.donorId] = info;
-      return infoAccumulator;
-    }, {});
+        if (workflowName.includes(WORKFLOW_NAMES.OPEN_ACCESS)) {
+          info.openAccess.push(workflowData);
+        }
+
+        infoAccumulator[donor.donorId] = info;
+        return infoAccumulator;
+      },
+      {}
+    );
 
     mergeAllDonors(result, infoMapPerAnalysis);
   });

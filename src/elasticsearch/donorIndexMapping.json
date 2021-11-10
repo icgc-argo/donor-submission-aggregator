@@ -84,6 +84,18 @@
       "mutectFirstPublishedDate": {
         "type": "date"
       },
+      "openAccessCompleted": {
+        "type": "byte"
+      },
+      "openAccessRunning": {
+        "type": "byte"
+      },
+      "openAccessFailed": {
+        "type": "byte"
+      },
+      "openAccessFirstPublishedDate": {
+        "type": "date"
+      },
       "sangerVcsCompleted": {
         "type": "byte"
       },

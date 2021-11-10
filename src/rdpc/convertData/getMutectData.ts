@@ -8,7 +8,7 @@ export const getMutectData = async (
   studyId: string,
   url: string,
   analysisType: string,
-  isMutect: boolean,
+  workflowName: string,
   egoJwtManager: EgoJwtManager,
   analysesFetcher: typeof fetchAnalyses,
   config: {
@@ -22,7 +22,7 @@ export const getMutectData = async (
     url: url,
     donorIds: donorIds,
     analysisType: analysisType,
-    isMutect: isMutect,
+    workflowName: workflowName,
     egoJwtManager,
     config,
     analysesFetcher,

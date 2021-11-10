@@ -8,6 +8,8 @@ import {
   MUTECT_REPO_URL,
   SANGER_VC_REPO_URL,
   SEQ_ALIGN_REPO_URL,
+  OPEN_ACCESS_REPO_URL,
+  WORKFLOW_NAMES,
 } from "config";
 import { QueryVariable } from "./types";
 
@@ -57,7 +59,7 @@ const fetchAnalyses = async ({
   studyId,
   rdpcUrl,
   analysisType,
-  isMutect,
+  workflowName,
   from,
   size,
   egoJwtManager,
@@ -66,7 +68,7 @@ const fetchAnalyses = async ({
   studyId: string;
   rdpcUrl: string;
   analysisType: string;
-  isMutect: boolean;
+  workflowName: string;
   from: number;
   size: number;
   egoJwtManager: EgoJwtManager;
@@ -76,7 +78,7 @@ const fetchAnalyses = async ({
   const accessToken = jwt.access_token;
   return await promiseRetry<Analysis[]>(async (retry) => {
     try {
-      const workflowRepoUrl = getWorkflowRepoUrl(analysisType, isMutect);
+      const workflowRepoUrl = getWorkflowRepoUrl(analysisType, workflowName);
 
       const response = await fetch(rdpcUrl, {
         method: "POST",
@@ -128,23 +130,41 @@ const fetchAnalyses = async ({
 
 const getWorkflowRepoUrl = (
   analysisType: string,
-  isMutect: boolean
+  workflowName: string
 ): string => {
   if (analysisType === AnalysisType.SEQ_EXPERIMENT) {
     logger.info(
       `Starting to query ${analysisType} analyses for alignment workflow runs`
     );
     return SEQ_ALIGN_REPO_URL;
-  } else if (analysisType === AnalysisType.SEQ_ALIGNMENT && isMutect) {
-    logger.info(
-      `Starting to query ${analysisType} analyses for mutect2 workflow runs`
-    );
-    return MUTECT_REPO_URL;
+  } else if (analysisType === AnalysisType.SEQ_ALIGNMENT) {
+    switch (workflowName) {
+      case WORKFLOW_NAMES.MUTECT:
+        logger.info(
+          `Starting to query ${analysisType} analyses for mutect2 workflow runs`
+        );
+        return MUTECT_REPO_URL;
+      case WORKFLOW_NAMES.SANGER:
+        logger.info(
+          `Starting to query ${analysisType} analyses for sanger variant calling workflow runs`
+        );
+        return SANGER_VC_REPO_URL;
+      case WORKFLOW_NAMES.OPEN_ACCESS:
+        logger.info(
+          `Starting to query ${analysisType} analyses for open access workflow runs`
+        );
+        return OPEN_ACCESS_REPO_URL;
+      default:
+        logger.info(
+          `Attempted to query ${analysisType} analyses for ${workflowName} workflow runs, no repo url found`
+        );
+        return "";
+    }
   } else {
     logger.info(
-      `Starting to query ${analysisType} analyses for sanger variant calling workflow runs`
+      `Attempted to query ${analysisType} analyses for ${workflowName} workflow runs, no repo url found`
     );
-    return SANGER_VC_REPO_URL;
+    return "";
   }
 };
 

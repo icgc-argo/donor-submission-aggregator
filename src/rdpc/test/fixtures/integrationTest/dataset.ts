@@ -37,6 +37,9 @@ export const clinicalDataset: EsDonorDocument[] = [
     mutectCompleted: 0,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 0,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
     processingStatus: "REGISTERED",
     totalFilesCount: 0,
     filesToQcCount: 0,
@@ -64,6 +67,9 @@ export const clinicalDataset: EsDonorDocument[] = [
     mutectCompleted: 0,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 0,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
     processingStatus: "REGISTERED",
     totalFilesCount: 0,
     filesToQcCount: 0,
@@ -91,6 +97,9 @@ export const clinicalDataset: EsDonorDocument[] = [
     mutectCompleted: 0,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 0,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
     processingStatus: "REGISTERED",
     totalFilesCount: 0,
     filesToQcCount: 0,
@@ -118,6 +127,9 @@ export const clinicalDataset: EsDonorDocument[] = [
     mutectCompleted: 0,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 0,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
     processingStatus: "REGISTERED",
     totalFilesCount: 0,
     filesToQcCount: 0,
@@ -145,6 +157,9 @@ export const clinicalDataset: EsDonorDocument[] = [
     mutectCompleted: 0,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 0,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
     processingStatus: "REGISTERED",
     totalFilesCount: 0,
     filesToQcCount: 0,
@@ -172,6 +187,9 @@ export const clinicalDataset: EsDonorDocument[] = [
     mutectCompleted: 0,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 0,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
     processingStatus: "REGISTERED",
     totalFilesCount: 0,
     filesToQcCount: 0,
@@ -199,6 +217,9 @@ export const clinicalDataset: EsDonorDocument[] = [
     mutectCompleted: 0,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 0,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
     processingStatus: "REGISTERED",
     totalFilesCount: 0,
     filesToQcCount: 0,
@@ -226,6 +247,9 @@ export const clinicalDataset: EsDonorDocument[] = [
     mutectCompleted: 0,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 0,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
     processingStatus: "REGISTERED",
     totalFilesCount: 0,
     filesToQcCount: 0,
@@ -253,6 +277,9 @@ export const clinicalDataset: EsDonorDocument[] = [
     mutectCompleted: 0,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 0,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
     processingStatus: "REGISTERED",
     totalFilesCount: 0,
     filesToQcCount: 0,
@@ -280,6 +307,9 @@ export const clinicalDataset: EsDonorDocument[] = [
     mutectCompleted: 0,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 0,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
     processingStatus: "REGISTERED",
     totalFilesCount: 0,
     filesToQcCount: 0,
@@ -300,8 +330,12 @@ type TestFields = {
   mutectCompleted: Number;
   mutectRunning: Number;
   mutectFailed: Number;
+  openAccessCompleted: Number;
+  openAccessRunning: Number;
+  openAccessFailed: Number;
   sangerVcsFirstPublishedDate?: string;
   mutectFirstPublishedDate?: string;
+  openAccessFirstPublishedDate?: string;
 };
 
 export const expectedRDPCData: { [k: string]: TestFields } = {
@@ -317,8 +351,12 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectCompleted: 2,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 2,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
     sangerVcsFirstPublishedDate: "2020-12-08T18:17:53.538Z",
     mutectFirstPublishedDate: "2021-01-12T11:37:53.538Z",
+    openAccessFirstPublishedDate: "2021-01-12T11:37:53.538Z",
   },
   ["DO35083"]: {
     publishedNormalAnalysis: 0,
@@ -332,6 +370,9 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectCompleted: 1,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 1,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
   },
   ["DO35084"]: {
     publishedNormalAnalysis: 0,
@@ -345,6 +386,9 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectCompleted: 1,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 1,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
   },
   ["DO35085"]: {
     publishedNormalAnalysis: 0,
@@ -358,6 +402,9 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectCompleted: 1,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 1,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
   },
   ["DO35086"]: {
     publishedNormalAnalysis: 0,
@@ -371,6 +418,9 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectCompleted: 1,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 1,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
   },
   ["DO35087"]: {
     publishedNormalAnalysis: 0,
@@ -384,6 +434,9 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectCompleted: 1,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 1,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
   },
   ["DO35088"]: {
     publishedNormalAnalysis: 0,
@@ -397,6 +450,9 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectCompleted: 1,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 1,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
   },
   ["DO35089"]: {
     publishedNormalAnalysis: 0,
@@ -410,6 +466,9 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectCompleted: 1,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 1,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
   },
   ["DO35090"]: {
     publishedNormalAnalysis: 0,
@@ -423,6 +482,9 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectCompleted: 1,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 1,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
   },
   ["DO35091"]: {
     publishedNormalAnalysis: 0,
@@ -436,5 +498,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     mutectCompleted: 1,
     mutectRunning: 0,
     mutectFailed: 0,
+    openAccessCompleted: 1,
+    openAccessRunning: 0,
+    openAccessFailed: 0,
   },
 };

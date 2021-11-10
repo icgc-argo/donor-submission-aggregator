@@ -25,7 +25,7 @@ export const analysisStream = async function* ({
   studyId,
   rdpcUrl,
   analysisType,
-  isMutect,
+  workflowName,
   egoJwtManager,
   config,
   analysesFetcher = fetchAnalyses,
@@ -34,7 +34,7 @@ export const analysisStream = async function* ({
   studyId: string;
   rdpcUrl: string;
   analysisType: string;
-  isMutect: boolean;
+  workflowName: string;
   egoJwtManager: EgoJwtManager;
   config: {
     chunkSize: number;
@@ -52,7 +52,7 @@ export const analysisStream = async function* ({
       studyId,
       rdpcUrl,
       analysisType,
-      isMutect,
+      workflowName,
       from: streamState.currentPage,
       size: chunkSize,
       egoJwtManager,
@@ -165,7 +165,7 @@ export const getAllRunsByAnalysesByDonors = (
 export const getAllMergedDonor = async ({
   analysesFetcher = fetchAnalyses,
   analysisType,
-  isMutect,
+  workflowName,
   egoJwtManager,
   studyId,
   url,
@@ -175,7 +175,7 @@ export const getAllMergedDonor = async ({
   studyId: string;
   url: string;
   analysisType: string;
-  isMutect: boolean;
+  workflowName: string;
   egoJwtManager: EgoJwtManager;
   donorIds?: string[];
   config: {
@@ -193,7 +193,7 @@ export const getAllMergedDonor = async ({
         studyId,
         rdpcUrl: url,
         analysisType,
-        isMutect,
+        workflowName,
         egoJwtManager,
         config,
         analysesFetcher,
@@ -211,7 +211,7 @@ export const getAllMergedDonor = async ({
       studyId,
       rdpcUrl: url,
       analysisType,
-      isMutect,
+      workflowName,
       egoJwtManager,
       config,
       analysesFetcher,
@@ -404,6 +404,45 @@ export const countVCRunState = (
   return result;
 };
 
+export const countOpenAccessRunState = (
+  donorMap: RunsByAnalysesByDonors
+): DonorInfoMap => {
+  const result: DonorInfoMap = {};
+  Object.entries(donorMap).forEach(([donorId, map]) => {
+    Object.entries(map).forEach(([inputAnalysesId, runs]) => {
+      runs.forEach((run) => {
+        if (run.state === RunState.COMPLETE) {
+          if (result[donorId]) {
+            result[donorId].openAccessCompleted += 1;
+          } else {
+            initializeRdpcInfo(result, donorId);
+            result[donorId].openAccessCompleted += 1;
+          }
+        }
+
+        if (run.state === RunState.RUNNING) {
+          if (result[donorId]) {
+            result[donorId].openAccessRunning += 1;
+          } else {
+            initializeRdpcInfo(result, donorId);
+            result[donorId].openAccessRunning += 1;
+          }
+        }
+
+        if (run.state === RunState.EXECUTOR_ERROR) {
+          if (result[donorId]) {
+            result[donorId].openAccessFailed += 1;
+          } else {
+            initializeRdpcInfo(result, donorId);
+            result[donorId].openAccessFailed += 1;
+          }
+        }
+      });
+    });
+  });
+  return result;
+};
+
 export const initializeRdpcInfo = (
   result: DonorInfoMap,
   donorId: string
@@ -423,6 +462,9 @@ export const initialRdpcInfo: Readonly<RdpcDonorInfo> = Object.freeze({
   mutectCompleted: 0,
   mutectRunning: 0,
   mutectFailed: 0,
+  openAccessCompleted: 0,
+  openAccessRunning: 0,
+  openAccessFailed: 0,
   totalFilesCount: 0,
   filesToQcCount: 0,
   releaseStatus: DonorMolecularDataReleaseStatus.NO_RELEASE,
@@ -475,6 +517,17 @@ export const mergeDonorInfo = (
         mutectFirstPublishedDate: acc[donorId]?.mutectFirstPublishedDate
           ? acc[donorId].mutectFirstPublishedDate
           : rdpcInfo.mutectFirstPublishedDate,
+
+        openAccessCompleted:
+          (acc[donorId]?.openAccessCompleted || 0) +
+          rdpcInfo.openAccessCompleted,
+        openAccessRunning:
+          (acc[donorId]?.openAccessRunning || 0) + rdpcInfo.openAccessRunning,
+        openAccessFailed:
+          (acc[donorId]?.openAccessFailed || 0) + rdpcInfo.openAccessFailed,
+        openAccessFirstPublishedDate: acc[donorId]?.openAccessFirstPublishedDate
+          ? acc[donorId].openAccessFirstPublishedDate
+          : rdpcInfo.openAccessFirstPublishedDate,
 
         totalFilesCount:
           (acc[donorId]?.totalFilesCount || 0) + rdpcInfo.totalFilesCount,
