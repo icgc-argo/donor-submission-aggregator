@@ -15,6 +15,7 @@ import { getAlignmentData } from "./convertData/getAlignmentData";
 import { getSeqExpSpecimenData } from "./convertData/getSeqExpSpecimenData";
 import { getSeqAlignSpecimenData } from "./convertData/getSeqAlignSpecimenData";
 import { getMutectData } from "./convertData/getMutectData";
+import { getOpenAccessData } from "./convertData/getOpenAccessData";
 import fetchAnalysesWithSpecimens from "./query/fetchAnalysesWithSpecimens";
 import { getVariantCallingData } from "./convertData/getVariantCallingData";
 import _ from "lodash";
@@ -141,7 +142,7 @@ export const indexRdpcData = async ({
 
   // contains 3 fields:
   // openAccessCompleted, openAccessRunning, openAccessFailed
-  const rdpcInfoByDonor_openAccess = await getMutectData(
+  const rdpcInfoByDonor_openAccess = await getOpenAccessData(
     programId,
     rdpcUrl,
     AnalysisType.SEQ_ALIGNMENT,
