@@ -4,7 +4,6 @@ import { toEsBulkIndexActions } from "elasticsearch";
 import { queryDocumentsByDonorIds } from "indexClinicalData";
 import { EsDonorDocument, EsHit } from "indexClinicalData/types";
 import logger from "logger";
-import { convertToEsDocument } from "rdpc";
 import { determineReleaseStatus } from "./filesProcessor";
 import { getFilesByProgramId } from "./getFilesByProgramId";
 
