@@ -60,6 +60,12 @@ export const MUTECT_REPO_URL =
   process.env.MUTECT_REPO_URL ||
   "https://github.com/icgc-argo/gatk-mutect2-variant-calling.git";
 
+/**
+ * Kafka Configs
+ */
+export const KAFKA_PUBLIC_RELEASE_TOPIC =
+  process.env.KAFKA_PUBLIC_RELEASE_TOPIC || "files_public_release";
+
 export const CLINICAL_PROGRAM_UPDATE_TOPIC =
   process.env.CLINICAL_PROGRAM_UPDATE_TOPIC || "PROGRAM_UPDATE";
 
