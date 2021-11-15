@@ -62,7 +62,7 @@ export const MUTECT_REPO_URL =
 
 export const OPEN_ACCESS_REPO_URL =
   process.env.OPEN_ACCESS_REPO_URL ||
-  "https://github.com/icgc-argo-workflows/open-access-variant-filtering.git";
+  "https://github.com/icgc-argo-workflows/open-access-variant-filtering";
 
 /**
  * Kafka Configs
@@ -184,5 +184,5 @@ export const WORKFLOW_NAMES = {
   ALIGNMENT: "alignment",
   SANGER: "sanger",
   MUTECT: "mutect2",
-  OPEN_ACCESS: "open access",
+  OPEN_ACCESS: "open",
 };

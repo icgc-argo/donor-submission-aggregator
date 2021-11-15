@@ -145,7 +145,7 @@ export const indexRdpcData = async ({
   const rdpcInfoByDonor_openAccess = await getOpenAccessData(
     programId,
     rdpcUrl,
-    AnalysisType.SEQ_ALIGNMENT,
+    AnalysisType.VARIANT_CALLING,
     WORKFLOW_NAMES.OPEN_ACCESS,
     egoJwtManager,
     analysesFetcher,
@@ -199,7 +199,7 @@ export const indexRdpcData = async ({
 
   const esDocuments = Object.entries(preExistingDonorHits).map(
     ([donorId, esHit]) => {
-      const newRdpcInfo = rdpcDocsMap[donorId];
+      const newRdpcInfo = rdpcDocsMap_openAccess[donorId];
       return convertToEsDocument(esHit._source, newRdpcInfo);
     }
   );

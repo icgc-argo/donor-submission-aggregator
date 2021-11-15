@@ -149,20 +149,23 @@ const getWorkflowRepoUrl = (
           `Starting to query ${analysisType} analyses for sanger variant calling workflow runs`
         );
         return SANGER_VC_REPO_URL;
-      case WORKFLOW_NAMES.OPEN_ACCESS:
-        logger.info(
-          `Starting to query ${analysisType} analyses for open access workflow runs`
-        );
-        return OPEN_ACCESS_REPO_URL;
       default:
         logger.info(
-          `Attempted to query ${analysisType} analyses for ${workflowName} workflow runs, no repo url found`
+          `Attempted to query '${analysisType}' analyses for '${workflowName}' workflow runs, no repo url found`
         );
         return "";
     }
+  } else if (
+    analysisType === AnalysisType.VARIANT_CALLING &&
+    workflowName === WORKFLOW_NAMES.OPEN_ACCESS
+  ) {
+    logger.info(
+      `Starting to query ${analysisType} analyses for open access workflow runs`
+    );
+    return OPEN_ACCESS_REPO_URL;
   } else {
     logger.info(
-      `Attempted to query ${analysisType} analyses for ${workflowName} workflow runs, no repo url found`
+      `Attempted to query '${analysisType}' analyses for '${workflowName}' workflow runs, no repo url found`
     );
     return "";
   }
