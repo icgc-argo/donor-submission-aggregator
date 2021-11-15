@@ -194,6 +194,7 @@ import parseFilePublicReleaseEvent from "eventParsers/parseFilePublicReleaseEven
                 );
               }
             }
+            break;
 
           default:
             break;
