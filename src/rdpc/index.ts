@@ -80,7 +80,7 @@ export const indexRdpcData = async ({
     }
   });
 
-  // contains 2 fields: mutectFirstPublishedDate, sangerVcsFirstPublishedDate
+  // contains 3 fields: mutectFirstPublishedDate, sangerVcsFirstPublishedDate, openAccessFirstPublishedDate
   const rdpcInfoByDonor_sangerMutectDates = await getVariantCallingData(
     programId,
     rdpcUrl,

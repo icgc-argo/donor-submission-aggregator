@@ -356,7 +356,7 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     openAccessFailed: 0,
     sangerVcsFirstPublishedDate: "2020-12-08T18:17:53.538Z",
     mutectFirstPublishedDate: "2021-01-12T11:37:53.538Z",
-    openAccessFirstPublishedDate: "2021-01-12T11:37:53.538Z",
+    openAccessFirstPublishedDate: "2021-11-15T11:37:53.538Z",
   },
   ["DO35083"]: {
     publishedNormalAnalysis: 0,
