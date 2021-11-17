@@ -2,7 +2,7 @@ import { EgoAccessToken, EgoJwtManager } from "auth";
 import logger from "logger";
 import fetch from "node-fetch";
 import promiseRetry from "promise-retry";
-import { Analysis, AnalysisType } from "../types";
+import { Analysis, AnalysisState, AnalysisType } from "../types";
 import { QueryVariable } from "./types";
 
 const query = `
@@ -37,6 +37,7 @@ const fetchVariantCallingAnalyses = async ({
   size,
   egoJwtManager,
   donorId,
+  analysisType = AnalysisType.VARIANT_CALLING,
 }: {
   studyId: string;
   rdpcUrl: string;
@@ -44,6 +45,7 @@ const fetchVariantCallingAnalyses = async ({
   size: number;
   egoJwtManager: EgoJwtManager;
   donorId?: string;
+  analysisType: AnalysisType;
 }): Promise<Analysis[]> => {
   const jwt = (await egoJwtManager.getLatestJwt()) as EgoAccessToken;
   const accessToken = jwt.access_token;
@@ -55,8 +57,8 @@ const fetchVariantCallingAnalyses = async ({
           query,
           variables: {
             analysisFilter: {
-              analysisState: "PUBLISHED",
-              analysisType: AnalysisType.VARIANT_CALLING,
+              analysisState: AnalysisState.PUBLISHED,
+              analysisType: analysisType,
               studyId,
               donorId,
             },

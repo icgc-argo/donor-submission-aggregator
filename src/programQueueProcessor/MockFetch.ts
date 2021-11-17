@@ -9,8 +9,8 @@ import {
   variantCallingAnalyses,
   variantCallingAnalyses_open,
 } from "rdpc/test/fixtures/integrationTest/mockAnalyses";
-import { Analysis, AnalysisType } from "rdpc/types";
-import { WORKFLOW_NAMES } from "config";
+import { Analysis, AnalysisType, WorkflowName } from "rdpc/types";
+import { EgoJwtManager } from "auth";
 
 export const mockVariantCallingFetcher: typeof fetchVariantCallingAnalyses = ({
   studyId,
@@ -55,24 +55,45 @@ export const mockAnalysisFetcher: typeof fetchAnalyses = async ({
   size,
   egoJwtManager,
   donorId,
+}: {
+  studyId: string;
+  rdpcUrl: string;
+  analysisType: string;
+  workflowName: WorkflowName;
+  from: number;
+  size: number;
+  egoJwtManager: EgoJwtManager;
+  donorId?: string;
 }): Promise<Analysis[]> => {
   const matchesDonorId = (donor: any) =>
     donorId ? donor.donorId === donorId : true;
-  return Promise.resolve(
-    analysisType === AnalysisType.SEQ_EXPERIMENT
-      ? seqExpAnalyses
+
+  let analysis: Analysis[] = [];
+  if (analysisType === AnalysisType.SEQ_EXPERIMENT) {
+    analysis = seqExpAnalyses
+      .filter((analysis) => analysis.donors.some(matchesDonorId))
+      .slice(from, from + size);
+  } else {
+    switch (workflowName) {
+      case WorkflowName.MUTECT:
+        analysis = seqAlignmentAnalyses_mutect
           .filter((analysis) => analysis.donors.some(matchesDonorId))
-          .slice(from, from + size)
-      : workflowName === WORKFLOW_NAMES.MUTECT
-      ? seqAlignmentAnalyses_mutect
+          .slice(from, from + size);
+        break;
+      case WorkflowName.SANGER:
+        analysis = seqAlignmentAnalyses_sanger
           .filter((analysis) => analysis.donors.some(matchesDonorId))
-          .slice(from, from + size)
-      : workflowName === WORKFLOW_NAMES.SANGER
-      ? seqAlignmentAnalyses_sanger
+          .slice(from, from + size);
+        break;
+      case WorkflowName.OPEN_ACCESS:
+        analysis = variantCallingAnalyses_open
           .filter((analysis) => analysis.donors.some(matchesDonorId))
-          .slice(from, from + size)
-      : variantCallingAnalyses_open
-          .filter((analysis) => analysis.donors.some(matchesDonorId))
-          .slice(from, from + size)
-  );
+          .slice(from, from + size);
+        break;
+      default:
+        break;
+    }
+  }
+
+  return Promise.resolve(analysis);
 };

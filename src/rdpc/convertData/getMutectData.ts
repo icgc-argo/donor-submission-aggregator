@@ -1,14 +1,14 @@
 import { EgoJwtManager } from "auth";
 import fetchAnalyses from "rdpc/query/fetchAnalyses";
 import { countMutectRunState, getAllMergedDonor } from "../analysesProcessor";
-import { DonorInfoMap } from "../types";
+import { AnalysisType, DonorInfoMap, WorkflowName } from "../types";
 import { StreamState } from "./type";
 
 export const getMutectData = async (
   studyId: string,
   url: string,
-  analysisType: string,
-  workflowName: string,
+  analysisType: AnalysisType,
+  workflowName: WorkflowName,
   egoJwtManager: EgoJwtManager,
   analysesFetcher: typeof fetchAnalyses,
   config: {

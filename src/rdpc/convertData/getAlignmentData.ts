@@ -4,14 +4,14 @@ import {
   countAlignmentRunState,
   getAllMergedDonor,
 } from "../analysesProcessor";
-import { DonorInfoMap } from "../types";
+import { AnalysisType, DonorInfoMap, WorkflowName } from "../types";
 import { StreamState } from "./type";
 
 export const getAlignmentData = async (
   studyId: string,
   url: string,
-  analysisType: string,
-  workflowName: string,
+  analysisType: AnalysisType,
+  workflowName: WorkflowName,
   egoJwtManager: EgoJwtManager,
   analysesFetcher: typeof fetchAnalyses,
   config: {

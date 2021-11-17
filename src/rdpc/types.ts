@@ -55,6 +55,7 @@ export enum AnalysisType {
   SEQ_ALIGNMENT = "sequencing_alignment",
   SEQ_EXPERIMENT = "sequencing_experiment",
   VARIANT_CALLING = "variant_calling",
+  VARIANT_PROCESSING = "variant_processing",
 }
 
 export enum AnalysisState {
@@ -109,4 +110,11 @@ export interface WorkflowData {
   analysisId: string;
   workflowName: string;
   firstPublishedAt: string;
+}
+
+export enum WorkflowName {
+  ALIGNMENT = "alignment",
+  SANGER = "sanger",
+  MUTECT = "mutect2",
+  OPEN_ACCESS = "open",
 }

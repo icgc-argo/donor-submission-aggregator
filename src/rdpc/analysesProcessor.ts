@@ -8,6 +8,8 @@ import {
   TumourNormalDesignationValue,
   DonorData,
   StringMap,
+  WorkflowName,
+  AnalysisType,
 } from "./types";
 import logger from "logger";
 import HashCode from "ts-hashcode";
@@ -33,8 +35,8 @@ export const analysisStream = async function* ({
 }: {
   studyId: string;
   rdpcUrl: string;
-  analysisType: string;
-  workflowName: string;
+  analysisType: AnalysisType;
+  workflowName: WorkflowName;
   egoJwtManager: EgoJwtManager;
   config: {
     chunkSize: number;
@@ -174,8 +176,8 @@ export const getAllMergedDonor = async ({
 }: {
   studyId: string;
   url: string;
-  analysisType: string;
-  workflowName: string;
+  analysisType: AnalysisType;
+  workflowName: WorkflowName;
   egoJwtManager: EgoJwtManager;
   donorIds?: string[];
   config: {
@@ -263,31 +265,33 @@ export const countMutectRunState = (
   Object.entries(donorMap).forEach(([donorId, map]) => {
     Object.entries(map).forEach(([inputAnalysesId, runs]) => {
       runs.forEach((run) => {
-        if (run.state === RunState.COMPLETE) {
-          if (result[donorId]) {
-            result[donorId].mutectCompleted += 1;
-          } else {
-            initializeRdpcInfo(result, donorId);
-            result[donorId].mutectCompleted += 1;
-          }
-        }
-
-        if (run.state === RunState.RUNNING) {
-          if (result[donorId]) {
-            result[donorId].mutectRunning += 1;
-          } else {
-            initializeRdpcInfo(result, donorId);
-            result[donorId].mutectRunning += 1;
-          }
-        }
-
-        if (run.state === RunState.EXECUTOR_ERROR) {
-          if (result[donorId]) {
-            result[donorId].mutectFailed += 1;
-          } else {
-            initializeRdpcInfo(result, donorId);
-            result[donorId].mutectFailed += 1;
-          }
+        switch (run.state) {
+          case RunState.COMPLETE:
+            if (result[donorId]) {
+              result[donorId].mutectCompleted += 1;
+            } else {
+              initializeRdpcInfo(result, donorId);
+              result[donorId].mutectCompleted += 1;
+            }
+            break;
+          case RunState.RUNNING:
+            if (result[donorId]) {
+              result[donorId].mutectRunning += 1;
+            } else {
+              initializeRdpcInfo(result, donorId);
+              result[donorId].mutectRunning += 1;
+            }
+            break;
+          case RunState.EXECUTOR_ERROR:
+            if (result[donorId]) {
+              result[donorId].mutectFailed += 1;
+            } else {
+              initializeRdpcInfo(result, donorId);
+              result[donorId].mutectFailed += 1;
+            }
+            break;
+          default:
+            break;
         }
       });
     });
@@ -332,31 +336,33 @@ export const countAlignmentRunState = (
   Object.entries(donorMap).forEach(([donorId, map]) => {
     Object.entries(map).forEach(([inputAnalysesId, runs]) => {
       runs.forEach((run) => {
-        if (run.state === RunState.COMPLETE) {
-          if (result[donorId]) {
-            result[donorId].alignmentsCompleted += 1;
-          } else {
-            initializeRdpcInfo(result, donorId);
-            result[donorId].alignmentsCompleted += 1;
-          }
-        }
-
-        if (run.state === RunState.RUNNING) {
-          if (result[donorId]) {
-            result[donorId].alignmentsRunning += 1;
-          } else {
-            initializeRdpcInfo(result, donorId);
-            result[donorId].alignmentsRunning += 1;
-          }
-        }
-
-        if (run.state === RunState.EXECUTOR_ERROR) {
-          if (result[donorId]) {
-            result[donorId].alignmentsFailed += 1;
-          } else {
-            initializeRdpcInfo(result, donorId);
-            result[donorId].alignmentsFailed += 1;
-          }
+        switch (run.state) {
+          case RunState.COMPLETE:
+            if (result[donorId]) {
+              result[donorId].alignmentsCompleted += 1;
+            } else {
+              initializeRdpcInfo(result, donorId);
+              result[donorId].alignmentsCompleted += 1;
+            }
+            break;
+          case RunState.RUNNING:
+            if (result[donorId]) {
+              result[donorId].alignmentsRunning += 1;
+            } else {
+              initializeRdpcInfo(result, donorId);
+              result[donorId].alignmentsRunning += 1;
+            }
+            break;
+          case RunState.EXECUTOR_ERROR:
+            if (result[donorId]) {
+              result[donorId].alignmentsFailed += 1;
+            } else {
+              initializeRdpcInfo(result, donorId);
+              result[donorId].alignmentsFailed += 1;
+            }
+            break;
+          default:
+            break;
         }
       });
     });
@@ -372,31 +378,33 @@ export const countVCRunState = (
   Object.entries(donorMap).forEach(([donorId, map]) => {
     Object.entries(map).forEach(([inputAnalysesId, runs]) => {
       runs.forEach((run) => {
-        if (run.state === RunState.COMPLETE) {
-          if (result[donorId]) {
-            result[donorId].sangerVcsCompleted += 1;
-          } else {
-            initializeRdpcInfo(result, donorId);
-            result[donorId].sangerVcsCompleted += 1;
-          }
-        }
-
-        if (run.state === RunState.RUNNING) {
-          if (result[donorId]) {
-            result[donorId].sangerVcsRunning += 1;
-          } else {
-            initializeRdpcInfo(result, donorId);
-            result[donorId].sangerVcsRunning += 1;
-          }
-        }
-
-        if (run.state === RunState.EXECUTOR_ERROR) {
-          if (result[donorId]) {
-            result[donorId].sangerVcsFailed += 1;
-          } else {
-            initializeRdpcInfo(result, donorId);
-            result[donorId].sangerVcsFailed += 1;
-          }
+        switch (run.state) {
+          case RunState.COMPLETE:
+            if (result[donorId]) {
+              result[donorId].sangerVcsCompleted += 1;
+            } else {
+              initializeRdpcInfo(result, donorId);
+              result[donorId].sangerVcsCompleted += 1;
+            }
+            break;
+          case RunState.RUNNING:
+            if (result[donorId]) {
+              result[donorId].sangerVcsRunning += 1;
+            } else {
+              initializeRdpcInfo(result, donorId);
+              result[donorId].sangerVcsRunning += 1;
+            }
+            break;
+          case RunState.EXECUTOR_ERROR:
+            if (result[donorId]) {
+              result[donorId].sangerVcsFailed += 1;
+            } else {
+              initializeRdpcInfo(result, donorId);
+              result[donorId].sangerVcsFailed += 1;
+            }
+            break;
+          default:
+            break;
         }
       });
     });
@@ -411,31 +419,33 @@ export const countOpenAccessRunState = (
   Object.entries(donorMap).forEach(([donorId, map]) => {
     Object.entries(map).forEach(([inputAnalysesId, runs]) => {
       runs.forEach((run) => {
-        if (run.state === RunState.COMPLETE) {
-          if (result[donorId]) {
-            result[donorId].openAccessCompleted += 1;
-          } else {
-            initializeRdpcInfo(result, donorId);
-            result[donorId].openAccessCompleted += 1;
-          }
-        }
-
-        if (run.state === RunState.RUNNING) {
-          if (result[donorId]) {
-            result[donorId].openAccessRunning += 1;
-          } else {
-            initializeRdpcInfo(result, donorId);
-            result[donorId].openAccessRunning += 1;
-          }
-        }
-
-        if (run.state === RunState.EXECUTOR_ERROR) {
-          if (result[donorId]) {
-            result[donorId].openAccessFailed += 1;
-          } else {
-            initializeRdpcInfo(result, donorId);
-            result[donorId].openAccessFailed += 1;
-          }
+        switch (run.state) {
+          case RunState.COMPLETE:
+            if (result[donorId]) {
+              result[donorId].openAccessCompleted += 1;
+            } else {
+              initializeRdpcInfo(result, donorId);
+              result[donorId].openAccessCompleted += 1;
+            }
+            break;
+          case RunState.RUNNING:
+            if (result[donorId]) {
+              result[donorId].openAccessRunning += 1;
+            } else {
+              initializeRdpcInfo(result, donorId);
+              result[donorId].openAccessRunning += 1;
+            }
+            break;
+          case RunState.EXECUTOR_ERROR:
+            if (result[donorId]) {
+              result[donorId].openAccessFailed += 1;
+            } else {
+              initializeRdpcInfo(result, donorId);
+              result[donorId].openAccessFailed += 1;
+            }
+            break;
+          default:
+            break;
         }
       });
     });

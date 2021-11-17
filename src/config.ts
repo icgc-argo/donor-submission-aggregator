@@ -60,6 +60,10 @@ export const MUTECT_REPO_URL =
   process.env.MUTECT_REPO_URL ||
   "https://github.com/icgc-argo/gatk-mutect2-variant-calling.git";
 
+/**
+ * Open Access repo URL currently only works with the `.git` omitted
+ * Ticket to fix: https://github.com/icgc-argo/workflow-roadmap/issues/211
+ */
 export const OPEN_ACCESS_REPO_URL =
   process.env.OPEN_ACCESS_REPO_URL ||
   "https://github.com/icgc-argo-workflows/open-access-variant-filtering";
@@ -179,10 +183,3 @@ export const FEATURE_RDPC_INDEXING_ENABLED =
 
 export const FEATURE_INDEX_FILE_ENABLED =
   process.env.FEATURE_INDEX_FILE_ENABLED === "true";
-
-export const WORKFLOW_NAMES = {
-  ALIGNMENT: "alignment",
-  SANGER: "sanger",
-  MUTECT: "mutect2",
-  OPEN_ACCESS: "open",
-};

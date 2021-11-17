@@ -5,7 +5,7 @@ import {
   getAllMergedDonor_variantCalling,
   getEarliestDateForDonor,
 } from "rdpc/variantCallingAnalysesProcessor";
-import { DonorInfoMap } from "../types";
+import { AnalysisType, DonorInfoMap } from "../types";
 import { StreamState } from "./type";
 
 export const getVariantCallingData = async (
@@ -17,7 +17,8 @@ export const getVariantCallingData = async (
     chunkSize: number;
     state?: StreamState;
   },
-  donorIds?: string[]
+  donorIds?: string[],
+  analysisType?: AnalysisType
 ): Promise<DonorInfoMap> => {
   const mergedDonors = await getAllMergedDonor_variantCalling({
     studyId: studyId,
@@ -26,6 +27,7 @@ export const getVariantCallingData = async (
     egoJwtManager,
     config,
     analysesFetcher,
+    analysisType,
   });
 
   const donorsWithEarliestDate = getEarliestDateForDonor(mergedDonors);

@@ -1,5 +1,5 @@
 import { initialRdpcInfo, mergeDonorInfo } from "./analysesProcessor";
-import { STREAM_CHUNK_SIZE, WORKFLOW_NAMES } from "config";
+import { STREAM_CHUNK_SIZE } from "config";
 import { queryDocumentsByDonorIds } from "indexClinicalData";
 import { Client } from "@elastic/elasticsearch";
 import { EsDonorDocument, EsHit, RdpcDonorInfo } from "indexClinicalData/types";
@@ -8,7 +8,7 @@ import logger from "logger";
 import fetchAnalyses from "./query/fetchAnalyses";
 import fetchDonorIdsByAnalysis from "./query/fetchDonorIdsByAnalysis";
 import { EgoJwtManager } from "auth";
-import { AnalysisType } from "./types";
+import { AnalysisType, WorkflowName } from "./types";
 import fetchVariantCallingAnalyses from "./query/fetchVariantCallingAnalyses";
 import { getSangerData } from "./convertData/getSangerData";
 import { getAlignmentData } from "./convertData/getAlignmentData";
@@ -80,14 +80,26 @@ export const indexRdpcData = async ({
     }
   });
 
-  // contains 3 fields: mutectFirstPublishedDate, sangerVcsFirstPublishedDate, openAccessFirstPublishedDate
+  // contains 2 fields: mutectFirstPublishedDate, sangerVcsFirstPublishedDate
   const rdpcInfoByDonor_sangerMutectDates = await getVariantCallingData(
     programId,
     rdpcUrl,
     egoJwtManager,
     fetchVC,
     config,
-    donorIdsToFilterBy
+    donorIdsToFilterBy,
+    AnalysisType.VARIANT_CALLING
+  );
+
+  // contains 1 field: openAccessFirstPublishedDate
+  const rdpcInfoByDonor_openAccessDate = await getVariantCallingData(
+    programId,
+    rdpcUrl,
+    egoJwtManager,
+    fetchVC,
+    config,
+    donorIdsToFilterBy,
+    AnalysisType.VARIANT_PROCESSING
   );
 
   // contains 1 field: alignmentFirstPublishedDate
@@ -107,7 +119,7 @@ export const indexRdpcData = async ({
     programId,
     rdpcUrl,
     AnalysisType.SEQ_EXPERIMENT,
-    WORKFLOW_NAMES.ALIGNMENT,
+    WorkflowName.ALIGNMENT,
     egoJwtManager,
     analysesFetcher,
     config,
@@ -120,7 +132,7 @@ export const indexRdpcData = async ({
     programId,
     rdpcUrl,
     AnalysisType.SEQ_ALIGNMENT,
-    WORKFLOW_NAMES.SANGER,
+    WorkflowName.SANGER,
     egoJwtManager,
     analysesFetcher,
     config,
@@ -133,7 +145,7 @@ export const indexRdpcData = async ({
     programId,
     rdpcUrl,
     AnalysisType.SEQ_ALIGNMENT,
-    WORKFLOW_NAMES.MUTECT,
+    WorkflowName.MUTECT,
     egoJwtManager,
     analysesFetcher,
     config,
@@ -146,7 +158,7 @@ export const indexRdpcData = async ({
     programId,
     rdpcUrl,
     AnalysisType.VARIANT_CALLING,
-    WORKFLOW_NAMES.OPEN_ACCESS,
+    WorkflowName.OPEN_ACCESS,
     egoJwtManager,
     analysesFetcher,
     config,
@@ -180,11 +192,16 @@ export const indexRdpcData = async ({
     rdpcDocsMap,
     rdpcInfoByDonor_openAccess
   );
+
+  const rdpcDocsMap_openAccessDates = mergeDonorInfo(
+    rdpcDocsMap_openAccess,
+    rdpcInfoByDonor_openAccessDate
+  );
   /**  ---------- End of merge DonorInfoMap --------- */
 
   // get existing ES donors from the previous index, because we only want to index RDPC donors that
   // have already been registered in clinical.
-  const donorIds = Object.keys(rdpcDocsMap_openAccess);
+  const donorIds = Object.keys(rdpcDocsMap_openAccessDates);
   const esHits = await queryDocumentsByDonorIds(
     donorIds,
     esClient,
@@ -199,7 +216,7 @@ export const indexRdpcData = async ({
 
   const esDocuments = Object.entries(preExistingDonorHits).map(
     ([donorId, esHit]) => {
-      const newRdpcInfo = rdpcDocsMap_openAccess[donorId];
+      const newRdpcInfo = rdpcDocsMap_openAccessDates[donorId];
       return convertToEsDocument(esHit._source, newRdpcInfo);
     }
   );

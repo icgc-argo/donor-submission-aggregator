@@ -19,11 +19,10 @@ import {
   variantCallingAnalyses,
   variantCallingAnalyses_open,
 } from "./fixtures/integrationTest/mockAnalyses";
-import { Analysis, AnalysisType } from "../types";
+import { Analysis, AnalysisType, WorkflowName } from "../types";
 import { EgoAccessToken, EgoJwtManager } from "auth";
 import fetchAnalysesWithSpecimens from "../query/fetchAnalysesWithSpecimens";
 import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
-import { WORKFLOW_NAMES } from "config";
 
 describe("should index RDPC analyses to donor index", () => {
   let elasticsearchContainer: StartedTestContainer;
@@ -64,11 +63,11 @@ describe("should index RDPC analyses to donor index", () => {
         ? seqExpAnalyses
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
-        : workflowName === WORKFLOW_NAMES.MUTECT
+        : workflowName === WorkflowName.MUTECT
         ? seqAlignmentAnalyses_mutect
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
-        : workflowName === WORKFLOW_NAMES.SANGER
+        : workflowName === WorkflowName.SANGER
         ? seqAlignmentAnalyses_sanger
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)

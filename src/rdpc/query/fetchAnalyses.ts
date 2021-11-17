@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { Analysis, AnalysisState, AnalysisType } from "../types";
+import { Analysis, AnalysisState, AnalysisType, WorkflowName } from "../types";
 import logger from "logger";
 import promiseRetry from "promise-retry";
 import _ from "lodash";
@@ -9,7 +9,6 @@ import {
   SANGER_VC_REPO_URL,
   SEQ_ALIGN_REPO_URL,
   OPEN_ACCESS_REPO_URL,
-  WORKFLOW_NAMES,
 } from "config";
 import { QueryVariable } from "./types";
 
@@ -68,7 +67,7 @@ const fetchAnalyses = async ({
   studyId: string;
   rdpcUrl: string;
   analysisType: string;
-  workflowName: string;
+  workflowName: WorkflowName;
   from: number;
   size: number;
   egoJwtManager: EgoJwtManager;
@@ -130,7 +129,7 @@ const fetchAnalyses = async ({
 
 const getWorkflowRepoUrl = (
   analysisType: string,
-  workflowName: string
+  workflowName: WorkflowName
 ): string => {
   if (analysisType === AnalysisType.SEQ_EXPERIMENT) {
     logger.info(
@@ -139,12 +138,12 @@ const getWorkflowRepoUrl = (
     return SEQ_ALIGN_REPO_URL;
   } else if (analysisType === AnalysisType.SEQ_ALIGNMENT) {
     switch (workflowName) {
-      case WORKFLOW_NAMES.MUTECT:
+      case WorkflowName.MUTECT:
         logger.info(
           `Starting to query ${analysisType} analyses for mutect2 workflow runs`
         );
         return MUTECT_REPO_URL;
-      case WORKFLOW_NAMES.SANGER:
+      case WorkflowName.SANGER:
         logger.info(
           `Starting to query ${analysisType} analyses for sanger variant calling workflow runs`
         );
@@ -157,7 +156,7 @@ const getWorkflowRepoUrl = (
     }
   } else if (
     analysisType === AnalysisType.VARIANT_CALLING &&
-    workflowName === WORKFLOW_NAMES.OPEN_ACCESS
+    workflowName === WorkflowName.OPEN_ACCESS
   ) {
     logger.info(
       `Starting to query ${analysisType} analyses for open access workflow runs`

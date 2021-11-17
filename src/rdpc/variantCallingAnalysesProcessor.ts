@@ -3,8 +3,14 @@ import _ from "lodash";
 import logger from "logger";
 import { initializeRdpcInfo } from "./analysesProcessor";
 import fetchVariantCallingAnalyses from "./query/fetchVariantCallingAnalyses";
-import { Analysis, DonorInfoMap, WorkflowInfo, StringMap } from "./types";
-import { WORKFLOW_NAMES } from "config";
+import {
+  Analysis,
+  AnalysisType,
+  DonorInfoMap,
+  StringMap,
+  WorkflowInfo,
+  WorkflowName,
+} from "./types";
 
 export const variantCallingStream = async function* ({
   studyId,
@@ -13,6 +19,7 @@ export const variantCallingStream = async function* ({
   config,
   analysesFetcher = fetchVariantCallingAnalyses,
   donorId,
+  analysisType = AnalysisType.VARIANT_CALLING,
 }: {
   studyId: string;
   rdpcUrl: string;
@@ -22,6 +29,7 @@ export const variantCallingStream = async function* ({
   };
   analysesFetcher: typeof fetchVariantCallingAnalyses;
   donorId?: string;
+  analysisType?: AnalysisType;
 }): AsyncGenerator<Analysis[]> {
   const chunkSize = config.chunkSize;
   const streamState: StreamState = {
@@ -36,6 +44,7 @@ export const variantCallingStream = async function* ({
       size: chunkSize,
       egoJwtManager,
       donorId,
+      analysisType,
     });
 
     // in case of api returns less analyses than chunk size, we need to stream from the last analysis
@@ -124,6 +133,7 @@ export const getAllMergedDonor_variantCalling = async ({
   url,
   config,
   donorIds,
+  analysisType = AnalysisType.VARIANT_CALLING,
 }: {
   studyId: string;
   url: string;
@@ -134,6 +144,7 @@ export const getAllMergedDonor_variantCalling = async ({
     state?: StreamState;
   };
   analysesFetcher: typeof fetchVariantCallingAnalyses;
+  analysisType?: AnalysisType;
 }): Promise<StringMap<WorkflowInfo>> => {
   const mergedDonors: StringMap<WorkflowInfo> = {};
 
@@ -147,10 +158,11 @@ export const getAllMergedDonor_variantCalling = async ({
         config,
         analysesFetcher,
         donorId,
+        analysisType,
       });
       for await (const page of stream) {
         logger.info(
-          `Streaming ${page.length} of variant calling analyses for sanger/mutect first published dates...`
+          `Streaming ${page.length} of '${analysisType}' analyses for sanger/mutect/open access first published dates...`
         );
         const donorPerPage = convertAnalysis(page);
         mergeAllDonors(mergedDonors, donorPerPage);
@@ -163,10 +175,11 @@ export const getAllMergedDonor_variantCalling = async ({
       egoJwtManager,
       config,
       analysesFetcher,
+      analysisType,
     });
     for await (const page of stream) {
       logger.info(
-        `Streaming ${page.length} of variant calling analyses for sanger/mutect first published dates...`
+        `Streaming ${page.length} of '${analysisType}' analyses for sanger/mutect/open access first published dates...`
       );
       const donorPerPage = convertAnalysis(page);
       mergeAllDonors(mergedDonors, donorPerPage);
@@ -221,15 +234,15 @@ const convertAnalysis = (analyses: Analysis[]): StringMap<WorkflowInfo> => {
           firstPublishedAt: analysis.firstPublishedAt,
         };
 
-        if (workflowName.includes(WORKFLOW_NAMES.MUTECT)) {
+        if (workflowName.includes(WorkflowName.MUTECT)) {
           info.mutect.push(workflowData);
         }
 
-        if (workflowName.includes(WORKFLOW_NAMES.SANGER)) {
+        if (workflowName.includes(WorkflowName.SANGER)) {
           info.sangerVC.push(workflowData);
         }
 
-        if (workflowName.includes(WORKFLOW_NAMES.OPEN_ACCESS)) {
+        if (workflowName.includes(WorkflowName.OPEN_ACCESS)) {
           info.openAccess.push(workflowData);
         }
 
