@@ -1,14 +1,14 @@
 import { EgoJwtManager } from "auth";
 import fetchAnalyses from "rdpc/query/fetchAnalyses";
 import { countVCRunState, getAllMergedDonor } from "../analysesProcessor";
-import { DonorInfoMap } from "../types";
+import { AnalysisType, DonorInfoMap, WorkflowName } from "../types";
 import { StreamState } from "./type";
 
 export const getSangerData = async (
   studyId: string,
   url: string,
-  analysisType: string,
-  isMutect: boolean,
+  analysisType: AnalysisType,
+  workflowName: WorkflowName,
   egoJwtManager: EgoJwtManager,
   analysesFetcher: typeof fetchAnalyses,
   config: {
@@ -17,17 +17,17 @@ export const getSangerData = async (
   },
   donorIds?: string[]
 ): Promise<DonorInfoMap> => {
-  const mergedMutectDonors = await getAllMergedDonor({
+  const mergedSangerDonors = await getAllMergedDonor({
     studyId: studyId,
     url: url,
     donorIds: donorIds,
     analysisType: analysisType,
-    isMutect: isMutect,
+    workflowName: workflowName,
     egoJwtManager,
     config,
     analysesFetcher,
   });
 
-  const rdpcInfoByDonor = countVCRunState(mergedMutectDonors);
-  return rdpcInfoByDonor;
+  const rdpcInfoByDonor_sanger = countVCRunState(mergedSangerDonors);
+  return rdpcInfoByDonor_sanger;
 };

@@ -17,8 +17,9 @@ import {
   seqExpAnalyses,
   seqExpAnalysesWithSpecimens,
   variantCallingAnalyses,
+  variantCallingAnalyses_open,
 } from "./fixtures/integrationTest/mockAnalyses";
-import { Analysis, AnalysisType } from "../types";
+import { Analysis, AnalysisType, WorkflowName } from "../types";
 import { EgoAccessToken, EgoJwtManager } from "auth";
 import fetchAnalysesWithSpecimens from "../query/fetchAnalysesWithSpecimens";
 import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
@@ -49,7 +50,7 @@ describe("should index RDPC analyses to donor index", () => {
     studyId,
     rdpcUrl,
     analysisType,
-    isMutect,
+    workflowName,
     from,
     size,
     egoJwtManager,
@@ -62,11 +63,15 @@ describe("should index RDPC analyses to donor index", () => {
         ? seqExpAnalyses
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
-        : isMutect
+        : workflowName === WorkflowName.MUTECT
         ? seqAlignmentAnalyses_mutect
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
-        : seqAlignmentAnalyses_sanger
+        : workflowName === WorkflowName.SANGER
+        ? seqAlignmentAnalyses_sanger
+            .filter((analysis) => analysis.donors.some(matchesDonorId))
+            .slice(from, from + size)
+        : variantCallingAnalyses_open
             .filter((analysis) => analysis.donors.some(matchesDonorId))
             .slice(from, from + size)
     );
@@ -259,11 +264,23 @@ describe("should index RDPC analyses to donor index", () => {
       expect(hit._source.mutectFailed).to.equal(
         expectedRDPCData[hit._source.donorId].mutectFailed
       );
+      expect(hit._source.openAccessCompleted).to.equal(
+        expectedRDPCData[hit._source.donorId].openAccessCompleted
+      );
+      expect(hit._source.openAccessRunning).to.equal(
+        expectedRDPCData[hit._source.donorId].openAccessRunning
+      );
+      expect(hit._source.openAccessFailed).to.equal(
+        expectedRDPCData[hit._source.donorId].openAccessFailed
+      );
       expect(hit._source.sangerVcsFirstPublishedDate).to.equal(
         expectedRDPCData[hit._source.donorId].sangerVcsFirstPublishedDate
       );
       expect(hit._source.mutectFirstPublishedDate).to.equal(
         expectedRDPCData[hit._source.donorId].mutectFirstPublishedDate
+      );
+      expect(hit._source.openAccessFirstPublishedDate).to.equal(
+        expectedRDPCData[hit._source.donorId].openAccessFirstPublishedDate
       );
     }
   });
@@ -420,6 +437,39 @@ describe("should index RDPC analyses to donor index", () => {
       ]);
       expect([
         hit._source.donorId,
+        "openAccessCompleted",
+        hit._source.openAccessCompleted,
+      ]).to.deep.equal([
+        hit._source.donorId,
+        "openAccessCompleted",
+        hit._source.donorId === testDonorId
+          ? expectedRDPCData[hit._source.donorId].openAccessCompleted
+          : 0,
+      ]);
+      expect([
+        hit._source.donorId,
+        "openAccessRunning",
+        hit._source.openAccessRunning,
+      ]).to.deep.equal([
+        hit._source.donorId,
+        "openAccessRunning",
+        hit._source.donorId === testDonorId
+          ? expectedRDPCData[hit._source.donorId].openAccessRunning
+          : 0,
+      ]);
+      expect([
+        hit._source.donorId,
+        "openAccessFailed",
+        hit._source.openAccessFailed,
+      ]).to.deep.equal([
+        hit._source.donorId,
+        "openAccessFailed",
+        hit._source.donorId === testDonorId
+          ? expectedRDPCData[hit._source.donorId].openAccessFailed
+          : 0,
+      ]);
+      expect([
+        hit._source.donorId,
         "sangerVcsFirstPublishedDate",
         hit._source.sangerVcsFirstPublishedDate,
       ]).to.deep.equal([
@@ -435,6 +485,15 @@ describe("should index RDPC analyses to donor index", () => {
         hit._source.donorId,
         "mutectFirstPublishedDate",
         expectedRDPCData[hit._source.donorId].mutectFirstPublishedDate,
+      ]);
+      expect([
+        hit._source.donorId,
+        "openAccessFirstPublishedDate",
+        hit._source.openAccessFirstPublishedDate,
+      ]).to.deep.equal([
+        hit._source.donorId,
+        "openAccessFirstPublishedDate",
+        expectedRDPCData[hit._source.donorId].openAccessFirstPublishedDate,
       ]);
     });
   });

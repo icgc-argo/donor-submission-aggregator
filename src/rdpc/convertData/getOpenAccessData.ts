@@ -1,10 +1,13 @@
 import { EgoJwtManager } from "auth";
 import fetchAnalyses from "rdpc/query/fetchAnalyses";
-import { countMutectRunState, getAllMergedDonor } from "../analysesProcessor";
+import {
+  countOpenAccessRunState,
+  getAllMergedDonor,
+} from "../analysesProcessor";
 import { AnalysisType, DonorInfoMap, WorkflowName } from "../types";
 import { StreamState } from "./type";
 
-export const getMutectData = async (
+export const getOpenAccessData = async (
   studyId: string,
   url: string,
   analysisType: AnalysisType,
@@ -17,7 +20,7 @@ export const getMutectData = async (
   },
   donorIds?: string[]
 ): Promise<DonorInfoMap> => {
-  const mergedMutectDonors = await getAllMergedDonor({
+  const mergedOpenAccessDonors = await getAllMergedDonor({
     studyId: studyId,
     url: url,
     donorIds: donorIds,
@@ -28,6 +31,8 @@ export const getMutectData = async (
     analysesFetcher,
   });
 
-  const rdpcInfoByDonor_mutect = countMutectRunState(mergedMutectDonors);
-  return rdpcInfoByDonor_mutect;
+  const rdpcInfoByDonor_openAccess = countOpenAccessRunState(
+    mergedOpenAccessDonors
+  );
+  return rdpcInfoByDonor_openAccess;
 };

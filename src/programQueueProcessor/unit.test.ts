@@ -388,6 +388,15 @@ describe("kafka integration", () => {
         expect(test_ca_hit.hits[0]._source.mutectFailed).to.equal(
           expectedRDPCData["DO" + donorId].mutectFailed
         );
+        expect(test_ca_hit.hits[0]._source.openAccessCompleted).to.equal(
+          expectedRDPCData["DO" + donorId].openAccessCompleted
+        );
+        expect(test_ca_hit.hits[0]._source.openAccessRunning).to.equal(
+          expectedRDPCData["DO" + donorId].openAccessRunning
+        );
+        expect(test_ca_hit.hits[0]._source.openAccessFailed).to.equal(
+          expectedRDPCData["DO" + donorId].openAccessFailed
+        );
         expect(
           test_ca_hit.hits[0]._source.sangerVcsFirstPublishedDate
         ).to.equal(
@@ -395,6 +404,11 @@ describe("kafka integration", () => {
         );
         expect(test_ca_hit.hits[0]._source.mutectFirstPublishedDate).to.equal(
           expectedRDPCData["DO" + donorId].mutectFirstPublishedDate
+        );
+        expect(
+          test_ca_hit.hits[0]._source.openAccessFirstPublishedDate
+        ).to.equal(
+          expectedRDPCData["DO" + donorId].openAccessFirstPublishedDate
         );
       }
 
@@ -730,6 +744,39 @@ describe("kafka integration", () => {
             ? expectedRDPCData[hit._source.donorId].mutectFailed
             : 0,
         ]);
+        expect([
+          hit._source.donorId,
+          "openAccessCompleted",
+          hit._source.openAccessCompleted,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "openAccessCompleted",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].openAccessCompleted
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "openAccessRunning",
+          hit._source.openAccessRunning,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "openAccessRunning",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].openAccessRunning
+            : 0,
+        ]);
+        expect([
+          hit._source.donorId,
+          "openAccessFailed",
+          hit._source.openAccessFailed,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "openAccessFailed",
+          hit._source.donorId === testDonorId
+            ? expectedRDPCData[hit._source.donorId].openAccessFailed
+            : 0,
+        ]);
 
         expect([
           hit._source.donorId,
@@ -749,6 +796,16 @@ describe("kafka integration", () => {
           hit._source.donorId,
           "mutectFirstPublishedDate",
           expectedRDPCData[hit._source.donorId].mutectFirstPublishedDate,
+        ]);
+
+        expect([
+          hit._source.donorId,
+          "openAccessFirstPublishedDate",
+          hit._source.openAccessFirstPublishedDate,
+        ]).to.deep.equal([
+          hit._source.donorId,
+          "openAccessFirstPublishedDate",
+          expectedRDPCData[hit._source.donorId].openAccessFirstPublishedDate,
         ]);
       });
     });

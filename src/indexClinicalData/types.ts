@@ -30,6 +30,11 @@ export type RdpcDonorInfo = {
   mutectFailed: number;
   mutectFirstPublishedDate?: Date;
 
+  openAccessCompleted: number;
+  openAccessRunning: number;
+  openAccessFailed: number;
+  openAccessFirstPublishedDate?: Date;
+
   totalFilesCount: number;
   filesToQcCount: number;
 
