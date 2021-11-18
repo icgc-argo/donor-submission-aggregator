@@ -68,19 +68,19 @@ export const convertEarliestDateToDonorInfo = (
   Object.entries(donors).forEach(([donorId, info]) => {
     initializeRdpcInfo(result, donorId);
 
-    if (info.sangerVC[0]) {
+    if (info.sangerVC[0]?.firstPublishedAt) {
       result[donorId].sangerVcsFirstPublishedDate = new Date(
         Number(info.sangerVC[0].firstPublishedAt)
       );
     }
 
-    if (info.mutect[0]) {
+    if (info.mutect[0]?.firstPublishedAt) {
       result[donorId].mutectFirstPublishedDate = new Date(
         Number(info.mutect[0].firstPublishedAt)
       );
     }
 
-    if (info.openAccess[0]) {
+    if (info.openAccess[0]?.firstPublishedAt) {
       result[donorId].openAccessFirstPublishedDate = new Date(
         Number(info.openAccess[0].firstPublishedAt)
       );
