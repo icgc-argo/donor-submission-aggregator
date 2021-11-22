@@ -25,7 +25,7 @@ import {
   donorCentricWithMultipleTNPairs_page_2,
   donorCentricWithOneTNPair,
   mergedDonorByAlignRuns,
-} from "./fixtures/SeqAlignAnalyses/exptectedResults";
+} from "./fixtures/SeqAlignAnalyses/expectedResults";
 import {
   mergedDonorByInputAnalyses,
   seqAlignAnalysesWithMultiTNPairs_page_1,
@@ -34,8 +34,8 @@ import {
 } from "./fixtures/SeqAlignAnalyses/testData";
 import {
   analysesWithValidCompleteAndActiveRuns_expected,
-  donorCentric_page_1_exptected,
-  donorCentric_page_2_exptected,
+  donorCentric_page_1_expected,
+  donorCentric_page_2_expected,
   donorStateMap_expected,
   latestRun_expected_1,
   mergedPage_expected,
@@ -83,14 +83,14 @@ describe("RDPC sequencing experiment analyses processing", () => {
     );
 
     expect(JSON.stringify(donorCentric_page_1)).to.equal(
-      JSON.stringify(donorCentric_page_1_exptected)
+      JSON.stringify(donorCentric_page_1_expected)
     );
 
     const donorCentric_page_2 = toDonorCentric(
       seqExpAnalysesWithMultipleRuns_page_2
     );
     expect(JSON.stringify(donorCentric_page_2)).to.equal(
-      JSON.stringify(donorCentric_page_2_exptected)
+      JSON.stringify(donorCentric_page_2_expected)
     );
 
     const allMerged = await getAllRunsByAnalysesByDonors(

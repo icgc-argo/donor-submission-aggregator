@@ -61,6 +61,14 @@ export const MUTECT_REPO_URL =
   "https://github.com/icgc-argo/gatk-mutect2-variant-calling.git";
 
 /**
+ * Open Access repo URL currently only works with the `.git` omitted
+ * Ticket to fix: https://github.com/icgc-argo/workflow-roadmap/issues/211
+ */
+export const OPEN_ACCESS_REPO_URL =
+  process.env.OPEN_ACCESS_REPO_URL ||
+  "https://github.com/icgc-argo-workflows/open-access-variant-filtering";
+
+/**
  * Kafka Configs
  */
 export const KAFKA_PUBLIC_RELEASE_TOPIC =
