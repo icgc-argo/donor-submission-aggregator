@@ -86,14 +86,21 @@ export const KAFKA_PROGRAM_QUEUE_TOPIC =
 export const DLQ_TOPIC_NAME =
   process.env.DLQ_TOPIC_NAME || "donor_aggregator_dlq";
 
+// Default 12*1000 = 12 seconds
 export const KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL =
-  process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL || 12 * 1000;
+  Number(process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL) ||
+  12 * 1000;
 
+// Default 120*1000 = 2 minutes, allows 1/10 heartbeat successes to stay connected
 export const KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT =
-  process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT || 120 * 1000;
+  Number(process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT) ||
+  120 * 1000;
 
+// Default 240*1000 = 4 minutes. Rebalance is the time kafka will wait for consumer to reconnect while rebalancing.
+// If you are experiencing long startup times waiting for kafka connection, this is the likely culprit.
 export const KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT =
-  process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT || 240 * 1000;
+  Number(process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT) ||
+  240 * 1000;
 
 export const KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP =
   process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP ||
@@ -109,10 +116,9 @@ const kafkaBrokers = process.env.KAFKA_BROKERS
 export const KAFKA_BROKERS = kafkaBrokers.length
   ? kafkaBrokers
   : ["localhost:9092"];
-export const PARTITIONS_CONSUMED_CONCURRENTLY = process.env
-  .PARTITIONS_CONSUMED_CONCURRENTLY
-  ? Number(process.env.PARTITIONS_CONSUMED_CONCURRENTLY)
-  : 10;
+export const PARTITIONS_CONSUMED_CONCURRENTLY = Number(
+  process.env.PARTITIONS_CONSUMED_CONCURRENTLY || 5
+);
 export const KAFKA_PROGRAM_QUEUE_TOPIC_PARTITIONS = Number(
   process.env.KAFKA_PROGRAM_QUEUE_TOPIC_PARTITIONS || 5
 );
