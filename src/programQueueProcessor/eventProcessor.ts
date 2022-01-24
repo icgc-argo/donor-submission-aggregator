@@ -303,8 +303,10 @@ const createEventProcessor = ({
 
         await setIndexWritable(esClient, targetIndexName, false);
         logger.info(`Disabled index writing for: ${targetIndexName}`);
+        statusReporter?.endProcessingProgram(programId);
       }, RETRY_CONFIG_RDPC_GATEWAY);
     } catch (err) {
+      statusReporter?.endProcessingProgram(programId);
       logger.error(
         `Failed to index program ${programId} after ${
           RETRY_CONFIG_RDPC_GATEWAY.retries
@@ -313,8 +315,6 @@ const createEventProcessor = ({
       );
       // Message processing failed, make sure it is sent to the Dead Letter Queue.
       sendDlqMessage(DLQ_TOPIC_NAME, message.value.toString());
-    } finally {
-      statusReporter?.endProcessingProgram(programId);
     }
   };
 };
