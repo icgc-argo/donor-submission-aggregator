@@ -98,23 +98,44 @@ export const getEarliestDateForDonor = (
   Object.entries(donors).forEach(([donorId, info]) => {
     const wfInfo: WorkflowInfo = { sangerVC: [], mutect: [], openAccess: [] };
 
+    // Skip the current analysis if its firstPublishedAt is null or empty.
     const earliestSanger = _.head(
-      _.sortBy(info.sangerVC, (sanger) => Number(sanger.firstPublishedAt))
+      _.sortBy(
+        _.filter(
+          info.sangerVC,
+          (sanger) =>
+            sanger.firstPublishedAt !== null && sanger.firstPublishedAt !== ""
+        ),
+        (sanger) => Number(sanger.firstPublishedAt)
+      )
     );
     if (earliestSanger) {
       wfInfo.sangerVC.push(earliestSanger);
     }
 
     const earliestMutect = _.head(
-      _.sortBy(info.mutect, (mutect) => Number(mutect.firstPublishedAt))
+      _.sortBy(
+        _.filter(
+          info.mutect,
+          (mutect) =>
+            mutect.firstPublishedAt !== null && mutect.firstPublishedAt !== ""
+        ),
+        (mutect) => Number(mutect.firstPublishedAt)
+      )
     );
     if (earliestMutect) {
       wfInfo.mutect.push(earliestMutect);
     }
 
     const earliestOpenAccess = _.head(
-      _.sortBy(info.openAccess, (openAccess) =>
-        Number(openAccess.firstPublishedAt)
+      _.sortBy(
+        _.filter(
+          info.openAccess,
+          (openAccess) =>
+            openAccess.firstPublishedAt !== null &&
+            openAccess.firstPublishedAt !== ""
+        ),
+        (openAccess) => Number(openAccess.firstPublishedAt)
       )
     );
     if (earliestOpenAccess) {
@@ -227,6 +248,14 @@ const convertAnalysis = (analyses: Analysis[]): StringMap<WorkflowInfo> => {
           mutect: [],
           openAccess: [],
         };
+
+        if (
+          analysis.firstPublishedAt == null ||
+          analysis.firstPublishedAt == ""
+        ) {
+          logger.warn(`Incomplete RDPC data: analysis id ${analysis.analysisId} firstPublishedAt value is null or empty,
+          this analysis will not be counted towards donor ${donor.donorId}'s final 'firstPublishedAt' stats.`);
+        }
 
         const workflowData = {
           analysisId: analysis.analysisId,
