@@ -164,7 +164,7 @@ const getNewResolvedIndex = async (
   return newResolvedIndex;
 };
 
-const createEventProcessor = async ({
+const createEventProcessor = ({
   rollCallClient,
   esClient,
   egoJwtManager,
@@ -204,7 +204,10 @@ const createEventProcessor = async ({
     const doClone = queuedEvent.type !== KnownEventType.SYNC;
 
     try {
-      await withRetry(async (retry, attemptIndex) => {
+      // No await on the withRetry():
+      //  we need this method to return to the kafka consumer immediately so that this long running process doesn't
+      //  disconnect the consumer group from the kafka broker.
+      withRetry(async (retry, attemptIndex) => {
         const newResolvedIndex = await getNewResolvedIndex(
           programId,
           esClient,
@@ -300,8 +303,10 @@ const createEventProcessor = async ({
 
         await setIndexWritable(esClient, targetIndexName, false);
         logger.info(`Disabled index writing for: ${targetIndexName}`);
+        statusReporter?.endProcessingProgram(programId);
       }, RETRY_CONFIG_RDPC_GATEWAY);
     } catch (err) {
+      statusReporter?.endProcessingProgram(programId);
       logger.error(
         `Failed to index program ${programId} after ${
           RETRY_CONFIG_RDPC_GATEWAY.retries
@@ -309,10 +314,8 @@ const createEventProcessor = async ({
         err
       );
       // Message processing failed, make sure it is sent to the Dead Letter Queue.
-      await sendDlqMessage(DLQ_TOPIC_NAME, message.value.toString());
+      sendDlqMessage(DLQ_TOPIC_NAME, message.value.toString());
     }
-
-    statusReporter?.endProcessingProgram(programId);
   };
 };
 export default createEventProcessor;

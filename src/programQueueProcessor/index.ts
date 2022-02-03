@@ -58,9 +58,9 @@ const createProgramQueueProcessor = async ({
 }): Promise<ProgramQueueProcessor> => {
   const consumer = kafka.consumer({
     groupId: KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP,
-    heartbeatInterval: Number(KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL),
-    sessionTimeout: Number(KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT),
-    rebalanceTimeout: Number(KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT),
+    heartbeatInterval: KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL,
+    sessionTimeout: KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT,
+    rebalanceTimeout: KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT,
   });
   const producer = kafka.producer();
   const programQueueTopic = await initializeProgramQueueTopic(kafka);
@@ -93,7 +93,7 @@ const createProgramQueueProcessor = async ({
 
   await consumer.run({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
-    eachMessage: await createEventProcessor({
+    eachMessage: createEventProcessor({
       esClient,
       egoJwtManager,
       rollCallClient,
