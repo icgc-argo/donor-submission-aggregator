@@ -8,6 +8,7 @@ import {
   AnalysisType,
   DonorInfoMap,
   StringMap,
+  WorkflowData,
   WorkflowInfo,
   WorkflowName,
 } from "./types";
@@ -98,25 +99,17 @@ export const getEarliestDateForDonor = (
   Object.entries(donors).forEach(([donorId, info]) => {
     const wfInfo: WorkflowInfo = { sangerVC: [], mutect: [], openAccess: [] };
 
-    const earliestSanger = _.head(
-      _.sortBy(info.sangerVC, (sanger) => Number(sanger.firstPublishedAt))
-    );
+    const earliestSanger = findEarliestWorkflow(info.sangerVC);
     if (earliestSanger) {
       wfInfo.sangerVC.push(earliestSanger);
     }
 
-    const earliestMutect = _.head(
-      _.sortBy(info.mutect, (mutect) => Number(mutect.firstPublishedAt))
-    );
+    const earliestMutect = findEarliestWorkflow(info.mutect);
     if (earliestMutect) {
       wfInfo.mutect.push(earliestMutect);
     }
 
-    const earliestOpenAccess = _.head(
-      _.sortBy(info.openAccess, (openAccess) =>
-        Number(openAccess.firstPublishedAt)
-      )
-    );
+    const earliestOpenAccess = findEarliestWorkflow(info.openAccess);
     if (earliestOpenAccess) {
       wfInfo.openAccess.push(earliestOpenAccess);
     }
@@ -228,6 +221,14 @@ const convertAnalysis = (analyses: Analysis[]): StringMap<WorkflowInfo> => {
           openAccess: [],
         };
 
+        if (
+          analysis.firstPublishedAt == null ||
+          analysis.firstPublishedAt == ""
+        ) {
+          logger.warn(`Incomplete RDPC data: analysis id ${analysis.analysisId} firstPublishedAt value is null or empty,
+          this analysis will not be counted towards donor ${donor.donorId}'s final 'firstPublishedAt' stats.`);
+        }
+
         const workflowData = {
           analysisId: analysis.analysisId,
           workflowName: workflowName,
@@ -255,6 +256,22 @@ const convertAnalysis = (analyses: Analysis[]): StringMap<WorkflowInfo> => {
     mergeAllDonors(result, infoMapPerAnalysis);
   });
   return result;
+};
+
+// Finds the earliest published workflow, skips the current workflow if its firstPublishedAt is null or empty.
+const findEarliestWorkflow = (
+  workflow: WorkflowData[]
+): WorkflowData | undefined => {
+  const earliestWf = _.head(
+    _.sortBy(
+      _.filter(
+        workflow,
+        (wf) => wf.firstPublishedAt !== null && wf.firstPublishedAt !== ""
+      ),
+      (wf) => Number(wf.firstPublishedAt)
+    )
+  );
+  return earliestWf;
 };
 
 type StreamState = {
