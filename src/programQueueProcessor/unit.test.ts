@@ -613,6 +613,12 @@ describe("kafka integration", () => {
         programId: TEST_CA,
         type: programQueueProcessor.knownEventTypes.CLINICAL,
       });
+      // wait for indexing to complete
+      await new Promise<void>((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, 30000);
+      });
       await programQueueProcessor.enqueueEvent({
         programId: TEST_CA,
         type: programQueueProcessor.knownEventTypes.RDPC,
