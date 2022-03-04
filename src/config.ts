@@ -8,15 +8,23 @@ dotenv.config({
 });
 
 export const EGO_URL = process.env.EGO_URL || "http://localhost:8081";
-export const EGO_CLIENT_ID =
-  process.env.EGO_CLIENT_ID || "donor-submission-aggregator";
-export const EGO_CLIENT_SECRET =
-  process.env.EGO_CLIENT_SECRET || "donor-submission-aggregator-secret";
+
+export const EGO_APP_RDPC_CLIENT_ID =
+  process.env.EGO_APP_RDPC_CLIENT_ID || "donor-submission-aggregator-rdpc";
+export const EGO_APP_RDPC_CLIENT_SECRET =
+  process.env.EGO_APP_RDPC_CLIENT_SECRET || "top-secret";
+export const EGO_APP_DCC_CLIENT_ID =
+  process.env.EGO_APP_DCC_CLIENT_ID || "donor-submission-aggregator-dcc";
+export const EGO_APP_DCC_CLIENT_SECRET =
+  process.env.EGO_APP_RDPC_CLIENT_SECRET || "top-secret";
+
 export const EGO_PUBLIC_KEY = process.env.EGO_PUBLIC_KEY as string;
 export const RDPC_URL = process.env.RDPC_URL || "http://localhost:8000";
 
 export const FILES_SERVICE_URL =
   process.env.FILES_SERVICE_URL || "http://localhost:8000";
+
+export const CLINICAL_URL = process.env.CLINICAL_URL || "http://localhost:3000";
 export const MONGO_URL =
   process.env.MONGO_URL || "mongodb://localhost:27017/clinical";
 export const MONGO_USER = process.env.MONGO_USER;
@@ -71,6 +79,9 @@ export const OPEN_ACCESS_REPO_URL =
 /**
  * Kafka Configs
  */
+// Default enable kafka unless this flag is provided with value = false
+export const FLAG_DEV_DISABLE_KAFKA =
+  process.env.FLAG_DEV_DISABLE_KAFKA !== "false";
 export const KAFKA_PUBLIC_RELEASE_TOPIC =
   process.env.KAFKA_PUBLIC_RELEASE_TOPIC || "files_public_release";
 
@@ -124,8 +135,6 @@ export const KAFKA_PROGRAM_QUEUE_TOPIC_PARTITIONS = Number(
 );
 export const PORT = Number(process.env.PORT || 7000);
 
-export const ENABLED = process.env.ENABLED === "true";
-
 /**
  * VAULT configurations
  */
@@ -141,6 +150,10 @@ export const VAULT_MONGO_SECRET_PATH = process.env
   .VAULT_MONGO_SECRET_PATH as string;
 export const VAULT_EGO_SECRET_PATH = process.env
   .VAULT_EGO_SECRET_PATH as string;
+export const VAULT_SECRET_PATH_EGO_APP_RDPC =
+  process.env.VAULT_SECRET_PATH_EGO_APP_RDPC;
+export const VAULT_SECRET_PATH_EGO_APP_DCC =
+  process.env.VAULT_SECRET_PATH_EGO_APP_DCC;
 const REQUIRED_VAULT_CONFIGS = {
   VAULT_AUTH_METHOD,
   VAULT_URL,

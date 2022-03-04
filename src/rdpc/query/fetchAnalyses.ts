@@ -3,7 +3,7 @@ import { Analysis, AnalysisState, AnalysisType, WorkflowName } from "../types";
 import logger from "logger";
 import promiseRetry from "promise-retry";
 import _ from "lodash";
-import { EgoAccessToken, EgoJwtManager } from "auth";
+import { getEgoToken } from "external/ego";
 import {
   MUTECT_REPO_URL,
   SANGER_VC_REPO_URL,
@@ -61,7 +61,6 @@ const fetchAnalyses = async ({
   workflowName,
   from,
   size,
-  egoJwtManager,
   donorId,
 }: {
   studyId: string;
@@ -70,11 +69,8 @@ const fetchAnalyses = async ({
   workflowName: WorkflowName;
   from: number;
   size: number;
-  egoJwtManager: EgoJwtManager;
   donorId?: string;
 }): Promise<Analysis[]> => {
-  const jwt = (await egoJwtManager.getLatestJwt()) as EgoAccessToken;
-  const accessToken = jwt.access_token;
   return await promiseRetry<Analysis[]>(async (retry) => {
     try {
       const workflowRepoUrl = getWorkflowRepoUrl(analysisType, workflowName);
@@ -99,7 +95,7 @@ const fetchAnalyses = async ({
         }),
         headers: {
           "Content-type": "application/json",
-          authorization: `Bearer ${accessToken}`,
+          authorization: `Bearer ${await getEgoToken("rdpc")}`,
         },
       });
       const jsonResponse = await response.json();

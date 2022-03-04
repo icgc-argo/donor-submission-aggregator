@@ -1,4 +1,3 @@
-import { EgoJwtManager } from "auth";
 import { FirstPublishedDateFields } from "indexClinicalData/types";
 import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
 import { countSpecimenType, mergeDonorInfo } from "../analysesProcessor";
@@ -17,7 +16,6 @@ export const getSeqExpSpecimenData = async (
   studyId: string,
   url: string,
   analysisType: string,
-  egoJwtManager: EgoJwtManager,
   analysesFetcher: typeof fetchAnalysesWithSpecimens,
   config: {
     chunkSize: number;
@@ -30,7 +28,6 @@ export const getSeqExpSpecimenData = async (
     url: url,
     donorIds: donorIds,
     analysisType: analysisType,
-    egoJwtManager,
     config,
     analysesFetcher,
   });

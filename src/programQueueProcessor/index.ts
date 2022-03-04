@@ -16,7 +16,6 @@ import { ProgramQueueProcessor, QueueRecord, KnownEventType } from "./types";
 import createEventProcessor from "./eventProcessor";
 import fetchAnalyses from "rdpc/query/fetchAnalyses";
 import fetchDonorIdsByAnalysis from "rdpc/query/fetchDonorIdsByAnalysis";
-import { EgoJwtManager } from "auth";
 import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
 import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
 import { getFilesByProgramId } from "files/getFilesByProgramId";
@@ -36,7 +35,6 @@ const createProgramQueueRecord = (record: QueueRecord): ProducerRecord => {
 const createProgramQueueProcessor = async ({
   kafka,
   esClient,
-  egoJwtManager,
   rollCallClient,
   statusReporter,
   analysesFetcher = fetchAnalyses,
@@ -48,7 +46,6 @@ const createProgramQueueProcessor = async ({
   kafka: Kafka;
   esClient: Client;
   rollCallClient: RollCallClient;
-  egoJwtManager: EgoJwtManager;
   statusReporter?: StatusReporter;
   analysesFetcher?: typeof fetchAnalyses;
   analysesWithSpecimensFetcher?: typeof fetchAnalysesWithSpecimens;
@@ -95,7 +92,6 @@ const createProgramQueueProcessor = async ({
     partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
     eachMessage: createEventProcessor({
       esClient,
-      egoJwtManager,
       rollCallClient,
       analysesFetcher,
       analysesWithSpecimensFetcher,

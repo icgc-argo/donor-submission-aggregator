@@ -29,7 +29,6 @@ import { EsHit } from "indexClinicalData/types";
 import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 import { generateIndexName } from "./util";
 import { getIndexSettings, getLatestIndexName } from "elasticsearch";
-import { EgoAccessToken, EgoJwtManager } from "auth";
 import {
   mockAnalysesWithSpecimensFetcher,
   mockAnalysisFetcher,
@@ -72,18 +71,6 @@ describe("kafka integration", () => {
   /**************************/
 
   let programQueueProcessor: ProgramQueueProcessor;
-
-  const mockEgoJwtManager: EgoJwtManager = {
-    getLatestJwt: async (): Promise<EgoAccessToken> => {
-      return {
-        access_token: "dummy",
-        token_type: "",
-        expires_in: 99999,
-        scope: "",
-        groups: "",
-      };
-    },
-  };
 
   before(async () => {
     try {
@@ -254,7 +241,6 @@ describe("kafka integration", () => {
         kafka: kafkaClient,
         esClient,
         rollCallClient: rollcallClient,
-        egoJwtManager: mockEgoJwtManager,
         analysesFetcher: mockAnalysisFetcher,
         analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
         fetchVC: mockVariantCallingFetcher,
@@ -445,7 +431,6 @@ describe("kafka integration", () => {
         kafka: kafkaClient,
         esClient,
         rollCallClient: rollcallClient,
-        egoJwtManager: mockEgoJwtManager,
       });
 
       // 1.If a program has never been indexed before, newly created index settings
@@ -547,7 +532,6 @@ describe("kafka integration", () => {
           kafka: kafkaClient,
           esClient,
           rollCallClient: rollcallClient,
-          egoJwtManager: mockEgoJwtManager,
         });
 
         await programQueueProcessor.enqueueEvent({
@@ -601,7 +585,6 @@ describe("kafka integration", () => {
       programQueueProcessor = await createProgramQueueProcessor({
         kafka: kafkaClient,
         esClient,
-        egoJwtManager: mockEgoJwtManager,
         rollCallClient: rollcallClient,
         analysesFetcher: mockAnalysisFetcher,
         analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,

@@ -1,5 +1,4 @@
 import { Client } from "@elastic/elasticsearch";
-import { EgoAccessToken, EgoJwtManager } from "auth";
 import { expect } from "chai";
 import esb from "elastic-builder";
 import { initIndexMapping } from "elasticsearch";
@@ -21,20 +20,7 @@ describe("should index file data", () => {
   const NETOWRK_MODE = "host";
   const donorIds = clinicalDataset.map((doc) => doc.donorId);
 
-  const mockEgoJwtManager: EgoJwtManager = {
-    getLatestJwt: async (): Promise<EgoAccessToken> => {
-      return {
-        access_token: "dummy",
-        token_type: "",
-        expires_in: 99999,
-        scope: "",
-        groups: "",
-      };
-    },
-  };
-
   const mockFileData: typeof getFilesByProgramId = async (
-    egoJwtManager: EgoJwtManager,
     programId: string,
     page: number
   ): Promise<File[]> => {
@@ -124,13 +110,7 @@ describe("should index file data", () => {
     expect(indexedClinicalDocuments.value).to.equal(clinicalDataset.length);
     console.log("Begin indexing file data....");
 
-    await indexFileData(
-      TEST_PROGRAM,
-      mockEgoJwtManager,
-      mockFileData,
-      INDEX_NAME,
-      esClient
-    );
+    await indexFileData(TEST_PROGRAM, mockFileData, INDEX_NAME, esClient);
 
     const totalEsDocumentsCount = (
       await esClient.search({

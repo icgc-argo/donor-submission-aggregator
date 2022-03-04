@@ -1,5 +1,4 @@
 import { Client } from "@elastic/elasticsearch";
-import { EgoJwtManager } from "auth";
 import { toEsBulkIndexActions } from "elasticsearch";
 import { queryDocumentsByDonorIds } from "indexClinicalData";
 import { EsDonorDocument, EsHit } from "indexClinicalData/types";
@@ -9,7 +8,6 @@ import { getFilesByProgramId } from "./getFilesByProgramId";
 
 export const indexFileData = async (
   programId: string,
-  egoJwtManager: EgoJwtManager,
   fetchFileData: typeof getFilesByProgramId,
   targetIndexName: string,
   esClient: Client,
@@ -17,7 +15,6 @@ export const indexFileData = async (
 ) => {
   const donorFileInfo = await determineReleaseStatus(
     programId,
-    egoJwtManager,
     fetchFileData,
     donorsUpdated
   );

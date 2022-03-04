@@ -19,10 +19,8 @@ import fetchDonorIdsByAnalysis from "rdpc/query/fetchDonorIdsByAnalysis";
 import {
   DLQ_TOPIC_NAME,
   FEATURE_INDEX_FILE_ENABLED,
-  FILES_STREAM_SIZE,
   RETRY_CONFIG_RDPC_GATEWAY,
 } from "config";
-import { EgoJwtManager } from "auth";
 import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
 import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
 import { indexFileData } from "files";
@@ -167,7 +165,6 @@ const getNewResolvedIndex = async (
 const createEventProcessor = ({
   rollCallClient,
   esClient,
-  egoJwtManager,
   analysesFetcher = fetchAnalyses,
   analysesWithSpecimensFetcher = fetchAnalysesWithSpecimens,
   fetchVC = fetchVariantCallingAnalyses,
@@ -179,7 +176,6 @@ const createEventProcessor = ({
   rollCallClient: RollCallClient;
   esClient: Client;
   sendDlqMessage: ProgramQueueProcessor["sendDlqMessage"];
-  egoJwtManager: EgoJwtManager;
   analysesFetcher?: typeof fetchAnalyses;
   analysesWithSpecimensFetcher?: typeof fetchAnalysesWithSpecimens;
   fetchVC?: typeof fetchVariantCallingAnalyses;
@@ -232,7 +228,6 @@ const createEventProcessor = ({
                 for (const program of programs) {
                   await indexFileData(
                     programId,
-                    egoJwtManager,
                     fileData,
                     targetIndexName,
                     esClient,
@@ -250,7 +245,6 @@ const createEventProcessor = ({
                   rdpcUrl,
                   targetIndexName,
                   esClient,
-                  egoJwtManager,
                   analysesFetcher,
                   analysesWithSpecimensFetcher,
                   fetchVC,
@@ -269,7 +263,6 @@ const createEventProcessor = ({
                   rdpcUrl,
                   targetIndexName: targetIndexName,
                   esClient,
-                  egoJwtManager,
                   analysesFetcher,
                   analysesWithSpecimensFetcher,
                   fetchVC,
@@ -280,7 +273,6 @@ const createEventProcessor = ({
               if (FEATURE_INDEX_FILE_ENABLED) {
                 await indexFileData(
                   programId,
-                  egoJwtManager,
                   fileData,
                   targetIndexName,
                   esClient

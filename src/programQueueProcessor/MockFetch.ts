@@ -10,14 +10,12 @@ import {
   variantCallingAnalyses_open,
 } from "rdpc/test/fixtures/integrationTest/mockAnalyses";
 import { Analysis, AnalysisType, WorkflowName } from "rdpc/types";
-import { EgoJwtManager } from "auth";
 
 export const mockVariantCallingFetcher: typeof fetchVariantCallingAnalyses = ({
   studyId,
   rdpcUrl,
   from,
   size,
-  egoJwtManager,
   donorId,
 }): Promise<Analysis[]> => {
   const matchesDonorId = (donor: any) =>
@@ -34,7 +32,6 @@ export const mockAnalysesWithSpecimensFetcher: typeof fetchAnalysesWithSpecimens
   rdpcUrl,
   from,
   size,
-  egoJwtManager,
   donorId,
 }): Promise<Analysis[]> => {
   const matchesDonorId = (donor: any) =>
@@ -53,7 +50,6 @@ export const mockAnalysisFetcher: typeof fetchAnalyses = async ({
   workflowName,
   from,
   size,
-  egoJwtManager,
   donorId,
 }: {
   studyId: string;
@@ -62,7 +58,6 @@ export const mockAnalysisFetcher: typeof fetchAnalyses = async ({
   workflowName: WorkflowName;
   from: number;
   size: number;
-  egoJwtManager: EgoJwtManager;
   donorId?: string;
 }): Promise<Analysis[]> => {
   const matchesDonorId = (donor: any) =>

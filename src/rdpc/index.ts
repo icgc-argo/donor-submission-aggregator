@@ -7,7 +7,6 @@ import { toEsBulkIndexActions } from "elasticsearch";
 import logger from "logger";
 import fetchAnalyses from "./query/fetchAnalyses";
 import fetchDonorIdsByAnalysis from "./query/fetchDonorIdsByAnalysis";
-import { EgoJwtManager } from "auth";
 import { AnalysisType, WorkflowName } from "./types";
 import fetchVariantCallingAnalyses from "./query/fetchVariantCallingAnalyses";
 import { getSangerData } from "./convertData/getSangerData";
@@ -33,7 +32,6 @@ export const indexRdpcData = async ({
   rdpcUrl,
   targetIndexName,
   esClient,
-  egoJwtManager,
   analysesFetcher = fetchAnalyses,
   analysesWithSpecimensFetcher = fetchAnalysesWithSpecimens,
   fetchVC = fetchVariantCallingAnalyses,
@@ -44,7 +42,6 @@ export const indexRdpcData = async ({
   rdpcUrl: string;
   targetIndexName: string;
   esClient: Client;
-  egoJwtManager: EgoJwtManager;
   analysesFetcher?: typeof fetchAnalyses; // optional only for test
   fetchVC?: typeof fetchVariantCallingAnalyses; // optional only for test
   analysesWithSpecimensFetcher?: typeof fetchAnalysesWithSpecimens; // optional only for test
@@ -58,7 +55,6 @@ export const indexRdpcData = async ({
     ? await fetchDonorIds({
         rdpcUrl,
         analysisId,
-        egoJwtManager,
       })
     : undefined;
 
@@ -68,7 +64,6 @@ export const indexRdpcData = async ({
     programId,
     rdpcUrl,
     AnalysisType.SEQ_EXPERIMENT,
-    egoJwtManager,
     analysesWithSpecimensFetcher,
     config,
     donorIdsToFilterBy
@@ -84,7 +79,6 @@ export const indexRdpcData = async ({
   const rdpcInfoByDonor_sangerMutectDates = await getVariantCallingData(
     programId,
     rdpcUrl,
-    egoJwtManager,
     fetchVC,
     config,
     donorIdsToFilterBy,
@@ -95,7 +89,6 @@ export const indexRdpcData = async ({
   const rdpcInfoByDonor_openAccessDate = await getVariantCallingData(
     programId,
     rdpcUrl,
-    egoJwtManager,
     fetchVC,
     config,
     donorIdsToFilterBy,
@@ -107,7 +100,6 @@ export const indexRdpcData = async ({
     programId,
     rdpcUrl,
     AnalysisType.SEQ_ALIGNMENT,
-    egoJwtManager,
     analysesWithSpecimensFetcher,
     config,
     donorIdsToFilterBy
@@ -120,7 +112,6 @@ export const indexRdpcData = async ({
     rdpcUrl,
     AnalysisType.SEQ_EXPERIMENT,
     WorkflowName.ALIGNMENT,
-    egoJwtManager,
     analysesFetcher,
     config,
     donorIdsToFilterBy
@@ -133,7 +124,6 @@ export const indexRdpcData = async ({
     rdpcUrl,
     AnalysisType.SEQ_ALIGNMENT,
     WorkflowName.SANGER,
-    egoJwtManager,
     analysesFetcher,
     config,
     donorIdsToFilterBy
@@ -146,7 +136,6 @@ export const indexRdpcData = async ({
     rdpcUrl,
     AnalysisType.SEQ_ALIGNMENT,
     WorkflowName.MUTECT,
-    egoJwtManager,
     analysesFetcher,
     config,
     donorIdsToFilterBy
@@ -159,7 +148,6 @@ export const indexRdpcData = async ({
     rdpcUrl,
     AnalysisType.VARIANT_CALLING,
     WorkflowName.OPEN_ACCESS,
-    egoJwtManager,
     analysesFetcher,
     config,
     donorIdsToFilterBy

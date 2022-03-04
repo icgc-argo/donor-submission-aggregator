@@ -1,4 +1,4 @@
-import { EgoAccessToken, EgoJwtManager } from "auth";
+import { getEgoToken } from "external/ego";
 import logger from "logger";
 import fetch from "node-fetch";
 import promiseRetry from "promise-retry";
@@ -35,7 +35,6 @@ const fetchVariantCallingAnalyses = async ({
   rdpcUrl,
   from,
   size,
-  egoJwtManager,
   donorId,
   analysisType = AnalysisType.VARIANT_CALLING,
 }: {
@@ -43,12 +42,9 @@ const fetchVariantCallingAnalyses = async ({
   rdpcUrl: string;
   from: number;
   size: number;
-  egoJwtManager: EgoJwtManager;
   donorId?: string;
   analysisType: AnalysisType;
 }): Promise<Analysis[]> => {
-  const jwt = (await egoJwtManager.getLatestJwt()) as EgoAccessToken;
-  const accessToken = jwt.access_token;
   return await promiseRetry<Analysis[]>(async (retry) => {
     try {
       const response = await fetch(rdpcUrl, {
@@ -70,7 +66,7 @@ const fetchVariantCallingAnalyses = async ({
         }),
         headers: {
           "Content-type": "application/json",
-          authorization: `Bearer ${accessToken}`,
+          authorization: `Bearer ${await getEgoToken("rdpc")}`,
         },
       });
       const jsonResponse = await response.json();
