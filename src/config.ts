@@ -7,7 +7,8 @@ dotenv.config({
   path: path.resolve(APP_DIR, "../.env"),
 });
 
-export const EGO_URL = process.env.EGO_URL || "http://localhost:8081";
+export const EGO_URL_RDPC = process.env.EGO_URL_RDPC || "http://localhost:8081";
+export const EGO_URL_DCC = process.env.EGO_URL_DCC || "http://localhost:8081";
 
 export const EGO_APP_RDPC_CLIENT_ID =
   process.env.EGO_APP_RDPC_CLIENT_ID || "donor-submission-aggregator-rdpc";

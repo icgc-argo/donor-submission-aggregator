@@ -2,7 +2,6 @@ import egoTokenUtils from "@icgc-argo/ego-token-utils";
 import fetch from "node-fetch";
 import urlJoin from "url-join";
 import {
-  EGO_URL,
   USE_VAULT,
   VAULT_SECRET_PATH_EGO_APP_RDPC,
   VAULT_SECRET_PATH_EGO_APP_DCC,
@@ -51,10 +50,11 @@ const getPublicKey = async (): Promise<string> => {
 };
 
 const getApplicationJwt = async (
+  egoHost: string,
   applicationCredentials: EgoApplicationCredential
 ): Promise<string> => {
   const url = urlJoin(
-    EGO_URL,
+    egoHost,
     `/oauth/token?client_id=${applicationCredentials.clientId}&client_secret=${applicationCredentials.clientSecret}&grant_type=client_credentials`
   );
 
@@ -85,6 +85,7 @@ const getApplicationJwt = async (
 };
 
 export const createAuthClient = async (
+  egoHost: string,
   appCredentials: EgoApplicationCredential
 ): Promise<AuthClient> => {
   let latestJwt: string;
@@ -97,7 +98,7 @@ export const createAuthClient = async (
       return latestJwt;
     }
     logger.debug(`Fetching new token from ego...`);
-    latestJwt = await getApplicationJwt(appCredentials);
+    latestJwt = await getApplicationJwt(egoHost, appCredentials);
     return latestJwt;
   };
 
