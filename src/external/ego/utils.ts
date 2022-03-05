@@ -35,8 +35,8 @@ type EgoAccessTokenError = {
   error_description: string;
 };
 
-const getPublicKey = async (): Promise<string> => {
-  const url = urlJoin(EGO_URL, "api/oauth/token/public_key");
+const getPublicKey = async (egoHost: string): Promise<string> => {
+  const url = urlJoin(egoHost, "api/oauth/token/public_key");
   const response = await fetch(url);
   const key = await response.text();
 
@@ -90,7 +90,7 @@ export const createAuthClient = async (
 ): Promise<AuthClient> => {
   let latestJwt: string;
 
-  const publicKey = await getPublicKey();
+  const publicKey = await getPublicKey(egoHost);
   const tokenUtils = egoTokenUtils(publicKey);
 
   const getAuth = async () => {
