@@ -1,38 +1,38 @@
 import { Program } from "eventParsers/parseFilePublicReleaseEvent";
 
-export enum KnownEventSource {
-  CLINICAL = "CLINICAL",
-  RDPC = "RDPC",
-}
-
-export type QueueRecord = { programId?: string; requeued?: boolean } & (
-  | {
-      type: KnownEventType.CLINICAL;
-    }
-  | {
-      type: KnownEventType.RDPC;
-      rdpcGatewayUrls: Array<string>;
-      analysisId?: string;
-    }
-  | {
-      type: KnownEventType.FILE_RELEASE;
-      fileReleaseId: string;
-      publishedAt: string;
-      label: string;
-      programs: Program[];
-    }
-  | {
-      type: KnownEventType.SYNC;
-      rdpcGatewayUrls: Array<string>;
-    }
-);
-
 export enum KnownEventType {
   CLINICAL = "CLINICAL",
   RDPC = "RDPC",
   SYNC = "SYNC",
   FILE_RELEASE = "FILE_RELEASE",
 }
+
+type ProgramEventMessage = { programId?: string; requeued?: boolean };
+
+type ClinicalUpdateEvent = ProgramEventMessage & {
+  type: KnownEventType.CLINICAL;
+};
+type AnalysisUpdateEvent = ProgramEventMessage & {
+  type: KnownEventType.RDPC;
+  rdpcGatewayUrls: Array<string>;
+  analysisId?: string;
+};
+type FileReleaseEvent = ProgramEventMessage & {
+  type: KnownEventType.FILE_RELEASE;
+  fileReleaseId: string;
+  publishedAt: string;
+  label: string;
+  programs: Program[];
+};
+type SyncProgramEvent = ProgramEventMessage & {
+  type: KnownEventType.SYNC;
+  rdpcGatewayUrls: Array<string>;
+};
+export type QueueRecord =
+  | ClinicalUpdateEvent
+  | AnalysisUpdateEvent
+  | FileReleaseEvent
+  | SyncProgramEvent;
 
 export type ProgramQueueProcessor = {
   knownEventTypes: {
