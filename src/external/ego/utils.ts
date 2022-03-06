@@ -10,7 +10,7 @@ import {
   EGO_APP_DCC_CLIENT_ID,
   EGO_APP_DCC_CLIENT_SECRET,
 } from "config";
-import { createVaultClient, loadVaultSecret } from "vault";
+import { createVaultClient, loadVaultSecret } from "external/vault";
 import logger from "logger";
 
 export type EgoApplicationCredential = {

@@ -8,7 +8,7 @@ import {
 import flatMap from "lodash/flatMap";
 import esMapping from "./donorIndexMapping.json";
 import { ApiResponse, Client } from "@elastic/elasticsearch";
-import { loadVaultSecret } from "vault";
+import { loadVaultSecret } from "../external/vault";
 import logger from "logger";
 import { generateIndexName } from "programQueueProcessor/util";
 

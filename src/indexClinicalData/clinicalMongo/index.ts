@@ -3,10 +3,10 @@ import {
   MONGO_URL,
   MONGO_USER,
   USE_VAULT,
-  VAULT_MONGO_SECRET_PATH
+  VAULT_MONGO_SECRET_PATH,
 } from "config";
 import mongoose from "mongoose";
-import { loadVaultSecret, createVaultClient } from "vault";
+import { loadVaultSecret, createVaultClient } from "external/vault";
 import logger from "logger";
 
 type MongoSecret = {
@@ -27,18 +27,18 @@ export default async ({
   vaultSecretPath = VAULT_MONGO_SECRET_PATH,
   mongoUrl = MONGO_URL,
   user = MONGO_USER,
-  pass = MONGO_PASS
+  pass = MONGO_PASS,
 } = {}) => {
   let mongoCredentials = {
     user,
-    pass
+    pass,
   };
   if (useVault) {
     const secret = await loadVaultSecret(vaultClient)(vaultSecretPath);
     if (isMongoSecret(secret)) {
       mongoCredentials = {
         user: secret.CLINICAL_DB_USERNAME,
-        pass: secret.CLINICAL_DB_PASSWORD
+        pass: secret.CLINICAL_DB_PASSWORD,
       };
     } else {
       throw new Error(
@@ -58,7 +58,7 @@ export default async ({
     bufferMaxEntries: 0,
     useNewUrlParser: true,
     useFindAndModify: false,
-    ...mongoCredentials
+    ...mongoCredentials,
   });
   logger.info(`connected to Mongo at ${MONGO_URL}`);
   return true;
