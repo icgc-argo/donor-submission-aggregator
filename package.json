@@ -5,6 +5,7 @@
   "main": "src",
   "scripts": {
     "build": "rm -rf dist && tsc && cp -r src/assets dist",
+    "start": "npm run build && npm run start::prod",
     "start::prod": "cd dist && NODE_PATH=. node index.js",
     "start::dev": "ts-node-dev -r tsconfig-paths/register --respawn src/index.ts",
     "start::debug": "ts-node-dev --inspect=4321 -r tsconfig-paths/register --respawn --transpileOnly src/index.ts",
