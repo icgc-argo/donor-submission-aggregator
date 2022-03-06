@@ -1,28 +1,22 @@
-import {
-  KAFKA_PROGRAM_QUEUE_TOPIC,
-  PARTITIONS_CONSUMED_CONCURRENTLY,
-  KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP,
-  KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL,
-  KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT,
-  KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT,
-} from "config";
-import { ProducerRecord, Kafka } from "kafkajs";
 import { Client } from "@elastic/elasticsearch";
-import { StatusReporter } from "statusReport";
-import { RollCallClient } from "rollCall/types";
-import logger from "logger";
-import initializeProgramQueueTopic from "./initializeProgramQueueTopic";
-import { ProgramQueueProcessor, QueueRecord, KnownEventType } from "./types";
-import createEventProcessor from "./eventProcessor";
-import fetchAnalyses from "rdpc/query/fetchAnalyses";
-import fetchDonorIdsByAnalysis from "rdpc/query/fetchDonorIdsByAnalysis";
-import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
-import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
+import { kafkaConfig } from "config";
 import { getFilesByProgramId } from "files/getFilesByProgramId";
+import { Kafka, ProducerRecord } from "kafkajs";
+import logger from "logger";
+import fetchAnalyses from "rdpc/query/fetchAnalyses";
+import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
+import fetchDonorIdsByAnalysis from "rdpc/query/fetchDonorIdsByAnalysis";
+import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
+import { RollCallClient } from "rollCall/types";
+import { StatusReporter } from "statusReport";
+import createEventProcessor from "./eventProcessor";
+import { KnownEventType, ProgramQueueProcessor, QueueRecord } from "./types";
+
+const consumerConfig = kafkaConfig.consumers.programQueue;
 
 const createProgramQueueRecord = (record: QueueRecord): ProducerRecord => {
   return {
-    topic: KAFKA_PROGRAM_QUEUE_TOPIC,
+    topic: consumerConfig.topic,
     messages: [
       {
         key: record.programId,
@@ -54,13 +48,13 @@ const createProgramQueueProcessor = async ({
   fileData?: typeof getFilesByProgramId;
 }): Promise<ProgramQueueProcessor> => {
   const consumer = kafka.consumer({
-    groupId: KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP,
-    heartbeatInterval: KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL,
-    sessionTimeout: KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT,
-    rebalanceTimeout: KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT,
+    groupId: consumerConfig.topic,
+    heartbeatInterval: consumerConfig.heartbeatInterval,
+    sessionTimeout: consumerConfig.sessionTimeout,
+    rebalanceTimeout: consumerConfig.rebalanceTimeout,
   });
   const producer = kafka.producer();
-  const programQueueTopic = await initializeProgramQueueTopic(kafka);
+  const programQueueTopic = consumerConfig.topic;
   await consumer.subscribe({
     topic: programQueueTopic,
   });
@@ -89,7 +83,8 @@ const createProgramQueueProcessor = async ({
   };
 
   await consumer.run({
-    partitionsConsumedConcurrently: PARTITIONS_CONSUMED_CONCURRENTLY,
+    partitionsConsumedConcurrently:
+      kafkaConfig.consumers.programQueue.partitionsConsumedConcurrently,
     eachMessage: createEventProcessor({
       esClient,
       rollCallClient,

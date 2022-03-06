@@ -1,4 +1,4 @@
-import { Program } from "eventParsers/parseFilePublicReleaseEvent";
+import { Program } from "external/kafka/consumers/eventParsers/parseFilePublicReleaseEvent";
 
 export enum KnownEventType {
   CLINICAL = "CLINICAL",

@@ -17,15 +17,15 @@ import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
 import fetchAnalyses from "rdpc/query/fetchAnalyses";
 import fetchDonorIdsByAnalysis from "rdpc/query/fetchDonorIdsByAnalysis";
 import {
-  DLQ_TOPIC_NAME,
   FEATURE_INDEX_FILE_ENABLED,
+  kafkaConfig,
   RETRY_CONFIG_RDPC_GATEWAY,
 } from "config";
 import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
 import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
 import { indexFileData } from "files";
 import { getFilesByProgramId } from "files/getFilesByProgramId";
-import { Program } from "eventParsers/parseFilePublicReleaseEvent";
+import { Program } from "external/kafka/consumers/eventParsers/parseFilePublicReleaseEvent";
 
 const handleIndexingFailure = async ({
   esClient,
@@ -306,7 +306,12 @@ const createEventProcessor = ({
         err
       );
       // Message processing failed, make sure it is sent to the Dead Letter Queue.
-      sendDlqMessage(DLQ_TOPIC_NAME, message.value.toString());
+      if (kafkaConfig.consumers.programQueue.dlq) {
+        sendDlqMessage(
+          kafkaConfig.consumers.programQueue.dlq,
+          message.value.toString()
+        );
+      }
     }
   };
 };

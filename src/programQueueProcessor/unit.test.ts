@@ -1,39 +1,33 @@
-import {
-  CLINICAL_PROGRAM_UPDATE_TOPIC,
-  RDPC_PROGRAM_UPDATE_TOPIC,
-  RDPC_URL,
-  ROLLCALL_ALIAS_NAME,
-} from "config";
-import { expect } from "chai";
-import { GenericContainer } from "testcontainers";
-import { StartedTestContainer, Wait } from "testcontainers";
-import { promisify } from "util";
-import { exec } from "child_process";
-import DonorSchema from "indexClinicalData/clinicalMongo/donorModel";
-import mongoose from "mongoose";
 import { Client } from "@elastic/elasticsearch";
-import { Duration, TemporalUnit } from "node-duration";
-import createProgramQueueProcessor from "./index";
-import { RollCallClient } from "../rollCall/types";
-import createRollCallClient from "../rollCall";
+import { expect } from "chai";
+import { exec } from "child_process";
+import { kafkaConfig, RDPC_URL, ROLLCALL_ALIAS_NAME } from "config";
+import esb from "elastic-builder";
+import { getIndexSettings, getLatestIndexName } from "elasticsearch";
+import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
+import DonorSchema from "indexClinicalData/clinicalMongo/donorModel";
+import { EsHit } from "indexClinicalData/types";
 import { Kafka } from "kafkajs";
-import { ProgramQueueProcessor } from "./types";
+import mongoose from "mongoose";
+import { Duration, TemporalUnit } from "node-duration";
 import {
   clinicalDataset,
   expectedRDPCData,
   testDonorIds,
 } from "rdpc/test/fixtures/integrationTest/dataset";
 import { seqExpAnalyses } from "rdpc/test/fixtures/integrationTest/mockAnalyses";
-import esb from "elastic-builder";
-import { EsHit } from "indexClinicalData/types";
-import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
-import { generateIndexName } from "./util";
-import { getIndexSettings, getLatestIndexName } from "elasticsearch";
+import { GenericContainer, StartedTestContainer, Wait } from "testcontainers";
+import { promisify } from "util";
+import createRollCallClient from "../rollCall";
+import { RollCallClient } from "../rollCall/types";
+import createProgramQueueProcessor from "./index";
 import {
   mockAnalysesWithSpecimensFetcher,
   mockAnalysisFetcher,
   mockVariantCallingFetcher,
 } from "./MockFetch";
+import { ProgramQueueProcessor } from "./types";
+import { generateIndexName } from "./util";
 
 const TEST_US = "TEST-US";
 const TEST_CA = "TEST-CA";
@@ -139,11 +133,11 @@ describe("kafka integration", () => {
       await kafkaAdmin.createTopics({
         topics: [
           {
-            topic: CLINICAL_PROGRAM_UPDATE_TOPIC,
+            topic: kafkaConfig.consumers.clinicalUpdates.topic,
             numPartitions: 1,
           },
           {
-            topic: RDPC_PROGRAM_UPDATE_TOPIC,
+            topic: kafkaConfig.consumers.rdpcAnalysisUpdates.topic,
             numPartitions: 1,
           },
         ],
