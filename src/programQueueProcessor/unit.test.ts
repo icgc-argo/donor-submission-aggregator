@@ -620,6 +620,7 @@ describe("kafka integration", () => {
         {
           programId: TEST_CA,
           type: KnownEventType.RDPC,
+          analysisId: testAnalysis.analysisId,
           rdpcGatewayUrls: [RDPC_URL],
         },
         mockDlqSender,

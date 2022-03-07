@@ -3,7 +3,6 @@ import { RETRY_CONFIG_RDPC_GATEWAY, rollcallConfig } from "config";
 import { getEsClient, setIndexWritable } from "external/elasticsearch";
 import createRollcallClient from "external/rollCall";
 import { RollCallClient } from "external/rollCall/types";
-import { getFilesByProgramId } from "files/getFilesByProgramId";
 import logger from "logger";
 import withRetry from "promise-retry";
 import { indexRdpcData } from "rdpc";
@@ -38,10 +37,11 @@ async function processRdpcAnalysisUpdateEvent(
   const esClient = services.esClient || (await getEsClient());
   const rollcallClient =
     services.rollcallClient || (await createRollcallClient(rollcallConfig));
-  const analysesFetcher = fetchAnalyses;
-  const analysesWithSpecimensFetcher = fetchAnalysesWithSpecimens;
-  const fetchVC = fetchVariantCallingAnalyses;
-  const fetchDonorIds = fetchDonorIdsByAnalysis;
+  const analysesFetcher = services.analysesFetcher || fetchAnalyses;
+  const analysesWithSpecimensFetcher =
+    services.analysesWithSpecimensFetcher || fetchAnalysesWithSpecimens;
+  const fetchVC = services.fetchVC || fetchVariantCallingAnalyses;
+  const fetchDonorIds = services.fetchDonorIds || fetchDonorIdsByAnalysis;
 
   const doClone = false;
 
