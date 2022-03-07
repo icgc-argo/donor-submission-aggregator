@@ -34,14 +34,14 @@ export type QueueRecord =
   | FileReleaseEvent
   | SyncProgramEvent;
 
-export type ProgramQueueProcessor = {
-  knownEventTypes: {
-    CLINICAL: KnownEventType.CLINICAL;
-    RDPC: KnownEventType.RDPC;
-    FILE: KnownEventType.FILE_RELEASE;
-    SYNC: KnownEventType.SYNC;
-  };
-  enqueueEvent: (event: QueueRecord) => Promise<void>;
-  sendDlqMessage: (dlqTopic: string, messageJSON: string) => Promise<void>;
-  destroy: () => Promise<void>;
-};
+// export type ProgramQueueProcessor = {
+//   knownEventTypes: {
+//     CLINICAL: KnownEventType.CLINICAL;
+//     RDPC: KnownEventType.RDPC;
+//     FILE: KnownEventType.FILE_RELEASE;
+//     SYNC: KnownEventType.SYNC;
+//   };
+//   enqueueEvent: (event: QueueRecord) => Promise<void>;
+//   sendDlqMessage: (dlqTopic: string, messageJSON: string) => Promise<void>;
+//   destroy: () => Promise<void>;
+// };

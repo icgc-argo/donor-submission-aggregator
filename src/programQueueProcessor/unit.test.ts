@@ -1,10 +1,11 @@
 import { Client } from "@elastic/elasticsearch";
 import { expect } from "chai";
 import { exec } from "child_process";
-import { kafkaConfig, RDPC_URL, ROLLCALL_ALIAS_NAME } from "config";
+import { kafkaConfig, RDPC_URL, rollcallConfig } from "config";
 import esb from "elastic-builder";
-import { getIndexSettings, getLatestIndexName } from "elasticsearch";
-import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
+import { getIndexSettings, getLatestIndexName } from "external/elasticsearch";
+import donorIndexMapping from "external/elasticsearch/donorIndexMapping.json";
+import { queueProgramUpdateEvent } from "external/kafka/producers/programQueueProducer";
 import DonorSchema from "indexClinicalData/clinicalMongo/donorModel";
 import { EsHit } from "indexClinicalData/types";
 import { Kafka } from "kafkajs";
@@ -18,15 +19,16 @@ import {
 import { seqExpAnalyses } from "rdpc/test/fixtures/integrationTest/mockAnalyses";
 import { GenericContainer, StartedTestContainer, Wait } from "testcontainers";
 import { promisify } from "util";
-import createRollCallClient from "../rollCall";
-import { RollCallClient } from "../rollCall/types";
+import * as kafka from "../external/kafka";
+import createRollCallClient from "../external/rollCall";
+import { RollCallClient } from "../external/rollCall/types";
 import createProgramQueueProcessor from "./index";
 import {
   mockAnalysesWithSpecimensFetcher,
   mockAnalysisFetcher,
   mockVariantCallingFetcher,
 } from "./MockFetch";
-import { ProgramQueueProcessor } from "./types";
+import { KnownEventType } from "./types";
 import { generateIndexName } from "./util";
 
 const TEST_US = "TEST-US";
@@ -47,6 +49,7 @@ describe("kafka integration", () => {
   const MONGO_PORT = 27017;
   const KAFKA_PORT = 9092;
   const NETOWRK_MODE = "host";
+  const ROLLCALL_ALIAS_NAME = rollcallConfig.aliasName;
   let MONGO_URL: string;
   let KAFKA_HOST: string;
   /****************************/
@@ -63,8 +66,6 @@ describe("kafka integration", () => {
   let rollcallClient: RollCallClient;
   let kafkaClient: Kafka;
   /**************************/
-
-  let programQueueProcessor: ProgramQueueProcessor;
 
   before(async () => {
     try {
@@ -119,11 +120,19 @@ describe("kafka integration", () => {
 
       // ***** start relevant clients *****
       esClient = new Client({ node: ES_HOST });
-      rollcallClient = createRollCallClient({
-        url: `${ROLLCALL_HOST}`,
-        ...RESOLVED_INDEX_PARTS,
+      rollcallClient = await createRollCallClient({
+        rootUrl: `${ROLLCALL_HOST}`,
         aliasName: ROLLCALL_ALIAS_NAME,
+        indexEntity: RESOLVED_INDEX_PARTS.entity,
+        indexType: RESOLVED_INDEX_PARTS.type,
+        shardPrefix: RESOLVED_INDEX_PARTS.shardPrefix,
       });
+      await kafka.setup({
+        clientId: `donor-submission-aggregator-test-${Math.random()}`,
+        brokers: [KAFKA_HOST],
+      });
+
+      // Make some kafka topics - can probably remove since by defaults topics are created when a producer sends a message
       kafkaClient = new Kafka({
         clientId: `donor-submission-aggregator-test-${Math.random()}`,
         brokers: [KAFKA_HOST],
@@ -212,8 +221,7 @@ describe("kafka integration", () => {
       console.log("afterEach >>>>>>>>>>> ");
       await DonorSchema().deleteMany({});
 
-      console.log("programQueueProcessor: ", programQueueProcessor);
-      await programQueueProcessor?.destroy();
+      await kafka.disconnect();
 
       console.log("deleting all indices and alias from elasticsearch...");
       await esClient.indices.delete({
@@ -231,18 +239,18 @@ describe("kafka integration", () => {
       await createIndexAndAlias("DUM-CA");
 
       // 1. update program TEST-US by publishing clinical event:
-      programQueueProcessor = await createProgramQueueProcessor({
-        kafka: kafkaClient,
-        esClient,
-        rollCallClient: rollcallClient,
-        analysesFetcher: mockAnalysisFetcher,
-        analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
-        fetchVC: mockVariantCallingFetcher,
-      });
+      // programQueueProcessor = await createProgramQueueProcessor({
+      //   kafka: kafkaClient,
+      //   esClient,
+      //   rollCallClient: rollcallClient,
+      //   analysesFetcher: mockAnalysisFetcher,
+      //   analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
+      //   fetchVC: mockVariantCallingFetcher,
+      // });
 
-      await programQueueProcessor.enqueueEvent({
+      await queueProgramUpdateEvent({
         programId: TEST_US,
-        type: programQueueProcessor.knownEventTypes.CLINICAL,
+        type: KnownEventType.CLINICAL,
       });
       // wait for indexing to complete
       await new Promise<void>((resolve) => {
@@ -260,9 +268,9 @@ describe("kafka integration", () => {
       expect(totalEsDocuments_1).to.equal(DB_COLLECTION_SIZE);
 
       // 2. update TEST-CA by publishing a clinical event and a RDPC event:
-      await programQueueProcessor.enqueueEvent({
+      await queueProgramUpdateEvent({
         programId: TEST_CA,
-        type: programQueueProcessor.knownEventTypes.CLINICAL,
+        type: KnownEventType.CLINICAL,
       });
 
       await new Promise<void>((resolve) => {
@@ -287,9 +295,9 @@ describe("kafka integration", () => {
       );
       expect(test_ca_documents_clinical).to.equal(testDonorIds.length);
 
-      await programQueueProcessor.enqueueEvent({
+      await queueProgramUpdateEvent({
         programId: TEST_CA,
-        type: programQueueProcessor.knownEventTypes.RDPC,
+        type: KnownEventType.RDPC,
         rdpcGatewayUrls: [RDPC_URL],
       });
 
@@ -421,17 +429,11 @@ describe("kafka integration", () => {
       // make sure alias exist before test starts:
       await createIndexAndAlias(TEST_CA);
 
-      programQueueProcessor = await createProgramQueueProcessor({
-        kafka: kafkaClient,
-        esClient,
-        rollCallClient: rollcallClient,
-      });
-
       // 1.If a program has never been indexed before, newly created index settings
       // should be the same as default index settings
-      await programQueueProcessor.enqueueEvent({
+      await queueProgramUpdateEvent({
         programId: TEST_US,
-        type: programQueueProcessor.knownEventTypes.CLINICAL,
+        type: KnownEventType.CLINICAL,
       });
 
       await new Promise<void>((resolve) => {
@@ -461,9 +463,9 @@ describe("kafka integration", () => {
 
       // 2.if a new event is published to index the same program,
       // a new index should be created and index settings should be equal to default settings.
-      await programQueueProcessor.enqueueEvent({
+      await queueProgramUpdateEvent({
         programId: TEST_US,
-        type: programQueueProcessor.knownEventTypes.CLINICAL,
+        type: KnownEventType.CLINICAL,
       });
 
       await new Promise<void>((resolve) => {
@@ -521,16 +523,9 @@ describe("kafka integration", () => {
           refresh: "wait_for",
         });
 
-        // trigger indexing by publishing a clincial event:
-        programQueueProcessor = await createProgramQueueProcessor({
-          kafka: kafkaClient,
-          esClient,
-          rollCallClient: rollcallClient,
-        });
-
-        await programQueueProcessor.enqueueEvent({
+        await queueProgramUpdateEvent({
           programId: TEST_CA,
-          type: programQueueProcessor.knownEventTypes.CLINICAL,
+          type: KnownEventType.CLINICAL,
         });
 
         await new Promise<void>((resolve) => {
@@ -576,19 +571,19 @@ describe("kafka integration", () => {
       const testAnalysis = seqExpAnalyses[0];
       const testDonorId = testAnalysis.donors[0].donorId;
 
-      programQueueProcessor = await createProgramQueueProcessor({
-        kafka: kafkaClient,
-        esClient,
-        rollCallClient: rollcallClient,
-        analysesFetcher: mockAnalysisFetcher,
-        analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
-        fetchVC: mockVariantCallingFetcher,
-        fetchDonorIds: () => Promise.resolve([testDonorId]),
-      });
+      // programQueueProcessor = await createProgramQueueProcessor({
+      //   kafka: kafkaClient,
+      //   esClient,
+      //   rollCallClient: rollcallClient,
+      //   analysesFetcher: mockAnalysisFetcher,
+      //   analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
+      //   fetchVC: mockVariantCallingFetcher,
+      //   fetchDonorIds: () => Promise.resolve([testDonorId]),
+      // });
 
-      await programQueueProcessor.enqueueEvent({
+      await queueProgramUpdateEvent({
         programId: TEST_CA,
-        type: programQueueProcessor.knownEventTypes.CLINICAL,
+        type: KnownEventType.CLINICAL,
       });
       // wait for indexing to complete
       await new Promise<void>((resolve) => {
@@ -596,9 +591,9 @@ describe("kafka integration", () => {
           resolve();
         }, 30000);
       });
-      await programQueueProcessor.enqueueEvent({
+      await queueProgramUpdateEvent({
         programId: TEST_CA,
-        type: programQueueProcessor.knownEventTypes.RDPC,
+        type: KnownEventType.RDPC,
         rdpcGatewayUrls: [""], // the urls don't matter since we're mocking all the rdpc fetchers
         analysisId: testAnalysis.analysisId,
       });

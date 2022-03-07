@@ -1,7 +1,7 @@
 import { Client } from "@elastic/elasticsearch";
 import { expect } from "chai";
 import esb from "elastic-builder";
-import { initIndexMapping } from "elasticsearch";
+import { initIndexMapping } from "external/elasticsearch";
 import { EsHit } from "indexClinicalData/types";
 import { Duration, TemporalUnit } from "node-duration";
 import { indexRdpcData } from "rdpc";

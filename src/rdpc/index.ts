@@ -3,7 +3,7 @@ import { STREAM_CHUNK_SIZE } from "config";
 import { queryDocumentsByDonorIds } from "indexClinicalData";
 import { Client } from "@elastic/elasticsearch";
 import { EsDonorDocument, EsHit, RdpcDonorInfo } from "indexClinicalData/types";
-import { toEsBulkIndexActions } from "elasticsearch";
+import { toEsBulkIndexActions } from "external/elasticsearch";
 import logger from "logger";
 import fetchAnalyses from "./query/fetchAnalyses";
 import fetchDonorIdsByAnalysis from "./query/fetchDonorIdsByAnalysis";

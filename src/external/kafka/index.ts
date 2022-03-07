@@ -18,7 +18,7 @@
  */
 
 import { kafkaConfig } from "config";
-import { Kafka } from "kafkajs";
+import { Kafka, KafkaConfig } from "kafkajs";
 import logger from "../../logger";
 import clinicalUpdateConsumer from "./consumers/clinicalUpdateConsumer";
 import filePublicReleaseConsumer from "./consumers/filePublicReleaseConsumer";
@@ -33,11 +33,13 @@ const consumers = [
   rdpcAnalysisUpdateConsumer,
 ];
 
-export const setup = async (): Promise<void> => {
-  const kafka = new Kafka({
-    clientId: `donor-submission-aggregator`,
+export const setup = async (
+  config: KafkaConfig = {
+    clientId: "donor-submission-aggregator",
     brokers: kafkaConfig.brokers,
-  });
+  }
+): Promise<void> => {
+  const kafka = new Kafka(config);
 
   logger.info("Initializing Kafka connections...");
   await Promise.all([

@@ -1,5 +1,6 @@
 import { kafkaConfig } from "config";
 import { KafkaMessage } from "kafkajs";
+import handleEventMessage from "programQueueProcessor";
 import createConsumer from "../createConsumer";
 
 /**
@@ -7,10 +8,14 @@ import createConsumer from "../createConsumer";
  */
 const consumer = createConsumer(
   kafkaConfig.consumers.programQueue,
-  handleEventMessage
+  messageHandler
 );
 
-async function handleEventMessage(message: KafkaMessage) {
-  // TODO: initiate processing jobs based on kafka message
+async function messageHandler(
+  message: KafkaMessage,
+  sendDlqMessage: (messageJSON: string) => Promise<void>
+) {
+  return handleEventMessage(message, sendDlqMessage);
 }
+
 export default consumer;

@@ -1,118 +1,161 @@
-import { Client } from "@elastic/elasticsearch";
-import { kafkaConfig } from "config";
-import { getFilesByProgramId } from "files/getFilesByProgramId";
-import { Kafka, ProducerRecord } from "kafkajs";
+import {
+  FEATURE_INDEX_FILE_ENABLED,
+  RETRY_CONFIG_RDPC_GATEWAY,
+  rollcallConfig,
+} from "config";
+import { getEsClient, setIndexWritable } from "external/elasticsearch";
+import { Program } from "external/kafka/consumers/eventParsers/parseFilePublicReleaseEvent";
+import { indexFileData } from "files";
+import indexClinicalData from "indexClinicalData";
+import { KafkaMessage } from "kafkajs";
 import logger from "logger";
+import withRetry from "promise-retry";
+import { indexRdpcData } from "rdpc/index";
+import { KnownEventType, QueueRecord } from "./types";
+import { getNewResolvedIndex, handleIndexingFailure } from "./util";
+
 import fetchAnalyses from "rdpc/query/fetchAnalyses";
 import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
-import fetchDonorIdsByAnalysis from "rdpc/query/fetchDonorIdsByAnalysis";
 import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
-import { RollCallClient } from "rollCall/types";
-import { StatusReporter } from "statusReport";
-import createEventProcessor from "./eventProcessor";
-import { KnownEventType, ProgramQueueProcessor, QueueRecord } from "./types";
+import fetchDonorIdsByAnalysis from "rdpc/query/fetchDonorIdsByAnalysis";
+import { getFilesByProgramId } from "files/getFilesByProgramId";
+import createRollcallClient from "external/rollCall";
 
-const consumerConfig = kafkaConfig.consumers.programQueue;
+async function handleEventMessage(
+  message: KafkaMessage,
+  sendDlqMessage: (messageJSON: string) => Promise<void>
+) {
+  const stringMessage = message.value?.toString() || "";
 
-const createProgramQueueRecord = (record: QueueRecord): ProducerRecord => {
-  return {
-    topic: consumerConfig.topic,
-    messages: [
-      {
-        key: record.programId,
-        value: JSON.stringify(record),
-      },
-    ],
-  };
-};
+  const analysesFetcher = fetchAnalyses;
+  const analysesWithSpecimensFetcher = fetchAnalysesWithSpecimens;
+  const fetchVC = fetchVariantCallingAnalyses;
+  const fetchDonorIds = fetchDonorIdsByAnalysis;
+  const fileData = getFilesByProgramId;
 
-const createProgramQueueProcessor = async ({
-  kafka,
-  esClient,
-  rollCallClient,
-  statusReporter,
-  analysesFetcher = fetchAnalyses,
-  analysesWithSpecimensFetcher = fetchAnalysesWithSpecimens,
-  fetchVC = fetchVariantCallingAnalyses,
-  fetchDonorIds = fetchDonorIdsByAnalysis,
-  fileData = getFilesByProgramId,
-}: {
-  kafka: Kafka;
-  esClient: Client;
-  rollCallClient: RollCallClient;
-  statusReporter?: StatusReporter;
-  analysesFetcher?: typeof fetchAnalyses;
-  analysesWithSpecimensFetcher?: typeof fetchAnalysesWithSpecimens;
-  fetchVC?: typeof fetchVariantCallingAnalyses;
-  fetchDonorIds?: typeof fetchDonorIdsByAnalysis;
-  fileData?: typeof getFilesByProgramId;
-}): Promise<ProgramQueueProcessor> => {
-  const consumer = kafka.consumer({
-    groupId: consumerConfig.topic,
-    heartbeatInterval: consumerConfig.heartbeatInterval,
-    sessionTimeout: consumerConfig.sessionTimeout,
-    rebalanceTimeout: consumerConfig.rebalanceTimeout,
-  });
-  const producer = kafka.producer();
-  const programQueueTopic = consumerConfig.topic;
-  await consumer.subscribe({
-    topic: programQueueTopic,
-  });
-  logger.info(`subscribed to topic ${programQueueTopic} for queuing`);
+  const queuedEvent = JSON.parse(stringMessage);
+  const { programId } = queuedEvent;
 
-  const enqueueEvent = async (event: QueueRecord) => {
-    await producer.send(createProgramQueueRecord(event));
-    logger.debug(`enqueuing event: ${JSON.stringify(event)}`);
-    logger.info(`enqueued ${event.type} event for program ${event.programId}`);
-  };
+  // statusReporter?.startProcessingProgram(programId);
 
-  const sendDlqMessage = async (dlqTopic: string, messageJSON: string) => {
-    const result = await producer.send({
-      topic: dlqTopic,
-      messages: [
-        {
-          value: JSON.stringify(messageJSON),
-        },
-      ],
-    });
-    logger.debug(
-      `message is sent to DLQ topic ${dlqTopic}, response: ${JSON.stringify(
-        result
-      )}`
+  logger.info(`Begin processing event: ${queuedEvent.type} - ${programId}`);
+
+  const esClient = await getEsClient();
+  const rollCallClient = await createRollcallClient(rollcallConfig);
+
+  // For sync events we want to regenerate the entire index, so do not clone.
+  // Clone for all other event types (RDPC and CLINICAL)
+  const doClone = queuedEvent.type !== KnownEventType.SYNC;
+
+  try {
+    // No await on the withRetry():
+    //  we need this method to return to the kafka consumer immediately so that this long running process doesn't
+    //  disconnect the consumer group from the kafka broker.
+    withRetry(async (retry, attemptIndex) => {
+      const newResolvedIndex = await getNewResolvedIndex(
+        programId,
+        esClient,
+        rollCallClient,
+        doClone
+      );
+      const targetIndexName = newResolvedIndex.indexName;
+
+      try {
+        await setIndexWritable(esClient, targetIndexName, true);
+        logger.info(`Enabled index writing for: ${targetIndexName}`);
+        switch (queuedEvent.type) {
+          case KnownEventType.CLINICAL:
+            // Re-index all of clinical for this program.
+            // Ideally, this would only update only the affected donors - an update to clinical is required to communicate this information in the kafka event.
+            await indexClinicalData(programId, targetIndexName, esClient);
+            break;
+
+          case KnownEventType.FILE_RELEASE:
+            if (FEATURE_INDEX_FILE_ENABLED) {
+              const programs: Program[] = queuedEvent.programs;
+              for (const program of programs) {
+                await indexFileData(
+                  programId,
+                  fileData,
+                  targetIndexName,
+                  esClient,
+                  program.donorsUpdated
+                );
+              }
+            }
+            break;
+
+          case KnownEventType.RDPC:
+            // Update RDPC data. Analysis ID is expected in the event so only documents affected by that analysis will be updated.
+            for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
+              await indexRdpcData({
+                programId,
+                rdpcUrl,
+                targetIndexName,
+                esClient,
+                analysesFetcher,
+                analysesWithSpecimensFetcher,
+                fetchVC,
+                fetchDonorIds,
+                analysisId: queuedEvent.analysisId,
+              });
+            }
+            break;
+          case KnownEventType.SYNC:
+            // Generate Clinical and RPDC data for all analyses. We expect an empty index here (doClone = false)
+            // so all donor data for this program needs to be gathered and added before release.
+            await indexClinicalData(programId, targetIndexName, esClient);
+            for (const rdpcUrl of queuedEvent.rdpcGatewayUrls) {
+              await indexRdpcData({
+                programId,
+                rdpcUrl,
+                targetIndexName: targetIndexName,
+                esClient,
+                analysesFetcher,
+                analysesWithSpecimensFetcher,
+                fetchVC,
+                fetchDonorIds,
+              });
+            }
+
+            if (FEATURE_INDEX_FILE_ENABLED) {
+              await indexFileData(
+                programId,
+                fileData,
+                targetIndexName,
+                esClient
+              );
+            }
+            break;
+        }
+        logger.info(`Releasing index: ${targetIndexName}`);
+        await rollCallClient.release(newResolvedIndex);
+      } catch (err) {
+        logger.warn(
+          `Failed to index program ${programId} on attempt #${attemptIndex}: ${err}`
+        );
+        await handleIndexingFailure({
+          esClient,
+          targetIndexName,
+        });
+        retry(err);
+      }
+
+      await setIndexWritable(esClient, targetIndexName, false);
+      logger.info(`Disabled index writing for: ${targetIndexName}`);
+      // statusReporter?.endProcessingProgram(programId);
+    }, RETRY_CONFIG_RDPC_GATEWAY);
+  } catch (err) {
+    // statusReporter?.endProcessingProgram(programId);
+    logger.error(
+      `Failed to index program ${programId} after ${
+        RETRY_CONFIG_RDPC_GATEWAY.retries
+      } attempts: ${JSON.stringify(err)}`,
+      err
     );
-  };
+    // Message processing failed, make sure it is sent to the Dead Letter Queue.
+    sendDlqMessage(stringMessage);
+  }
+}
 
-  await consumer.run({
-    partitionsConsumedConcurrently:
-      kafkaConfig.consumers.programQueue.partitionsConsumedConcurrently,
-    eachMessage: createEventProcessor({
-      esClient,
-      rollCallClient,
-      analysesFetcher,
-      analysesWithSpecimensFetcher,
-      fetchVC,
-      statusReporter,
-      fetchDonorIds,
-      fileData,
-      sendDlqMessage,
-    }),
-  });
-  logger.info(`queue pipeline setup complete with topic ${programQueueTopic}`);
-
-  return {
-    knownEventTypes: {
-      CLINICAL: KnownEventType.CLINICAL as KnownEventType.CLINICAL,
-      FILE: KnownEventType.FILE_RELEASE as KnownEventType.FILE_RELEASE,
-      RDPC: KnownEventType.RDPC as KnownEventType.RDPC,
-      SYNC: KnownEventType.SYNC as KnownEventType.SYNC,
-    },
-    enqueueEvent: enqueueEvent,
-    sendDlqMessage: sendDlqMessage,
-    destroy: async () => {
-      await consumer.stop();
-      await Promise.all([consumer.disconnect(), producer.disconnect()]);
-    },
-  };
-};
-
-export default createProgramQueueProcessor;
+export default handleEventMessage;
