@@ -15,7 +15,10 @@ const consumer = createConsumer(
   queueClinicalUpdateEvent
 );
 
-async function queueClinicalUpdateEvent(message: KafkaMessage) {
+async function queueClinicalUpdateEvent(
+  message: KafkaMessage,
+  sendDlqMessage: (messageJSON: string) => Promise<void>
+) {
   const stringMessage = message.value?.toString() || "";
   const { programId } = parseClinicalProgramUpdateEvent(
     message.value?.toString() || ""
@@ -26,7 +29,7 @@ async function queueClinicalUpdateEvent(message: KafkaMessage) {
       type: KnownEventType.CLINICAL,
     });
   } else {
-    await consumer.sendDlqMessage(stringMessage);
+    await sendDlqMessage(stringMessage);
   }
 }
 

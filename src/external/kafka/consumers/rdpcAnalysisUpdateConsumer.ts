@@ -15,7 +15,10 @@ const consumer = createConsumer(
   queueRdpcAnalysisUpdateEvent
 );
 
-async function queueRdpcAnalysisUpdateEvent(message: KafkaMessage) {
+async function queueRdpcAnalysisUpdateEvent(
+  message: KafkaMessage,
+  sendDlqMessage: (messageJSON: string) => Promise<void>
+) {
   const stringMessage = message.value?.toString() || "";
   if (FEATURE_RDPC_INDEXING_ENABLED) {
     const event = parseRdpcProgramUpdateEvent(stringMessage);
@@ -27,7 +30,7 @@ async function queueRdpcAnalysisUpdateEvent(message: KafkaMessage) {
         analysisId: event.analysisId,
       });
     } else {
-      await consumer.sendDlqMessage(stringMessage);
+      await sendDlqMessage(stringMessage);
     }
   }
 }

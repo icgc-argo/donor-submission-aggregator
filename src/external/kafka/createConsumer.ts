@@ -13,7 +13,10 @@ type KafkaConsumerWrapper = {
 
 function createConsumer(
   config: KafkaConsumerConfiguration,
-  messageHandler: (message: KafkaMessage, dlqTopic?: string) => Promise<void>
+  messageHandler: (
+    message: KafkaMessage,
+    sendDlqMessage: (messageJSON: string) => Promise<void>
+  ) => Promise<void>
 ): KafkaConsumerWrapper {
   let consumer: Consumer | undefined;
   let dlqProducer: Producer | undefined;
@@ -45,12 +48,11 @@ function createConsumer(
 
     await consumer
       .run({
-        autoCommit: true,
-        autoCommitThreshold: 10,
-        autoCommitInterval: 10000,
+        partitionsConsumedConcurrently:
+          consumerConfig.partitionsConsumedConcurrently,
         eachMessage: async ({ message }) => {
           logger.info(`New message received offset : ${message.offset}`);
-          await handleMessage(message);
+          await handleMessage(message, sendDlqMessage);
           logger.debug(`Message handled ok`);
         },
       })
@@ -92,9 +94,12 @@ function createConsumer(
    * Wrapper for the provided messageHandler, will catch all errors and send DLQ message if a DLQ topic is provided in the config
    * @param message
    */
-  async function handleMessage(message: KafkaMessage) {
+  async function handleMessage(
+    message: KafkaMessage,
+    sendDlqMessage: (messageJSON: string) => Promise<void>
+  ) {
     try {
-      await messageHandler(message);
+      await messageHandler(message, sendDlqMessage);
     } catch (err) {
       logger.error(
         `Failed to handle program queue message, offset: ${message.offset}`,

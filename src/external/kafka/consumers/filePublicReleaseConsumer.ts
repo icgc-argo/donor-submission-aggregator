@@ -15,7 +15,10 @@ const consumer = createConsumer(
   queueFilePublicReleaseEvent
 );
 
-async function queueFilePublicReleaseEvent(message: KafkaMessage) {
+async function queueFilePublicReleaseEvent(
+  message: KafkaMessage,
+  sendDlqMessage: (messageJSON: string) => Promise<void>
+) {
   const stringMessage = message.value?.toString() || "";
   if (FEATURE_INDEX_FILE_ENABLED) {
     const event = parseFilePublicReleaseEvent(stringMessage);
@@ -28,7 +31,7 @@ async function queueFilePublicReleaseEvent(message: KafkaMessage) {
         programs: event.programs,
       });
     } else {
-      await consumer.sendDlqMessage(stringMessage);
+      await sendDlqMessage(stringMessage);
     }
   }
 }
