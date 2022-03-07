@@ -24,16 +24,13 @@ export const queueProgramUpdateEvent = async (event: ProgramQueueRecord) => {
       topic: config.topic,
       messages: [
         {
-          key: event.programId,
           value: JSON.stringify(event),
         },
       ],
     });
     logger.debug(`Queuing event: ${JSON.stringify(event)}`);
     logger.info(
-      `Queued ${event.type} event for program ${
-        event.programId
-      }. Response: ${JSON.stringify(result)}`
+      `Queued ${event.type} event. Response: ${JSON.stringify(result)}`
     );
   }
 };

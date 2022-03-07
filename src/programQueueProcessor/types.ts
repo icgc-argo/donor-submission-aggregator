@@ -7,25 +7,26 @@ export enum KnownEventType {
   FILE_RELEASE = "FILE_RELEASE",
 }
 
-type ProgramEventMessage = { programId?: string; requeued?: boolean };
-
-type ClinicalUpdateEvent = ProgramEventMessage & {
+export type ClinicalUpdateEvent = {
   type: KnownEventType.CLINICAL;
+  programId: string;
 };
-type AnalysisUpdateEvent = ProgramEventMessage & {
+export type AnalysisUpdateEvent = {
   type: KnownEventType.RDPC;
+  programId: string;
   rdpcGatewayUrls: Array<string>;
   analysisId?: string;
 };
-type FileReleaseEvent = ProgramEventMessage & {
+export type FileReleaseEvent = {
   type: KnownEventType.FILE_RELEASE;
   fileReleaseId: string;
   publishedAt: string;
   label: string;
   programs: Program[];
 };
-type SyncProgramEvent = ProgramEventMessage & {
+export type SyncProgramEvent = {
   type: KnownEventType.SYNC;
+  programId: string;
   rdpcGatewayUrls: Array<string>;
 };
 export type QueueRecord =
