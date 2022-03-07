@@ -1,6 +1,7 @@
 import { KafkaMessage } from "kafkajs";
 import logger from "logger";
 import processClinicalUpdateEvent from "./processClinical";
+import processRdpcAnalysisUpdateEvent from "./processRdpcAnalysisUpdate";
 import { KnownEventType, QueueRecord } from "./types";
 
 // const analysesFetcher = fetchAnalyses;
@@ -23,6 +24,7 @@ async function handleEventMessage(
         processClinicalUpdateEvent(queuedEvent, sendDlqMessage);
         break;
       case KnownEventType.RDPC:
+        processRdpcAnalysisUpdateEvent(queuedEvent, sendDlqMessage);
         break;
       case KnownEventType.SYNC:
         break;

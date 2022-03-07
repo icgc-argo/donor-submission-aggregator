@@ -9,6 +9,13 @@ import indexClinicalData from "indexClinicalData";
 import { RollCallClient } from "external/rollCall/types";
 import { Client } from "@elastic/elasticsearch";
 
+/**
+ * Processor for Clinical Update event
+ * Will update donor aggregated data for an entire program that has received new clinical data submission
+ * @param event
+ * @param sendDlqMessage
+ * @param services optional overwrite of the default services, useful for setting mocks in testing
+ */
 async function processClinicalUpdateEvent(
   event: ClinicalUpdateEvent,
   sendDlqMessage: (messageJSON: string) => Promise<void>,
