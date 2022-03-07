@@ -6,7 +6,7 @@ import {
 import { EGO_URL_DCC, EGO_URL_RDPC } from "config";
 
 /**
- * Keep single instance of auth client for fetching RDPC and DCC credentials
+ * Keep instance of auth clients for fetching RDPC and DCC credentials
  */
 let clients: { rdpc: AuthClient; dcc: AuthClient };
 
