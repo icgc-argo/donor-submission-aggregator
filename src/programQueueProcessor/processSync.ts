@@ -17,7 +17,7 @@ import fetchAnalyses from "rdpc/query/fetchAnalyses";
 import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
 import fetchDonorIdsByAnalysis from "rdpc/query/fetchDonorIdsByAnalysis";
 import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
-import { AnalysisUpdateEvent } from "./types";
+import { SyncProgramEvent } from "./types";
 import { getNewResolvedIndex, handleIndexingFailure } from "./util";
 
 /**
@@ -28,7 +28,7 @@ import { getNewResolvedIndex, handleIndexingFailure } from "./util";
  * @param services optional overwrite of the default services, useful for setting mocks in testing
  */
 async function processSyncProgramEvent(
-  event: AnalysisUpdateEvent,
+  event: SyncProgramEvent,
   sendDlqMessage: (messageJSON: string) => Promise<void>,
   services: {
     esClient?: Client;
