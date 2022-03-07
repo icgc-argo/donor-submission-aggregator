@@ -27,7 +27,7 @@ async function processClinicalUpdateEvent(
   const rollcallClient =
     services.rollcallClient || (await createRollcallClient(rollcallConfig));
 
-  const doClone = false;
+  const doClone = true;
 
   try {
     withRetry(async (retry, attemptIndex) => {
@@ -59,7 +59,10 @@ async function processClinicalUpdateEvent(
         });
         retry(indexingErr);
       }
-    });
+
+      await setIndexWritable(esClient, targetIndexName, false);
+      logger.info(`Disabled index writing for: ${targetIndexName}`);
+    }, RETRY_CONFIG_RDPC_GATEWAY);
   } catch (retryErr) {
     logger.error(
       `Failed to index program ${programId} after ${

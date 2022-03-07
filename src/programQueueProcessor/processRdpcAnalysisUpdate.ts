@@ -43,7 +43,7 @@ async function processRdpcAnalysisUpdateEvent(
   const fetchVC = services.fetchVC || fetchVariantCallingAnalyses;
   const fetchDonorIds = services.fetchDonorIds || fetchDonorIdsByAnalysis;
 
-  const doClone = false;
+  const doClone = true;
 
   try {
     withRetry(async (retry, attemptIndex) => {
@@ -85,7 +85,10 @@ async function processRdpcAnalysisUpdateEvent(
         });
         retry(indexingErr);
       }
-    });
+
+      await setIndexWritable(esClient, targetIndexName, false);
+      logger.info(`Disabled index writing for: ${targetIndexName}`);
+    }, RETRY_CONFIG_RDPC_GATEWAY);
   } catch (retryErr) {
     logger.error(
       `Failed to index program ${programId} after ${
