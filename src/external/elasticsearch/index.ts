@@ -3,12 +3,12 @@ import {
   VAULT_ES_SECRET_PATH,
   USE_VAULT,
   ES_CLIENT_TRUST_SSL_CERT,
-  ROLLCALL_ALIAS_NAME,
+  rollcallConfig,
 } from "config";
 import flatMap from "lodash/flatMap";
 import esMapping from "./donorIndexMapping.json";
 import { ApiResponse, Client } from "@elastic/elasticsearch";
-import { loadVaultSecret } from "../external/vault";
+import { loadVaultSecret } from "../vault";
 import logger from "logger";
 import { generateIndexName } from "programQueueProcessor/util";
 
@@ -20,6 +20,16 @@ type EsSecret = {
 const isEsSecret = (data: { [k: string]: any }): data is EsSecret => {
   return typeof data["user"] === "string" && typeof data["pass"] === "string";
 };
+
+let esClient: Client;
+
+export async function getEsClient() {
+  if (esClient) {
+    return esClient;
+  }
+  esClient = await createEsClient();
+  return esClient;
+}
 
 export const createEsClient = async (): Promise<Client> => {
   let esClient: Client;
@@ -115,7 +125,7 @@ export const getLatestIndexName = async (
   programId: string
 ): Promise<string> => {
   const result = (await esClient.indices.getAlias({
-    name: ROLLCALL_ALIAS_NAME,
+    name: rollcallConfig.aliasName,
   })) as AliasResponse;
 
   const indexNameList = Object.entries(result.body).map(

@@ -15,7 +15,7 @@ import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
 
 import { EsDonorDocument, RdpcDonorInfo } from "./types";
-import { initIndexMapping, toEsBulkIndexActions } from "elasticsearch";
+import { initIndexMapping, toEsBulkIndexActions } from "external/elasticsearch";
 import { esDonorId } from "./utils";
 import { mean, range, random } from "lodash";
 import { DonorMolecularDataReleaseStatus } from "files/types";

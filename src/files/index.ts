@@ -1,5 +1,5 @@
 import { Client } from "@elastic/elasticsearch";
-import { toEsBulkIndexActions } from "elasticsearch";
+import { toEsBulkIndexActions } from "external/elasticsearch";
 import { queryDocumentsByDonorIds } from "indexClinicalData";
 import { EsDonorDocument, EsHit } from "indexClinicalData/types";
 import logger from "logger";

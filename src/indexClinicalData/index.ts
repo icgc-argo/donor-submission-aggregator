@@ -1,7 +1,7 @@
 import { esDonorId } from "./utils";
 import transformToEsDonor from "./transformToEsDonor";
 import programDonorStream from "./programDonorStream";
-import { toEsBulkIndexActions } from "elasticsearch";
+import { toEsBulkIndexActions } from "external/elasticsearch";
 import { STREAM_CHUNK_SIZE } from "config";
 import { Client } from "@elastic/elasticsearch";
 import logger from "logger";

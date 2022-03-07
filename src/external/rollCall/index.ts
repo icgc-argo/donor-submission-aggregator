@@ -7,20 +7,11 @@ import {
 } from "./types";
 import urljoin from "url-join";
 import logger from "logger";
-import donorIndexMapping from "elasticsearch/donorIndexMapping.json";
+import donorIndexMapping from "external/elasticsearch/donorIndexMapping.json";
+import { RollcallConfig, rollcallConfig } from "config";
 
-export default (configData: {
-  url: string;
-  aliasName?: string;
-  entity?: string;
-  type?: string;
-  shardPrefix?: string;
-}): RollCallClient => {
-  const rootUrl = configData.url;
-  const aliasName = configData.aliasName || "donor_submission_summary";
-  const indexEntity = configData?.entity || "donor";
-  const indexType = configData?.type || "centric";
-  const shardPrefix = configData?.shardPrefix || "program";
+const createRollcallClient = (config: RollcallConfig): RollCallClient => {
+  const { rootUrl, aliasName, indexEntity, indexType, shardPrefix } = config;
 
   const createNewResolvableIndex = async (
     programShortName: string,
@@ -87,3 +78,5 @@ export default (configData: {
     release,
   };
 };
+
+export default createRollcallClient;

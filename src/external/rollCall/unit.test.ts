@@ -4,6 +4,7 @@ import { GenericContainer, StartedTestContainer, Wait } from "testcontainers";
 import { Client } from "@elastic/elasticsearch";
 import { Duration, TemporalUnit } from "node-duration";
 import { RollCallClient } from "./types";
+import { rollcallConfig } from "config";
 
 describe("rollcall integration", () => {
   let elasticsearchContainer: StartedTestContainer;
@@ -74,10 +75,12 @@ describe("rollcall integration", () => {
 
       // ***** start relevant clients *****
       esClient = new Client({ node: ES_HOST });
-      rollcallClient = createRollcallClient({
-        url: `${ROLLCALL_HOST}`,
-        ...RESOLVED_INDEX_PARTS,
-        aliasName,
+      rollcallClient = await createRollcallClient({
+        rootUrl: `${ROLLCALL_HOST}`,
+        aliasName: rollcallConfig.aliasName,
+        indexEntity: RESOLVED_INDEX_PARTS.entity,
+        indexType: RESOLVED_INDEX_PARTS.type,
+        shardPrefix: RESOLVED_INDEX_PARTS.shardPrefix,
       });
     } catch (err) {
       console.log(`before >>>>>>>>>>>`, err);

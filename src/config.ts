@@ -1,6 +1,13 @@
 import dotenv from "dotenv";
 import path from "path";
 
+export type RollcallConfig = {
+  rootUrl: string;
+  aliasName: string;
+  indexEntity: string;
+  indexType: string;
+  shardPrefix: string;
+};
 export interface KafkaConsumerConfiguration {
   topic: string;
   group: string;
@@ -56,15 +63,13 @@ export const ES_HOST = process.env.ES_HOST || "http://localhost:9200";
 export const ES_CLIENT_TRUST_SSL_CERT =
   process.env.ES_CLIENT_TRUST_SSL_CERT === "true";
 
-export const ROLLCALL_SERVICE_ROOT =
-  process.env.ROLLCALL_SERVICE_ROOT || "http://localhost:9001";
-export const ROLLCALL_ALIAS_NAME =
-  process.env.ROLLCALL_ALIAS_NAME || "donor_submission_summary";
-export const ROLLCALL_INDEX_ENTITY =
-  process.env.ROLLCALL_INDEX_ENTITY || "donor";
-export const ROLLCALL_INDEX_TYPE = process.env.ROLLCALL_INDEX_TYPE || "centric";
-export const ROLLCALL_INDEX_SHARDPREFIX =
-  process.env.ROLLCALL_INDEX_SHARDPREFIX || "program";
+export const rollcallConfig: RollcallConfig = {
+  rootUrl: process.env.ROLLCALL_SERVICE_ROOT || "http://localhost:9001",
+  aliasName: process.env.ROLLCALL_ALIAS_NAME || "donor_submission_summary",
+  indexEntity: process.env.ROLLCALL_INDEX_ENTITY || "donor",
+  indexType: process.env.ROLLCALL_INDEX_TYPE || "centric",
+  shardPrefix: process.env.ROLLCALL_INDEX_SHARDPREFIX || "program",
+};
 
 export const STREAM_CHUNK_SIZE =
   !Number(process.env.STREAM_CHUNK_SIZE) ||

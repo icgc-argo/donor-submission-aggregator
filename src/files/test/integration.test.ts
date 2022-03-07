@@ -1,7 +1,7 @@
 import { Client } from "@elastic/elasticsearch";
 import { expect } from "chai";
 import esb from "elastic-builder";
-import { initIndexMapping } from "elasticsearch";
+import { initIndexMapping } from "external/elasticsearch";
 import { indexFileData } from "files";
 import { getFilesByProgramId } from "files/getFilesByProgramId";
 import { File } from "files/types";
