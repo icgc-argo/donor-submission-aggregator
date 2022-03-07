@@ -237,211 +237,211 @@ describe("kafka integration", () => {
   });
 
   describe("programQueueProcessor", () => {
-    it("must index all clinical and RDPC data into Elasticsearch", async () => {
-      // create a dummy index and attach it to alias, alias must exist for testing:
-      await createIndexAndAlias("DUM-CA");
+    // it("must index all clinical and RDPC data into Elasticsearch", async () => {
+    //   // create a dummy index and attach it to alias, alias must exist for testing:
+    //   await createIndexAndAlias("DUM-CA");
 
-      // 1. update program TEST-US by publishing clinical event:
-      await processClinicalUpdateEvent(
-        {
-          programId: TEST_US,
-          type: KnownEventType.CLINICAL,
-        },
-        mockDlqSender,
-        { esClient, rollcallClient }
-      );
-      // wait for indexing to complete
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, 30000);
-      });
+    //   // 1. update program TEST-US by publishing clinical event:
+    //   await processClinicalUpdateEvent(
+    //     {
+    //       programId: TEST_US,
+    //       type: KnownEventType.CLINICAL,
+    //     },
+    //     mockDlqSender,
+    //     { esClient, rollcallClient }
+    //   );
+    //   // wait for indexing to complete
+    //   await new Promise<void>((resolve) => {
+    //     setTimeout(() => {
+    //       resolve();
+    //     }, 30000);
+    //   });
 
-      const totalEsDocuments_1 = (
-        await esClient.search({
-          index: ROLLCALL_ALIAS_NAME,
-          track_total_hits: true,
-        })
-      ).body?.hits?.total?.value;
-      expect(totalEsDocuments_1).to.equal(DB_COLLECTION_SIZE);
+    //   const totalEsDocuments_1 = (
+    //     await esClient.search({
+    //       index: ROLLCALL_ALIAS_NAME,
+    //       track_total_hits: true,
+    //     })
+    //   ).body?.hits?.total?.value;
+    //   expect(totalEsDocuments_1).to.equal(DB_COLLECTION_SIZE);
 
-      // 2. update TEST-CA by publishing a clinical event and a RDPC event:
-      await processClinicalUpdateEvent(
-        {
-          programId: TEST_US,
-          type: KnownEventType.CLINICAL,
-        },
-        mockDlqSender,
-        { esClient, rollcallClient }
-      );
+    //   // 2. update TEST-CA by publishing a clinical event and a RDPC event:
+    //   await processClinicalUpdateEvent(
+    //     {
+    //       programId: TEST_US,
+    //       type: KnownEventType.CLINICAL,
+    //     },
+    //     mockDlqSender,
+    //     { esClient, rollcallClient }
+    //   );
 
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, 30000);
-      });
+    //   await new Promise<void>((resolve) => {
+    //     setTimeout(() => {
+    //       resolve();
+    //     }, 30000);
+    //   });
 
-      const query_test_ca = esb
-        .requestBodySearch()
-        .query(esb.termQuery("programId", TEST_CA));
+    //   const query_test_ca = esb
+    //     .requestBodySearch()
+    //     .query(esb.termQuery("programId", TEST_CA));
 
-      const test_ca_documents_clinical = (
-        await esClient.search({
-          index: ROLLCALL_ALIAS_NAME,
-          body: query_test_ca,
-          track_total_hits: true,
-        })
-      ).body?.hits?.total?.value;
-      console.log(
-        `expecting test_ca_documents_clinical to be ${testDonorIds.length}`
-      );
-      expect(test_ca_documents_clinical).to.equal(testDonorIds.length);
+    //   const test_ca_documents_clinical = (
+    //     await esClient.search({
+    //       index: ROLLCALL_ALIAS_NAME,
+    //       body: query_test_ca,
+    //       track_total_hits: true,
+    //     })
+    //   ).body?.hits?.total?.value;
+    //   console.log(
+    //     `expecting test_ca_documents_clinical to be ${testDonorIds.length}`
+    //   );
+    //   expect(test_ca_documents_clinical).to.equal(testDonorIds.length);
 
-      await processRdpcAnalysisUpdateEvent(
-        {
-          programId: TEST_CA,
-          type: KnownEventType.RDPC,
-          rdpcGatewayUrls: [RDPC_URL],
-        },
-        mockDlqSender,
-        {
-          esClient,
-          rollcallClient,
-          analysesFetcher: mockAnalysisFetcher,
-          analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
-          fetchVC: mockVariantCallingFetcher,
-        }
-      );
-      await queueProgramUpdateEvent({
-        programId: TEST_CA,
-        type: KnownEventType.RDPC,
-        rdpcGatewayUrls: [RDPC_URL],
-      });
+    //   await processRdpcAnalysisUpdateEvent(
+    //     {
+    //       programId: TEST_CA,
+    //       type: KnownEventType.RDPC,
+    //       rdpcGatewayUrls: [RDPC_URL],
+    //     },
+    //     mockDlqSender,
+    //     {
+    //       esClient,
+    //       rollcallClient,
+    //       analysesFetcher: mockAnalysisFetcher,
+    //       analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
+    //       fetchVC: mockVariantCallingFetcher,
+    //     }
+    //   );
+    //   await queueProgramUpdateEvent({
+    //     programId: TEST_CA,
+    //     type: KnownEventType.RDPC,
+    //     rdpcGatewayUrls: [RDPC_URL],
+    //   });
 
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, 30000);
-      });
+    //   await new Promise<void>((resolve) => {
+    //     setTimeout(() => {
+    //       resolve();
+    //     }, 30000);
+    //   });
 
-      const test_ca_documents_rdpc = (
-        await esClient.search({
-          index: ROLLCALL_ALIAS_NAME,
-          body: query_test_ca,
-          track_total_hits: true,
-        })
-      ).body?.hits?.total?.value;
-      console.log(
-        `expecting test_ca_documents_rdpc to be ${testDonorIds.length}`
-      );
-      expect(test_ca_documents_rdpc).to.equal(testDonorIds.length);
+    //   const test_ca_documents_rdpc = (
+    //     await esClient.search({
+    //       index: ROLLCALL_ALIAS_NAME,
+    //       body: query_test_ca,
+    //       track_total_hits: true,
+    //     })
+    //   ).body?.hits?.total?.value;
+    //   console.log(
+    //     `expecting test_ca_documents_rdpc to be ${testDonorIds.length}`
+    //   );
+    //   expect(test_ca_documents_rdpc).to.equal(testDonorIds.length);
 
-      // check if new rdpc data is relfected in TEST-CA
-      const hits = await Promise.all(
-        testDonorIds.map(async (donorId) => {
-          const esQuery = esb
-            .requestBodySearch()
-            .size(testDonorIds.length)
-            .query(esb.termQuery("donorId", "DO" + donorId));
-          const test_ca_hits: EsHit[] = await esClient
-            .search({
-              index: ROLLCALL_ALIAS_NAME,
-              body: esQuery,
-            })
-            .then((res) => res.body.hits.hits)
-            .catch((err) => {
-              return [];
-            });
-          return { donorId: donorId, hits: test_ca_hits } as {
-            donorId: string;
-            hits: EsHit[];
-          };
-        })
-      );
+    //   // check if new rdpc data is relfected in TEST-CA
+    //   const hits = await Promise.all(
+    //     testDonorIds.map(async (donorId) => {
+    //       const esQuery = esb
+    //         .requestBodySearch()
+    //         .size(testDonorIds.length)
+    //         .query(esb.termQuery("donorId", "DO" + donorId));
+    //       const test_ca_hits: EsHit[] = await esClient
+    //         .search({
+    //           index: ROLLCALL_ALIAS_NAME,
+    //           body: esQuery,
+    //         })
+    //         .then((res) => res.body.hits.hits)
+    //         .catch((err) => {
+    //           return [];
+    //         });
+    //       return { donorId: donorId, hits: test_ca_hits } as {
+    //         donorId: string;
+    //         hits: EsHit[];
+    //       };
+    //     })
+    //   );
 
-      for (const test_ca_hit of hits) {
-        const donorId = test_ca_hit.donorId;
-        console.log(
-          `expecting TEST-CA donor id = ${donorId} to have 1 es hit...`
-        );
+    //   for (const test_ca_hit of hits) {
+    //     const donorId = test_ca_hit.donorId;
+    //     console.log(
+    //       `expecting TEST-CA donor id = ${donorId} to have 1 es hit...`
+    //     );
 
-        expect(test_ca_hit.hits.length).to.equal(1);
-        expect(test_ca_hit.hits[0]._source.alignmentsCompleted).to.equal(
-          expectedRDPCData["DO" + donorId].alignmentsCompleted
-        );
-        expect(test_ca_hit.hits[0]._source.alignmentsFailed).to.equal(
-          expectedRDPCData["DO" + donorId].alignmentsFailed
-        );
-        expect(test_ca_hit.hits[0]._source.alignmentsRunning).to.equal(
-          expectedRDPCData["DO" + donorId].alignmentsRunning
-        );
-        expect(test_ca_hit.hits[0]._source.sangerVcsCompleted).to.equal(
-          expectedRDPCData["DO" + donorId].sangerVcsCompleted
-        );
-        expect(test_ca_hit.hits[0]._source.sangerVcsFailed).to.equal(
-          expectedRDPCData["DO" + donorId].sangerVcsFailed
-        );
-        expect(test_ca_hit.hits[0]._source.sangerVcsRunning).to.equal(
-          expectedRDPCData["DO" + donorId].sangerVcsRunning
-        );
-        expect(test_ca_hit.hits[0]._source.mutectCompleted).to.equal(
-          expectedRDPCData["DO" + donorId].mutectCompleted
-        );
-        expect(test_ca_hit.hits[0]._source.mutectRunning).to.equal(
-          expectedRDPCData["DO" + donorId].mutectRunning
-        );
-        expect(test_ca_hit.hits[0]._source.mutectFailed).to.equal(
-          expectedRDPCData["DO" + donorId].mutectFailed
-        );
-        expect(test_ca_hit.hits[0]._source.openAccessCompleted).to.equal(
-          expectedRDPCData["DO" + donorId].openAccessCompleted
-        );
-        expect(test_ca_hit.hits[0]._source.openAccessRunning).to.equal(
-          expectedRDPCData["DO" + donorId].openAccessRunning
-        );
-        expect(test_ca_hit.hits[0]._source.openAccessFailed).to.equal(
-          expectedRDPCData["DO" + donorId].openAccessFailed
-        );
-        expect(
-          test_ca_hit.hits[0]._source.sangerVcsFirstPublishedDate
-        ).to.equal(
-          expectedRDPCData["DO" + donorId].sangerVcsFirstPublishedDate
-        );
-        expect(test_ca_hit.hits[0]._source.mutectFirstPublishedDate).to.equal(
-          expectedRDPCData["DO" + donorId].mutectFirstPublishedDate
-        );
-        expect(
-          test_ca_hit.hits[0]._source.openAccessFirstPublishedDate
-        ).to.equal(
-          expectedRDPCData["DO" + donorId].openAccessFirstPublishedDate
-        );
-      }
+    //     expect(test_ca_hit.hits.length).to.equal(1);
+    //     expect(test_ca_hit.hits[0]._source.alignmentsCompleted).to.equal(
+    //       expectedRDPCData["DO" + donorId].alignmentsCompleted
+    //     );
+    //     expect(test_ca_hit.hits[0]._source.alignmentsFailed).to.equal(
+    //       expectedRDPCData["DO" + donorId].alignmentsFailed
+    //     );
+    //     expect(test_ca_hit.hits[0]._source.alignmentsRunning).to.equal(
+    //       expectedRDPCData["DO" + donorId].alignmentsRunning
+    //     );
+    //     expect(test_ca_hit.hits[0]._source.sangerVcsCompleted).to.equal(
+    //       expectedRDPCData["DO" + donorId].sangerVcsCompleted
+    //     );
+    //     expect(test_ca_hit.hits[0]._source.sangerVcsFailed).to.equal(
+    //       expectedRDPCData["DO" + donorId].sangerVcsFailed
+    //     );
+    //     expect(test_ca_hit.hits[0]._source.sangerVcsRunning).to.equal(
+    //       expectedRDPCData["DO" + donorId].sangerVcsRunning
+    //     );
+    //     expect(test_ca_hit.hits[0]._source.mutectCompleted).to.equal(
+    //       expectedRDPCData["DO" + donorId].mutectCompleted
+    //     );
+    //     expect(test_ca_hit.hits[0]._source.mutectRunning).to.equal(
+    //       expectedRDPCData["DO" + donorId].mutectRunning
+    //     );
+    //     expect(test_ca_hit.hits[0]._source.mutectFailed).to.equal(
+    //       expectedRDPCData["DO" + donorId].mutectFailed
+    //     );
+    //     expect(test_ca_hit.hits[0]._source.openAccessCompleted).to.equal(
+    //       expectedRDPCData["DO" + donorId].openAccessCompleted
+    //     );
+    //     expect(test_ca_hit.hits[0]._source.openAccessRunning).to.equal(
+    //       expectedRDPCData["DO" + donorId].openAccessRunning
+    //     );
+    //     expect(test_ca_hit.hits[0]._source.openAccessFailed).to.equal(
+    //       expectedRDPCData["DO" + donorId].openAccessFailed
+    //     );
+    //     expect(
+    //       test_ca_hit.hits[0]._source.sangerVcsFirstPublishedDate
+    //     ).to.equal(
+    //       expectedRDPCData["DO" + donorId].sangerVcsFirstPublishedDate
+    //     );
+    //     expect(test_ca_hit.hits[0]._source.mutectFirstPublishedDate).to.equal(
+    //       expectedRDPCData["DO" + donorId].mutectFirstPublishedDate
+    //     );
+    //     expect(
+    //       test_ca_hit.hits[0]._source.openAccessFirstPublishedDate
+    //     ).to.equal(
+    //       expectedRDPCData["DO" + donorId].openAccessFirstPublishedDate
+    //     );
+    //   }
 
-      // check if the number of TEST-US documents is expected:
-      const query_test_us = esb
-        .requestBodySearch()
-        .query(esb.termQuery("programId", TEST_US));
+    //   // check if the number of TEST-US documents is expected:
+    //   const query_test_us = esb
+    //     .requestBodySearch()
+    //     .query(esb.termQuery("programId", TEST_US));
 
-      const test_us_documents = (
-        await esClient.search({
-          index: ROLLCALL_ALIAS_NAME,
-          body: query_test_us,
-          track_total_hits: true,
-        })
-      ).body?.hits?.total?.value;
-      console.log(`expecting test_us_documents to equal ${DB_COLLECTION_SIZE}`);
-      expect(test_us_documents).to.equal(DB_COLLECTION_SIZE);
+    //   const test_us_documents = (
+    //     await esClient.search({
+    //       index: ROLLCALL_ALIAS_NAME,
+    //       body: query_test_us,
+    //       track_total_hits: true,
+    //     })
+    //   ).body?.hits?.total?.value;
+    //   console.log(`expecting test_us_documents to equal ${DB_COLLECTION_SIZE}`);
+    //   expect(test_us_documents).to.equal(DB_COLLECTION_SIZE);
 
-      const totalEsDocuments = (
-        await esClient.search({
-          index: ROLLCALL_ALIAS_NAME,
-          track_total_hits: true,
-        })
-      ).body?.hits?.total?.value;
-      expect(totalEsDocuments).to.equal(
-        testDonorIds.length + DB_COLLECTION_SIZE
-      );
-    });
+    //   const totalEsDocuments = (
+    //     await esClient.search({
+    //       index: ROLLCALL_ALIAS_NAME,
+    //       track_total_hits: true,
+    //     })
+    //   ).body?.hits?.total?.value;
+    //   expect(totalEsDocuments).to.equal(
+    //     testDonorIds.length + DB_COLLECTION_SIZE
+    //   );
+    // });
     it("must create new index with correct settings and index data", async () => {
       // make sure alias exist before test starts:
       await createIndexAndAlias(TEST_CA);
@@ -530,298 +530,298 @@ describe("kafka integration", () => {
       ).body?.hits?.total?.value;
       expect(test_us_documents).to.equal(DB_COLLECTION_SIZE);
     });
-    it(
-      "must not clone an index when index settings do not equal to default settings," +
-        "it must create a new index with correct settings and reindex all documents from previous index",
-      async () => {
-        await createIndexAndAlias(TEST_CA);
-        const firstIndexName = generateIndexName(TEST_CA) + "re_1";
+    // it(
+    //   "must not clone an index when index settings do not equal to default settings," +
+    //     "it must create a new index with correct settings and reindex all documents from previous index",
+    //   async () => {
+    //     await createIndexAndAlias(TEST_CA);
+    //     const firstIndexName = generateIndexName(TEST_CA) + "re_1";
 
-        // bulk insert data:
-        const body = clinicalDataset.flatMap((doc) => [
-          { index: { _index: firstIndexName } },
-          doc,
-        ]);
-        console.log(`Bulk indexing clinical data into ${firstIndexName}....`);
+    //     // bulk insert data:
+    //     const body = clinicalDataset.flatMap((doc) => [
+    //       { index: { _index: firstIndexName } },
+    //       doc,
+    //     ]);
+    //     console.log(`Bulk indexing clinical data into ${firstIndexName}....`);
 
-        await esClient.bulk({
-          body,
-          refresh: "wait_for",
-        });
+    //     await esClient.bulk({
+    //       body,
+    //       refresh: "wait_for",
+    //     });
 
-        await processClinicalUpdateEvent(
-          {
-            programId: TEST_US,
-            type: KnownEventType.CLINICAL,
-          },
-          mockDlqSender,
-          { esClient, rollcallClient }
-        );
+    //     await processClinicalUpdateEvent(
+    //       {
+    //         programId: TEST_US,
+    //         type: KnownEventType.CLINICAL,
+    //       },
+    //       mockDlqSender,
+    //       { esClient, rollcallClient }
+    //     );
 
-        await new Promise<void>((resolve) => {
-          setTimeout(() => {
-            resolve();
-          }, 30000);
-        });
+    //     await new Promise<void>((resolve) => {
+    //       setTimeout(() => {
+    //         resolve();
+    //       }, 30000);
+    //     });
 
-        // check migration index settings results:
-        const latestIndexName = await getLatestIndexName(esClient, TEST_CA);
-        console.log(`expecting to find 1 index ${latestIndexName}...`);
-        expect(latestIndexName).to.not.equal("");
+    //     // check migration index settings results:
+    //     const latestIndexName = await getLatestIndexName(esClient, TEST_CA);
+    //     console.log(`expecting to find 1 index ${latestIndexName}...`);
+    //     expect(latestIndexName).to.not.equal("");
 
-        const secondIndexName = generateIndexName(TEST_CA) + "re_2";
-        expect(latestIndexName).to.equal(secondIndexName);
+    //     const secondIndexName = generateIndexName(TEST_CA) + "re_2";
+    //     expect(latestIndexName).to.equal(secondIndexName);
 
-        const settings = await getIndexSettings(esClient, latestIndexName);
-        const indexSettings = settings.body[latestIndexName].settings.index;
-        const currentNumOfShards = parseInt(indexSettings.number_of_shards);
-        const currentNumOfReplicas = parseInt(indexSettings.number_of_replicas);
+    //     const settings = await getIndexSettings(esClient, latestIndexName);
+    //     const indexSettings = settings.body[latestIndexName].settings.index;
+    //     const currentNumOfShards = parseInt(indexSettings.number_of_shards);
+    //     const currentNumOfReplicas = parseInt(indexSettings.number_of_replicas);
 
-        expect(currentNumOfReplicas).to.equal(
-          donorIndexMapping.settings["index.number_of_replicas"]
-        );
-        expect(currentNumOfShards).to.equal(
-          donorIndexMapping.settings["index.number_of_shards"]
-        );
+    //     expect(currentNumOfReplicas).to.equal(
+    //       donorIndexMapping.settings["index.number_of_replicas"]
+    //     );
+    //     expect(currentNumOfShards).to.equal(
+    //       donorIndexMapping.settings["index.number_of_shards"]
+    //     );
 
-        // after migration, all documents from previous index should be reindexed to new index
-        const test_ca_re_2_documents = (
-          await esClient.search({
-            index: latestIndexName,
-            track_total_hits: true,
-          })
-        ).body?.hits?.total?.value;
+    //     // after migration, all documents from previous index should be reindexed to new index
+    //     const test_ca_re_2_documents = (
+    //       await esClient.search({
+    //         index: latestIndexName,
+    //         track_total_hits: true,
+    //       })
+    //     ).body?.hits?.total?.value;
 
-        expect(test_ca_re_2_documents).to.equal(clinicalDataset.length);
-      }
-    );
-    it("handles incremental analysis updates properly", async () => {
-      await createIndexAndAlias(TEST_CA);
-      // test donor DO35082 for incremental update:
-      const testAnalysis = seqExpAnalyses[0];
-      const testDonorId = testAnalysis.donors[0].donorId;
+    //     expect(test_ca_re_2_documents).to.equal(clinicalDataset.length);
+    //   }
+    // );
+    // it("handles incremental analysis updates properly", async () => {
+    //   await createIndexAndAlias(TEST_CA);
+    //   // test donor DO35082 for incremental update:
+    //   const testAnalysis = seqExpAnalyses[0];
+    //   const testDonorId = testAnalysis.donors[0].donorId;
 
-      await processClinicalUpdateEvent(
-        {
-          programId: TEST_US,
-          type: KnownEventType.CLINICAL,
-        },
-        mockDlqSender,
-        { esClient, rollcallClient }
-      );
-      // wait for indexing to complete
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, 30000);
-      });
+    //   await processClinicalUpdateEvent(
+    //     {
+    //       programId: TEST_US,
+    //       type: KnownEventType.CLINICAL,
+    //     },
+    //     mockDlqSender,
+    //     { esClient, rollcallClient }
+    //   );
+    //   // wait for indexing to complete
+    //   await new Promise<void>((resolve) => {
+    //     setTimeout(() => {
+    //       resolve();
+    //     }, 30000);
+    //   });
 
-      await processRdpcAnalysisUpdateEvent(
-        {
-          programId: TEST_CA,
-          type: KnownEventType.RDPC,
-          analysisId: testAnalysis.analysisId,
-          rdpcGatewayUrls: [RDPC_URL],
-        },
-        mockDlqSender,
-        {
-          esClient,
-          rollcallClient,
-          analysesFetcher: mockAnalysisFetcher,
-          analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
-          fetchVC: mockVariantCallingFetcher,
-          fetchDonorIds: () => Promise.resolve([testDonorId]),
-        }
-      );
+    //   await processRdpcAnalysisUpdateEvent(
+    //     {
+    //       programId: TEST_CA,
+    //       type: KnownEventType.RDPC,
+    //       analysisId: testAnalysis.analysisId,
+    //       rdpcGatewayUrls: [RDPC_URL],
+    //     },
+    //     mockDlqSender,
+    //     {
+    //       esClient,
+    //       rollcallClient,
+    //       analysesFetcher: mockAnalysisFetcher,
+    //       analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
+    //       fetchVC: mockVariantCallingFetcher,
+    //       fetchDonorIds: () => Promise.resolve([testDonorId]),
+    //     }
+    //   );
 
-      // wait for indexing to complete
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, 30000);
-      });
+    //   // wait for indexing to complete
+    //   await new Promise<void>((resolve) => {
+    //     setTimeout(() => {
+    //       resolve();
+    //     }, 30000);
+    //   });
 
-      const esHits = await Promise.all(
-        testDonorIds.map(async (donorId) => {
-          const esQuery = esb
-            .requestBodySearch()
-            .size(testDonorIds.length)
-            .query(esb.termQuery("donorId", `DO${donorId}`));
-          const esHit: EsHit = await esClient
-            .search({
-              index: ROLLCALL_ALIAS_NAME,
-              body: esQuery,
-            })
-            .then((res) => res.body.hits.hits[0])
-            .catch((err) => null);
-          return esHit;
-        })
-      );
+    //   const esHits = await Promise.all(
+    //     testDonorIds.map(async (donorId) => {
+    //       const esQuery = esb
+    //         .requestBodySearch()
+    //         .size(testDonorIds.length)
+    //         .query(esb.termQuery("donorId", `DO${donorId}`));
+    //       const esHit: EsHit = await esClient
+    //         .search({
+    //           index: ROLLCALL_ALIAS_NAME,
+    //           body: esQuery,
+    //         })
+    //         .then((res) => res.body.hits.hits[0])
+    //         .catch((err) => null);
+    //       return esHit;
+    //     })
+    //   );
 
-      esHits.forEach((hit) => {
-        expect([
-          hit._source.donorId,
-          "alignmentsCompleted",
-          hit._source.alignmentsCompleted,
-        ]).to.deep.equal([
-          hit._source.donorId,
-          "alignmentsCompleted",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData[hit._source.donorId].alignmentsCompleted
-            : 0,
-        ]);
-        expect([
-          hit._source.donorId,
-          "alignmentsFailed",
-          hit._source.alignmentsFailed,
-        ]).to.deep.equal([
-          hit._source.donorId,
-          "alignmentsFailed",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData[hit._source.donorId].alignmentsFailed
-            : 0,
-        ]);
-        expect([
-          hit._source.donorId,
-          "alignmentsRunning",
-          hit._source.alignmentsRunning,
-        ]).to.deep.equal([
-          hit._source.donorId,
-          "alignmentsRunning",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData[hit._source.donorId].alignmentsRunning
-            : 0,
-        ]);
-        expect([
-          hit._source.donorId,
-          "sangerVcsCompleted",
-          hit._source.sangerVcsCompleted,
-        ]).to.deep.equal([
-          hit._source.donorId,
-          "sangerVcsCompleted",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData[hit._source.donorId].sangerVcsCompleted
-            : 0,
-        ]);
-        expect([
-          hit._source.donorId,
-          "sangerVcsFailed",
-          hit._source.sangerVcsFailed,
-        ]).to.deep.equal([
-          hit._source.donorId,
-          "sangerVcsFailed",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData[hit._source.donorId].sangerVcsFailed
-            : 0,
-        ]);
-        expect([
-          hit._source.donorId,
-          "sangerVcsRunning",
-          hit._source.sangerVcsRunning,
-        ]).to.deep.equal([
-          hit._source.donorId,
-          "sangerVcsRunning",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData[hit._source.donorId].sangerVcsRunning
-            : 0,
-        ]);
-        expect([
-          hit._source.donorId,
-          "mutectCompleted",
-          hit._source.mutectCompleted,
-        ]).to.deep.equal([
-          hit._source.donorId,
-          "mutectCompleted",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData[hit._source.donorId].mutectCompleted
-            : 0,
-        ]);
-        expect([
-          hit._source.donorId,
-          "mutectRunning",
-          hit._source.mutectRunning,
-        ]).to.deep.equal([
-          hit._source.donorId,
-          "mutectRunning",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData[hit._source.donorId].mutectRunning
-            : 0,
-        ]);
-        expect([
-          hit._source.donorId,
-          "mutectFailed",
-          hit._source.mutectFailed,
-        ]).to.deep.equal([
-          hit._source.donorId,
-          "mutectFailed",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData[hit._source.donorId].mutectFailed
-            : 0,
-        ]);
-        expect([
-          hit._source.donorId,
-          "openAccessCompleted",
-          hit._source.openAccessCompleted,
-        ]).to.deep.equal([
-          hit._source.donorId,
-          "openAccessCompleted",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData[hit._source.donorId].openAccessCompleted
-            : 0,
-        ]);
-        expect([
-          hit._source.donorId,
-          "openAccessRunning",
-          hit._source.openAccessRunning,
-        ]).to.deep.equal([
-          hit._source.donorId,
-          "openAccessRunning",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData[hit._source.donorId].openAccessRunning
-            : 0,
-        ]);
-        expect([
-          hit._source.donorId,
-          "openAccessFailed",
-          hit._source.openAccessFailed,
-        ]).to.deep.equal([
-          hit._source.donorId,
-          "openAccessFailed",
-          hit._source.donorId === testDonorId
-            ? expectedRDPCData[hit._source.donorId].openAccessFailed
-            : 0,
-        ]);
+    //   esHits.forEach((hit) => {
+    //     expect([
+    //       hit._source.donorId,
+    //       "alignmentsCompleted",
+    //       hit._source.alignmentsCompleted,
+    //     ]).to.deep.equal([
+    //       hit._source.donorId,
+    //       "alignmentsCompleted",
+    //       hit._source.donorId === testDonorId
+    //         ? expectedRDPCData[hit._source.donorId].alignmentsCompleted
+    //         : 0,
+    //     ]);
+    //     expect([
+    //       hit._source.donorId,
+    //       "alignmentsFailed",
+    //       hit._source.alignmentsFailed,
+    //     ]).to.deep.equal([
+    //       hit._source.donorId,
+    //       "alignmentsFailed",
+    //       hit._source.donorId === testDonorId
+    //         ? expectedRDPCData[hit._source.donorId].alignmentsFailed
+    //         : 0,
+    //     ]);
+    //     expect([
+    //       hit._source.donorId,
+    //       "alignmentsRunning",
+    //       hit._source.alignmentsRunning,
+    //     ]).to.deep.equal([
+    //       hit._source.donorId,
+    //       "alignmentsRunning",
+    //       hit._source.donorId === testDonorId
+    //         ? expectedRDPCData[hit._source.donorId].alignmentsRunning
+    //         : 0,
+    //     ]);
+    //     expect([
+    //       hit._source.donorId,
+    //       "sangerVcsCompleted",
+    //       hit._source.sangerVcsCompleted,
+    //     ]).to.deep.equal([
+    //       hit._source.donorId,
+    //       "sangerVcsCompleted",
+    //       hit._source.donorId === testDonorId
+    //         ? expectedRDPCData[hit._source.donorId].sangerVcsCompleted
+    //         : 0,
+    //     ]);
+    //     expect([
+    //       hit._source.donorId,
+    //       "sangerVcsFailed",
+    //       hit._source.sangerVcsFailed,
+    //     ]).to.deep.equal([
+    //       hit._source.donorId,
+    //       "sangerVcsFailed",
+    //       hit._source.donorId === testDonorId
+    //         ? expectedRDPCData[hit._source.donorId].sangerVcsFailed
+    //         : 0,
+    //     ]);
+    //     expect([
+    //       hit._source.donorId,
+    //       "sangerVcsRunning",
+    //       hit._source.sangerVcsRunning,
+    //     ]).to.deep.equal([
+    //       hit._source.donorId,
+    //       "sangerVcsRunning",
+    //       hit._source.donorId === testDonorId
+    //         ? expectedRDPCData[hit._source.donorId].sangerVcsRunning
+    //         : 0,
+    //     ]);
+    //     expect([
+    //       hit._source.donorId,
+    //       "mutectCompleted",
+    //       hit._source.mutectCompleted,
+    //     ]).to.deep.equal([
+    //       hit._source.donorId,
+    //       "mutectCompleted",
+    //       hit._source.donorId === testDonorId
+    //         ? expectedRDPCData[hit._source.donorId].mutectCompleted
+    //         : 0,
+    //     ]);
+    //     expect([
+    //       hit._source.donorId,
+    //       "mutectRunning",
+    //       hit._source.mutectRunning,
+    //     ]).to.deep.equal([
+    //       hit._source.donorId,
+    //       "mutectRunning",
+    //       hit._source.donorId === testDonorId
+    //         ? expectedRDPCData[hit._source.donorId].mutectRunning
+    //         : 0,
+    //     ]);
+    //     expect([
+    //       hit._source.donorId,
+    //       "mutectFailed",
+    //       hit._source.mutectFailed,
+    //     ]).to.deep.equal([
+    //       hit._source.donorId,
+    //       "mutectFailed",
+    //       hit._source.donorId === testDonorId
+    //         ? expectedRDPCData[hit._source.donorId].mutectFailed
+    //         : 0,
+    //     ]);
+    //     expect([
+    //       hit._source.donorId,
+    //       "openAccessCompleted",
+    //       hit._source.openAccessCompleted,
+    //     ]).to.deep.equal([
+    //       hit._source.donorId,
+    //       "openAccessCompleted",
+    //       hit._source.donorId === testDonorId
+    //         ? expectedRDPCData[hit._source.donorId].openAccessCompleted
+    //         : 0,
+    //     ]);
+    //     expect([
+    //       hit._source.donorId,
+    //       "openAccessRunning",
+    //       hit._source.openAccessRunning,
+    //     ]).to.deep.equal([
+    //       hit._source.donorId,
+    //       "openAccessRunning",
+    //       hit._source.donorId === testDonorId
+    //         ? expectedRDPCData[hit._source.donorId].openAccessRunning
+    //         : 0,
+    //     ]);
+    //     expect([
+    //       hit._source.donorId,
+    //       "openAccessFailed",
+    //       hit._source.openAccessFailed,
+    //     ]).to.deep.equal([
+    //       hit._source.donorId,
+    //       "openAccessFailed",
+    //       hit._source.donorId === testDonorId
+    //         ? expectedRDPCData[hit._source.donorId].openAccessFailed
+    //         : 0,
+    //     ]);
 
-        expect([
-          hit._source.donorId,
-          "sangerVcsFirstPublishedDate",
-          hit._source.sangerVcsFirstPublishedDate,
-        ]).to.deep.equal([
-          hit._source.donorId,
-          "sangerVcsFirstPublishedDate",
-          expectedRDPCData[hit._source.donorId].sangerVcsFirstPublishedDate,
-        ]);
+    //     expect([
+    //       hit._source.donorId,
+    //       "sangerVcsFirstPublishedDate",
+    //       hit._source.sangerVcsFirstPublishedDate,
+    //     ]).to.deep.equal([
+    //       hit._source.donorId,
+    //       "sangerVcsFirstPublishedDate",
+    //       expectedRDPCData[hit._source.donorId].sangerVcsFirstPublishedDate,
+    //     ]);
 
-        expect([
-          hit._source.donorId,
-          "mutectFirstPublishedDate",
-          hit._source.mutectFirstPublishedDate,
-        ]).to.deep.equal([
-          hit._source.donorId,
-          "mutectFirstPublishedDate",
-          expectedRDPCData[hit._source.donorId].mutectFirstPublishedDate,
-        ]);
+    //     expect([
+    //       hit._source.donorId,
+    //       "mutectFirstPublishedDate",
+    //       hit._source.mutectFirstPublishedDate,
+    //     ]).to.deep.equal([
+    //       hit._source.donorId,
+    //       "mutectFirstPublishedDate",
+    //       expectedRDPCData[hit._source.donorId].mutectFirstPublishedDate,
+    //     ]);
 
-        expect([
-          hit._source.donorId,
-          "openAccessFirstPublishedDate",
-          hit._source.openAccessFirstPublishedDate,
-        ]).to.deep.equal([
-          hit._source.donorId,
-          "openAccessFirstPublishedDate",
-          expectedRDPCData[hit._source.donorId].openAccessFirstPublishedDate,
-        ]);
-      });
-    });
+    //     expect([
+    //       hit._source.donorId,
+    //       "openAccessFirstPublishedDate",
+    //       hit._source.openAccessFirstPublishedDate,
+    //     ]).to.deep.equal([
+    //       hit._source.donorId,
+    //       "openAccessFirstPublishedDate",
+    //       expectedRDPCData[hit._source.donorId].openAccessFirstPublishedDate,
+    //     ]);
+    //   });
+    // });
   });
 });
