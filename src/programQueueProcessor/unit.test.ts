@@ -438,10 +438,15 @@ describe("kafka integration", () => {
 
       // 1.If a program has never been indexed before, newly created index settings
       // should be the same as default index settings
-      await queueProgramUpdateEvent({
-        programId: TEST_US,
-        type: KnownEventType.CLINICAL,
-      });
+
+      await processClinicalUpdateEvent(
+        {
+          programId: TEST_US,
+          type: KnownEventType.CLINICAL,
+        },
+        mockDlqSender,
+        { esClient, rollcallClient }
+      );
 
       await new Promise<void>((resolve) => {
         setTimeout(() => {
@@ -470,10 +475,14 @@ describe("kafka integration", () => {
 
       // 2.if a new event is published to index the same program,
       // a new index should be created and index settings should be equal to default settings.
-      await queueProgramUpdateEvent({
-        programId: TEST_US,
-        type: KnownEventType.CLINICAL,
-      });
+      await processClinicalUpdateEvent(
+        {
+          programId: TEST_US,
+          type: KnownEventType.CLINICAL,
+        },
+        mockDlqSender,
+        { esClient, rollcallClient }
+      );
 
       await new Promise<void>((resolve) => {
         setTimeout(() => {
