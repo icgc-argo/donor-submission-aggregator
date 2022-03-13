@@ -1,6 +1,6 @@
 import { FEATURE_INDEX_FILE_ENABLED, kafkaConfig } from "config";
 import { KafkaMessage } from "kafkajs";
-import { KnownEventType } from "programQueueProcessor/types";
+import { KnownEventType } from "processors/types";
 import { isNotEmptyString } from "utils";
 import createConsumer from "../createConsumer";
 import { queueProgramUpdateEvent } from "../producers/programQueueProducer";
