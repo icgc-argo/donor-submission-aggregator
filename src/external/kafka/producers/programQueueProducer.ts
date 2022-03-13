@@ -1,7 +1,7 @@
 import { kafkaConfig, KafkaProducerConfiguration } from "config";
 import { Kafka, Producer } from "kafkajs";
 import logger from "logger";
-import { QueueRecord as ProgramQueueRecord } from "programQueueProcessor/types";
+import { QueueRecord as ProgramQueueRecord } from "processors/types";
 
 let producer: Producer;
 let config: KafkaProducerConfiguration;

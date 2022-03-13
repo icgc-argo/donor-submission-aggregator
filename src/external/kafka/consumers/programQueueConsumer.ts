@@ -1,6 +1,6 @@
 import { kafkaConfig } from "config";
 import { KafkaMessage } from "kafkajs";
-import handleEventMessage from "programQueueProcessor";
+import handleEventMessage from "processors/index";
 import createConsumer from "../createConsumer";
 
 /**
