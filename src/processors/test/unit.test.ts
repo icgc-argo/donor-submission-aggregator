@@ -19,18 +19,17 @@ import {
 import { seqExpAnalyses } from "rdpc/test/fixtures/integrationTest/mockAnalyses";
 import { GenericContainer, StartedTestContainer, Wait } from "testcontainers";
 import { promisify } from "util";
-import * as kafka from "../external/kafka";
-import createRollCallClient from "../external/rollCall";
-import { RollCallClient } from "../external/rollCall/types";
+import * as kafka from "../../external/kafka";
+import createRollCallClient from "../../external/rollCall";
+import { RollCallClient } from "../../external/rollCall/types";
 import {
   mockAnalysesWithSpecimensFetcher,
   mockAnalysisFetcher,
   mockVariantCallingFetcher,
 } from "./MockFetch";
-import processClinicalUpdateEvent from "./processClinical";
-import processRdpcAnalysisUpdateEvent from "./processRdpcAnalysisUpdate";
-import { KnownEventType } from "./types";
-import { generateIndexName } from "./util";
+import processClinicalUpdateEvent from "../processClinical";
+import { KnownEventType } from "../types";
+import { generateIndexName } from "../util";
 
 const TEST_US = "TEST-US";
 const TEST_CA = "TEST-CA";
