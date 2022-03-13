@@ -4,7 +4,7 @@ import processClinicalUpdateEvent from "./processClinical";
 import processFileReleaseEvent from "./processFileRelease";
 import processRdpcAnalysisUpdateEvent from "./processRdpcAnalysisUpdate";
 import processSyncProgramEvent from "./processSync";
-import { KnownEventType, QueueRecord } from "./types";
+import { isQueueRecord, KnownEventType, QueueRecord } from "./types";
 
 async function handleEventMessage(
   message: KafkaMessage,
@@ -12,8 +12,11 @@ async function handleEventMessage(
 ) {
   const stringMessage = message.value?.toString() || "";
   try {
-    const queuedEvent = JSON.parse(stringMessage) as QueueRecord;
-
+    //TODO: Write a proper event parser with validation
+    const queuedEvent = JSON.parse(stringMessage);
+    if (!isQueueRecord(queuedEvent)) {
+      throw new Error("Event message was not of a known type");
+    }
     logger.info(`Begin processing event: ${queuedEvent.type}`);
     switch (queuedEvent.type) {
       case KnownEventType.CLINICAL:

@@ -4,7 +4,7 @@ import * as kafka from "external/kafka";
 import { queueProgramUpdateEvent } from "external/kafka/producers/programQueueProducer";
 import logger from "logger";
 import path from "path";
-import { KnownEventType } from "programQueueProcessor/types";
+import { KnownEventType } from "processors/types";
 import * as swaggerUi from "swagger-ui-express";
 import yaml from "yamljs";
 import applyStatusReport from "./statusReport";

@@ -35,6 +35,18 @@ export type QueueRecord =
   | FileReleaseEvent
   | SyncProgramEvent;
 
+/**
+ * QueueRecord message structure validator
+ * TODO: currently only checks for the common property `type`. A thorough solution would
+ *  validate the structure of each type of event.
+ * In the current form, mishappen messages could still get through but would likely just
+ *  cause the processor to break and DLQ the message without harm.
+ * @param input
+ * @returns
+ */
+export const isQueueRecord = (input: any): input is QueueRecord => {
+  return Object.values(KnownEventType).includes(input.type);
+};
 // export type ProgramQueueProcessor = {
 //   knownEventTypes: {
 //     CLINICAL: KnownEventType.CLINICAL;

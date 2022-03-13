@@ -3,8 +3,8 @@ import createConsumer from "../createConsumer";
 import { queueProgramUpdateEvent } from "../producers/programQueueProducer";
 import { kafkaConfig } from "config";
 import parseClinicalProgramUpdateEvent from "external/kafka/consumers/eventParsers/parseClinicalProgramUpdateEvent";
-import { KnownEventType } from "programQueueProcessor/types";
 import { isNotEmptyString } from "utils";
+import { KnownEventType } from "processors/types";
 
 /**
  * Clinical Update Event Consumer

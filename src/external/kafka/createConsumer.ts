@@ -25,20 +25,18 @@ function createConsumer(
    * Call on startup to create the consumer
    *  */
   const init = async (kafka: Kafka) => {
-    const consumerConfig = kafkaConfig.consumers.programQueue;
-
     consumer = kafka.consumer({
-      groupId: consumerConfig.group,
-      heartbeatInterval: consumerConfig.heartbeatInterval,
-      sessionTimeout: consumerConfig.sessionTimeout,
-      rebalanceTimeout: consumerConfig.rebalanceTimeout,
+      groupId: config.group,
+      heartbeatInterval: config.heartbeatInterval,
+      sessionTimeout: config.sessionTimeout,
+      rebalanceTimeout: config.rebalanceTimeout,
     });
     consumer.subscribe({
-      topic: consumerConfig.topic,
+      topic: config.topic,
     });
     await consumer.connect();
 
-    const dlqTopic = consumerConfig.dlq;
+    const dlqTopic = config.dlq;
     if (dlqTopic) {
       dlqProducer = kafka.producer({
         allowAutoTopicCreation: true,
@@ -48,8 +46,7 @@ function createConsumer(
 
     await consumer
       .run({
-        partitionsConsumedConcurrently:
-          consumerConfig.partitionsConsumedConcurrently,
+        partitionsConsumedConcurrently: config.partitionsConsumedConcurrently,
         eachMessage: async ({ message }) => {
           logger.info(`New message received offset : ${message.offset}`);
           await handleMessage(message, sendDlqMessage);
