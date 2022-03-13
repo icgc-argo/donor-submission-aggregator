@@ -30,6 +30,7 @@ import {
 import processClinicalUpdateEvent from "../processClinical";
 import { KnownEventType } from "../types";
 import { generateIndexName } from "../util";
+import processRdpcAnalysisUpdateEvent from "processors/processRdpcAnalysisUpdate";
 
 const TEST_US = "TEST-US";
 const TEST_CA = "TEST-CA";
