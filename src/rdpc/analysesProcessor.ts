@@ -19,6 +19,9 @@ import _ from "lodash";
 import { RdpcDonorInfo } from "indexClinicalData/types";
 import { DonorMolecularDataReleaseStatus } from "files/types";
 
+const DNA_SAMPLE_TYPE_KEYWORD = "DNA";
+const RNA_SAMPLE_TYPE_KEYWORD = "RNA";
+
 type StreamState = {
   currentPage: number;
 };
@@ -231,10 +234,16 @@ export const getAllMergedDonor = async ({
 export const countSpecimenType = (map: StringMap<DonorData>): DonorInfoMap => {
   const result: DonorInfoMap = {};
   Object.entries(map).forEach(([donorId, donorData]) => {
-    for (const specimen of donorData.specimen) {
-      if (
-        specimen.tumourNormalDesignation === TumourNormalDesignationValue.Normal
-      ) {
+    const normalSpecimen = donorData.specimen.filter(
+      (sp) => sp.tumourNormalDesignation === TumourNormalDesignationValue.Normal
+    );
+
+    const tumourSpecimen = donorData.specimen.filter(
+      (sp) => sp.tumourNormalDesignation === TumourNormalDesignationValue.Tumour
+    );
+
+    for (const normal of normalSpecimen) {
+      if (normal.samples[0].sampleType.includes(DNA_SAMPLE_TYPE_KEYWORD)) {
         if (result[donorId]) {
           result[donorId].publishedNormalAnalysis += 1;
         } else {
@@ -243,14 +252,32 @@ export const countSpecimenType = (map: StringMap<DonorData>): DonorInfoMap => {
         }
       }
 
-      if (
-        specimen.tumourNormalDesignation === TumourNormalDesignationValue.Tumour
-      ) {
+      if (normal.samples[0].sampleType.includes(RNA_SAMPLE_TYPE_KEYWORD)) {
+        if (result[donorId]) {
+          result[donorId].RNApublishedNormalAnalysis += 1;
+        } else {
+          initializeRdpcInfo(result, donorId);
+          result[donorId].RNApublishedNormalAnalysis += 1;
+        }
+      }
+    }
+
+    for (const tumour of tumourSpecimen) {
+      if (tumour.samples[0].sampleType.includes(DNA_SAMPLE_TYPE_KEYWORD)) {
         if (result[donorId]) {
           result[donorId].publishedTumourAnalysis += 1;
         } else {
           initializeRdpcInfo(result, donorId);
           result[donorId].publishedTumourAnalysis += 1;
+        }
+      }
+
+      if (tumour.samples[0].sampleType.includes(RNA_SAMPLE_TYPE_KEYWORD)) {
+        if (result[donorId]) {
+          result[donorId].RNApublishedTumourAnalysis += 1;
+        } else {
+          initializeRdpcInfo(result, donorId);
+          result[donorId].RNApublishedTumourAnalysis += 1;
         }
       }
     }
@@ -461,6 +488,8 @@ export const initializeRdpcInfo = (
 };
 
 export const initialRdpcInfo: Readonly<RdpcDonorInfo> = Object.freeze({
+  RNApublishedNormalAnalysis: 0,
+  RNApublishedTumourAnalysis: 0,
   publishedNormalAnalysis: 0,
   publishedTumourAnalysis: 0,
   alignmentsCompleted: 0,
@@ -488,6 +517,12 @@ export const mergeDonorInfo = (
   const result = Object.entries(mergeWith).reduce<DonorInfoMap>(
     (acc, [donorId, rdpcInfo]) => {
       acc[donorId] = {
+        RNApublishedNormalAnalysis:
+          (acc[donorId]?.RNApublishedNormalAnalysis || 0) +
+          rdpcInfo.RNApublishedNormalAnalysis,
+        RNApublishedTumourAnalysis:
+          (acc[donorId]?.RNApublishedTumourAnalysis || 0) +
+          rdpcInfo.RNApublishedTumourAnalysis,
         publishedNormalAnalysis:
           (acc[donorId]?.publishedNormalAnalysis || 0) +
           rdpcInfo.publishedNormalAnalysis,

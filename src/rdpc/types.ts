@@ -30,6 +30,7 @@ export interface Specimen {
 export interface Sample {
   submitterSampleId: string;
   matchedNormalSubmitterSampleId: string | null;
+  sampleType: string;
 }
 
 export enum TumourNormalDesignationValue {

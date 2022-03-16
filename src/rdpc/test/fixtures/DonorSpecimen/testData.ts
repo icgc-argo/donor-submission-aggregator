@@ -14,6 +14,7 @@ export const mergedDonorData_page_1: StringMap<DonorData> = {
         tumourNormalDesignation: TumourNormalDesignationValue.Normal,
         samples: [
           {
+            sampleType: "Total DNA",
             submitterSampleId: "PCSI_0085_Sp_R",
             matchedNormalSubmitterSampleId: null,
           },
@@ -24,6 +25,7 @@ export const mergedDonorData_page_1: StringMap<DonorData> = {
         tumourNormalDesignation: TumourNormalDesignationValue.Tumour,
         samples: [
           {
+            sampleType: "Total DNA",
             submitterSampleId: "PCSI_0085_Pa_X",
             matchedNormalSubmitterSampleId: "PCSI_0085_Ly_R",
           },
@@ -34,6 +36,7 @@ export const mergedDonorData_page_1: StringMap<DonorData> = {
         tumourNormalDesignation: TumourNormalDesignationValue.Tumour,
         samples: [
           {
+            sampleType: "Total DNA",
             submitterSampleId: "PCSI_0085_Pa_P",
             matchedNormalSubmitterSampleId: "PCSI_0085_Ly_R",
           },
@@ -87,6 +90,7 @@ export const mergedDonorData_page_2: StringMap<DonorData> = {
         tumourNormalDesignation: TumourNormalDesignationValue.Normal,
         samples: [
           {
+            sampleType: "Total DNA",
             submitterSampleId: "PCSI_0085_Ly_R",
             matchedNormalSubmitterSampleId: null,
           },
@@ -97,6 +101,7 @@ export const mergedDonorData_page_2: StringMap<DonorData> = {
         tumourNormalDesignation: TumourNormalDesignationValue.Tumour,
         samples: [
           {
+            sampleType: "Total DNA",
             submitterSampleId: "PCSI_0085_Pa_P",
             matchedNormalSubmitterSampleId: "PCSI_0085_Ly_R",
           },
@@ -107,6 +112,7 @@ export const mergedDonorData_page_2: StringMap<DonorData> = {
         tumourNormalDesignation: TumourNormalDesignationValue.Tumour,
         samples: [
           {
+            sampleType: "Total DNA",
             submitterSampleId: "PCSI_0085_Pa_P_526",
             matchedNormalSubmitterSampleId: "PCSI_0085_Sp_R",
           },
@@ -160,6 +166,7 @@ export const mergedDonorData_page_3: StringMap<DonorData> = {
         tumourNormalDesignation: TumourNormalDesignationValue.Normal,
         samples: [
           {
+            sampleType: "Total DNA",
             submitterSampleId: "PCSI_0085_Ly_R",
             matchedNormalSubmitterSampleId: null,
           },
@@ -213,6 +220,7 @@ export const mergedDonorDataMap: StringMap<DonorData> = {
         tumourNormalDesignation: TumourNormalDesignationValue.Normal,
         samples: [
           {
+            sampleType: "Total DNA",
             submitterSampleId: "PCSI_0085_Sp_R",
             matchedNormalSubmitterSampleId: null,
           },
@@ -223,6 +231,7 @@ export const mergedDonorDataMap: StringMap<DonorData> = {
         tumourNormalDesignation: TumourNormalDesignationValue.Tumour,
         samples: [
           {
+            sampleType: "Total DNA",
             submitterSampleId: "PCSI_0085_Pa_X",
             matchedNormalSubmitterSampleId: "PCSI_0085_Ly_R",
           },
@@ -233,6 +242,7 @@ export const mergedDonorDataMap: StringMap<DonorData> = {
         tumourNormalDesignation: TumourNormalDesignationValue.Tumour,
         samples: [
           {
+            sampleType: "Total DNA",
             submitterSampleId: "PCSI_0085_Pa_P",
             matchedNormalSubmitterSampleId: "PCSI_0085_Ly_R",
           },
@@ -243,6 +253,7 @@ export const mergedDonorDataMap: StringMap<DonorData> = {
         tumourNormalDesignation: TumourNormalDesignationValue.Normal,
         samples: [
           {
+            sampleType: "Total DNA",
             submitterSampleId: "PCSI_0085_Ly_R",
             matchedNormalSubmitterSampleId: null,
           },
@@ -253,6 +264,7 @@ export const mergedDonorDataMap: StringMap<DonorData> = {
         tumourNormalDesignation: TumourNormalDesignationValue.Tumour,
         samples: [
           {
+            sampleType: "Total DNA",
             submitterSampleId: "PCSI_0085_Pa_P",
             matchedNormalSubmitterSampleId: "PCSI_0085_Ly_R",
           },
@@ -263,6 +275,7 @@ export const mergedDonorDataMap: StringMap<DonorData> = {
         tumourNormalDesignation: TumourNormalDesignationValue.Tumour,
         samples: [
           {
+            sampleType: "Total DNA",
             submitterSampleId: "PCSI_0085_Pa_P_526",
             matchedNormalSubmitterSampleId: "PCSI_0085_Sp_R",
           },
