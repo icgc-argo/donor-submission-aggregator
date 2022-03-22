@@ -210,6 +210,8 @@ export const donorCentricWithOneTNPair = {
 
 export const donorByVCRunState: DonorInfoMap = {
   DO50339: {
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 0,
@@ -230,6 +232,8 @@ export const donorByVCRunState: DonorInfoMap = {
     processingStatus: "REGISTERED",
   },
   DO50395: {
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 0,
@@ -250,6 +254,8 @@ export const donorByVCRunState: DonorInfoMap = {
     processingStatus: "REGISTERED",
   },
   DO50453: {
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 0,

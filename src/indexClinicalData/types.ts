@@ -11,6 +11,11 @@ export enum FirstPublishedDateFields {
 }
 
 export type RdpcDonorInfo = {
+  // RNA properties:
+  rnaPublishedNormalAnalysis: number;
+  rnaPublishedTumourAnalysis: number;
+
+  // DNA properties:
   publishedNormalAnalysis: number;
   publishedTumourAnalysis: number;
   rawReadsFirstPublishedDate?: Date;

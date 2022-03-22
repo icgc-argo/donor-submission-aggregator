@@ -23,6 +23,7 @@ query ($analysisFilter: AnalysisFilter, $analysisPage: Page) {
             specimenId
             tumourNormalDesignation
             samples {
+              sampleType
               submitterSampleId
               matchedNormalSubmitterSampleId
             }

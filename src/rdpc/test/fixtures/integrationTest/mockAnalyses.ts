@@ -2776,6 +2776,7 @@ export const seqExpAnalysesWithSpecimens: Analysis[] = [
             tumourNormalDesignation: TumourNormalDesignationValue.Tumour,
             samples: [
               {
+                sampleType: "Total DNA",
                 submitterSampleId: "PCSI_0019_Pa_P_526",
                 matchedNormalSubmitterSampleId: "PCSI_0019_Si_R",
               },
@@ -2806,6 +2807,7 @@ export const seqExpAnalysesWithSpecimens: Analysis[] = [
             tumourNormalDesignation: TumourNormalDesignationValue.Normal,
             samples: [
               {
+                sampleType: "Total DNA",
                 submitterSampleId: "PCSI_0019_Si_R",
                 matchedNormalSubmitterSampleId: null,
               },
@@ -3092,6 +3094,7 @@ export const seqExpAnalysesWithSpecimens_incremental: Analysis[] = [
             tumourNormalDesignation: TumourNormalDesignationValue.Tumour,
             samples: [
               {
+                sampleType: "Total DNA",
                 submitterSampleId: "PCSI_0019_Pa_P_526",
                 matchedNormalSubmitterSampleId: "PCSI_0019_Si_R",
               },
@@ -3122,6 +3125,7 @@ export const seqExpAnalysesWithSpecimens_incremental: Analysis[] = [
             tumourNormalDesignation: TumourNormalDesignationValue.Normal,
             samples: [
               {
+                sampleType: "Total DNA",
                 submitterSampleId: "PCSI_0019_Pa_P_526",
                 matchedNormalSubmitterSampleId: "PCSI_0019_Si_R",
               },
@@ -3157,6 +3161,7 @@ export const seqExpAnalysesWithSpecimens_incremental_after_unpublish: Analysis[]
             tumourNormalDesignation: TumourNormalDesignationValue.Tumour,
             samples: [
               {
+                sampleType: "Total DNA",
                 submitterSampleId: "PCSI_0019_Pa_P_526",
                 matchedNormalSubmitterSampleId: "PCSI_0019_Si_R",
               },
