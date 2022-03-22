@@ -243,7 +243,7 @@ export const countSpecimenType = (map: StringMap<DonorData>): DonorInfoMap => {
     );
 
     for (const normal of normalSpecimen) {
-      if (normal.samples[0].sampleType.includes(DNA_SAMPLE_TYPE_KEYWORD)) {
+      if (normal.samples[0]?.sampleType.includes(DNA_SAMPLE_TYPE_KEYWORD)) {
         if (result[donorId]) {
           result[donorId].publishedNormalAnalysis += 1;
         } else {
@@ -252,18 +252,18 @@ export const countSpecimenType = (map: StringMap<DonorData>): DonorInfoMap => {
         }
       }
 
-      if (normal.samples[0].sampleType.includes(RNA_SAMPLE_TYPE_KEYWORD)) {
+      if (normal.samples[0]?.sampleType.includes(RNA_SAMPLE_TYPE_KEYWORD)) {
         if (result[donorId]) {
-          result[donorId].RNApublishedNormalAnalysis += 1;
+          result[donorId].rnaPublishedNormalAnalysis += 1;
         } else {
           initializeRdpcInfo(result, donorId);
-          result[donorId].RNApublishedNormalAnalysis += 1;
+          result[donorId].rnaPublishedNormalAnalysis += 1;
         }
       }
     }
 
     for (const tumour of tumourSpecimen) {
-      if (tumour.samples[0].sampleType.includes(DNA_SAMPLE_TYPE_KEYWORD)) {
+      if (tumour.samples[0]?.sampleType.includes(DNA_SAMPLE_TYPE_KEYWORD)) {
         if (result[donorId]) {
           result[donorId].publishedTumourAnalysis += 1;
         } else {
@@ -272,12 +272,12 @@ export const countSpecimenType = (map: StringMap<DonorData>): DonorInfoMap => {
         }
       }
 
-      if (tumour.samples[0].sampleType.includes(RNA_SAMPLE_TYPE_KEYWORD)) {
+      if (tumour.samples[0]?.sampleType.includes(RNA_SAMPLE_TYPE_KEYWORD)) {
         if (result[donorId]) {
-          result[donorId].RNApublishedTumourAnalysis += 1;
+          result[donorId].rnaPublishedTumourAnalysis += 1;
         } else {
           initializeRdpcInfo(result, donorId);
-          result[donorId].RNApublishedTumourAnalysis += 1;
+          result[donorId].rnaPublishedTumourAnalysis += 1;
         }
       }
     }
@@ -488,8 +488,8 @@ export const initializeRdpcInfo = (
 };
 
 export const initialRdpcInfo: Readonly<RdpcDonorInfo> = Object.freeze({
-  RNApublishedNormalAnalysis: 0,
-  RNApublishedTumourAnalysis: 0,
+  rnaPublishedNormalAnalysis: 0,
+  rnaPublishedTumourAnalysis: 0,
   publishedNormalAnalysis: 0,
   publishedTumourAnalysis: 0,
   alignmentsCompleted: 0,
@@ -517,12 +517,12 @@ export const mergeDonorInfo = (
   const result = Object.entries(mergeWith).reduce<DonorInfoMap>(
     (acc, [donorId, rdpcInfo]) => {
       acc[donorId] = {
-        RNApublishedNormalAnalysis:
-          (acc[donorId]?.RNApublishedNormalAnalysis || 0) +
-          rdpcInfo.RNApublishedNormalAnalysis,
-        RNApublishedTumourAnalysis:
-          (acc[donorId]?.RNApublishedTumourAnalysis || 0) +
-          rdpcInfo.RNApublishedTumourAnalysis,
+        rnaPublishedNormalAnalysis:
+          (acc[donorId]?.rnaPublishedNormalAnalysis || 0) +
+          rdpcInfo.rnaPublishedNormalAnalysis,
+        rnaPublishedTumourAnalysis:
+          (acc[donorId]?.rnaPublishedTumourAnalysis || 0) +
+          rdpcInfo.rnaPublishedTumourAnalysis,
         publishedNormalAnalysis:
           (acc[donorId]?.publishedNormalAnalysis || 0) +
           rdpcInfo.publishedNormalAnalysis,

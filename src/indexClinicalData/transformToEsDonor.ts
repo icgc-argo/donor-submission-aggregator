@@ -4,8 +4,8 @@ import { EsDonorDocument, ClinicalDonorInfo, RdpcDonorInfo } from "./types";
 import { esDonorId } from "./utils";
 
 const defaultRDPCInfo: RdpcDonorInfo = {
-  RNApublishedNormalAnalysis: 0,
-  RNApublishedTumourAnalysis: 0,
+  rnaPublishedNormalAnalysis: 0,
+  rnaPublishedTumourAnalysis: 0,
 
   publishedNormalAnalysis: 0,
   publishedTumourAnalysis: 0,

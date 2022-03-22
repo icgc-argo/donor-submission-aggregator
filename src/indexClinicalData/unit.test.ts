@@ -39,8 +39,8 @@ describe("transformToEsDonor", () => {
       submittedExtendedDataPercent: 0, // this calculation is not yet defined
       registeredNormalSamples: 5,
       registeredTumourSamples: 10,
-      RNApublishedNormalAnalysis: 0,
-      RNApublishedTumourAnalysis: 0,
+      rnaPublishedNormalAnalysis: 0,
+      rnaPublishedTumourAnalysis: 0,
       publishedNormalAnalysis: 0,
       publishedTumourAnalysis: 0,
       alignmentsCompleted: 0,
@@ -250,8 +250,8 @@ describe("indexing programs", () => {
 
     it("must not incorrectly merge any old data for a new unrelated donor", async function () {
       const rdpcInfoKeys: Array<keyof RdpcDonorInfo> = [
-        "RNApublishedNormalAnalysis",
-        "RNApublishedTumourAnalysis",
+        "rnaPublishedNormalAnalysis",
+        "rnaPublishedTumourAnalysis",
         "publishedNormalAnalysis",
         "publishedTumourAnalysis",
         "alignmentsCompleted",
