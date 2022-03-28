@@ -26,6 +26,8 @@ export const clinicalDataset: EsDonorDocument[] = [
     submittedExtendedDataPercent: 0,
     registeredNormalSamples: 2,
     registeredTumourSamples: 2,
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 0,
@@ -56,6 +58,8 @@ export const clinicalDataset: EsDonorDocument[] = [
     submittedExtendedDataPercent: 0,
     registeredNormalSamples: 2,
     registeredTumourSamples: 2,
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 0,
@@ -86,6 +90,8 @@ export const clinicalDataset: EsDonorDocument[] = [
     submittedExtendedDataPercent: 0,
     registeredNormalSamples: 2,
     registeredTumourSamples: 2,
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 0,
@@ -116,6 +122,8 @@ export const clinicalDataset: EsDonorDocument[] = [
     submittedExtendedDataPercent: 0,
     registeredNormalSamples: 2,
     registeredTumourSamples: 2,
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 0,
@@ -146,6 +154,8 @@ export const clinicalDataset: EsDonorDocument[] = [
     submittedExtendedDataPercent: 0,
     registeredNormalSamples: 2,
     registeredTumourSamples: 2,
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 0,
@@ -176,6 +186,8 @@ export const clinicalDataset: EsDonorDocument[] = [
     submittedExtendedDataPercent: 0,
     registeredNormalSamples: 2,
     registeredTumourSamples: 2,
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 0,
@@ -206,6 +218,8 @@ export const clinicalDataset: EsDonorDocument[] = [
     submittedExtendedDataPercent: 0,
     registeredNormalSamples: 2,
     registeredTumourSamples: 2,
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 0,
@@ -236,6 +250,8 @@ export const clinicalDataset: EsDonorDocument[] = [
     submittedExtendedDataPercent: 0,
     registeredNormalSamples: 2,
     registeredTumourSamples: 2,
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 0,
@@ -266,6 +282,8 @@ export const clinicalDataset: EsDonorDocument[] = [
     submittedExtendedDataPercent: 0,
     registeredNormalSamples: 2,
     registeredTumourSamples: 2,
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 0,
@@ -296,6 +314,8 @@ export const clinicalDataset: EsDonorDocument[] = [
     submittedExtendedDataPercent: 0,
     registeredNormalSamples: 2,
     registeredTumourSamples: 2,
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 0,
@@ -319,6 +339,8 @@ export const clinicalDataset: EsDonorDocument[] = [
 ];
 
 type TestFields = {
+  rnaPublishedNormalAnalysis: Number;
+  rnaPublishedTumourAnalysis: Number;
   publishedNormalAnalysis: Number;
   publishedTumourAnalysis: Number;
   alignmentsCompleted: Number;
@@ -340,6 +362,8 @@ type TestFields = {
 
 export const expectedRDPCData: { [k: string]: TestFields } = {
   ["DO35082"]: {
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 1,
     publishedTumourAnalysis: 1,
     alignmentsCompleted: 1,
@@ -359,6 +383,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     openAccessFirstPublishedDate: "2021-11-15T11:37:53.538Z",
   },
   ["DO35083"]: {
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 0,
@@ -375,6 +401,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     openAccessFailed: 0,
   },
   ["DO35084"]: {
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 0,
@@ -391,6 +419,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     openAccessFailed: 0,
   },
   ["DO35085"]: {
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 1,
@@ -407,6 +437,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     openAccessFailed: 0,
   },
   ["DO35086"]: {
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 1,
@@ -423,6 +455,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     openAccessFailed: 0,
   },
   ["DO35087"]: {
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 1,
@@ -439,6 +473,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     openAccessFailed: 0,
   },
   ["DO35088"]: {
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 1,
@@ -455,6 +491,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     openAccessFailed: 0,
   },
   ["DO35089"]: {
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 1,
@@ -471,6 +509,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     openAccessFailed: 0,
   },
   ["DO35090"]: {
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 1,
@@ -487,6 +527,8 @@ export const expectedRDPCData: { [k: string]: TestFields } = {
     openAccessFailed: 0,
   },
   ["DO35091"]: {
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 1,
