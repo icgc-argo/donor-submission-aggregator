@@ -20,6 +20,7 @@ export const disconnect = async () => {
 
 export const queueProgramUpdateEvent = async (event: ProgramQueueRecord) => {
   if (producer) {
+    logger.debug(`Queuing event: ${JSON.stringify(event)}`);
     const result = await producer.send({
       topic: config.topic,
       messages: [
@@ -28,7 +29,6 @@ export const queueProgramUpdateEvent = async (event: ProgramQueueRecord) => {
         },
       ],
     });
-    logger.debug(`Queuing event: ${JSON.stringify(event)}`);
     logger.info(
       `Queued ${event.type} event. Response: ${JSON.stringify(result)}`
     );

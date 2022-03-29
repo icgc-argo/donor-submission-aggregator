@@ -24,6 +24,7 @@ import clinicalUpdateConsumer from "./consumers/clinicalUpdateConsumer";
 import filePublicReleaseConsumer from "./consumers/filePublicReleaseConsumer";
 import programQueueConsumer from "./consumers/programQueueConsumer";
 import rdpcAnalysisUpdateConsumer from "./consumers/rdpcAnalysisUpdateConsumer";
+import * as programQueueProducer from "./producers/programQueueProducer";
 import createTopic from "./createTopic";
 
 const consumers = [
@@ -45,6 +46,7 @@ export const setup = async (
   await Promise.all([
     createTopic(kafka, kafkaConfig.topics.programQueue),
     ...consumers.map((consumer) => consumer.init(kafka)),
+    programQueueProducer.init(kafka),
   ]);
   logger.info("Connected.");
 };
