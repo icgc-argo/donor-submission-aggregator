@@ -10,7 +10,7 @@ import esMapping from "./donorIndexMapping.json";
 import { ApiResponse, Client } from "@elastic/elasticsearch";
 import { loadVaultSecret } from "../vault";
 import logger from "logger";
-import { generateIndexName } from "processors/util";
+import { generateIndexName } from "../../processors/util";
 
 type EsSecret = {
   user: string;
