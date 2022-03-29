@@ -1,6 +1,6 @@
 import { Client } from "@elastic/elasticsearch";
 import {
-  FEATURE_INDEX_FILE_ENABLED,
+  featureFlags,
   RETRY_CONFIG_RDPC_GATEWAY,
   rollcallConfig,
 } from "config";
@@ -40,7 +40,7 @@ async function processFileReleaseEvent(
   const doClone = true;
 
   try {
-    if (FEATURE_INDEX_FILE_ENABLED) {
+    if (featureFlags.index.files) {
       const programs: Program[] = event.programs;
       for (const program of programs) {
         withRetry(async (retry, attemptIndex) => {

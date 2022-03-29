@@ -1,4 +1,4 @@
-import { FEATURE_INDEX_FILE_ENABLED, kafkaConfig } from "config";
+import { featureFlags, kafkaConfig } from "config";
 import { KafkaMessage } from "kafkajs";
 import { KnownEventType } from "processors/types";
 import { isNotEmptyString } from "utils";
@@ -20,7 +20,7 @@ async function queueFilePublicReleaseEvent(
   sendDlqMessage: (messageJSON: string) => Promise<void>
 ) {
   const stringMessage = message.value?.toString() || "";
-  if (FEATURE_INDEX_FILE_ENABLED) {
+  if (featureFlags.index.files) {
     const event = parseFilePublicReleaseEvent(stringMessage);
     if (isNotEmptyString(event.id)) {
       await queueProgramUpdateEvent({

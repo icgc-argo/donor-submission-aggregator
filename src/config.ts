@@ -256,12 +256,25 @@ export const RETRY_CONFIG_RDPC_GATEWAY = {
   maxTimeout: Infinity,
 };
 
+/**
+ * FEATURE FLAGS!
+ */
+// Index data from RDPC
 export const FEATURE_RDPC_INDEXING_ENABLED =
   process.env.FEATURE_RDPC_INDEXING_ENABLED === "true";
 
+// Index data from File Service
 export const FEATURE_INDEX_FILE_ENABLED =
   process.env.FEATURE_INDEX_FILE_ENABLED === "true";
 
 // Default enable kafka unless this flag is provided with value = false
 export const FEATURE_DEV_DISABLE_KAFKA =
-  process.env.FEATURE_DEV_DISABLE_KAFKA === "false";
+  process.env.FEATURE_DEV_DISABLE_KAFKA === "true";
+
+export const featureFlags = {
+  index: {
+    rdpc: FEATURE_RDPC_INDEXING_ENABLED,
+    files: FEATURE_INDEX_FILE_ENABLED,
+  },
+  kafka: !FEATURE_DEV_DISABLE_KAFKA,
+};

@@ -1,4 +1,4 @@
-import { FEATURE_RDPC_INDEXING_ENABLED, kafkaConfig, RDPC_URL } from "config";
+import { featureFlags, kafkaConfig, RDPC_URL } from "config";
 import { KafkaMessage } from "kafkajs";
 import { KnownEventType } from "processors/types";
 import { isNotEmptyString } from "utils";
@@ -20,7 +20,7 @@ async function queueRdpcAnalysisUpdateEvent(
   sendDlqMessage: (messageJSON: string) => Promise<void>
 ) {
   const stringMessage = message.value?.toString() || "";
-  if (FEATURE_RDPC_INDEXING_ENABLED) {
+  if (featureFlags.index.rdpc) {
     const event = parseRdpcProgramUpdateEvent(stringMessage);
     if (isNotEmptyString(event.studyId)) {
       await queueProgramUpdateEvent({

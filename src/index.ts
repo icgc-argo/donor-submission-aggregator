@@ -1,4 +1,4 @@
-import { FEATURE_DEV_DISABLE_KAFKA, PORT, RDPC_URL } from "config";
+import { featureFlags, PORT, RDPC_URL } from "config";
 import express from "express";
 import * as kafka from "external/kafka";
 import { queueProgramUpdateEvent } from "external/kafka/producers/programQueueProducer";
@@ -58,8 +58,8 @@ import applyStatusReport from "./statusReport";
   });
 
   // Initialize Kafka Consumers and Producers
-  //  - Can be disabled to simplify running in dev, set FLAG_DEV_DISABLE_KAFKA=false in .env
-  if (!FEATURE_DEV_DISABLE_KAFKA) {
+  //  - Can be disabled to simplify running in dev, set FLAG_DEV_DISABLE_KAFKA=true in .env
+  if (featureFlags.kafka) {
     await kafka.setup();
   }
 
@@ -81,9 +81,7 @@ errorTypes.map((type) => {
       logger.info(`process.on ${type}`);
       logger.error(e.message);
       console.log(e); // Get full error output
-      if (!FEATURE_DEV_DISABLE_KAFKA) {
-        await kafka.disconnect();
-      }
+      await kafka.disconnect();
       process.exit(0);
     } catch (_) {
       process.exit(1);
@@ -94,9 +92,7 @@ errorTypes.map((type) => {
 signalTraps.map((type) => {
   process.once(type as any, async () => {
     try {
-      if (!FEATURE_DEV_DISABLE_KAFKA) {
-        await kafka.disconnect();
-      }
+      await kafka.disconnect();
     } finally {
       process.kill(process.pid, type);
     }
