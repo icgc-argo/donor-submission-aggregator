@@ -1,6 +1,5 @@
 import { Client } from "@elastic/elasticsearch";
-import { EgoJwtManager } from "auth";
-import { toEsBulkIndexActions } from "elasticsearch";
+import { toEsBulkIndexActions } from "external/elasticsearch";
 import { queryDocumentsByDonorIds } from "indexClinicalData";
 import { EsDonorDocument, EsHit } from "indexClinicalData/types";
 import logger from "logger";
@@ -9,7 +8,6 @@ import { getFilesByProgramId } from "./getFilesByProgramId";
 
 export const indexFileData = async (
   programId: string,
-  egoJwtManager: EgoJwtManager,
   fetchFileData: typeof getFilesByProgramId,
   targetIndexName: string,
   esClient: Client,
@@ -17,7 +15,6 @@ export const indexFileData = async (
 ) => {
   const donorFileInfo = await determineReleaseStatus(
     programId,
-    egoJwtManager,
     fetchFileData,
     donorsUpdated
   );
@@ -52,7 +49,7 @@ export const indexFileData = async (
     await esClient.bulk({
       body: toEsBulkIndexActions<EsDonorDocument>(
         targetIndexName,
-        (donor) => preExistingDonorHits[donor.donorId]?._id
+        (donor) => preExistingDonorHits[donor.donorId]?._id || donor.donorId
       )(esDocuments),
       refresh: "wait_for",
     });

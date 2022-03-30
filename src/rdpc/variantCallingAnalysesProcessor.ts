@@ -1,4 +1,3 @@
-import { EgoJwtManager } from "auth";
 import _ from "lodash";
 import logger from "logger";
 import { initializeRdpcInfo } from "./analysesProcessor";
@@ -16,7 +15,6 @@ import {
 export const variantCallingStream = async function* ({
   studyId,
   rdpcUrl,
-  egoJwtManager,
   config,
   analysesFetcher = fetchVariantCallingAnalyses,
   donorId,
@@ -24,7 +22,6 @@ export const variantCallingStream = async function* ({
 }: {
   studyId: string;
   rdpcUrl: string;
-  egoJwtManager: EgoJwtManager;
   config: {
     chunkSize: number;
   };
@@ -43,7 +40,6 @@ export const variantCallingStream = async function* ({
       rdpcUrl,
       from: streamState.currentPage,
       size: chunkSize,
-      egoJwtManager,
       donorId,
       analysisType,
     });
@@ -121,7 +117,6 @@ export const getEarliestDateForDonor = (
 
 export const getAllMergedDonor_variantCalling = async ({
   analysesFetcher = fetchVariantCallingAnalyses,
-  egoJwtManager,
   studyId,
   url,
   config,
@@ -130,7 +125,6 @@ export const getAllMergedDonor_variantCalling = async ({
 }: {
   studyId: string;
   url: string;
-  egoJwtManager: EgoJwtManager;
   donorIds?: string[];
   config: {
     chunkSize: number;
@@ -147,7 +141,6 @@ export const getAllMergedDonor_variantCalling = async ({
       const stream = variantCallingStream({
         studyId,
         rdpcUrl: url,
-        egoJwtManager,
         config,
         analysesFetcher,
         donorId,
@@ -165,7 +158,6 @@ export const getAllMergedDonor_variantCalling = async ({
     const stream = variantCallingStream({
       studyId,
       rdpcUrl: url,
-      egoJwtManager,
       config,
       analysesFetcher,
       analysisType,

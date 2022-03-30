@@ -1,40 +1,71 @@
 import dotenv from "dotenv";
 import path from "path";
 
+export type RollcallConfig = {
+  rootUrl: string;
+  aliasName: string;
+  indexEntity: string;
+  indexType: string;
+  shardPrefix: string;
+};
+export interface KafkaConsumerConfiguration {
+  topic: string;
+  group: string;
+  dlq?: string;
+
+  partitionsConsumedConcurrently?: number;
+  heartbeatInterval?: number;
+  sessionTimeout?: number;
+  rebalanceTimeout?: number;
+}
+export interface KafkaProducerConfiguration {
+  topic: string;
+}
+
+export interface KafkaTopicConfiguration {
+  topic: string;
+  partitions: number;
+}
+
 export const APP_DIR = __dirname;
 
 dotenv.config({
   path: path.resolve(APP_DIR, "../.env"),
 });
 
-export const EGO_URL = process.env.EGO_URL || "http://localhost:8081";
-export const EGO_CLIENT_ID =
-  process.env.EGO_CLIENT_ID || "donor-submission-aggregator";
-export const EGO_CLIENT_SECRET =
-  process.env.EGO_CLIENT_SECRET || "donor-submission-aggregator-secret";
+export const PORT = Number(process.env.PORT || 7000);
+
+export const EGO_URL_RDPC = process.env.EGO_URL_RDPC || "http://localhost:8081";
+export const EGO_URL_DCC = process.env.EGO_URL_DCC || "http://localhost:8081";
+
+export const EGO_APP_RDPC_CLIENT_ID =
+  process.env.EGO_APP_RDPC_CLIENT_ID || "donor-submission-aggregator-rdpc";
+export const EGO_APP_RDPC_CLIENT_SECRET =
+  process.env.EGO_APP_RDPC_CLIENT_SECRET || "top-secret";
+export const EGO_APP_DCC_CLIENT_ID =
+  process.env.EGO_APP_DCC_CLIENT_ID || "donor-submission-aggregator-dcc";
+export const EGO_APP_DCC_CLIENT_SECRET =
+  process.env.EGO_APP_RDPC_CLIENT_SECRET || "top-secret";
+
 export const EGO_PUBLIC_KEY = process.env.EGO_PUBLIC_KEY as string;
 export const RDPC_URL = process.env.RDPC_URL || "http://localhost:8000";
 
 export const FILES_SERVICE_URL =
   process.env.FILES_SERVICE_URL || "http://localhost:8000";
-export const MONGO_URL =
-  process.env.MONGO_URL || "mongodb://localhost:27017/clinical";
-export const MONGO_USER = process.env.MONGO_USER;
-export const MONGO_PASS = process.env.MONGO_PASS;
+
+export const CLINICAL_URL = process.env.CLINICAL_URL || "http://localhost:3000";
 
 export const ES_HOST = process.env.ES_HOST || "http://localhost:9200";
 export const ES_CLIENT_TRUST_SSL_CERT =
   process.env.ES_CLIENT_TRUST_SSL_CERT === "true";
 
-export const ROLLCALL_SERVICE_ROOT =
-  process.env.ROLLCALL_SERVICE_ROOT || "http://localhost:9001";
-export const ROLLCALL_ALIAS_NAME =
-  process.env.ROLLCALL_ALIAS_NAME || "donor_submission_summary";
-export const ROLLCALL_INDEX_ENTITY =
-  process.env.ROLLCALL_INDEX_ENTITY || "donor";
-export const ROLLCALL_INDEX_TYPE = process.env.ROLLCALL_INDEX_TYPE || "centric";
-export const ROLLCALL_INDEX_SHARDPREFIX =
-  process.env.ROLLCALL_INDEX_SHARDPREFIX || "program";
+export const rollcallConfig: RollcallConfig = {
+  rootUrl: process.env.ROLLCALL_SERVICE_ROOT || "http://localhost:9001",
+  aliasName: process.env.ROLLCALL_ALIAS_NAME || "donor_submission_summary",
+  indexEntity: process.env.ROLLCALL_INDEX_ENTITY || "donor",
+  indexType: process.env.ROLLCALL_INDEX_TYPE || "centric",
+  shardPrefix: process.env.ROLLCALL_INDEX_SHARDPREFIX || "program",
+};
 
 export const STREAM_CHUNK_SIZE =
   !Number(process.env.STREAM_CHUNK_SIZE) ||
@@ -71,60 +102,93 @@ export const OPEN_ACCESS_REPO_URL =
 /**
  * Kafka Configs
  */
-export const KAFKA_PUBLIC_RELEASE_TOPIC =
-  process.env.KAFKA_PUBLIC_RELEASE_TOPIC || "files_public_release";
-
-export const CLINICAL_PROGRAM_UPDATE_TOPIC =
-  process.env.CLINICAL_PROGRAM_UPDATE_TOPIC || "PROGRAM_UPDATE";
-
-export const RDPC_PROGRAM_UPDATE_TOPIC =
-  process.env.RDPC_PROGRAM_UPDATE_TOPIC || "song_analysis";
-
 export const KAFKA_PROGRAM_QUEUE_TOPIC =
   process.env.KAFKA_PROGRAM_QUEUE_TOPIC || "donor_aggregator_program_queues";
-
-export const DLQ_TOPIC_NAME =
-  process.env.DLQ_TOPIC_NAME || "donor_aggregator_dlq";
-
 // Default 12*1000 = 12 seconds
-export const KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL =
+const KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL =
   Number(process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL) ||
   12 * 1000;
 
 // Default 120*1000 = 2 minutes, allows 1/10 heartbeat successes to stay connected
-export const KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT =
+const KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT =
   Number(process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT) ||
   120 * 1000;
 
 // Default 240*1000 = 4 minutes. Rebalance is the time kafka will wait for consumer to reconnect while rebalancing.
 // If you are experiencing long startup times waiting for kafka connection, this is the likely culprit.
-export const KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT =
+const KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT =
   Number(process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT) ||
   240 * 1000;
 
-export const KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP =
-  process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP ||
-  "program-queue-donor-processor";
-export const KAFKA_CONSUMER_GROUP =
+const DLQ_TOPIC_NAME = process.env.DLQ_TOPIC_NAME || "donor_aggregator_dlq";
+
+const KAFKA_CONSUMER_GROUP =
   process.env.KAFKA_CONSUMER_GROUP || "donor-submission-aggregator";
 
-const kafkaBrokers = process.env.KAFKA_BROKERS
-  ? String(process.env.KAFKA_BROKERS)
-      .split(",")
-      .map((str) => str.trim())
-  : [];
-export const KAFKA_BROKERS = kafkaBrokers.length
-  ? kafkaBrokers
-  : ["localhost:9092"];
-export const PARTITIONS_CONSUMED_CONCURRENTLY = Number(
-  process.env.PARTITIONS_CONSUMED_CONCURRENTLY || 5
-);
-export const KAFKA_PROGRAM_QUEUE_TOPIC_PARTITIONS = Number(
-  process.env.KAFKA_PROGRAM_QUEUE_TOPIC_PARTITIONS || 5
-);
-export const PORT = Number(process.env.PORT || 7000);
+const clinicalUpdatesConsumer: KafkaConsumerConfiguration = {
+  group: KAFKA_CONSUMER_GROUP,
+  topic: process.env.CLINICAL_PROGRAM_UPDATE_TOPIC || "PROGRAM_UPDATE",
+  dlq: DLQ_TOPIC_NAME,
+};
+const filePublicReleasesConsumer: KafkaConsumerConfiguration = {
+  group: KAFKA_CONSUMER_GROUP,
+  topic: process.env.KAFKA_PUBLIC_RELEASE_TOPIC || "files_public_release",
+  dlq: DLQ_TOPIC_NAME,
+};
+const rdpcAnalysisUpdatesConsumer: KafkaConsumerConfiguration = {
+  group: KAFKA_CONSUMER_GROUP,
+  topic: process.env.RDPC_PROGRAM_UPDATE_TOPIC || "song_analysis",
+  dlq: DLQ_TOPIC_NAME,
+};
+const programQueueConsumer: KafkaConsumerConfiguration = {
+  group:
+    process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_GROUP ||
+    "program-queue-donor-processor",
+  topic: KAFKA_PROGRAM_QUEUE_TOPIC,
+  dlq: DLQ_TOPIC_NAME,
 
-export const ENABLED = process.env.ENABLED === "true";
+  partitionsConsumedConcurrently: Number(
+    process.env.PARTITIONS_CONSUMED_CONCURRENTLY || 5
+  ),
+
+  // HeartbeatInterval: Default 12*1000 = 12 seconds:
+  heartbeatInterval:
+    Number(process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL) ||
+    12 * 1000,
+  // Session Timeout: Default 120*1000 = 2 minutes, allows 1/10 heartbeat successes to stay connected
+  sessionTimeout:
+    Number(process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT) ||
+    120 * 1000,
+  // Rebalance Timeout: Default 240*1000 = 4 minutes. Rebalance is the time kafka will wait for consumer to reconnect while rebalancing.
+  // If you are experiencing long startup times waiting for kafka connection, this is the likely culprit.
+  rebalanceTimeout:
+    Number(process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT) ||
+    240 * 1000,
+};
+const programQueueProducer: KafkaProducerConfiguration = {
+  topic: KAFKA_PROGRAM_QUEUE_TOPIC,
+};
+const programQueueTopic: KafkaTopicConfiguration = {
+  topic: KAFKA_PROGRAM_QUEUE_TOPIC,
+  partitions: Number(process.env.KAFKA_PROGRAM_QUEUE_TOPIC_PARTITIONS || 5),
+};
+export const kafkaConfig = {
+  brokers: process.env.KAFKA_BROKERS
+    ? String(process.env.KAFKA_BROKERS)
+        .split(",")
+        .map((str) => str.trim())
+    : ["localhost:9092"],
+  consumers: {
+    clinicalUpdates: clinicalUpdatesConsumer,
+    filePublicReleases: filePublicReleasesConsumer,
+    programQueue: programQueueConsumer,
+    rdpcAnalysisUpdates: rdpcAnalysisUpdatesConsumer,
+  },
+  producers: { programQueue: programQueueProducer },
+  topics: {
+    programQueue: programQueueTopic,
+  },
+};
 
 /**
  * VAULT configurations
@@ -137,15 +201,16 @@ export const VAULT_AUTH_METHOD = process.env.VAULT_AUTH_METHOD as
 export const VAULT_URL = process.env.VAULT_URL as string;
 export const VAULT_ROLE = process.env.VAULT_ROLE as string;
 export const VAULT_ES_SECRET_PATH = process.env.VAULT_ES_SECRET_PATH as string;
-export const VAULT_MONGO_SECRET_PATH = process.env
-  .VAULT_MONGO_SECRET_PATH as string;
 export const VAULT_EGO_SECRET_PATH = process.env
   .VAULT_EGO_SECRET_PATH as string;
+export const VAULT_SECRET_PATH_EGO_APP_RDPC =
+  process.env.VAULT_SECRET_PATH_EGO_APP_RDPC;
+export const VAULT_SECRET_PATH_EGO_APP_DCC =
+  process.env.VAULT_SECRET_PATH_EGO_APP_DCC;
 const REQUIRED_VAULT_CONFIGS = {
   VAULT_AUTH_METHOD,
   VAULT_URL,
   VAULT_ROLE,
-  VAULT_MONGO_SECRET_PATH,
   VAULT_ES_SECRET_PATH,
 };
 const missingValue = ([key, value]: [string, any]) => !value;
@@ -184,8 +249,25 @@ export const RETRY_CONFIG_RDPC_GATEWAY = {
   maxTimeout: Infinity,
 };
 
+/**
+ * FEATURE FLAGS!
+ */
+// Index data from RDPC
 export const FEATURE_RDPC_INDEXING_ENABLED =
   process.env.FEATURE_RDPC_INDEXING_ENABLED === "true";
 
+// Index data from File Service
 export const FEATURE_INDEX_FILE_ENABLED =
   process.env.FEATURE_INDEX_FILE_ENABLED === "true";
+
+// Default enable kafka unless this flag is provided with value = false
+export const FEATURE_DEV_DISABLE_KAFKA =
+  process.env.FEATURE_DEV_DISABLE_KAFKA === "true";
+
+export const featureFlags = {
+  index: {
+    rdpc: FEATURE_RDPC_INDEXING_ENABLED,
+    files: FEATURE_INDEX_FILE_ENABLED,
+  },
+  kafka: !FEATURE_DEV_DISABLE_KAFKA,
+};

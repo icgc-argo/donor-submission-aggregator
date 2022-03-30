@@ -1,4 +1,4 @@
-import { EgoAccessToken, EgoJwtManager } from "auth";
+import { getEgoToken } from "external/ego";
 import logger from "logger";
 import fetch from "node-fetch";
 import promiseRetry from "promise-retry";
@@ -39,7 +39,6 @@ const fetchAnalysesWithSpecimens = async ({
   analysisType,
   from,
   size,
-  egoJwtManager,
   donorId,
 }: {
   studyId: string;
@@ -47,11 +46,8 @@ const fetchAnalysesWithSpecimens = async ({
   analysisType: string;
   from: number;
   size: number;
-  egoJwtManager: EgoJwtManager;
   donorId?: string;
 }): Promise<Analysis[]> => {
-  const jwt = (await egoJwtManager.getLatestJwt()) as EgoAccessToken;
-  const accessToken = jwt.access_token;
   return await promiseRetry<Analysis[]>(async (retry) => {
     try {
       logger.info(
@@ -76,7 +72,7 @@ const fetchAnalysesWithSpecimens = async ({
         }),
         headers: {
           "Content-type": "application/json",
-          authorization: `Bearer ${accessToken}`,
+          authorization: `Bearer ${await getEgoToken("rdpc")}`,
         },
       });
       const jsonResponse = await response.json();

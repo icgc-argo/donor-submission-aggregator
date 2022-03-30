@@ -1,7 +1,7 @@
 import { Client } from "@elastic/elasticsearch";
 import { expect } from "chai";
 import esb from "elastic-builder";
-import { initIndexMapping } from "elasticsearch";
+import { initIndexMapping } from "external/elasticsearch";
 import { EsHit } from "indexClinicalData/types";
 import { Duration, TemporalUnit } from "node-duration";
 import { indexRdpcData } from "rdpc";
@@ -20,7 +20,6 @@ import {
   variantCallingAnalyses_open,
 } from "./fixtures/integrationTest/mockAnalyses";
 import { Analysis, AnalysisType, WorkflowName } from "../types";
-import { EgoAccessToken, EgoJwtManager } from "auth";
 import fetchAnalysesWithSpecimens from "../query/fetchAnalysesWithSpecimens";
 import fetchVariantCallingAnalyses from "rdpc/query/fetchVariantCallingAnalyses";
 
@@ -34,18 +33,6 @@ describe("should index RDPC analyses to donor index", () => {
   const url = "https://api.rdpc-qa.cancercollaboratory.org/graphql";
   const donorIds = clinicalDataset.map((doc) => doc.donorId);
 
-  const mockEgoJwtManager: EgoJwtManager = {
-    getLatestJwt: async (): Promise<EgoAccessToken> => {
-      return {
-        access_token: "dummy",
-        token_type: "",
-        expires_in: 99999,
-        scope: "",
-        groups: "",
-      };
-    },
-  };
-
   const mockAnalysisFetcher: typeof fetchAnalyses = async ({
     studyId,
     rdpcUrl,
@@ -53,7 +40,6 @@ describe("should index RDPC analyses to donor index", () => {
     workflowName,
     from,
     size,
-    egoJwtManager,
     donorId,
   }): Promise<Analysis[]> => {
     const matchesDonorId = (donor: any) =>
@@ -82,7 +68,6 @@ describe("should index RDPC analyses to donor index", () => {
     rdpcUrl,
     from,
     size,
-    egoJwtManager,
     donorId,
   }): Promise<Analysis[]> => {
     const matchesDonorId = (donor: any) =>
@@ -99,7 +84,6 @@ describe("should index RDPC analyses to donor index", () => {
     rdpcUrl,
     from,
     size,
-    egoJwtManager,
     donorId,
   }): Promise<Analysis[]> => {
     const matchesDonorId = (donor: any) =>
@@ -200,7 +184,6 @@ describe("should index RDPC analyses to donor index", () => {
       rdpcUrl: url,
       targetIndexName: INDEX_NAME,
       esClient,
-      egoJwtManager: mockEgoJwtManager,
       analysesFetcher: mockAnalysisFetcher,
       analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,
       fetchVC: mockVariantCallingFetcher,
@@ -306,7 +289,6 @@ describe("should index RDPC analyses to donor index", () => {
       rdpcUrl: url,
       targetIndexName: INDEX_NAME,
       esClient,
-      egoJwtManager: mockEgoJwtManager,
       analysisId: testAnalysis.analysisId,
       analysesFetcher: mockAnalysisFetcher,
       analysesWithSpecimensFetcher: mockAnalysesWithSpecimensFetcher,

@@ -1,4 +1,4 @@
-import { EgoAccessToken, EgoJwtManager } from "auth";
+import { getEgoToken } from "external/ego";
 import { FILES_SERVICE_URL, FILES_STREAM_SIZE } from "config";
 import logger from "logger";
 import fetch from "node-fetch";
@@ -8,12 +8,9 @@ import urljoin from "url-join";
 import { File } from "./types";
 
 export const getFilesByProgramId = async (
-  egoJwtManager: EgoJwtManager,
   programId: string,
   page: number
 ): Promise<File[]> => {
-  const jwt = (await egoJwtManager.getLatestJwt()) as EgoAccessToken;
-  const accessToken = jwt.access_token;
   const fileQueryUrl = new URL(urljoin(FILES_SERVICE_URL, "files"));
   fileQueryUrl.searchParams.append("page", page.toString());
   fileQueryUrl.searchParams.append("limit", FILES_STREAM_SIZE.toString());
@@ -26,7 +23,7 @@ export const getFilesByProgramId = async (
         method: "GET",
         headers: {
           "Content-type": "application/json",
-          authorization: `Bearer ${accessToken}`,
+          authorization: `Bearer ${await getEgoToken("dcc")}`,
         },
       });
       const jsonResponse = await response.json();

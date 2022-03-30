@@ -1,4 +1,3 @@
-import { EgoJwtManager } from "auth";
 import fetchAnalyses from "rdpc/query/fetchAnalyses";
 import {
   countOpenAccessRunState,
@@ -12,7 +11,6 @@ export const getOpenAccessData = async (
   url: string,
   analysisType: AnalysisType,
   workflowName: WorkflowName,
-  egoJwtManager: EgoJwtManager,
   analysesFetcher: typeof fetchAnalyses,
   config: {
     chunkSize: number;
@@ -26,7 +24,6 @@ export const getOpenAccessData = async (
     donorIds: donorIds,
     analysisType: analysisType,
     workflowName: workflowName,
-    egoJwtManager,
     config,
     analysesFetcher,
   });
