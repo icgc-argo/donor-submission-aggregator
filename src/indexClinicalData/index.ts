@@ -1,12 +1,10 @@
-import { esDonorId } from "./utils";
-import transformToEsDonor from "./transformToEsDonor";
-import * as Clinical from "../external/clinical";
-import { toEsBulkIndexActions } from "external/elasticsearch";
-import { STREAM_CHUNK_SIZE } from "config";
 import { Client } from "@elastic/elasticsearch";
-import logger from "logger";
-import { EsDonorDocument, EsHit } from "./types";
 import esb from "elastic-builder";
+import { toEsBulkIndexActions } from "external/elasticsearch";
+import logger from "logger";
+import * as Clinical from "../external/clinical";
+import transformToEsDonor from "./transformToEsDonor";
+import { EsDonorDocument, EsHit } from "./types";
 
 export const queryDocumentsByDonorIds = async (
   donorIds: Array<string>,

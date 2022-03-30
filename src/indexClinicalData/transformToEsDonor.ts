@@ -1,7 +1,6 @@
-import { ClinicalDonor } from "../external/clinical/types";
 import { DonorMolecularDataReleaseStatus } from "files/types";
-import { EsDonorDocument, ClinicalDonorInfo, RdpcDonorInfo } from "./types";
-import { esDonorId } from "./utils";
+import { ClinicalDonor } from "../external/clinical/types";
+import { ClinicalDonorInfo, EsDonorDocument, RdpcDonorInfo } from "./types";
 
 const defaultRDPCInfo: RdpcDonorInfo = {
   publishedNormalAnalysis: 0,
