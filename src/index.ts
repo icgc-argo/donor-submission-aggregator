@@ -45,6 +45,7 @@ import applyStatusReport from "./statusReport";
           type: KnownEventType.SYNC,
           rdpcGatewayUrls: [RDPC_URL],
         });
+        logger.info(`Program ${programId} has been queued for indexing.`);
         return res
           .status(200)
           .send(`Program ${programId} has been queued for indexing.`);

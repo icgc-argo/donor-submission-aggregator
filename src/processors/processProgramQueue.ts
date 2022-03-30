@@ -1,12 +1,12 @@
 import { KafkaMessage } from "kafkajs";
 import logger from "logger";
-import processClinicalUpdateEvent from "./processClinical";
+import processClinicalUpdateEvent from "./processClinicalUpdate";
 import processFileReleaseEvent from "./processFileRelease";
 import processRdpcAnalysisUpdateEvent from "./processRdpcAnalysisUpdate";
 import processSyncProgramEvent from "./processSync";
 import { isQueueRecord, KnownEventType, QueueRecord } from "./types";
 
-async function handleEventMessage(
+async function processProgramQueueEvent(
   message: KafkaMessage,
   sendDlqMessage: (messageJSON: string) => Promise<void>
 ) {
@@ -38,4 +38,4 @@ async function handleEventMessage(
   }
 }
 
-export default handleEventMessage;
+export default processProgramQueueEvent;

@@ -42,6 +42,7 @@ async function processSyncProgramEvent(
 ) {
   const { programId } = event;
 
+  // Set default service values
   const esClient = services.esClient || (await getEsClient());
   const rollcallClient =
     services.rollcallClient || (await createRollcallClient(rollcallConfig));

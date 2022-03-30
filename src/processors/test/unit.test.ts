@@ -25,7 +25,7 @@ import {
   mockAnalysisFetcher,
   mockVariantCallingFetcher,
 } from "./MockFetch";
-import processClinicalUpdateEvent from "../processClinical";
+import processClinicalUpdateEvent from "../processClinicalUpdate";
 import { KnownEventType } from "../types";
 import { generateIndexName } from "../util";
 import processRdpcAnalysisUpdateEvent from "processors/processRdpcAnalysisUpdate";

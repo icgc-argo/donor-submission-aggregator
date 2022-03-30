@@ -1,6 +1,6 @@
 import { kafkaConfig } from "config";
 import { KafkaMessage } from "kafkajs";
-import handleEventMessage from "processors/index";
+import processProgramQueueEvent from "processors/processProgramQueue";
 import createConsumer from "../createConsumer";
 
 /**
@@ -15,7 +15,7 @@ async function messageHandler(
   message: KafkaMessage,
   sendDlqMessage: (messageJSON: string) => Promise<void>
 ) {
-  return handleEventMessage(message, sendDlqMessage);
+  return processProgramQueueEvent(message, sendDlqMessage);
 }
 
 export default consumer;
