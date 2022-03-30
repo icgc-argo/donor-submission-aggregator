@@ -104,21 +104,6 @@ export const OPEN_ACCESS_REPO_URL =
  */
 export const KAFKA_PROGRAM_QUEUE_TOPIC =
   process.env.KAFKA_PROGRAM_QUEUE_TOPIC || "donor_aggregator_program_queues";
-// Default 12*1000 = 12 seconds
-const KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL =
-  Number(process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL) ||
-  12 * 1000;
-
-// Default 120*1000 = 2 minutes, allows 1/10 heartbeat successes to stay connected
-const KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT =
-  Number(process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT) ||
-  120 * 1000;
-
-// Default 240*1000 = 4 minutes. Rebalance is the time kafka will wait for consumer to reconnect while rebalancing.
-// If you are experiencing long startup times waiting for kafka connection, this is the likely culprit.
-const KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT =
-  Number(process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_REBALANCE_TIMEOUT) ||
-  240 * 1000;
 
 const DLQ_TOPIC_NAME = process.env.DLQ_TOPIC_NAME || "donor_aggregator_dlq";
 
