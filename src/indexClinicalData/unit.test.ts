@@ -42,6 +42,9 @@ describe("transformToEsDonor", () => {
       openAccessFailed: 0,
       openAccessRunning: 0,
       processingStatus: "REGISTERED",
+      coreCompletionDate: new Date(
+        clinicalDoc.completionStats.coreCompletionDate
+      ),
       updatedAt: new Date(clinicalDoc.updatedAt),
       createdAt: new Date(clinicalDoc.createdAt),
       totalFilesCount: 0,
@@ -121,6 +124,46 @@ const createDonor = (programShortName: string) => {
         specimenId: `SP${Math.random()}`,
         submitterId: submitterId,
         tumourNormalDesignation: "Normal",
+      },
+      {
+        clinicalInfo: {},
+        samples: [
+          {
+            clinicalInfo: {},
+            sampleType: "",
+            submitterId: submitterId,
+            sampleId: `SA${Math.random()}`,
+          },
+          {
+            clinicalInfo: {},
+            sampleType: "",
+            submitterId: submitterId,
+            sampleId: `SA${Math.random()}`,
+          },
+          {
+            clinicalInfo: {},
+            sampleType: "",
+            submitterId: submitterId,
+            sampleId: `SA${Math.random()}`,
+          },
+          {
+            clinicalInfo: {},
+            sampleType: "",
+            submitterId: submitterId,
+            sampleId: `SA${Math.random()}`,
+          },
+          {
+            clinicalInfo: {},
+            sampleType: "",
+            submitterId: submitterId,
+            sampleId: `SA${Math.random()}`,
+          },
+        ],
+        specimenTissueSource: "",
+        specimenType: "",
+        specimenId: `SP${Math.random()}`,
+        submitterId: submitterId,
+        tumourNormalDesignation: "Tumour",
       },
       {
         clinicalInfo: {},
