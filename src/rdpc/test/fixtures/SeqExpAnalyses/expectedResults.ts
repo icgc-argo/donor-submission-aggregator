@@ -130,6 +130,8 @@ export const mergedPage_expected = {
 
 export const donorStateMap_expected: DonorInfoMap = {
   DO35222: {
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 2,
@@ -150,6 +152,8 @@ export const donorStateMap_expected: DonorInfoMap = {
     processingStatus: "REGISTERED",
   },
   DO35228: {
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 1,
@@ -170,6 +174,8 @@ export const donorStateMap_expected: DonorInfoMap = {
     processingStatus: "REGISTERED",
   },
   DO35198: {
+    rnaPublishedNormalAnalysis: 0,
+    rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
     publishedTumourAnalysis: 0,
     alignmentsCompleted: 1,

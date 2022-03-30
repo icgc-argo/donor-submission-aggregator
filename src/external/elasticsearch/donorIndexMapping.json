@@ -51,6 +51,12 @@
       "registeredTumourSamples": {
         "type": "byte"
       },
+      "rnaPublishedNormalAnalysis": {
+        "type": "byte"
+      },
+      "rnaPublishedTumourAnalysis": {
+        "type": "byte"
+      },
       "publishedNormalAnalysis": {
         "type": "byte"
       },
