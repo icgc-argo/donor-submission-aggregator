@@ -6,10 +6,8 @@ import esb from "elastic-builder";
 import { getIndexSettings, getLatestIndexName } from "external/elasticsearch";
 import donorIndexMapping from "external/elasticsearch/donorIndexMapping.json";
 import { queueProgramUpdateEvent } from "external/kafka/producers/programQueueProducer";
-import DonorSchema from "indexClinicalData/clinicalMongo/donorModel";
 import { EsHit } from "indexClinicalData/types";
 import { Kafka } from "kafkajs";
-import mongoose from "mongoose";
 import { Duration, TemporalUnit } from "node-duration";
 import {
   clinicalDataset,
@@ -49,16 +47,13 @@ describe("kafka integration", () => {
   };
   const ES_PORT = 9200;
   const ROLLCALL_PORT = 10091;
-  const MONGO_PORT = 27017;
   const KAFKA_PORT = 9092;
   const NETOWRK_MODE = "host";
   const ROLLCALL_ALIAS_NAME = rollcallConfig.aliasName;
-  let MONGO_URL: string;
   let KAFKA_HOST: string;
   /****************************/
 
   /******* Containers ********/
-  let mongoContainer: StartedTestContainer;
   let elasticsearchContainer: StartedTestContainer;
   let rollcallContainer: StartedTestContainer;
   let kafkaContainer: StartedTestContainer;
@@ -73,12 +68,7 @@ describe("kafka integration", () => {
   before(async () => {
     try {
       // ***** start relevant servers *****
-      [
-        mongoContainer,
-        elasticsearchContainer,
-        kafkaContainer,
-      ] = await Promise.all([
-        new GenericContainer("mongo").withExposedPorts(MONGO_PORT).start(),
+      [elasticsearchContainer, kafkaContainer] = await Promise.all([
         new GenericContainer("elasticsearch", "7.5.0")
           .withNetworkMode(NETOWRK_MODE)
           .withExposedPorts(ES_PORT)
@@ -155,27 +145,10 @@ describe("kafka integration", () => {
         ],
       });
       await kafkaAdmin.disconnect();
-      MONGO_URL = `mongodb://${mongoContainer.getContainerIpAddress()}:${mongoContainer.getMappedPort(
-        MONGO_PORT
-      )}/clinical`;
-      await mongoose.connect(MONGO_URL);
     } catch (err) {
       console.log(`before >>>>>>>>>>>`, err);
       throw err;
     }
-  });
-  beforeEach(async () => {
-    // inserts testing donors for TEST-CA:
-    const result_1 = await asyncExec(
-      `COLLECTION_SIZE=${testDonorIds.length} MONGO_URL=${MONGO_URL} npm run createIntegrationTestMongoDonors`
-    );
-    console.log("beforeEach >>>>>>>>>>> " + result_1.stdout);
-
-    // inserts testing donors for TEST-US:
-    const result_2 = await asyncExec(
-      `PROGRAM_SHORT_NAME=${TEST_US} COLLECTION_SIZE=${DB_COLLECTION_SIZE} MONGO_URL=${MONGO_URL} npm run createMongoDonors`
-    );
-    console.log("beforeEach >>>>>>>>>> " + result_2.stdout);
   });
 
   const createIndexAndAlias = async (programId: string) => {
@@ -213,7 +186,6 @@ describe("kafka integration", () => {
 
   after(async () => {
     await Promise.all([
-      mongoContainer?.stop(),
       elasticsearchContainer?.stop(),
       rollcallContainer?.stop(),
       kafkaContainer?.stop(),
@@ -222,8 +194,6 @@ describe("kafka integration", () => {
   afterEach(async function () {
     try {
       console.log("afterEach >>>>>>>>>>> ");
-      await DonorSchema().deleteMany({});
-
       await kafka.disconnect();
 
       console.log("deleting all indices and alias from elasticsearch...");

@@ -7,7 +7,7 @@ Donor aggregation service for the ICGC-ARGO Submission System
 ## What it does:
 
 - Aggregates RDPC analyses to donor centric structure.
-- Reads program clinical data from mongoDB and indexes it
+- Reads program clinical data from Clinical API and indexes it
 - Indexes donor centric RDPC data and clinical data into ElasticSearch, index name follows this pattern: `donor_centric_program_<programId>_re_<releaseNum>`
 
 ## How to:

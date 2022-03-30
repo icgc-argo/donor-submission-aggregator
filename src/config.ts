@@ -54,10 +54,6 @@ export const FILES_SERVICE_URL =
   process.env.FILES_SERVICE_URL || "http://localhost:8000";
 
 export const CLINICAL_URL = process.env.CLINICAL_URL || "http://localhost:3000";
-export const MONGO_URL =
-  process.env.MONGO_URL || "mongodb://localhost:27017/clinical";
-export const MONGO_USER = process.env.MONGO_USER;
-export const MONGO_PASS = process.env.MONGO_PASS;
 
 export const ES_HOST = process.env.ES_HOST || "http://localhost:9200";
 export const ES_CLIENT_TRUST_SSL_CERT =
@@ -205,8 +201,6 @@ export const VAULT_AUTH_METHOD = process.env.VAULT_AUTH_METHOD as
 export const VAULT_URL = process.env.VAULT_URL as string;
 export const VAULT_ROLE = process.env.VAULT_ROLE as string;
 export const VAULT_ES_SECRET_PATH = process.env.VAULT_ES_SECRET_PATH as string;
-export const VAULT_MONGO_SECRET_PATH = process.env
-  .VAULT_MONGO_SECRET_PATH as string;
 export const VAULT_EGO_SECRET_PATH = process.env
   .VAULT_EGO_SECRET_PATH as string;
 export const VAULT_SECRET_PATH_EGO_APP_RDPC =
@@ -217,7 +211,6 @@ const REQUIRED_VAULT_CONFIGS = {
   VAULT_AUTH_METHOD,
   VAULT_URL,
   VAULT_ROLE,
-  VAULT_MONGO_SECRET_PATH,
   VAULT_ES_SECRET_PATH,
 };
 const missingValue = ([key, value]: [string, any]) => !value;

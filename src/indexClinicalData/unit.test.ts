@@ -1,21 +1,12 @@
-import { expect } from "chai";
-import indexProgram, { queryDocumentsByDonorIds } from "indexClinicalData";
-import transformToEsDonor from "./transformToEsDonor";
-import { GenericContainer } from "testcontainers";
-import { StartedTestContainer } from "testcontainers/dist/test-container";
-import { promisify } from "util";
-import { exec } from "child_process";
-import uuid from "uuid";
-import mongoose from "mongoose";
 import { Client } from "@elastic/elasticsearch";
-import { Duration, TemporalUnit } from "node-duration";
-
-import { EsDonorDocument, RdpcDonorInfo } from "./types";
-import { initIndexMapping, toEsBulkIndexActions } from "external/elasticsearch";
-import { esDonorId } from "./utils";
-import { mean, range, random } from "lodash";
-import { DonorMolecularDataReleaseStatus } from "files/types";
+import { expect } from "chai";
+import { exec } from "child_process";
+import { toEsBulkIndexActions } from "external/elasticsearch";
+import { promisify } from "util";
+import uuid from "uuid";
 import { ClinicalDonor } from "../external/clinical/types";
+import transformToEsDonor from "./transformToEsDonor";
+import { EsDonorDocument } from "./types";
 
 const TEST_PROGRAM_SHORT_NAME = "TESTPROG-CA";
 const DB_COLLECTION_SIZE = 10010;
@@ -24,13 +15,13 @@ const asyncExec = promisify(exec);
 
 describe("transformToEsDonor", () => {
   it("must transform properly", async () => {
-    const mongoDoc = createDonor(TEST_PROGRAM_SHORT_NAME);
-    const esDoc = transformToEsDonor(mongoDoc as ClinicalDonor);
+    const clinicalDoc = createDonor(TEST_PROGRAM_SHORT_NAME);
+    const esDoc = transformToEsDonor(clinicalDoc as ClinicalDonor);
     expect(esDoc).to.deep.equal({
       validWithCurrentDictionary: true,
       releaseStatus: "NO_RELEASE",
-      donorId: mongoDoc.donorId,
-      submitterDonorId: mongoDoc.submitterId,
+      donorId: clinicalDoc.donorId,
+      submitterDonorId: clinicalDoc.submitterId,
       programId: TEST_PROGRAM_SHORT_NAME,
       submittedCoreDataPercent: 0.666666666666667,
       submittedExtendedDataPercent: 0, // this calculation is not yet defined
@@ -51,8 +42,8 @@ describe("transformToEsDonor", () => {
       openAccessFailed: 0,
       openAccessRunning: 0,
       processingStatus: "REGISTERED",
-      updatedAt: new Date(mongoDoc.updatedAt),
-      createdAt: new Date(mongoDoc.createdAt),
+      updatedAt: new Date(clinicalDoc.updatedAt),
+      createdAt: new Date(clinicalDoc.createdAt),
       totalFilesCount: 0,
       filesToQcCount: 0,
     } as EsDonorDocument);
