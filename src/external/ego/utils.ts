@@ -1,4 +1,5 @@
 import egoTokenUtils from "@icgc-argo/ego-token-utils";
+import _ from "lodash";
 import fetch from "node-fetch";
 import urlJoin from "url-join";
 import {
@@ -137,8 +138,5 @@ export const getEgoAppCredentials = async (
 const isEgoCredential = (obj: {
   [k: string]: any;
 }): obj is EgoApplicationCredential => {
-  return (
-    typeof obj["egoClientId"] === "string" &&
-    typeof obj["egoClientSecret"] === "string"
-  );
+  return _.isString(obj.clientId) && _.isString(obj.clientSecret);
 };
