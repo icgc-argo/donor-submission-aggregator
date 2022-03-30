@@ -1,6 +1,6 @@
 import { esDonorId } from "./utils";
 import transformToEsDonor from "./transformToEsDonor";
-import programDonorStream from "./programDonorStream";
+import * as Clinical from "../external/clinical";
 import { toEsBulkIndexActions } from "external/elasticsearch";
 import { STREAM_CHUNK_SIZE } from "config";
 import { Client } from "@elastic/elasticsearch";
@@ -37,18 +37,11 @@ export default async (
   targetIndexName: string,
   esClient: Client
 ) => {
-  const donorStream = programDonorStream(programShortName, {
-    chunkSize: STREAM_CHUNK_SIZE,
-  });
-  let chunksCount = 0;
-  for await (const chunk of donorStream) {
-    const timer = `streaming ${
-      chunk.length
-    } donor(s) from chunk #${chunksCount++} of program ${programShortName}`;
-    logger.profile(timer);
-
+  const donorStream = Clinical.fetchAllDonorsForProgram(programShortName);
+  let donorCount = 0;
+  for await (const donor of donorStream) {
     const esHits = await queryDocumentsByDonorIds(
-      chunk.map(esDonorId),
+      [donor.donorId],
       esClient,
       targetIndexName
     );
@@ -57,31 +50,28 @@ export default async (
       (hit) => [hit._source.donorId, hit] as [string, EsHit]
     );
 
-    // convets index array to a map
+    // converts index array to a map
     const preExistingDonorHits = Object.fromEntries(donorIdDocumentPairs);
 
-    const esDocuments = chunk.map((donor) => {
-      const donorId = esDonorId(donor);
-      if (preExistingDonorHits.hasOwnProperty(donorId)) {
-        return transformToEsDonor(donor, preExistingDonorHits[donorId]._source);
-      } else return transformToEsDonor(donor);
-    });
+    const esDocuments = preExistingDonorHits.hasOwnProperty(donor.donorId)
+      ? transformToEsDonor(donor, preExistingDonorHits[donor.donorId]._source)
+      : transformToEsDonor(donor);
 
     try {
-      logger.info(
-        `Begin bulk indexing clinical data of program ${programShortName}...`
-      );
       await esClient.bulk({
         body: toEsBulkIndexActions<EsDonorDocument>(
           targetIndexName,
-          (donor) => preExistingDonorHits[donor.donorId]?._id
-        )(esDocuments),
+          (donor) => preExistingDonorHits[donor.donorId]?._id || donor.donorId
+        )([esDocuments]),
         refresh: "true",
       });
+      donorCount++;
     } catch (error) {
-      logger.error(`Error in index clinical data --- ${JSON.stringify(error)}`);
+      logger.error(`Error indexing clinical data --- ${JSON.stringify(error)}`);
+      logger.error(error);
     }
-
-    logger.profile(timer);
   }
+  logger.info(
+    `Indexed Clinical Data for ${donorCount} donors for program ${programShortName}`
+  );
 };
