@@ -215,7 +215,7 @@ export const indexRdpcData = async ({
     await esClient.bulk({
       body: toEsBulkIndexActions<EsDonorDocument>(
         targetIndexName,
-        (donor) => preExistingDonorHits[donor.donorId]?._id
+        (donor) => preExistingDonorHits[donor.donorId]?._id || donor.donorId
       )(esDocuments),
       refresh: "wait_for",
     });
