@@ -1,6 +1,5 @@
-import { ClinicalDonor } from "external/clinical";
+import { ClinicalDonor } from "../external/clinical/types";
 import { DonorMolecularDataReleaseStatus } from "files/types";
-import { MongoDonorDocument } from "indexClinicalData/clinicalMongo/donorModel";
 import { EsDonorDocument, ClinicalDonorInfo, RdpcDonorInfo } from "./types";
 import { esDonorId } from "./utils";
 

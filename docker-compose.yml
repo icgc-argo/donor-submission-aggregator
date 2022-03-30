@@ -2,16 +2,8 @@
 
 version: "3"
 services:
-  mongo:
-    image: mongo
-    restart: always
-    ports:
-      - 27017:27017
-    volumes:
-      - ./docker/volumes/mongo/data:/data/db
-
   elasticsearch:
-    image: "elasticsearch:7.5.0"
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
     ports:
       - 9200:9200
     volumes:
@@ -22,20 +14,21 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx2048m"
 
   kibana:
-    image: "kibana:7.5.0"
+    image: docker.elastic.co/kibana/kibana:7.10.2
     depends_on:
       - elasticsearch
     ports:
       - 5601:5601
 
   zookeeper:
-    image: wurstmeister/zookeeper
+    image: bitnami/zookeeper:3.6.3
     ports:
       - 2181:2181
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: "yes"
 
-  # see : https://docs.confluent.io/current/quickstart/ce-docker-quickstart.html#ce-docker-quickstart
   broker:
-    image: confluentinc/cp-kafka:5.2.1
+    image: 2294fff7735f
     hostname: kafka.aggregator.dev
     container_name: kafka.aggregator.dev
     depends_on:
@@ -50,6 +43,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka.aggregator.dev:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      ALLOW_PLAINTEXT_LISTENER: "yes"
       CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka.aggregator.dev:29092
       CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
@@ -104,6 +98,7 @@ services:
       ROLLCALL_ALIASES_0_ALIAS: donor_submission_summary
       ROLLCALL_ALIASES_0_ENTITY: donor
       ROLLCALL_ALIASES_0_TYPE: centric
+      ROLLCALL_ALIASES_0_RELEASEROTATION: 2
       SPRING_CLOUD_VAULT_ENABLED: "false"
 
   vault:

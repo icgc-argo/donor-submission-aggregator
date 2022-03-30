@@ -19,80 +19,10 @@
 
 import _ from "lodash";
 import fetch from "node-fetch";
-
-import { CLINICAL_URL } from "../config";
-import { getEgoToken } from "external/ego";
-
-import logger from "../logger";
-
-/**
- * The specific content in ClinicalDonor type is subject to change as the data-dictionary is updated,
- * so we try to only define here the bare minimum of fields that are needed to interact with and index the clinical data.
- *
- * Note: we receive all dates as strings. The type declaration here has them listed as strings, but if it makes sense in the future
- * we can parse them into proper Date objects when the `JSON.parse(donor)` is called.
- */
-export type ClinicalDonor = {
-  donorId: string;
-  gender: string;
-  programId: string;
-
-  submitterId: string;
-  createdAt: string;
-  updatedAt: string;
-  schemaMetadata: {
-    isValid: boolean;
-    lastValidSchemaVersion: string;
-    originalSchemaVersion: string;
-    lastMigrationId: string;
-  };
-  completionStats: {
-    coreCompletion: {
-      donor: number;
-      specimens: number;
-      primaryDiagnosis: number;
-      followUps: number;
-      treatments: number;
-    };
-    overriddenCoreCompletion: string[];
-    coreCompletionPercentage: number;
-    coreCompletionDate: string;
-  };
-
-  // core
-  specimens: ClinicalSpecimen[];
-  followUps: ClinicalFollowUp[];
-  primaryDiagnoses: ClinicalPrimaryDiagnosis[];
-  treatments: ClinicalTreatment[];
-
-  // expanded
-  familyHistory: ClinicalFamilyHistory[];
-  exposure: ClinicalExposure[];
-  comorbidity: ClinicalComorbidity[];
-  biomarker: ClinicalBiomarker[];
-};
-
-export type ClinicalSpecimen = {
-  samples: ClinicalSample[];
-  specimenId: string;
-  submitterId: string;
-  tumourNormalDesignation: string;
-  specimenType: string;
-  specimenTissueSource: string;
-};
-export type ClinicalSample = {
-  sampleId: string;
-  submitterId: string;
-  sampleType: string;
-};
-// TODO: The properties we want to index from the following types should be declared.
-export type ClinicalFollowUp = {};
-export type ClinicalPrimaryDiagnosis = {};
-export type ClinicalTreatment = {};
-export type ClinicalFamilyHistory = {};
-export type ClinicalExposure = {};
-export type ClinicalComorbidity = {};
-export type ClinicalBiomarker = {};
+import { CLINICAL_URL } from "../../config";
+import logger from "../../logger";
+import { getEgoToken } from "../ego";
+import { ClinicalDonor } from "./types";
 
 export async function fetchDonor(programId: string, donorId: string) {
   try {
