@@ -24,7 +24,7 @@ import logger from "../../logger";
 import { getEgoToken } from "../ego";
 import { ClinicalDonor } from "./types";
 
-export async function fetchDonor(programId: string, donorId: string) {
+export async function fetchDonorById(programId: string, donorId: string) {
   try {
     logger.debug(
       `Fetcing clinical data for ${JSON.stringify({ programId, donorId })}`

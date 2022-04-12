@@ -192,6 +192,7 @@ export const donorsWithEarliestPair_expected: StringMap<SamplePair> = {
       matchedNormalSubmitterSampleId: "",
       firstPublishedAt: "1607715342567",
       experimentStrategy: "WGS",
+      sampleType: "Total DNA",
     },
     tumourSample: {
       specimenId: "SP77876",
@@ -200,6 +201,7 @@ export const donorsWithEarliestPair_expected: StringMap<SamplePair> = {
       matchedNormalSubmitterSampleId: "PCSI_0085_Sp_R",
       firstPublishedAt: "1609715342567",
       experimentStrategy: "WGS",
+      sampleType: "Total DNA",
     },
     firstPublishedAt: 1609715342567,
   },
@@ -211,6 +213,7 @@ export const donorsWithEarliestPair_expected: StringMap<SamplePair> = {
       matchedNormalSubmitterSampleId: "",
       firstPublishedAt: "1607715342567",
       experimentStrategy: "WGS",
+      sampleType: "Total DNA",
     },
     tumourSample: {
       specimenId: "SP77876",
@@ -219,6 +222,7 @@ export const donorsWithEarliestPair_expected: StringMap<SamplePair> = {
       matchedNormalSubmitterSampleId: "PCSI_0085_Sp_0",
       firstPublishedAt: "1619715342567",
       experimentStrategy: "WGS",
+      sampleType: "Total DNA",
     },
     firstPublishedAt: 1619715342567,
   },

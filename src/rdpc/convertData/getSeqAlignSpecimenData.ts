@@ -31,12 +31,10 @@ export const getSeqAlignSpecimenData = async (
     analysesFetcher,
   });
 
-  const matchedSamplePairs_seqAlign = findMatchedTNPairs(mergedDonors);
-  const earliestPair_seqAlign = findEarliestAvailableSamplePair(
-    matchedSamplePairs_seqAlign
-  );
+  const matchedSamplePairs = findMatchedTNPairs(mergedDonors);
+  const earliestPair = findEarliestAvailableSamplePair(matchedSamplePairs);
   const rdpcInfo_alignmentDate = getFirstPublishedDate(
-    earliestPair_seqAlign,
+    earliestPair,
     FirstPublishedDateFields.ALIGNMENT_FIRST_PUBLISHED_DATE
   );
 

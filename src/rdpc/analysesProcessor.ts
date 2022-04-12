@@ -480,6 +480,7 @@ export const initializeRdpcInfo = (
 };
 
 export const initialRdpcInfo: Readonly<RdpcDonorInfo> = Object.freeze({
+  matchedTNPairsDNA: 0,
   rnaPublishedNormalAnalysis: 0,
   rnaPublishedTumourAnalysis: 0,
   publishedNormalAnalysis: 0,
@@ -509,6 +510,8 @@ export const mergeDonorInfo = (
   const result = Object.entries(mergeWith).reduce<DonorInfoMap>(
     (acc, [donorId, rdpcInfo]) => {
       acc[donorId] = {
+        matchedTNPairsDNA:
+          (acc[donorId]?.matchedTNPairsDNA || 0) + rdpcInfo.matchedTNPairsDNA,
         rnaPublishedNormalAnalysis:
           (acc[donorId]?.rnaPublishedNormalAnalysis || 0) +
           rdpcInfo.rnaPublishedNormalAnalysis,

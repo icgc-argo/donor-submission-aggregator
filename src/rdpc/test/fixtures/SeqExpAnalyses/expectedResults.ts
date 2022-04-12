@@ -130,6 +130,7 @@ export const mergedPage_expected = {
 
 export const donorStateMap_expected: DonorInfoMap = {
   DO35222: {
+    matchedTNPairsDNA: 0,
     rnaPublishedNormalAnalysis: 0,
     rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
@@ -152,6 +153,7 @@ export const donorStateMap_expected: DonorInfoMap = {
     processingStatus: "REGISTERED",
   },
   DO35228: {
+    matchedTNPairsDNA: 0,
     rnaPublishedNormalAnalysis: 0,
     rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
@@ -174,6 +176,7 @@ export const donorStateMap_expected: DonorInfoMap = {
     processingStatus: "REGISTERED",
   },
   DO35198: {
+    matchedTNPairsDNA: 0,
     rnaPublishedNormalAnalysis: 0,
     rnaPublishedTumourAnalysis: 0,
     publishedNormalAnalysis: 0,
