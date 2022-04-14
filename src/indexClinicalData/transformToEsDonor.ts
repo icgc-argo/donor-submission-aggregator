@@ -3,6 +3,8 @@ import { ClinicalDonor } from "../external/clinical/types";
 import { ClinicalDonorInfo, EsDonorDocument, RdpcDonorInfo } from "./types";
 
 const defaultRDPCInfo: RdpcDonorInfo = {
+  matchedTNPairsDNA: 0,
+
   rnaPublishedNormalAnalysis: 0,
   rnaPublishedTumourAnalysis: 0,
 

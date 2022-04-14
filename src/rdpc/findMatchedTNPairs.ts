@@ -1,16 +1,20 @@
 import _ from "lodash";
 import {
   DonorData,
+  DonorInfoMap,
   SamplePair,
   StringMap,
   TumourNormalDesignationValue,
 } from "rdpc/types";
+import { initializeRdpcInfo } from "./analysesProcessor";
 
 // iterates over donor's DonorData and finds all the matched
-// tumour/normal sample pairs. Matched samples must have the same
-// experiment strategy; tumour sample uses
-// matchedNormalSubmitterSampleId field as a foreign key
-// to look for the matched normal sample.
+// tumour/normal sample pairs by donor Id.
+// Matched samples must meet these conditions:
+// - have the same experiment strategy;
+// - tumour sample's matchedNormalSubmitterSampleId must be the same as normal sample's submitterSampleId;
+// - have the same DNA sample type.
+// This function only returns matched DNA sample pairs.
 export const findMatchedTNPairs = (
   map: StringMap<DonorData>
 ): StringMap<SamplePair[]> => {
@@ -19,7 +23,11 @@ export const findMatchedTNPairs = (
   Object.entries(map).forEach(([donorId, donorData]) => {
     const allSamplePairs: SamplePair[] = [];
     donorData.samplePairs.forEach((currentSample) => {
-      if (currentSample.tumourSample && !currentSample.normalSample) {
+      if (
+        currentSample.tumourSample &&
+        !currentSample.normalSample &&
+        currentSample.tumourSample.sampleType.toUpperCase().includes("DNA")
+      ) {
         const matchedNormalSample = donorData.samplePairs.filter(
           (sample) =>
             sample.normalSample &&
@@ -29,7 +37,9 @@ export const findMatchedTNPairs = (
             sample.normalSample.experimentStrategy ===
               currentSample.tumourSample?.experimentStrategy &&
             sample.normalSample.submitterSampleId ===
-              currentSample.tumourSample.matchedNormalSubmitterSampleId
+              currentSample.tumourSample.matchedNormalSubmitterSampleId &&
+            sample.normalSample.sampleType ===
+              currentSample.tumourSample.sampleType
         );
 
         matchedNormalSample.forEach((matched) => {
@@ -77,4 +87,17 @@ export const findEarliestAvailableSamplePair = (
     }
   });
   return result;
+};
+
+export const countMatchedSamplePairs = (
+  samplePairsByDonorId: StringMap<SamplePair[]>
+): DonorInfoMap => {
+  const donorInfo: DonorInfoMap = {};
+
+  Object.entries(samplePairsByDonorId).forEach(([donorId, samplePairs]) => {
+    const numberOfPairs = samplePairs.length;
+    initializeRdpcInfo(donorInfo, donorId);
+    donorInfo[donorId].matchedTNPairsDNA = numberOfPairs;
+  });
+  return donorInfo;
 };

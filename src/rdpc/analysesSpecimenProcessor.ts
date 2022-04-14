@@ -218,6 +218,7 @@ const getDonorData = (
         : sample.matchedNormalSubmitterSampleId,
     firstPublishedAt: firstPublishedAt,
     experimentStrategy: experimentStrategy,
+    sampleType: sample.sampleType,
   };
 
   const samplePair: SamplePair =
