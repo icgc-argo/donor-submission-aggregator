@@ -1,4 +1,3 @@
-import { EgoJwtManager } from "auth";
 import { FirstPublishedDateFields } from "indexClinicalData/types";
 import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
 import {
@@ -16,7 +15,6 @@ export const getSeqAlignSpecimenData = async (
   studyId: string,
   url: string,
   analysisType: string,
-  egoJwtManager: EgoJwtManager,
   analysesFetcher: typeof fetchAnalysesWithSpecimens,
   config: {
     chunkSize: number;
@@ -29,17 +27,14 @@ export const getSeqAlignSpecimenData = async (
     url: url,
     donorIds: donorIds,
     analysisType: analysisType,
-    egoJwtManager,
     config,
     analysesFetcher,
   });
 
-  const matchedSamplePairs_seqAlign = findMatchedTNPairs(mergedDonors);
-  const earliestPair_seqAlign = findEarliestAvailableSamplePair(
-    matchedSamplePairs_seqAlign
-  );
+  const matchedSamplePairs = findMatchedTNPairs(mergedDonors);
+  const earliestPair = findEarliestAvailableSamplePair(matchedSamplePairs);
   const rdpcInfo_alignmentDate = getFirstPublishedDate(
-    earliestPair_seqAlign,
+    earliestPair,
     FirstPublishedDateFields.ALIGNMENT_FIRST_PUBLISHED_DATE
   );
 

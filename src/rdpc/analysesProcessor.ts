@@ -14,7 +14,6 @@ import {
 import logger from "logger";
 import HashCode from "ts-hashcode";
 import fetchAnalyses from "rdpc/query/fetchAnalyses";
-import { EgoJwtManager } from "auth";
 import _ from "lodash";
 import { RdpcDonorInfo } from "indexClinicalData/types";
 import { DonorMolecularDataReleaseStatus } from "files/types";
@@ -31,7 +30,6 @@ export const analysisStream = async function* ({
   rdpcUrl,
   analysisType,
   workflowName,
-  egoJwtManager,
   config,
   analysesFetcher = fetchAnalyses,
   donorId,
@@ -40,7 +38,6 @@ export const analysisStream = async function* ({
   rdpcUrl: string;
   analysisType: AnalysisType;
   workflowName: WorkflowName;
-  egoJwtManager: EgoJwtManager;
   config: {
     chunkSize: number;
   };
@@ -60,7 +57,6 @@ export const analysisStream = async function* ({
       workflowName,
       from: streamState.currentPage,
       size: chunkSize,
-      egoJwtManager,
       donorId,
     });
 
@@ -171,7 +167,6 @@ export const getAllMergedDonor = async ({
   analysesFetcher = fetchAnalyses,
   analysisType,
   workflowName,
-  egoJwtManager,
   studyId,
   url,
   config,
@@ -181,7 +176,6 @@ export const getAllMergedDonor = async ({
   url: string;
   analysisType: AnalysisType;
   workflowName: WorkflowName;
-  egoJwtManager: EgoJwtManager;
   donorIds?: string[];
   config: {
     chunkSize: number;
@@ -199,7 +193,6 @@ export const getAllMergedDonor = async ({
         rdpcUrl: url,
         analysisType,
         workflowName,
-        egoJwtManager,
         config,
         analysesFetcher,
         donorId,
@@ -217,7 +210,6 @@ export const getAllMergedDonor = async ({
       rdpcUrl: url,
       analysisType,
       workflowName,
-      egoJwtManager,
       config,
       analysesFetcher,
     });
@@ -488,6 +480,7 @@ export const initializeRdpcInfo = (
 };
 
 export const initialRdpcInfo: Readonly<RdpcDonorInfo> = Object.freeze({
+  matchedTNPairsDNA: 0,
   rnaPublishedNormalAnalysis: 0,
   rnaPublishedTumourAnalysis: 0,
   publishedNormalAnalysis: 0,
@@ -517,6 +510,8 @@ export const mergeDonorInfo = (
   const result = Object.entries(mergeWith).reduce<DonorInfoMap>(
     (acc, [donorId, rdpcInfo]) => {
       acc[donorId] = {
+        matchedTNPairsDNA:
+          (acc[donorId]?.matchedTNPairsDNA || 0) + rdpcInfo.matchedTNPairsDNA,
         rnaPublishedNormalAnalysis:
           (acc[donorId]?.rnaPublishedNormalAnalysis || 0) +
           rdpcInfo.rnaPublishedNormalAnalysis,

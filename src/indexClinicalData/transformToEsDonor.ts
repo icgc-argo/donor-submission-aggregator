@@ -1,9 +1,10 @@
 import { DonorMolecularDataReleaseStatus } from "files/types";
-import { MongoDonorDocument } from "indexClinicalData/clinicalMongo/donorModel";
-import { EsDonorDocument, ClinicalDonorInfo, RdpcDonorInfo } from "./types";
-import { esDonorId } from "./utils";
+import { ClinicalDonor } from "../external/clinical/types";
+import { ClinicalDonorInfo, EsDonorDocument, RdpcDonorInfo } from "./types";
 
 const defaultRDPCInfo: RdpcDonorInfo = {
+  matchedTNPairsDNA: 0,
+
   rnaPublishedNormalAnalysis: 0,
   rnaPublishedTumourAnalysis: 0,
 
@@ -34,37 +35,37 @@ const defaultRDPCInfo: RdpcDonorInfo = {
 };
 
 export default (
-  mongoDoc: MongoDonorDocument,
+  donor: ClinicalDonor,
   existingEsData?: EsDonorDocument
 ): EsDonorDocument => {
   const submittedExtendedDataPercent = 0; // this calculation is not yet defined
 
   const clinicalData: ClinicalDonorInfo = {
-    validWithCurrentDictionary: mongoDoc.schemaMetadata.isValid,
-    donorId: esDonorId(mongoDoc),
-    submitterDonorId: mongoDoc.submitterId,
-    programId: mongoDoc.programId,
+    validWithCurrentDictionary: donor.schemaMetadata.isValid,
+    donorId: donor.donorId,
+    submitterDonorId: donor.submitterId,
+    programId: donor.programId,
 
     submittedCoreDataPercent:
-      mongoDoc.completionStats?.coreCompletionPercentage || 0,
+      donor.completionStats?.coreCompletionPercentage || 0,
 
     submittedExtendedDataPercent: submittedExtendedDataPercent,
 
-    registeredNormalSamples: mongoDoc.specimens
+    registeredNormalSamples: donor.specimens
       .filter((specimen) => specimen.tumourNormalDesignation === "Normal")
       .reduce((sum, specimen) => sum + specimen.samples.length, 0),
 
-    registeredTumourSamples: mongoDoc.specimens
+    registeredTumourSamples: donor.specimens
       .filter((specimen) => specimen.tumourNormalDesignation === "Tumour")
       .reduce((sum, specimen) => sum + specimen.samples.length, 0),
 
-    updatedAt: new Date(mongoDoc.updatedAt),
-    createdAt: new Date(mongoDoc.createdAt),
+    updatedAt: new Date(donor.updatedAt),
+    createdAt: new Date(donor.createdAt),
   };
 
-  if (mongoDoc.completionStats?.coreCompletionDate) {
+  if (donor.completionStats?.coreCompletionDate) {
     clinicalData.coreCompletionDate = new Date(
-      mongoDoc.completionStats.coreCompletionDate
+      donor.completionStats.coreCompletionDate
     );
   }
 

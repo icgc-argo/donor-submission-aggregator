@@ -1,17 +1,16 @@
 {
   "name": "donor-submission-aggregator",
-  "version": "1.30.0",
+  "version": "1.31.0",
   "description": "Donor aggregation service for the ICGC-ARGO Submission System",
   "main": "src",
   "scripts": {
     "build": "rm -rf dist && tsc && cp -r src/assets dist",
+    "start": "npm run build && npm run start::prod",
     "start::prod": "cd dist && NODE_PATH=. node index.js",
     "start::dev": "ts-node-dev -r tsconfig-paths/register --respawn src/index.ts",
     "start::debug": "ts-node-dev --inspect=4321 -r tsconfig-paths/register --respawn --transpileOnly src/index.ts",
     "test": "npm run build && NODE_PATH=./dist nyc -- mocha --timeout 240000 dist/**/*.test.js && npm run cover",
-    "createMongoDonors": "ts-node ./scripts/createMongoDonors.ts",
-    "cover": "nyc report  --reporter=lcov --reporter=text",
-    "createIntegrationTestMongoDonors": "ts-node ./scripts/createTestDonors.ts"
+    "cover": "nyc report  --reporter=lcov --reporter=text"
   },
   "nyc": {
     "extension": [
@@ -78,7 +77,6 @@
     "husky": "^4.3.0",
     "kafkajs": "^1.13.0",
     "lodash": "^4.17.21",
-    "mongoose": "^5.11.9",
     "node-vault": "^0.9.13",
     "path": "^0.12.7",
     "prettier": "^2.1.2",

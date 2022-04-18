@@ -1,4 +1,3 @@
-import { EgoJwtManager } from "auth";
 import { getFilesByProgramId } from "files/getFilesByProgramId";
 import _ from "lodash";
 import logger from "logger";
@@ -15,18 +14,12 @@ import {
  */
 export const determineReleaseStatus = async (
   programId: string,
-  egoJwtManager: EgoJwtManager,
   filesFetcher: typeof getFilesByProgramId,
   donorIds?: string[]
 ): Promise<DonorInfoMap> => {
   const result: DonorInfoMap = {};
   // gets files grouped by donor id
-  const files = await getFilesByPage(
-    filesFetcher,
-    programId,
-    egoJwtManager,
-    donorIds
-  );
+  const files = await getFilesByPage(filesFetcher, programId, donorIds);
 
   Object.entries(files).forEach(([donorId, files]) => {
     const filesByReleaseState = _.groupBy(files, (file) => file.releaseState);
@@ -90,7 +83,6 @@ export const determineReleaseStatus = async (
 const getFilesByPage = async (
   filesFetcher: typeof getFilesByProgramId,
   programId: string,
-  egoJwtManager: EgoJwtManager,
   donorIds?: string[]
 ): Promise<StringMap<File[]>> => {
   const donorFiles: StringMap<File[]> = {};
@@ -98,7 +90,7 @@ const getFilesByPage = async (
   if (donorIds) {
     for (const donorId of donorIds) {
       logger.info(`streaming files for donor ${donorId}`);
-      const stream = fileStream(programId, egoJwtManager, filesFetcher);
+      const stream = fileStream(programId, filesFetcher);
       for await (const page of stream) {
         logger.info(
           `Streaming ${page.length} of files for donorId ${donorId}...`
@@ -108,7 +100,7 @@ const getFilesByPage = async (
       }
     }
   } else {
-    const stream = fileStream(programId, egoJwtManager, filesFetcher);
+    const stream = fileStream(programId, filesFetcher);
     for await (const page of stream) {
       logger.info(`Streaming ${page.length} files...`);
       const filesPerPage = groupFilesByDonorId(page);
@@ -120,18 +112,13 @@ const getFilesByPage = async (
 
 const fileStream = async function* (
   programId: string,
-  egoJwtManager: EgoJwtManager,
   filesFetcher: typeof getFilesByProgramId
 ): AsyncGenerator<File[]> {
   // Files-service get/files default first page is page 1
   let currentPage = 1;
 
   while (true) {
-    const filesPerPage = await filesFetcher(
-      egoJwtManager,
-      programId,
-      currentPage
-    );
+    const filesPerPage = await filesFetcher(programId, currentPage);
 
     currentPage++;
 

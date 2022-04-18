@@ -1,4 +1,3 @@
-import { EgoJwtManager } from "auth";
 import { FirstPublishedDateFields } from "indexClinicalData/types";
 import logger from "logger";
 import { initializeRdpcInfo } from "./analysesProcessor";
@@ -16,7 +15,6 @@ import {
 
 export const getAllMergedDonorWithSpecimens = async ({
   analysesFetcher = fetchAnalysesWithSpecimens,
-  egoJwtManager,
   studyId,
   url,
   analysisType,
@@ -26,7 +24,6 @@ export const getAllMergedDonorWithSpecimens = async ({
   studyId: string;
   url: string;
   analysisType: string;
-  egoJwtManager: EgoJwtManager;
   donorIds?: string[];
   config: {
     chunkSize: number;
@@ -45,7 +42,6 @@ export const getAllMergedDonorWithSpecimens = async ({
         studyId,
         rdpcUrl: url,
         analysisType,
-        egoJwtManager,
         config,
         analysesFetcher,
         donorId,
@@ -65,7 +61,6 @@ export const getAllMergedDonorWithSpecimens = async ({
       studyId,
       rdpcUrl: url,
       analysisType,
-      egoJwtManager,
       config,
       analysesFetcher,
     });
@@ -116,7 +111,6 @@ const analysisStream_withSpecimens = async function* ({
   studyId,
   rdpcUrl,
   analysisType,
-  egoJwtManager,
   config,
   analysesFetcher = fetchAnalysesWithSpecimens,
   donorId,
@@ -124,7 +118,6 @@ const analysisStream_withSpecimens = async function* ({
   studyId: string;
   rdpcUrl: string;
   analysisType: string;
-  egoJwtManager: EgoJwtManager;
   config: {
     chunkSize: number;
   };
@@ -142,7 +135,6 @@ const analysisStream_withSpecimens = async function* ({
       analysisType,
       from: streamState.currentPage,
       size: chunkSize,
-      egoJwtManager,
       donorId,
     });
 
@@ -226,6 +218,7 @@ const getDonorData = (
         : sample.matchedNormalSubmitterSampleId,
     firstPublishedAt: firstPublishedAt,
     experimentStrategy: experimentStrategy,
+    sampleType: sample.sampleType,
   };
 
   const samplePair: SamplePair =

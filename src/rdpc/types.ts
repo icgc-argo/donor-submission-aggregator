@@ -99,6 +99,7 @@ export interface FlattenedSample {
   matchedNormalSubmitterSampleId: string;
   firstPublishedAt: string;
   experimentStrategy: string;
+  sampleType: string;
 }
 
 export interface WorkflowInfo {

@@ -1,4 +1,3 @@
-import { EgoJwtManager } from "auth";
 import { FirstPublishedDateFields } from "indexClinicalData/types";
 import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
 import { countSpecimenType, mergeDonorInfo } from "../analysesProcessor";
@@ -7,6 +6,7 @@ import {
   getFirstPublishedDate,
 } from "../analysesSpecimenProcessor";
 import {
+  countMatchedSamplePairs,
   findEarliestAvailableSamplePair,
   findMatchedTNPairs,
 } from "../findMatchedTNPairs";
@@ -17,7 +17,6 @@ export const getSeqExpSpecimenData = async (
   studyId: string,
   url: string,
   analysisType: string,
-  egoJwtManager: EgoJwtManager,
   analysesFetcher: typeof fetchAnalysesWithSpecimens,
   config: {
     chunkSize: number;
@@ -30,26 +29,31 @@ export const getSeqExpSpecimenData = async (
     url: url,
     donorIds: donorIds,
     analysisType: analysisType,
-    egoJwtManager,
     config,
     analysesFetcher,
   });
 
-  // gets tumour/normal counts into rdpcInfo:
+  // records the number of DNA and RNA tumour/normal raw reads:
   const rdpcInfo_TNcounts = countSpecimenType(mergedDonors);
 
-  // get raw reads first published date into rdpcInfo:
-  const donorsWithMatchedSamplePairs_seqExp = findMatchedTNPairs(mergedDonors);
-  const donorsWithEarliestPair_seqExp = findEarliestAvailableSamplePair(
-    donorsWithMatchedSamplePairs_seqExp
+  const matchedSamplePairsByDonorId_seqExp = findMatchedTNPairs(mergedDonors);
+
+  // records the number of DNA matched sample pairs:
+  const rdpcInfo_samplePairsCount = countMatchedSamplePairs(
+    matchedSamplePairsByDonorId_seqExp
+  );
+
+  // records the raw reads first published date:
+  const earliestPairByDonorId_seqExp = findEarliestAvailableSamplePair(
+    matchedSamplePairsByDonorId_seqExp
   );
 
   const rdpcInfo_rawReadsDate = getFirstPublishedDate(
-    donorsWithEarliestPair_seqExp,
+    earliestPairByDonorId_seqExp,
     FirstPublishedDateFields.RAW_READS_FIRST_PUBLISHED_DATE
   );
 
-  // merge 2 rdpcInfoMap:
-  const result = mergeDonorInfo(rdpcInfo_TNcounts, rdpcInfo_rawReadsDate);
+  const rdpcInfo = mergeDonorInfo(rdpcInfo_TNcounts, rdpcInfo_rawReadsDate);
+  const result = mergeDonorInfo(rdpcInfo, rdpcInfo_samplePairsCount);
   return result;
 };

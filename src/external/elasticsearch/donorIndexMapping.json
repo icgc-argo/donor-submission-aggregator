@@ -1,0 +1,137 @@
+{
+  "settings": {
+    "index.number_of_shards": 3,
+    "index.number_of_replicas": 2,
+    "analysis": {
+      "analyzer": {
+        "whitespaceAnalyzer": {
+          "tokenizer": "whitespace",
+          "filter": ["lowercase"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "combinedDonorId": {
+        "type": "text",
+        "analyzer": "whitespaceAnalyzer"
+      },
+      "programId": {
+        "type": "keyword"
+      },
+      "validWithCurrentDictionary": {
+        "type": "boolean"
+      },
+      "releaseStatus": {
+        "type": "keyword"
+      },
+      "donorId": {
+        "type": "keyword",
+        "copy_to": ["combinedDonorId"]
+      },
+      "submitterDonorId": {
+        "type": "keyword",
+        "copy_to": ["combinedDonorId"]
+      },
+      "submittedCoreDataPercent": {
+        "type": "scaled_float",
+        "scaling_factor": 100
+      },
+      "coreCompletionDate": {
+        "type": "date"
+      },
+      "submittedExtendedDataPercent": {
+        "type": "scaled_float",
+        "scaling_factor": 100
+      },
+      "matchedTNPairsDNA": {
+        "type": "byte"
+      },
+      "registeredNormalSamples": {
+        "type": "byte"
+      },
+      "registeredTumourSamples": {
+        "type": "byte"
+      },
+      "rnaPublishedNormalAnalysis": {
+        "type": "byte"
+      },
+      "rnaPublishedTumourAnalysis": {
+        "type": "byte"
+      },
+      "publishedNormalAnalysis": {
+        "type": "byte"
+      },
+      "publishedTumourAnalysis": {
+        "type": "byte"
+      },
+      "rawReadsFirstPublishedDate": {
+        "type": "date"
+      },
+      "alignmentsCompleted": {
+        "type": "byte"
+      },
+      "alignmentsRunning": {
+        "type": "byte"
+      },
+      "alignmentsFailed": {
+        "type": "byte"
+      },
+      "alignmentFirstPublishedDate": {
+        "type": "date"
+      },
+      "mutectCompleted": {
+        "type": "byte"
+      },
+      "mutectRunning": {
+        "type": "byte"
+      },
+      "mutectFailed": {
+        "type": "byte"
+      },
+      "mutectFirstPublishedDate": {
+        "type": "date"
+      },
+      "openAccessCompleted": {
+        "type": "byte"
+      },
+      "openAccessRunning": {
+        "type": "byte"
+      },
+      "openAccessFailed": {
+        "type": "byte"
+      },
+      "openAccessFirstPublishedDate": {
+        "type": "date"
+      },
+      "sangerVcsCompleted": {
+        "type": "byte"
+      },
+      "sangerVcsRunning": {
+        "type": "byte"
+      },
+      "sangerVcsFailed": {
+        "type": "byte"
+      },
+      "sangerVcsFirstPublishedDate": {
+        "type": "date"
+      },
+      "processingStatus": {
+        "type": "keyword"
+      },
+      "totalFilesCount": {
+        "type": "byte"
+      },
+      "filesToQcCount": {
+        "type": "byte"
+      },
+      "updatedAt": {
+        "type": "date"
+      },
+      "createdAt": {
+        "type": "date"
+      }
+    }
+  }
+}
