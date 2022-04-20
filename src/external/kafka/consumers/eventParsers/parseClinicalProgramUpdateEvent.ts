@@ -1,17 +1,19 @@
 import logger from "logger";
+import { isNotAbsent } from "utils";
 
 type ClinicalProgramUpdateEvent = {
   programId: string;
+  donorSubmitterId?: string;
 };
 
 const isProgramUpdateEvent = (
   data: unknown
 ): data is ClinicalProgramUpdateEvent => {
-  if (typeof data === "object") {
-    if (data) {
-      return (
-        data && typeof (data as { programId: string })["programId"] === "string"
-      );
+  if (data && typeof data === "object") {
+    const event = data as ClinicalProgramUpdateEvent;
+
+    if (isNotAbsent(event.programId) && typeof event.programId === "string") {
+      return true;
     }
     return false;
   }
