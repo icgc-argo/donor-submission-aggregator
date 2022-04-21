@@ -3,7 +3,7 @@ import { isNotAbsent } from "utils";
 
 type ClinicalProgramUpdateEvent = {
   programId: string;
-  donorSubmitterId?: string;
+  donorIds?: string[];
 };
 
 const isProgramUpdateEvent = (
