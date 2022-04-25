@@ -28,7 +28,6 @@ export type ClinicalDonor = {
   donorId: string;
   gender: string;
   programId: string;
-
   submitterId: string;
   createdAt: string;
   updatedAt: string;
