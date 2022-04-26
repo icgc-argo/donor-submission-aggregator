@@ -10,6 +10,8 @@ import {
   StringMap,
   WorkflowName,
   AnalysisType,
+  RNA_SAMPLE_TYPE_KEYWORD,
+  DNA_SAMPLE_TYPE_KEYWORD,
 } from "./types";
 import logger from "logger";
 import HashCode from "ts-hashcode";
@@ -17,9 +19,6 @@ import fetchAnalyses from "rdpc/query/fetchAnalyses";
 import _ from "lodash";
 import { RdpcDonorInfo } from "indexClinicalData/types";
 import { DonorMolecularDataReleaseStatus } from "files/types";
-
-const DNA_SAMPLE_TYPE_KEYWORD = "DNA";
-const RNA_SAMPLE_TYPE_KEYWORD = "RNA";
 
 type StreamState = {
   currentPage: number;

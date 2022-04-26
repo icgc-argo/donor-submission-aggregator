@@ -1,5 +1,6 @@
 import _ from "lodash";
 import {
+  DNA_SAMPLE_TYPE_KEYWORD,
   DonorData,
   DonorInfoMap,
   SamplePair,
@@ -26,7 +27,9 @@ export const findMatchedTNPairs = (
       if (
         currentSample.tumourSample &&
         !currentSample.normalSample &&
-        currentSample.tumourSample.sampleType.toUpperCase().includes("DNA")
+        currentSample.tumourSample.sampleType
+          .toUpperCase()
+          .includes(DNA_SAMPLE_TYPE_KEYWORD)
       ) {
         const matchedNormalSample = donorData.samplePairs.filter(
           (sample) =>

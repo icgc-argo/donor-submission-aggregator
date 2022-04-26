@@ -58,6 +58,8 @@ export type ClinicalDonorInfo = {
   programId: string;
   registeredNormalSamples: number;
   registeredTumourSamples: number;
+  rnaRegisteredNormalSamples: number;
+  rnaRegisteredTumourSamples: number;
   updatedAt: Date;
   createdAt: Date;
 };
