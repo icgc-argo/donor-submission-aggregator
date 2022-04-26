@@ -73,7 +73,7 @@ export type ClinicalSpecimen = {
   samples: ClinicalSample[];
   specimenId: string;
   submitterId: string;
-  tumourNormalDesignation: string;
+  tumourNormalDesignation: TumourNormalDesignation;
   specimenType: string;
   specimenTissueSource: string;
 };
@@ -117,3 +117,8 @@ export type ClinicalBiomarker = {
   clinicalInfo: ClinicalInfo;
   biomarkerId: string;
 };
+
+export enum TumourNormalDesignation {
+  Tumour = "Tumour",
+  Normal = "Normal",
+}

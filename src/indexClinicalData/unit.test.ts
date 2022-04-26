@@ -1,17 +1,10 @@
-import { Client } from "@elastic/elasticsearch";
 import { expect } from "chai";
-import { exec } from "child_process";
-import { toEsBulkIndexActions } from "external/elasticsearch";
-import { promisify } from "util";
 import uuid from "uuid";
 import { ClinicalDonor } from "../external/clinical/types";
 import transformToEsDonor from "./transformToEsDonor";
 import { EsDonorDocument } from "./types";
 
 const TEST_PROGRAM_SHORT_NAME = "TESTPROG-CA";
-const DB_COLLECTION_SIZE = 10010;
-const TARGET_ES_INDEX = "test_prog";
-const asyncExec = promisify(exec);
 
 describe("transformToEsDonor", () => {
   it("must transform properly", async () => {
@@ -27,7 +20,7 @@ describe("transformToEsDonor", () => {
       submittedExtendedDataPercent: 0, // this calculation is not yet defined
       registeredNormalSamples: 1,
       registeredTumourSamples: 1,
-      rnaRegisteredNormalSamples: 0,
+      rnaRegisteredNormalSamples: 1,
       rnaRegisteredTumourSamples: 1,
       matchedTNPairsDNA: 0,
       rnaPublishedNormalAnalysis: 0,
@@ -125,6 +118,22 @@ const createDonor = (programShortName: string) => {
       {
         samples: [
           {
+            sampleId: "SA410910",
+            submitterId: "8034251",
+            sampleType: "Total RNA",
+            clinicalInfo: {},
+          },
+        ],
+        specimenId: "SP71460",
+        submitterId: "8034251",
+        clinicalInfo: {},
+        tumourNormalDesignation: "Normal",
+        specimenType: "Normal",
+        specimenTissueSource: "Other",
+      },
+      {
+        samples: [
+          {
             sampleId: "SA410916",
             submitterId: "8034258",
             sampleType: "Total DNA",
@@ -147,22 +156,4 @@ const createDonor = (programShortName: string) => {
     comorbidity: [],
     biomarker: [],
   } as ClinicalDonor;
-};
-
-const writeEsDocumentsToIndex = async (
-  client: Client,
-  index: string,
-  documents: Array<EsDonorDocument>
-) => {
-  try {
-    await client.bulk({
-      body: toEsBulkIndexActions<EsDonorDocument>(
-        index,
-        (donor) => donor.donorId
-      )(documents),
-      refresh: "true",
-    });
-  } catch (error) {
-    console.log(`writeEsDocumentsToIndex --- ${error}`);
-  }
 };
