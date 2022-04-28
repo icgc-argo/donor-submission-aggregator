@@ -66,6 +66,15 @@
       "rnaPublishedTumourAnalysis": {
         "type": "byte"
       },
+      "rnaAlignmentsCompleted": {
+        "type": "byte"
+      },
+      "rnaAlignmentsRunning": {
+        "type": "byte"
+      },
+      "rnaAlignmentFailed": {
+        "type": "byte"
+      },
       "publishedNormalAnalysis": {
         "type": "byte"
       },

@@ -91,6 +91,10 @@ export const MUTECT_REPO_URL =
   process.env.MUTECT_REPO_URL ||
   "https://github.com/icgc-argo/gatk-mutect2-variant-calling.git";
 
+export const RNA_SEQ_ALIGN_REPO_URL =
+  process.env.RNA_SEQ_ALIGN_REPO_URL ||
+  "https://github.com/icgc-argo-workflows/rna-seq-alignment.git";
+
 /**
  * Open Access repo URL currently only works with the `.git` omitted
  * Ticket to fix: https://github.com/icgc-argo/workflow-roadmap/issues/211

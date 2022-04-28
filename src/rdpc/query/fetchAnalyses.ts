@@ -9,6 +9,7 @@ import {
   SANGER_VC_REPO_URL,
   SEQ_ALIGN_REPO_URL,
   OPEN_ACCESS_REPO_URL,
+  RNA_SEQ_ALIGN_REPO_URL,
 } from "config";
 import { QueryVariable } from "./types";
 
@@ -61,6 +62,7 @@ const fetchAnalyses = async ({
   workflowName,
   from,
   size,
+  isRNA,
   donorId,
 }: {
   studyId: string;
@@ -69,11 +71,14 @@ const fetchAnalyses = async ({
   workflowName: WorkflowName;
   from: number;
   size: number;
+  isRNA: boolean;
   donorId?: string;
 }): Promise<Analysis[]> => {
   return await promiseRetry<Analysis[]>(async (retry) => {
     try {
-      const workflowRepoUrl = getWorkflowRepoUrl(analysisType, workflowName);
+      const workflowRepoUrl = isRNA
+        ? getRnaWorkflowRepoUrl(analysisType, workflowName)
+        : getDnaWorkflowRepoUrl(analysisType, workflowName);
 
       const response = await fetch(rdpcUrl, {
         method: "POST",
@@ -123,13 +128,24 @@ const fetchAnalyses = async ({
   });
 };
 
-const getWorkflowRepoUrl = (
+const getRnaWorkflowRepoUrl = (
+  analysisType: string,
+  workflowName: WorkflowName
+): string => {
+  logger.info(
+    `Starting to query ${analysisType} analyses for RNA alignment workflow runs`
+  );
+  // currently only have RNA seq alignment workflow
+  return RNA_SEQ_ALIGN_REPO_URL;
+};
+
+const getDnaWorkflowRepoUrl = (
   analysisType: string,
   workflowName: WorkflowName
 ): string => {
   if (analysisType === AnalysisType.SEQ_EXPERIMENT) {
     logger.info(
-      `Starting to query ${analysisType} analyses for alignment workflow runs`
+      `Starting to query ${analysisType} analyses for DNA alignment workflow runs`
     );
     return SEQ_ALIGN_REPO_URL;
   } else if (analysisType === AnalysisType.SEQ_ALIGNMENT) {

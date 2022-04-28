@@ -1,5 +1,6 @@
 import fetchAnalyses from "rdpc/query/fetchAnalyses";
 import {
+  countRnaAlignmentRunState,
   countAlignmentRunState,
   getAllMergedDonor,
 } from "../analysesProcessor";
@@ -16,6 +17,7 @@ export const getAlignmentData = async (
     chunkSize: number;
     state?: StreamState;
   },
+  isRNA: boolean,
   donorIds?: string[]
 ): Promise<DonorInfoMap> => {
   const mergedAlignmentDonors = await getAllMergedDonor({
@@ -26,10 +28,12 @@ export const getAlignmentData = async (
     workflowName: workflowName,
     config,
     analysesFetcher,
+    isRNA,
   });
 
-  const rdpcInfoByDonor_alignment = countAlignmentRunState(
-    mergedAlignmentDonors
-  );
+  const rdpcInfoByDonor_alignment = isRNA
+    ? countRnaAlignmentRunState(mergedAlignmentDonors)
+    : countAlignmentRunState(mergedAlignmentDonors);
+
   return rdpcInfoByDonor_alignment;
 };

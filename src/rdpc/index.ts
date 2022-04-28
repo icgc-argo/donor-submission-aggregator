@@ -114,6 +114,7 @@ export const indexRdpcData = async ({
     WorkflowName.ALIGNMENT,
     analysesFetcher,
     config,
+    false,
     donorIdsToFilterBy
   );
 
@@ -126,6 +127,7 @@ export const indexRdpcData = async ({
     WorkflowName.SANGER,
     analysesFetcher,
     config,
+    false,
     donorIdsToFilterBy
   );
 
@@ -138,6 +140,7 @@ export const indexRdpcData = async ({
     WorkflowName.MUTECT,
     analysesFetcher,
     config,
+    false,
     donorIdsToFilterBy
   );
 
@@ -150,6 +153,19 @@ export const indexRdpcData = async ({
     WorkflowName.OPEN_ACCESS,
     analysesFetcher,
     config,
+    false,
+    donorIdsToFilterBy
+  );
+
+  // RNA fields: rnaAlignmentsCompleted, rnaAlignmentsRunning, rnaAlignmentFailed
+  const rdpcInfoByDonor_rnaAlignment = await getAlignmentData(
+    programId,
+    rdpcUrl,
+    AnalysisType.SEQ_EXPERIMENT,
+    WorkflowName.ALIGNMENT,
+    analysesFetcher,
+    config,
+    true,
     donorIdsToFilterBy
   );
 
@@ -185,11 +201,16 @@ export const indexRdpcData = async ({
     rdpcDocsMap_openAccess,
     rdpcInfoByDonor_openAccessDate
   );
+
+  const rdpcDocsMap_RnaAlignment = mergeDonorInfo(
+    rdpcDocsMap_openAccessDates,
+    rdpcInfoByDonor_rnaAlignment
+  );
   /**  ---------- End of merge DonorInfoMap --------- */
 
   // get existing ES donors from the previous index, because we only want to index RDPC donors that
   // have already been registered in clinical.
-  const donorIds = Object.keys(rdpcDocsMap_openAccessDates);
+  const donorIds = Object.keys(rdpcDocsMap_RnaAlignment);
   const esHits = await queryDocumentsByDonorIds(
     donorIds,
     esClient,
@@ -204,7 +225,7 @@ export const indexRdpcData = async ({
 
   const esDocuments = Object.entries(preExistingDonorHits).map(
     ([donorId, esHit]) => {
-      const newRdpcInfo = rdpcDocsMap_openAccessDates[donorId];
+      const newRdpcInfo = rdpcDocsMap_RnaAlignment[donorId];
       return convertToEsDocument(esHit._source, newRdpcInfo);
     }
   );
