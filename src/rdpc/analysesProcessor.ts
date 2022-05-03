@@ -31,6 +31,7 @@ export const analysisStream = async function* ({
   workflowName,
   config,
   analysesFetcher = fetchAnalyses,
+  isRNA,
   donorId,
 }: {
   studyId: string;
@@ -41,6 +42,7 @@ export const analysisStream = async function* ({
     chunkSize: number;
   };
   analysesFetcher: typeof fetchAnalyses;
+  isRNA: boolean;
   donorId?: string;
 }): AsyncGenerator<Analysis[]> {
   const chunkSize = config.chunkSize;
@@ -56,6 +58,7 @@ export const analysisStream = async function* ({
       workflowName,
       from: streamState.currentPage,
       size: chunkSize,
+      isRNA,
       donorId,
     });
 
@@ -169,6 +172,7 @@ export const getAllMergedDonor = async ({
   studyId,
   url,
   config,
+  isRNA,
   donorIds,
 }: {
   studyId: string;
@@ -176,6 +180,7 @@ export const getAllMergedDonor = async ({
   analysisType: AnalysisType;
   workflowName: WorkflowName;
   donorIds?: string[];
+  isRNA: boolean;
   config: {
     chunkSize: number;
     state?: StreamState;
@@ -194,6 +199,7 @@ export const getAllMergedDonor = async ({
         workflowName,
         config,
         analysesFetcher,
+        isRNA,
         donorId,
       });
       for await (const page of stream) {
@@ -211,6 +217,7 @@ export const getAllMergedDonor = async ({
       workflowName,
       config,
       analysesFetcher,
+      isRNA,
     });
     for await (const page of stream) {
       logger.info(`Streaming ${page.length} of ${analysisType} analyses...`);
@@ -344,6 +351,48 @@ export const removeCompleteRunsWithSuppressedAnalyses = (
     },
     []
   );
+  return result;
+};
+
+export const countRnaAlignmentRunState = (
+  donorMap: RunsByAnalysesByDonors
+): DonorInfoMap => {
+  const result: DonorInfoMap = {};
+  Object.entries(donorMap).forEach(([donorId, map]) => {
+    Object.entries(map).forEach(([inputAnalysesId, runs]) => {
+      runs.forEach((run) => {
+        switch (run.state) {
+          case RunState.COMPLETE:
+            if (result[donorId]) {
+              result[donorId].rnaAlignmentsCompleted += 1;
+            } else {
+              initializeRdpcInfo(result, donorId);
+              result[donorId].rnaAlignmentsCompleted += 1;
+            }
+            break;
+          case RunState.RUNNING:
+            if (result[donorId]) {
+              result[donorId].rnaAlignmentsRunning += 1;
+            } else {
+              initializeRdpcInfo(result, donorId);
+              result[donorId].rnaAlignmentsRunning += 1;
+            }
+            break;
+          case RunState.EXECUTOR_ERROR:
+            if (result[donorId]) {
+              result[donorId].rnaAlignmentFailed += 1;
+            } else {
+              initializeRdpcInfo(result, donorId);
+              result[donorId].rnaAlignmentFailed += 1;
+            }
+            break;
+          default:
+            break;
+        }
+      });
+    });
+  });
+
   return result;
 };
 
@@ -482,6 +531,9 @@ export const initialRdpcInfo: Readonly<RdpcDonorInfo> = Object.freeze({
   matchedTNPairsDNA: 0,
   rnaPublishedNormalAnalysis: 0,
   rnaPublishedTumourAnalysis: 0,
+  rnaAlignmentsCompleted: 0,
+  rnaAlignmentsRunning: 0,
+  rnaAlignmentFailed: 0,
   publishedNormalAnalysis: 0,
   publishedTumourAnalysis: 0,
   alignmentsCompleted: 0,
@@ -511,12 +563,23 @@ export const mergeDonorInfo = (
       acc[donorId] = {
         matchedTNPairsDNA:
           (acc[donorId]?.matchedTNPairsDNA || 0) + rdpcInfo.matchedTNPairsDNA,
+
         rnaPublishedNormalAnalysis:
           (acc[donorId]?.rnaPublishedNormalAnalysis || 0) +
           rdpcInfo.rnaPublishedNormalAnalysis,
         rnaPublishedTumourAnalysis:
           (acc[donorId]?.rnaPublishedTumourAnalysis || 0) +
           rdpcInfo.rnaPublishedTumourAnalysis,
+
+        rnaAlignmentsCompleted:
+          (acc[donorId]?.rnaAlignmentsCompleted || 0) +
+          rdpcInfo.rnaAlignmentsCompleted,
+        rnaAlignmentsRunning:
+          (acc[donorId]?.rnaAlignmentsRunning || 0) +
+          rdpcInfo.rnaAlignmentsRunning,
+        rnaAlignmentFailed:
+          (acc[donorId]?.rnaAlignmentFailed || 0) + rdpcInfo.rnaAlignmentFailed,
+
         publishedNormalAnalysis:
           (acc[donorId]?.publishedNormalAnalysis || 0) +
           rdpcInfo.publishedNormalAnalysis,

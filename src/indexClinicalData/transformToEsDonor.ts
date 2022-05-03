@@ -13,6 +13,10 @@ const defaultRDPCInfo: RdpcDonorInfo = {
   rnaPublishedNormalAnalysis: 0,
   rnaPublishedTumourAnalysis: 0,
 
+  rnaAlignmentsCompleted: 0,
+  rnaAlignmentsRunning: 0,
+  rnaAlignmentFailed: 0,
+
   publishedNormalAnalysis: 0,
   publishedTumourAnalysis: 0,
 

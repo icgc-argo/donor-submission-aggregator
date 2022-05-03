@@ -13,6 +13,7 @@ export const getMutectData = async (
     chunkSize: number;
     state?: StreamState;
   },
+  isRNA: boolean,
   donorIds?: string[]
 ): Promise<DonorInfoMap> => {
   const mergedMutectDonors = await getAllMergedDonor({
@@ -23,6 +24,7 @@ export const getMutectData = async (
     workflowName: workflowName,
     config,
     analysesFetcher,
+    isRNA,
   });
 
   const rdpcInfoByDonor_mutect = countMutectRunState(mergedMutectDonors);

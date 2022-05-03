@@ -16,6 +16,7 @@ export const getOpenAccessData = async (
     chunkSize: number;
     state?: StreamState;
   },
+  isRNA: boolean,
   donorIds?: string[]
 ): Promise<DonorInfoMap> => {
   const mergedOpenAccessDonors = await getAllMergedDonor({
@@ -26,6 +27,7 @@ export const getOpenAccessData = async (
     workflowName: workflowName,
     config,
     analysesFetcher,
+    isRNA,
   });
 
   const rdpcInfoByDonor_openAccess = countOpenAccessRunState(
