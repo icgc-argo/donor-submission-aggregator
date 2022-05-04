@@ -13,6 +13,7 @@ export const getSangerData = async (
     chunkSize: number;
     state?: StreamState;
   },
+  isRNA: boolean,
   donorIds?: string[]
 ): Promise<DonorInfoMap> => {
   const mergedSangerDonors = await getAllMergedDonor({
@@ -23,6 +24,7 @@ export const getSangerData = async (
     workflowName: workflowName,
     config,
     analysesFetcher,
+    isRNA,
   });
 
   const rdpcInfoByDonor_sanger = countVCRunState(mergedSangerDonors);

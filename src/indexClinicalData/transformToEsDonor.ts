@@ -1,5 +1,10 @@
 import { DonorMolecularDataReleaseStatus } from "files/types";
-import { ClinicalDonor } from "../external/clinical/types";
+import { DNA_SAMPLE_TYPE_KEYWORD, RNA_SAMPLE_TYPE_KEYWORD } from "rdpc/types";
+import {
+  ClinicalDonor,
+  ClinicalSpecimen,
+  TumourNormalDesignation,
+} from "../external/clinical/types";
 import { ClinicalDonorInfo, EsDonorDocument, RdpcDonorInfo } from "./types";
 
 const defaultRDPCInfo: RdpcDonorInfo = {
@@ -7,6 +12,10 @@ const defaultRDPCInfo: RdpcDonorInfo = {
 
   rnaPublishedNormalAnalysis: 0,
   rnaPublishedTumourAnalysis: 0,
+
+  rnaAlignmentsCompleted: 0,
+  rnaAlignmentsRunning: 0,
+  rnaAlignmentFailed: 0,
 
   publishedNormalAnalysis: 0,
   publishedTumourAnalysis: 0,
@@ -51,13 +60,29 @@ export default (
 
     submittedExtendedDataPercent: submittedExtendedDataPercent,
 
-    registeredNormalSamples: donor.specimens
-      .filter((specimen) => specimen.tumourNormalDesignation === "Normal")
-      .reduce((sum, specimen) => sum + specimen.samples.length, 0),
+    registeredNormalSamples: calculateRegisteredSamples(
+      donor.specimens,
+      TumourNormalDesignation.Normal,
+      DNA_SAMPLE_TYPE_KEYWORD
+    ),
 
-    registeredTumourSamples: donor.specimens
-      .filter((specimen) => specimen.tumourNormalDesignation === "Tumour")
-      .reduce((sum, specimen) => sum + specimen.samples.length, 0),
+    registeredTumourSamples: calculateRegisteredSamples(
+      donor.specimens,
+      TumourNormalDesignation.Tumour,
+      DNA_SAMPLE_TYPE_KEYWORD
+    ),
+
+    rnaRegisteredNormalSamples: calculateRegisteredSamples(
+      donor.specimens,
+      TumourNormalDesignation.Normal,
+      RNA_SAMPLE_TYPE_KEYWORD
+    ),
+
+    rnaRegisteredTumourSamples: calculateRegisteredSamples(
+      donor.specimens,
+      TumourNormalDesignation.Tumour,
+      RNA_SAMPLE_TYPE_KEYWORD
+    ),
 
     updatedAt: new Date(donor.updatedAt),
     createdAt: new Date(donor.createdAt),
@@ -74,4 +99,21 @@ export default (
     ...(existingEsData || {}),
     ...clinicalData,
   };
+};
+
+// calculates the number of registered samples based on tumour/normal and sample type
+const calculateRegisteredSamples = (
+  specimens: ClinicalSpecimen[],
+  tumourNormalDesignation: TumourNormalDesignation,
+  sampleTYpeKeyword: string
+): number => {
+  return specimens
+    .filter(
+      (specimen) =>
+        specimen.tumourNormalDesignation === tumourNormalDesignation &&
+        specimen.samples[0]?.sampleType
+          .toUpperCase()
+          .includes(sampleTYpeKeyword)
+    )
+    .reduce((sum, specimen) => sum + specimen.samples.length, 0);
 };

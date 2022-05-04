@@ -120,3 +120,6 @@ export enum WorkflowName {
   MUTECT = "mutect2",
   OPEN_ACCESS = "open",
 }
+
+export const DNA_SAMPLE_TYPE_KEYWORD = "DNA";
+export const RNA_SAMPLE_TYPE_KEYWORD = "RNA";

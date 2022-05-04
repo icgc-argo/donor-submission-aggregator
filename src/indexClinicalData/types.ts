@@ -16,6 +16,10 @@ export type RdpcDonorInfo = {
   rnaPublishedNormalAnalysis: number;
   rnaPublishedTumourAnalysis: number;
 
+  rnaAlignmentsCompleted: number;
+  rnaAlignmentsRunning: number;
+  rnaAlignmentFailed: number;
+
   // DNA properties:
   publishedNormalAnalysis: number;
   publishedTumourAnalysis: number;
@@ -58,6 +62,8 @@ export type ClinicalDonorInfo = {
   programId: string;
   registeredNormalSamples: number;
   registeredTumourSamples: number;
+  rnaRegisteredNormalSamples: number;
+  rnaRegisteredTumourSamples: number;
   updatedAt: Date;
   createdAt: Date;
 };

@@ -54,10 +54,25 @@
       "registeredTumourSamples": {
         "type": "byte"
       },
+      "rnaRegisteredNormalSamples": {
+        "type": "byte"
+      },
+      "rnaRegisteredTumourSamples": {
+        "type": "byte"
+      },
       "rnaPublishedNormalAnalysis": {
         "type": "byte"
       },
       "rnaPublishedTumourAnalysis": {
+        "type": "byte"
+      },
+      "rnaAlignmentsCompleted": {
+        "type": "byte"
+      },
+      "rnaAlignmentsRunning": {
+        "type": "byte"
+      },
+      "rnaAlignmentFailed": {
         "type": "byte"
       },
       "publishedNormalAnalysis": {

@@ -1,17 +1,10 @@
-import { Client } from "@elastic/elasticsearch";
 import { expect } from "chai";
-import { exec } from "child_process";
-import { toEsBulkIndexActions } from "external/elasticsearch";
-import { promisify } from "util";
 import uuid from "uuid";
 import { ClinicalDonor } from "../external/clinical/types";
 import transformToEsDonor from "./transformToEsDonor";
 import { EsDonorDocument } from "./types";
 
 const TEST_PROGRAM_SHORT_NAME = "TESTPROG-CA";
-const DB_COLLECTION_SIZE = 10010;
-const TARGET_ES_INDEX = "test_prog";
-const asyncExec = promisify(exec);
 
 describe("transformToEsDonor", () => {
   it("must transform properly", async () => {
@@ -25,11 +18,16 @@ describe("transformToEsDonor", () => {
       programId: TEST_PROGRAM_SHORT_NAME,
       submittedCoreDataPercent: 0.666666666666667,
       submittedExtendedDataPercent: 0, // this calculation is not yet defined
-      registeredNormalSamples: 5,
-      registeredTumourSamples: 10,
+      registeredNormalSamples: 1,
+      registeredTumourSamples: 1,
+      rnaRegisteredNormalSamples: 1,
+      rnaRegisteredTumourSamples: 1,
       matchedTNPairsDNA: 0,
       rnaPublishedNormalAnalysis: 0,
       rnaPublishedTumourAnalysis: 0,
+      rnaAlignmentsCompleted: 0,
+      rnaAlignmentsRunning: 0,
+      rnaAlignmentFailed: 0,
       publishedNormalAnalysis: 0,
       publishedTumourAnalysis: 0,
       alignmentsCompleted: 0,
@@ -89,124 +87,68 @@ const createDonor = (programShortName: string) => {
     },
     specimens: [
       {
-        clinicalInfo: {},
         samples: [
           {
+            sampleId: "SA410900",
+            submitterId: "8034252",
+            sampleType: "Total DNA",
             clinicalInfo: {},
-            sampleType: "",
-            submitterId: submitterId,
-            sampleId: `SA${Math.random()}`,
-          },
-          {
-            clinicalInfo: {},
-            sampleType: "",
-            submitterId: submitterId,
-            sampleId: `SA${Math.random()}`,
-          },
-          {
-            clinicalInfo: {},
-            sampleType: "",
-            submitterId: submitterId,
-            sampleId: `SA${Math.random()}`,
-          },
-          {
-            clinicalInfo: {},
-            sampleType: "",
-            submitterId: submitterId,
-            sampleId: `SA${Math.random()}`,
-          },
-          {
-            clinicalInfo: {},
-            sampleType: "",
-            submitterId: submitterId,
-            sampleId: `SA${Math.random()}`,
           },
         ],
-        specimenTissueSource: "",
-        specimenType: "",
-        specimenId: `SP${Math.random()}`,
-        submitterId: submitterId,
+        specimenId: "SP71456",
+        submitterId: "8034252",
+        clinicalInfo: {},
+        tumourNormalDesignation: "Tumour",
+        specimenType: "Primary tumour",
+        specimenTissueSource: "Solid tissue",
+      },
+      {
+        samples: [
+          {
+            sampleId: "SA410911",
+            submitterId: "8034254",
+            sampleType: "Total RNA",
+            clinicalInfo: {},
+          },
+        ],
+        specimenId: "SP71464",
+        submitterId: "8034254",
+        clinicalInfo: {},
+        tumourNormalDesignation: "Tumour",
+        specimenType: "Primary tumour",
+        specimenTissueSource: "Other",
+      },
+      {
+        samples: [
+          {
+            sampleId: "SA410910",
+            submitterId: "8034251",
+            sampleType: "Total RNA",
+            clinicalInfo: {},
+          },
+        ],
+        specimenId: "SP71460",
+        submitterId: "8034251",
+        clinicalInfo: {},
         tumourNormalDesignation: "Normal",
+        specimenType: "Normal",
+        specimenTissueSource: "Other",
       },
       {
-        clinicalInfo: {},
         samples: [
           {
+            sampleId: "SA410916",
+            submitterId: "8034258",
+            sampleType: "Total DNA",
             clinicalInfo: {},
-            sampleType: "",
-            submitterId: submitterId,
-            sampleId: `SA${Math.random()}`,
-          },
-          {
-            clinicalInfo: {},
-            sampleType: "",
-            submitterId: submitterId,
-            sampleId: `SA${Math.random()}`,
-          },
-          {
-            clinicalInfo: {},
-            sampleType: "",
-            submitterId: submitterId,
-            sampleId: `SA${Math.random()}`,
-          },
-          {
-            clinicalInfo: {},
-            sampleType: "",
-            submitterId: submitterId,
-            sampleId: `SA${Math.random()}`,
-          },
-          {
-            clinicalInfo: {},
-            sampleType: "",
-            submitterId: submitterId,
-            sampleId: `SA${Math.random()}`,
           },
         ],
-        specimenTissueSource: "",
-        specimenType: "",
-        specimenId: `SP${Math.random()}`,
-        submitterId: submitterId,
-        tumourNormalDesignation: "Tumour",
-      },
-      {
+        specimenId: "SP71472",
+        submitterId: "8034258",
         clinicalInfo: {},
-        samples: [
-          {
-            clinicalInfo: {},
-            sampleType: "",
-            submitterId: submitterId,
-            sampleId: `SA${Math.random()}`,
-          },
-          {
-            clinicalInfo: {},
-            sampleType: "",
-            submitterId: submitterId,
-            sampleId: `SA${Math.random()}`,
-          },
-          {
-            clinicalInfo: {},
-            sampleType: "",
-            submitterId: submitterId,
-            sampleId: `SA${Math.random()}`,
-          },
-          {
-            clinicalInfo: {},
-            sampleType: "",
-            submitterId: submitterId,
-            sampleId: `SA${Math.random()}`,
-          },
-          {
-            clinicalInfo: {},
-            sampleType: "",
-            submitterId: submitterId,
-            sampleId: `SA${Math.random()}`,
-          },
-        ],
-        specimenTissueSource: "",
-        specimenType: "",
-        specimenId: `SP${Math.random()}`,
-        submitterId: submitterId,
-        tumourNormalDesignation: "Tumour",
+        tumourNormalDesignation: "Normal",
+        specimenType: "Normal",
+        specimenTissueSource: "Solid tissue",
       },
     ],
     followUps: [],
@@ -217,22 +159,4 @@ const createDonor = (programShortName: string) => {
     comorbidity: [],
     biomarker: [],
   } as ClinicalDonor;
-};
-
-const writeEsDocumentsToIndex = async (
-  client: Client,
-  index: string,
-  documents: Array<EsDonorDocument>
-) => {
-  try {
-    await client.bulk({
-      body: toEsBulkIndexActions<EsDonorDocument>(
-        index,
-        (donor) => donor.donorId
-      )(documents),
-      refresh: "true",
-    });
-  } catch (error) {
-    console.log(`writeEsDocumentsToIndex --- ${error}`);
-  }
 };
