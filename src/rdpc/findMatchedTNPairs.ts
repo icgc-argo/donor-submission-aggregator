@@ -1,21 +1,25 @@
+import { FirstPublishedDateFields } from "indexClinicalData/types";
 import _ from "lodash";
 import {
   DNA_SAMPLE_TYPE_KEYWORD,
   DonorData,
   DonorInfoMap,
+  RNA_SAMPLE_TYPE_KEYWORD,
   SamplePair,
   StringMap,
   TumourNormalDesignationValue,
 } from "rdpc/types";
 import { initializeRdpcInfo } from "./analysesProcessor";
 
-// iterates over donor's DonorData and finds all the matched
-// tumour/normal sample pairs by donor Id.
-// Matched samples must meet these conditions:
-// - have the same experiment strategy;
-// - tumour sample's matchedNormalSubmitterSampleId must be the same as normal sample's submitterSampleId;
-// - have the same DNA sample type.
-// This function only returns matched DNA sample pairs.
+/**
+iterates over donor's DonorData and finds all the matched
+tumour/normal sample pairs by donor Id.
+Matched samples must meet these conditions:
+- have the same experiment strategy;
+- tumour sample's matchedNormalSubmitterSampleId must be the same as normal sample's submitterSampleId;
+- have the same DNA sample type.
+This function only returns matched DNA sample pairs.
+*/
 export const findMatchedTNPairs = (
   map: StringMap<DonorData>
 ): StringMap<SamplePair[]> => {
@@ -103,4 +107,37 @@ export const countMatchedSamplePairs = (
     donorInfo[donorId].matchedTNPairsDNA = numberOfPairs;
   });
   return donorInfo;
+};
+
+// This function finds the first published date for RNA tumour raw reads and
+// RNA tumour alignments. Normal RNA samples are ignored.
+export const getRnaSampleFirstPublishedDate = (
+  map: StringMap<DonorData>,
+  field: string
+): DonorInfoMap => {
+  const result: DonorInfoMap = {};
+
+  Object.entries(map).forEach(([donorId, donorData]) => {
+    // filter out DNA samples and only keep RNA tumour samples:
+    const rnaTumours: SamplePair[] = donorData.samplePairs.filter((sample) =>
+      sample.tumourSample?.sampleType
+        .toUpperCase()
+        .includes(RNA_SAMPLE_TYPE_KEYWORD)
+    );
+
+    const sorted = _.sortBy(rnaTumours, (sample) => sample.firstPublishedAt);
+    const earliest = _.head(sorted);
+    initializeRdpcInfo(result, donorId);
+
+    if (earliest) {
+      field === FirstPublishedDateFields.RNA_ALIGNMENT_FIRST_PUBLISHED_DATE
+        ? (result[donorId].rnaAlignmentFirstPublishedDate = new Date(
+            earliest.firstPublishedAt
+          ))
+        : (result[donorId].rnaRawReadsFirstPublishedDate = new Date(
+            earliest.firstPublishedAt
+          ));
+    }
+  });
+  return result;
 };
