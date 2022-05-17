@@ -152,17 +152,17 @@ const getDnaWorkflowRepoUrl = (
     switch (workflowName) {
       case WorkflowName.MUTECT:
         logger.info(
-          `Starting to query ${analysisType} analyses for mutect2 workflow runs`
+          `Starting to query ${analysisType} analyses for DNA mutect2 workflow runs`
         );
         return MUTECT_REPO_URL;
       case WorkflowName.SANGER:
         logger.info(
-          `Starting to query ${analysisType} analyses for sanger variant calling workflow runs`
+          `Starting to query ${analysisType} analyses for DNA sanger variant calling workflow runs`
         );
         return SANGER_VC_REPO_URL;
       default:
         logger.info(
-          `Attempted to query '${analysisType}' analyses for '${workflowName}' workflow runs, no repo url found`
+          `Attempted to query '${analysisType}' analyses for DNA '${workflowName}' workflow runs, no repo url found`
         );
         return "";
     }
@@ -171,12 +171,12 @@ const getDnaWorkflowRepoUrl = (
     workflowName === WorkflowName.OPEN_ACCESS
   ) {
     logger.info(
-      `Starting to query ${analysisType} analyses for open access workflow runs`
+      `Starting to query ${analysisType} analyses for DNA open access workflow runs`
     );
     return OPEN_ACCESS_REPO_URL;
   } else {
     logger.info(
-      `Attempted to query '${analysisType}' analyses for '${workflowName}' workflow runs, no repo url found`
+      `Attempted to query '${analysisType}' analyses for DNA '${workflowName}' workflow runs, no repo url found`
     );
     return "";
   }

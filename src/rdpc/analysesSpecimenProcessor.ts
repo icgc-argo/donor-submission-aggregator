@@ -36,7 +36,7 @@ export const getAllMergedDonorWithSpecimens = async ({
   if (donorIds) {
     for (const donorId of donorIds) {
       logger.info(
-        `streaming ${analysisType} analyses with Specimens for donor ${donorId}`
+        `Streaming ${analysisType} analyses with Specimens for donor ${donorId}`
       );
       const stream = analysisStream_withSpecimens({
         studyId,
@@ -78,6 +78,7 @@ export const getAllMergedDonorWithSpecimens = async ({
   return donorMap;
 };
 
+// This function records the first published date for DNA raw reads and alignments.
 export const getFirstPublishedDate = (
   samplePairs: StringMap<SamplePair>,
   fieldName: string
