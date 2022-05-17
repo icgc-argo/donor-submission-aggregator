@@ -8,6 +8,8 @@ export type DonorMolecularDataProcessingStatus =
 export enum FirstPublishedDateFields {
   RAW_READS_FIRST_PUBLISHED_DATE = "rawReadsFirstPublishedDate",
   ALIGNMENT_FIRST_PUBLISHED_DATE = "alignmentFirstPublishedDate",
+  RNA_RAW_READS_FIRST_PUBLISHED_DATE = "rnaRawReadsFirstPublishedDate",
+  RNA_ALIGNMENT_FIRST_PUBLISHED_DATE = "rnaAlignmentFirstPublishedDate",
 }
 
 export type RdpcDonorInfo = {
@@ -15,10 +17,12 @@ export type RdpcDonorInfo = {
   // RNA properties:
   rnaPublishedNormalAnalysis: number;
   rnaPublishedTumourAnalysis: number;
+  rnaRawReadsFirstPublishedDate?: Date;
 
   rnaAlignmentsCompleted: number;
   rnaAlignmentsRunning: number;
   rnaAlignmentFailed: number;
+  rnaAlignmentFirstPublishedDate?: Date;
 
   // DNA properties:
   publishedNormalAnalysis: number;

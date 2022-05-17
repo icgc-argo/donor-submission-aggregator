@@ -1,4 +1,5 @@
 import { FirstPublishedDateFields } from "indexClinicalData/types";
+import { mergeDonorInfo } from "rdpc/analysesProcessor";
 import fetchAnalysesWithSpecimens from "rdpc/query/fetchAnalysesWithSpecimens";
 import {
   getAllMergedDonorWithSpecimens,
@@ -7,6 +8,7 @@ import {
 import {
   findEarliestAvailableSamplePair,
   findMatchedTNPairs,
+  getRnaSampleFirstPublishedDate,
 } from "../findMatchedTNPairs";
 import { DonorInfoMap } from "../types";
 import { StreamState } from "./type";
@@ -32,11 +34,23 @@ export const getSeqAlignSpecimenData = async (
   });
 
   const matchedSamplePairs = findMatchedTNPairs(mergedDonors);
+
   const earliestPair = findEarliestAvailableSamplePair(matchedSamplePairs);
-  const rdpcInfo_alignmentDate = getFirstPublishedDate(
+
+  const rdpcInfo_rnaAlignmentFirstPublishedDate = getRnaSampleFirstPublishedDate(
+    mergedDonors,
+    FirstPublishedDateFields.RNA_ALIGNMENT_FIRST_PUBLISHED_DATE
+  );
+
+  const rdpcInfo_dnaAlignmentDate = getFirstPublishedDate(
     earliestPair,
     FirstPublishedDateFields.ALIGNMENT_FIRST_PUBLISHED_DATE
   );
 
-  return rdpcInfo_alignmentDate;
+  const result = mergeDonorInfo(
+    rdpcInfo_dnaAlignmentDate,
+    rdpcInfo_rnaAlignmentFirstPublishedDate
+  );
+
+  return result;
 };

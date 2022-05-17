@@ -137,7 +137,7 @@ export const getAllMergedDonor_variantCalling = async ({
 
   if (donorIds) {
     for (const donorId of donorIds) {
-      logger.info(`streaming analyses for donor ${donorId}`);
+      logger.info(`Streaming analyses for donor ${donorId}`);
       const stream = variantCallingStream({
         studyId,
         rdpcUrl: url,

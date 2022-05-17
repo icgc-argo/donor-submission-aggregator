@@ -75,6 +75,12 @@
       "rnaAlignmentFailed": {
         "type": "byte"
       },
+      "rnaAlignmentFirstPublishedDate": {
+        "type": "date"
+      },
+      "rnaRawReadsFirstPublishedDate": {
+        "type": "date"
+      },
       "publishedNormalAnalysis": {
         "type": "byte"
       },

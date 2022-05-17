@@ -51,7 +51,7 @@ const fetchAnalysesWithSpecimens = async ({
   return await promiseRetry<Analysis[]>(async (retry) => {
     try {
       logger.info(
-        `Fetching sequencing experiment analyses with specimens from rdpc.....`
+        `Fetching ${analysisType} analyses with specimens from rdpc.....`
       );
       const response = await fetch(rdpcUrl, {
         method: "POST",

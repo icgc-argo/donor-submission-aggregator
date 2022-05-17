@@ -203,7 +203,9 @@ export const getAllMergedDonor = async ({
         donorId,
       });
       for await (const page of stream) {
-        logger.info(`Streaming ${page.length} of ${analysisType} analyses...`);
+        logger.info(
+          `Streaming ${page.length} of ${analysisType} analyses for ${workflowName}...`
+        );
         const filteredAnalyses = removeCompleteRunsWithSuppressedAnalyses(page);
         const donorPerPage = toDonorCentric(filteredAnalyses);
         getAllRunsByAnalysesByDonors(mergedDonors, donorPerPage);
@@ -220,7 +222,9 @@ export const getAllMergedDonor = async ({
       isRNA,
     });
     for await (const page of stream) {
-      logger.info(`Streaming ${page.length} of ${analysisType} analyses...`);
+      logger.info(
+        `Streaming ${page.length} of ${analysisType} analyses for ${workflowName}...`
+      );
       const filteredAnalyses = removeCompleteRunsWithSuppressedAnalyses(page);
       const donorPerPage = toDonorCentric(filteredAnalyses);
       getAllRunsByAnalysesByDonors(mergedDonors, donorPerPage);
@@ -241,7 +245,11 @@ export const countSpecimenType = (map: StringMap<DonorData>): DonorInfoMap => {
     );
 
     for (const normal of normalSpecimen) {
-      if (normal.samples[0]?.sampleType.includes(DNA_SAMPLE_TYPE_KEYWORD)) {
+      if (
+        normal.samples[0]?.sampleType
+          .toUpperCase()
+          .includes(DNA_SAMPLE_TYPE_KEYWORD)
+      ) {
         if (result[donorId]) {
           result[donorId].publishedNormalAnalysis += 1;
         } else {
@@ -250,7 +258,11 @@ export const countSpecimenType = (map: StringMap<DonorData>): DonorInfoMap => {
         }
       }
 
-      if (normal.samples[0]?.sampleType.includes(RNA_SAMPLE_TYPE_KEYWORD)) {
+      if (
+        normal.samples[0]?.sampleType
+          .toUpperCase()
+          .includes(RNA_SAMPLE_TYPE_KEYWORD)
+      ) {
         if (result[donorId]) {
           result[donorId].rnaPublishedNormalAnalysis += 1;
         } else {
@@ -261,7 +273,11 @@ export const countSpecimenType = (map: StringMap<DonorData>): DonorInfoMap => {
     }
 
     for (const tumour of tumourSpecimen) {
-      if (tumour.samples[0]?.sampleType.includes(DNA_SAMPLE_TYPE_KEYWORD)) {
+      if (
+        tumour.samples[0]?.sampleType
+          .toUpperCase()
+          .includes(DNA_SAMPLE_TYPE_KEYWORD)
+      ) {
         if (result[donorId]) {
           result[donorId].publishedTumourAnalysis += 1;
         } else {
@@ -270,7 +286,11 @@ export const countSpecimenType = (map: StringMap<DonorData>): DonorInfoMap => {
         }
       }
 
-      if (tumour.samples[0]?.sampleType.includes(RNA_SAMPLE_TYPE_KEYWORD)) {
+      if (
+        tumour.samples[0]?.sampleType
+          .toUpperCase()
+          .includes(RNA_SAMPLE_TYPE_KEYWORD)
+      ) {
         if (result[donorId]) {
           result[donorId].rnaPublishedTumourAnalysis += 1;
         } else {
@@ -570,6 +590,10 @@ export const mergeDonorInfo = (
         rnaPublishedTumourAnalysis:
           (acc[donorId]?.rnaPublishedTumourAnalysis || 0) +
           rdpcInfo.rnaPublishedTumourAnalysis,
+        rnaRawReadsFirstPublishedDate: acc[donorId]
+          ?.rnaRawReadsFirstPublishedDate
+          ? acc[donorId].rnaRawReadsFirstPublishedDate
+          : rdpcInfo.rnaRawReadsFirstPublishedDate,
 
         rnaAlignmentsCompleted:
           (acc[donorId]?.rnaAlignmentsCompleted || 0) +
@@ -579,6 +603,10 @@ export const mergeDonorInfo = (
           rdpcInfo.rnaAlignmentsRunning,
         rnaAlignmentFailed:
           (acc[donorId]?.rnaAlignmentFailed || 0) + rdpcInfo.rnaAlignmentFailed,
+        rnaAlignmentFirstPublishedDate: acc[donorId]
+          ?.rnaAlignmentFirstPublishedDate
+          ? acc[donorId].rnaAlignmentFirstPublishedDate
+          : rdpcInfo.rnaAlignmentFirstPublishedDate,
 
         publishedNormalAnalysis:
           (acc[donorId]?.publishedNormalAnalysis || 0) +
