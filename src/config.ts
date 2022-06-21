@@ -115,17 +115,17 @@ const KAFKA_CONSUMER_GROUP =
   process.env.KAFKA_CONSUMER_GROUP || "donor-submission-aggregator";
 
 const clinicalUpdatesConsumer: KafkaConsumerConfiguration = {
-  group: KAFKA_CONSUMER_GROUP,
+  group: `${KAFKA_CONSUMER_GROUP}_clinical_update`,
   topic: process.env.CLINICAL_PROGRAM_UPDATE_TOPIC || "PROGRAM_UPDATE",
   dlq: DLQ_TOPIC_NAME,
 };
 const filePublicReleasesConsumer: KafkaConsumerConfiguration = {
-  group: KAFKA_CONSUMER_GROUP,
+  group: `${KAFKA_CONSUMER_GROUP}_file_public_release`,
   topic: process.env.KAFKA_PUBLIC_RELEASE_TOPIC || "files_public_release",
   dlq: DLQ_TOPIC_NAME,
 };
 const rdpcAnalysisUpdatesConsumer: KafkaConsumerConfiguration = {
-  group: KAFKA_CONSUMER_GROUP,
+  group: `${KAFKA_CONSUMER_GROUP}_rdpc`,
   topic: process.env.RDPC_PROGRAM_UPDATE_TOPIC || "song_analysis",
   dlq: DLQ_TOPIC_NAME,
 };
