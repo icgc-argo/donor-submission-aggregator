@@ -32,6 +32,7 @@ function createConsumer(
       rebalanceTimeout: config.rebalanceTimeout,
     });
     consumer.subscribe({
+      fromBeginning: false,
       topic: config.topic,
     });
     await consumer.connect();
