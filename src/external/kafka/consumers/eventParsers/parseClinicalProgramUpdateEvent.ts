@@ -1,5 +1,5 @@
 import logger from "logger";
-import { isNotAbsent } from "utils";
+import { isObjectLike, isString, isArray } from "lodash";
 
 type ClinicalProgramUpdateEvent = {
   programId: string;
@@ -7,15 +7,17 @@ type ClinicalProgramUpdateEvent = {
 };
 
 const isProgramUpdateEvent = (
-  data: unknown
-): data is ClinicalProgramUpdateEvent => {
-  if (data && typeof data === "object") {
-    const event = data as ClinicalProgramUpdateEvent;
-
-    if (isNotAbsent(event.programId) && typeof event.programId === "string") {
-      return true;
-    }
-    return false;
+  input: unknown
+): input is ClinicalProgramUpdateEvent => {
+  if (input && isObjectLike(input)) {
+    const event = input as ClinicalProgramUpdateEvent;
+    return (
+      isString(event.programId) &&
+      // donorIds is undefined or an array with all strings
+      (event.donorIds === undefined ||
+        (isArray(event.donorIds) &&
+          (event.donorIds as any[]).every((i) => isString(i))))
+    );
   }
   return false;
 };
