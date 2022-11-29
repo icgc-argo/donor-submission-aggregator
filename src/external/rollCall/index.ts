@@ -2,6 +2,7 @@ import fetch from "node-fetch";
 import {
   IndexReleaseRequest,
   CreateResolvableIndexRequest,
+  ResolvedIndexSchema,
   ResolvedIndex,
   RollCallClient,
 } from "./types";
@@ -29,13 +30,17 @@ const createRollcallClient = (config: RollcallConfig): RollCallClient => {
     };
 
     try {
-      const newResolvedIndex = (await fetch(url, {
+      const newResolvedIndex = await fetch(url, {
         method: "POST",
         body: JSON.stringify(req),
         headers: { "Content-Type": "application/json" },
-      }).then((res) => res.json())) as ResolvedIndex;
-
-      return newResolvedIndex;
+      }).then(async (res) => {
+        if (!res.ok) {
+          throw new Error(`Error while creating new index: ${res.statusText}`);
+        }
+        return await res.json();
+      });
+      return ResolvedIndexSchema.parse(newResolvedIndex);
     } catch (err) {
       logger.error("Failed to get new resolved index from rollcall: " + err);
       throw err;
