@@ -57,7 +57,7 @@ async function processSyncProgramEvent(
   const doClone = false;
 
   try {
-    withRetry(async (retry, attemptIndex) => {
+    await withRetry(async (retry, attemptIndex) => {
       const newResolvedIndex = await getNewResolvedIndex(
         programId,
         esClient,
