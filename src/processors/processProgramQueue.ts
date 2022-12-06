@@ -20,16 +20,16 @@ async function processProgramQueueEvent(
     logger.info(`Begin processing event: ${queuedEvent.type}`);
     switch (queuedEvent.type) {
       case KnownEventType.CLINICAL:
-        processClinicalUpdateEvent(queuedEvent, sendDlqMessage);
+        await processClinicalUpdateEvent(queuedEvent, sendDlqMessage);
         break;
       case KnownEventType.RDPC:
-        processRdpcAnalysisUpdateEvent(queuedEvent, sendDlqMessage);
+        await processRdpcAnalysisUpdateEvent(queuedEvent, sendDlqMessage);
         break;
       case KnownEventType.SYNC:
-        processSyncProgramEvent(queuedEvent, sendDlqMessage);
+        await processSyncProgramEvent(queuedEvent, sendDlqMessage);
         break;
       case KnownEventType.FILE_RELEASE:
-        processFileReleaseEvent(queuedEvent, sendDlqMessage);
+        await processFileReleaseEvent(queuedEvent, sendDlqMessage);
         break;
     }
   } catch (err) {

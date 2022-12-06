@@ -106,6 +106,8 @@ export const OPEN_ACCESS_REPO_URL =
 /**
  * Kafka Configs
  */
+export const DEFAULT_HEARTBEAT_INTERVAL = 12 * 1000;
+
 export const KAFKA_PROGRAM_QUEUE_TOPIC =
   process.env.KAFKA_PROGRAM_QUEUE_TOPIC || "donor_aggregator_program_queues";
 
@@ -143,7 +145,7 @@ const programQueueConsumer: KafkaConsumerConfiguration = {
   // HeartbeatInterval: Default 12*1000 = 12 seconds:
   heartbeatInterval:
     Number(process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_HEARTBEAT_INTERVAL) ||
-    12 * 1000,
+    DEFAULT_HEARTBEAT_INTERVAL,
   // Session Timeout: Default 120*1000 = 2 minutes, allows 1/10 heartbeat successes to stay connected
   sessionTimeout:
     Number(process.env.KAFKA_PROGRAM_QUEUE_CONSUMER_SESSION_TIMEOUT) ||
