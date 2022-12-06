@@ -15,6 +15,7 @@ function createConsumer(
   config: KafkaConsumerConfiguration,
   messageHandler: (
     message: KafkaMessage,
+    heartbeat: () => Promise<void>,
     sendDlqMessage: (messageJSON: string) => Promise<void>
   ) => Promise<void>
 ): KafkaConsumerWrapper {
@@ -47,9 +48,9 @@ function createConsumer(
     await consumer
       .run({
         partitionsConsumedConcurrently: config.partitionsConsumedConcurrently,
-        eachMessage: async ({ message }) => {
+        eachMessage: async ({ message, heartbeat }) => {
           logger.info(`New message received offset : ${message.offset}`);
-          await handleMessage(message, sendDlqMessage);
+          await handleMessage(message, heartbeat, sendDlqMessage);
           logger.debug(`Message handled ok`);
         },
       })
@@ -93,10 +94,11 @@ function createConsumer(
    */
   async function handleMessage(
     message: KafkaMessage,
+    heartbeat: () => Promise<void>,
     sendDlqMessage: (messageJSON: string) => Promise<void>
   ) {
     try {
-      await messageHandler(message, sendDlqMessage);
+      await messageHandler(message, heartbeat, sendDlqMessage);
     } catch (err) {
       logger.error(
         `Failed to handle program queue message, offset: ${message.offset}`,

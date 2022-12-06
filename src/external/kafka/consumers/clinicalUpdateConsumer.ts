@@ -1,10 +1,11 @@
 import { KafkaMessage } from "kafkajs";
 import createConsumer from "../createConsumer";
 import { queueProgramUpdateEvent } from "../producers/programQueueProducer";
-import { kafkaConfig } from "config";
+import { kafkaConfig, DEFAULT_HEARTBEAT_INTERVAL } from "config";
 import parseClinicalProgramUpdateEvent from "external/kafka/consumers/eventParsers/parseClinicalProgramUpdateEvent";
 import { isNotEmptyString } from "utils";
 import { KnownEventType } from "processors/types";
+import logger from "logger";
 
 /**
  * Clinical Update Event Consumer
@@ -17,6 +18,7 @@ const consumer = createConsumer(
 
 async function queueClinicalUpdateEvent(
   message: KafkaMessage,
+  heartbeat: () => Promise<void>,
   sendDlqMessage: (messageJSON: string) => Promise<void>
 ) {
   const stringMessage = message.value?.toString() || "";
@@ -24,10 +26,25 @@ async function queueClinicalUpdateEvent(
     message.value?.toString() || ""
   );
   if (isNotEmptyString(programId)) {
-    await queueProgramUpdateEvent({
-      programId,
-      type: KnownEventType.CLINICAL,
-    });
+    const heartbeatInterval = setInterval(
+      async () => await heartbeat(),
+      kafkaConfig.consumers.clinicalUpdates.heartbeatInterval ||
+        DEFAULT_HEARTBEAT_INTERVAL
+    );
+
+    try {
+      await queueProgramUpdateEvent({
+        programId,
+        type: KnownEventType.CLINICAL,
+      });
+    } catch (err) {
+      logger.error(
+        `Failed to process clinical update event: ${message.key?.toString()} ${message.value?.toString()}`,
+        err
+      );
+    } finally {
+      clearInterval(heartbeatInterval);
+    }
   } else {
     await sendDlqMessage(stringMessage);
   }
