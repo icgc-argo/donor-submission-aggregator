@@ -74,7 +74,7 @@
     "dotenv": "^8.2.0",
     "elastic-builder": "^2.7.1",
     "express": "^4.17.1",
-    "husky": "^4.3.0",
+    "husky": "^4.3.8",
     "kafkajs": "^2.2.3",
     "lodash": "^4.17.21",
     "node-vault": "^0.9.13",
