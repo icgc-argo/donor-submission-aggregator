@@ -28,7 +28,7 @@ services:
       ALLOW_ANONYMOUS_LOGIN: "yes"
 
   broker:
-    image: 2294fff7735f
+    image: confluentinc/cp-kafka:5.4.0
     hostname: kafka.aggregator.dev
     container_name: kafka.aggregator.dev
     depends_on:

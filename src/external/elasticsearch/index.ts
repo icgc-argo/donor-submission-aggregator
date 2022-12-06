@@ -74,8 +74,8 @@ export const createEsClient = async (): Promise<Client> => {
 };
 
 export const initIndexMapping = async (index: string, esClient: Client) => {
-  const serializedIndexName = index.toLowerCase();
   try {
+    const serializedIndexName = index.toLowerCase();
     await esClient.indices.putMapping({
       index: serializedIndexName,
       body: esMapping.mappings,
