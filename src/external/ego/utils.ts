@@ -11,7 +11,7 @@ import {
   EGO_APP_DCC_CLIENT_ID,
   EGO_APP_DCC_CLIENT_SECRET,
 } from "config";
-import { createVaultClient, loadVaultSecret } from "external/vault";
+import { loadVaultSecret } from "external/vault";
 import logger from "logger";
 
 export type EgoApplicationCredential = {
@@ -116,8 +116,7 @@ export const getEgoAppCredentials = async (
       ? VAULT_SECRET_PATH_EGO_APP_RDPC
       : VAULT_SECRET_PATH_EGO_APP_DCC;
   if (USE_VAULT && vaultPath) {
-    const vaultClient = createVaultClient();
-    const secret = await loadVaultSecret(vaultClient)(vaultPath);
+    const secret = await loadVaultSecret()(vaultPath);
     if (isEgoCredential(secret)) {
       return secret;
     } else {
