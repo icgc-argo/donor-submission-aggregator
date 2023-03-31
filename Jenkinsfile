@@ -61,6 +61,7 @@ spec:
                 'cut -d : -f2 | ' +
                 "sed \'s:[\",]::g\'"
         ).trim()
+        slackNotificationsUrl = credentials('JenkinsFailuresSlackChannelURL')
     }
 
     parameters {
@@ -99,7 +100,7 @@ spec:
             }
         }
 
-       stage('Publish tag to npm') {
+       stage('Publish tag to github') {
             when {
                 branch 'main'
             }
@@ -128,7 +129,7 @@ spec:
                                         \"text\":\"New ${gitHubRepo} published succesfully: v.${version}\
                                         \n[Build ${env.BUILD_NUMBER}] (${env.BUILD_URL})\" \
                                     }' \
-                            ${JenkinsTagsSlackChannelURL}"
+                                ${slackNotificationsUrl}"
                             } catch (err) {
                                 echo 'There was an error while publishing packages'
                             }
@@ -209,28 +210,24 @@ spec:
     }
 
     post {
-      unsuccessful {
-        // i used node container since it has curl already
-        container("node") {
-          script {
-            if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "develop") {
-              withCredentials([string(credentialsId: 'JenkinsFailuresSlackChannelURL', variable: 'JenkinsFailuresSlackChannelURL')]) {
-                sh "curl -X POST -H 'Content-type: application/json' --data '{\"text\":\"Build Failed: ${env.JOB_NAME} [${env.BUILD_NUMBER}] (${env.BUILD_URL}) \"}' ${JenkinsFailuresSlackChannelURL}"
-              }
+        unsuccessful {
+            // i used node   container since it has curl already
+            container('node') {
+                script {
+                    if (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop') {
+                        sh "curl -X POST -H 'Content-type: application/json' --data '{\"text\":\"Build Failed: ${env.JOB_NAME} [${env.BUILD_NUMBER}] (${env.BUILD_URL}) \"}' ${slackNotificationsUrl}"
+                    }
+                }
             }
-          }
         }
-      }
-      fixed {
-        container("node") {
-          script {
-            if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "develop") {
-              withCredentials([string(credentialsId: 'JenkinsFailuresSlackChannelURL', variable: 'JenkinsFailuresSlackChannelURL')]) {
-                sh "curl -X POST -H 'Content-type: application/json' --data '{\"text\":\"Build Fixed: ${env.JOB_NAME} [${env.BUILD_NUMBER}] (${env.BUILD_URL}) \"}' ${JenkinsFailuresSlackChannelURL}"
-              }
+        fixed {
+            container('node') {
+                script {
+                    if (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop') {
+                        sh "curl -X POST -H 'Content-type: application/json' --data '{\"text\":\"Build Fixed: ${env.JOB_NAME} [${env.BUILD_NUMBER}] (${env.BUILD_URL}) \"}' ${slackNotificationsUrl}"
+                    }
+                }
             }
-          }
         }
-      }
     }
 }
