@@ -1,39 +1,39 @@
-import { Program } from "external/kafka/consumers/eventParsers/parseFilePublicReleaseEvent";
+import { Program } from 'external/kafka/consumers/eventParsers/parseFilePublicReleaseEvent';
 
 export enum KnownEventType {
-  CLINICAL = "CLINICAL",
-  RDPC = "RDPC",
-  SYNC = "SYNC",
-  FILE_RELEASE = "FILE_RELEASE",
+	CLINICAL = 'CLINICAL',
+	RDPC = 'RDPC',
+	SYNC = 'SYNC',
+	FILE_RELEASE = 'FILE_RELEASE',
 }
 
 export type ClinicalUpdateEvent = {
-  type: KnownEventType.CLINICAL;
-  programId: string;
+	type: KnownEventType.CLINICAL;
+	programId: string;
 };
 export type AnalysisUpdateEvent = {
-  type: KnownEventType.RDPC;
-  programId: string;
-  rdpcGatewayUrls: Array<string>;
-  analysisId?: string;
+	type: KnownEventType.RDPC;
+	programId: string;
+	rdpcGatewayUrls: Array<string>;
+	analysisId?: string;
 };
 export type FileReleaseEvent = {
-  type: KnownEventType.FILE_RELEASE;
-  fileReleaseId: string;
-  publishedAt: string;
-  label: string;
-  programs: Program[];
+	type: KnownEventType.FILE_RELEASE;
+	fileReleaseId: string;
+	publishedAt: string;
+	label: string;
+	programs: Program[];
 };
 export type SyncProgramEvent = {
-  type: KnownEventType.SYNC;
-  programId: string;
-  rdpcGatewayUrls: Array<string>;
+	type: KnownEventType.SYNC;
+	programId: string;
+	rdpcGatewayUrls: Array<string>;
 };
 export type QueueRecord =
-  | ClinicalUpdateEvent
-  | AnalysisUpdateEvent
-  | FileReleaseEvent
-  | SyncProgramEvent;
+	| ClinicalUpdateEvent
+	| AnalysisUpdateEvent
+	| FileReleaseEvent
+	| SyncProgramEvent;
 
 /**
  * QueueRecord message structure validator
@@ -45,7 +45,7 @@ export type QueueRecord =
  * @returns
  */
 export const isQueueRecord = (input: any): input is QueueRecord => {
-  return Object.values(KnownEventType).includes(input.type);
+	return Object.values(KnownEventType).includes(input.type);
 };
 // export type ProgramQueueProcessor = {
 //   knownEventTypes: {
