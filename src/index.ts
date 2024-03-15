@@ -1,4 +1,4 @@
-import { featureFlags, PORT, RDPC_URL } from "config";
+import { featureFlags, GRAPHQL_PORT, PORT, RDPC_URL } from "config";
 import express from "express";
 import * as kafka from "external/kafka";
 import { queueProgramUpdateEvent } from "external/kafka/producers/programQueueProducer";
@@ -8,6 +8,8 @@ import { KnownEventType } from "processors/types";
 import * as swaggerUi from "swagger-ui-express";
 import yaml from "yamljs";
 import applyStatusReport from "./statusReport";
+import { startStandaloneServer } from "@apollo/server/standalone";
+import { apolloServer, gqlContext } from "gql/server";
 
 (async () => {
   /**
@@ -20,6 +22,12 @@ import applyStatusReport from "./statusReport";
     swaggerUi.serve,
     swaggerUi.setup(yaml.load(path.join(__dirname, "./assets/swagger.yaml")))
   );
+
+  const { url } = await startStandaloneServer(apolloServer, {
+    context: gqlContext,
+    listen: { port: GRAPHQL_PORT },
+  });
+  logger.info(`GQL serveer ready at port: ${GRAPHQL_PORT}`);
 
   expressApp.post("/index/program/:program_id", async (req, res) => {
     const programId = req.params.program_id;
