@@ -27,7 +27,7 @@ import { apolloServer, gqlContext } from "gql/server";
     context: gqlContext,
     listen: { port: GRAPHQL_PORT },
   });
-  logger.info(`GQL serveer ready at port: ${GRAPHQL_PORT}`);
+  logger.info(`GQL server ready at port: ${GRAPHQL_PORT}`);
 
   expressApp.post("/index/program/:program_id", async (req, res) => {
     const programId = req.params.program_id;
