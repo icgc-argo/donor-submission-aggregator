@@ -1,13 +1,15 @@
-import { featureFlags, PORT, RDPC_URL } from 'config';
-import express from 'express';
-import * as kafka from 'external/kafka';
-import { queueProgramUpdateEvent } from 'external/kafka/producers/programQueueProducer';
-import logger from 'logger';
-import path from 'path';
-import { KnownEventType } from 'processors/types';
-import * as swaggerUi from 'swagger-ui-express';
-import yaml from 'yamljs';
-import applyStatusReport from './statusReport';
+import { featureFlags, GRAPHQL_PORT, PORT, RDPC_URL } from "config";
+import express from "express";
+import * as kafka from "external/kafka";
+import { queueProgramUpdateEvent } from "external/kafka/producers/programQueueProducer";
+import logger from "logger";
+import path from "path";
+import { KnownEventType } from "processors/types";
+import * as swaggerUi from "swagger-ui-express";
+import yaml from "yamljs";
+import applyStatusReport from "./statusReport";
+import { startStandaloneServer } from "@apollo/server/standalone";
+import { apolloServer, gqlContext } from "gql/server";
 
 (async () => {
 	/**
@@ -21,13 +23,23 @@ import applyStatusReport from './statusReport';
 		swaggerUi.setup(yaml.load(path.join(__dirname, './assets/swagger.yaml'))),
 	);
 
-	expressApp.post('/index/program/:program_id', async (req, res) => {
-		const programId = req.params.program_id;
-		try {
-			logger.info(`received request to index program ${programId}, validating program id...`);
-			// validate programId:
-			const regex = new RegExp('^[A-Z0-9][-_A-Z0-9]{2,7}[-](([A-Z][A-Z])|(INTL))$');
-			const found = programId.match(regex);
+  const { url } = await startStandaloneServer(apolloServer, {
+    context: gqlContext,
+    listen: { port: GRAPHQL_PORT },
+  });
+  logger.info(`GQL server ready at port: ${GRAPHQL_PORT}`);
+
+  expressApp.post("/index/program/:program_id", async (req, res) => {
+    const programId = req.params.program_id;
+    try {
+      logger.info(
+        `received request to index program ${programId}, validating program id...`
+      );
+      // validate programId:
+      const regex = new RegExp(
+        "^[A-Z0-9][-_A-Z0-9]{2,7}[-](([A-Z][A-Z])|(INTL))$"
+      );
+      const found = programId.match(regex);
 
 			if (!found) {
 				return res

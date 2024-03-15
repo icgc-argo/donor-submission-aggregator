@@ -228,3 +228,9 @@ export const featureFlags = {
 	},
 	kafka: !FEATURE_DEV_DISABLE_KAFKA,
 };
+
+/**
+ * GraphQL
+ */
+export const GRAPHQL_PORT =
+  Number.parseInt(process.env.GRAPHQL_PORT || "") || 3001;
