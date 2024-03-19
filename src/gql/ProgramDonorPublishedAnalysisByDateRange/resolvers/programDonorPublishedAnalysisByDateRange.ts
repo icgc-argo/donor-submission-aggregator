@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 The Ontario Institute for Cancer Research. All rights reserved
+ * Copyright (c) 2024 The Ontario Institute for Cancer Research. All rights reserved
  * This program and the accompanying materials are made available under the terms of
  *
  * the GNU Affero General Public License v3.0. You should have received a copy of the
@@ -18,7 +18,6 @@
  */
 
 import esb from "elastic-builder";
-import { GlobalGqlContext } from "app";
 import { GraphQLFieldResolver } from "graphql";
 import {
   BaseQueryArguments,
@@ -29,10 +28,10 @@ import {
 import { Client } from "@elastic/elasticsearch";
 import { ELASTICSEARCH_PROGRAM_DONOR_DASHBOARD_INDEX } from "config";
 import { ApolloError, UserInputError } from "apollo-server-express";
-import { convertStringToISODate, validateISODate } from "utils/dateUtils";
+import { convertStringToISODate, validateISODate } from "utils";
 import { ELASTICSEARCH_DATE_TIME_FORMAT } from "../../../constants/elasticsearch";
 import { differenceInDays, sub as subDate, formatISO } from "date-fns";
-import logger from "utils/logger";
+import { GlobalGqlContext } from "gql/server";
 
 const programDonorPublishedAnalysisByDateRangeResolver: (
   esClient: Client
