@@ -18,16 +18,16 @@
  */
 
 import { IResolvers } from "graphql-tools";
-import { GlobalGqlContext } from "app";
 import programDonorSummaryEntriesAndStatsResolver from "./summaryEntriesAndStats";
 import { GraphQLFieldResolver } from "graphql";
-import egoTokenUtils from "utils/egoTokenUtils";
 import { AuthenticationError, ApolloError } from "apollo-server-express";
 import {
   BaseQueryArguments,
   ProgramDonorSummaryStatsGqlResponse,
 } from "./types";
 import { Client } from "@elastic/elasticsearch";
+import { GlobalGqlContext } from "gql/server";
+import { egoTokenUtils } from "external/ego/utils";
 class UnauthorizedError extends ApolloError {
   constructor(message: string) {
     super(message);

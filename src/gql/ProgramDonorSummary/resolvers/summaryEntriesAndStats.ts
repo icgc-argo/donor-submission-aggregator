@@ -18,7 +18,6 @@
  */
 
 import esb, { Query } from "elastic-builder";
-import { GlobalGqlContext } from "app";
 import { GraphQLFieldResolver } from "graphql";
 import {
   DonorSummaryEntry,
@@ -46,7 +45,8 @@ import {
   ENABLE_ELASTICSEARCH_LOGGING,
 } from "config";
 import { UserInputError } from "apollo-server-express";
-import logger from "utils/logger";
+import { GlobalGqlContext } from "gql/server";
+import logger from "logger";
 
 type DonorEntriesResolverType = GraphQLFieldResolver<
   unknown,

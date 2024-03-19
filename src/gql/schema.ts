@@ -18,7 +18,6 @@
  */
 
 import { buildSubgraphSchema } from "@apollo/subgraph";
-
 import typeDefs from "./typeDefs";
 import resolvers from "./resolvers";
 
