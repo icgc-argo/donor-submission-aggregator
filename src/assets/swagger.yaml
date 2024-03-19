@@ -9,10 +9,10 @@ paths:
       tags:
         - Health
       responses:
-        "500":
-          description: "app is not fully healthy"
-        "200":
-          description: "all components reporting healthy status"
+        '500':
+          description: 'app is not fully healthy'
+        '200':
+          description: 'all components reporting healthy status'
           content:
             application/json:
               schema:
@@ -23,19 +23,19 @@ paths:
         - Index Program
       description: index clinical and RDPC donors of a program
       parameters:
-        - name: "program_id"
-          in: "path"
+        - name: 'program_id'
+          in: 'path'
           description: shortname of a program
           required: true
-          type: "string"
+          type: 'string'
       responses:
-        "200":
+        '200':
           description: Successfully indexed a program
           content:
             application/json:
               schema:
                 type: object
-        "400":
+        '400':
           description: Program not found, please enter a valid program id
-        "500":
+        '500':
           description: Internal Server Error

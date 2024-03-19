@@ -25,100 +25,97 @@
  * we can parse them into proper Date objects when the `JSON.parse(donor)` is called.
  */
 export type ClinicalDonor = {
-  donorId: string;
-  gender: string;
-  programId: string;
-  submitterId: string;
-  createdAt: string;
-  updatedAt: string;
-  schemaMetadata: {
-    isValid: boolean;
-    lastValidSchemaVersion: string;
-    originalSchemaVersion: string;
-    lastMigrationId: string;
-  };
-  completionStats: {
-    coreCompletion: {
-      donor: number;
-      specimens: number;
-      primaryDiagnosis: number;
-      followUps: number;
-      treatments: number;
-    };
-    overriddenCoreCompletion: string[];
-    coreCompletionPercentage: number;
-    coreCompletionDate: string;
-  };
+	donorId: string;
+	gender: string;
+	programId: string;
+	submitterId: string;
+	createdAt: string;
+	updatedAt: string;
+	schemaMetadata: {
+		isValid: boolean;
+		lastValidSchemaVersion: string;
+		originalSchemaVersion: string;
+		lastMigrationId: string;
+	};
+	completionStats: {
+		coreCompletion: {
+			donor: number;
+			specimens: number;
+			primaryDiagnosis: number;
+			followUps: number;
+			treatments: number;
+		};
+		overriddenCoreCompletion: string[];
+		coreCompletionPercentage: number;
+		coreCompletionDate: string;
+	};
 
-  // core
-  specimens: ClinicalSpecimen[];
-  followUps: ClinicalFollowUp[];
-  primaryDiagnoses: ClinicalPrimaryDiagnosis[];
-  treatments: ClinicalTreatment[];
+	// core
+	specimens: ClinicalSpecimen[];
+	followUps: ClinicalFollowUp[];
+	primaryDiagnoses: ClinicalPrimaryDiagnosis[];
+	treatments: ClinicalTreatment[];
 
-  // expanded
-  familyHistory: ClinicalFamilyHistory[];
-  exposure: ClinicalExposure[];
-  comorbidity: ClinicalComorbidity[];
-  biomarker: ClinicalBiomarker[];
+	// expanded
+	familyHistory: ClinicalFamilyHistory[];
+	exposure: ClinicalExposure[];
+	comorbidity: ClinicalComorbidity[];
+	biomarker: ClinicalBiomarker[];
 };
 
-export type ClinicalInfo = Record<
-  string,
-  string | number | boolean | undefined
->;
+export type ClinicalInfo = Record<string, string | number | boolean | undefined>;
 
 export type ClinicalSpecimen = {
-  clinicalInfo: ClinicalInfo;
-  samples: ClinicalSample[];
-  specimenId: string;
-  submitterId: string;
-  tumourNormalDesignation: TumourNormalDesignation;
-  specimenType: string;
-  specimenTissueSource: string;
+	clinicalInfo: ClinicalInfo;
+	samples: ClinicalSample[];
+	specimenId: string;
+	submitterId: string;
+	tumourNormalDesignation: TumourNormalDesignation;
+	specimenType: string;
+	specimenTissueSource: string;
 };
 export type ClinicalSample = {
-  clinicalInfo: ClinicalInfo;
-  sampleId: string;
-  submitterId: string;
-  sampleType: string;
+	clinicalInfo: ClinicalInfo;
+	sampleId: string;
+	submitterId: string;
+	sampleType: string;
 };
 // TODO: The properties we want to index from the following types should be declared.
 export type ClinicalFollowUp = {
-  clinicalInfo: ClinicalInfo;
-  followUpId: string;
+	clinicalInfo: ClinicalInfo;
+	followUpId: string;
 };
 export type ClinicalPrimaryDiagnosis = {
-  clinicalInfo: ClinicalInfo;
-  primaryDiagnosisId: string;
+	clinicalInfo: ClinicalInfo;
+	primaryDiagnosisId: string;
 };
 export type ClinicalTreatment = {
-  clinicalInfo: ClinicalInfo;
-  therapies: ClinicalTherapy[];
-  treatmentId: string;
+	clinicalInfo: ClinicalInfo;
+	therapies: ClinicalTherapy[];
+	treatmentId: string;
 };
 export type ClinicalTherapy = {
-  clinicalInfo: ClinicalInfo;
-  therapyId: string;
+	clinicalInfo: ClinicalInfo;
+	therapyId: string;
 };
 export type ClinicalFamilyHistory = {
-  clinicalInfo: ClinicalInfo;
-  familyHistoryId: string;
+	clinicalInfo: ClinicalInfo;
+	familyHistoryId: string;
 };
 export type ClinicalExposure = {
-  clinicalInfo: ClinicalInfo;
-  exposureId: string;
+	clinicalInfo: ClinicalInfo;
+	exposureId: string;
 };
 export type ClinicalComorbidity = {
-  clinicalInfo: ClinicalInfo;
-  comorbidityId: string;
+	clinicalInfo: ClinicalInfo;
+	comorbidityId: string;
 };
 export type ClinicalBiomarker = {
-  clinicalInfo: ClinicalInfo;
-  biomarkerId: string;
+	clinicalInfo: ClinicalInfo;
+	biomarkerId: string;
 };
 
 export enum TumourNormalDesignation {
-  Tumour = "Tumour",
-  Normal = "Normal",
+	Tumour = 'Tumour',
+	Normal = 'Normal',
 }

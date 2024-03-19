@@ -1,3 +1,3 @@
 export type StreamState = {
-  currentPage: number;
+	currentPage: number;
 };
