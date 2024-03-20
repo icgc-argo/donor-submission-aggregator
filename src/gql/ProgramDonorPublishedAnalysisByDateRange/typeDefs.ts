@@ -17,7 +17,7 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { gql } from "apollo-server-express";
+import gql from "graphql-tag";
 
 export default gql`
   scalar DateTime

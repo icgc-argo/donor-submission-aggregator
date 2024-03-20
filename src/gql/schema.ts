@@ -17,9 +17,29 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { buildSubgraphSchema } from "@apollo/subgraph";
-import typeDefs from "./typeDefs";
-import resolvers from "./resolvers";
+import { makeExecutableSchema } from "graphql-tools";
+import { merge } from "lodash";
+import ProgramDonorSummary from "./ProgramDonorSummary/typeDefs";
+import ProgramDonorPublishedAnalysisByDateRange from "./ProgramDonorPublishedAnalysisByDateRange/typeDefs";
+import createResolversProgramDonorSummary from "./ProgramDonorSummary/resolvers";
+import createResolversProgramDonorPublishedAnalysisByDateRange from "./ProgramDonorPublishedAnalysisByDateRange/resolvers";
+import { Client } from "@elastic/elasticsearch";
 
-export { typeDefs, resolvers };
-export default buildSubgraphSchema({ typeDefs, resolvers });
+const createSchema = async ({ esClient }: { esClient: Client }) => {
+  const ProgramSummaryResolvers = await createResolversProgramDonorSummary(
+    esClient
+  );
+  const ProgramDonorPublishedAnalysisByDateRangeResolvers = await createResolversProgramDonorPublishedAnalysisByDateRange(
+    esClient
+  );
+
+  return makeExecutableSchema({
+    typeDefs: [ProgramDonorSummary, ProgramDonorPublishedAnalysisByDateRange],
+    resolvers: merge(
+      ProgramSummaryResolvers,
+      ProgramDonorPublishedAnalysisByDateRangeResolvers
+    ),
+  });
+};
+
+export default createSchema;

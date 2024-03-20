@@ -17,7 +17,6 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { IResolvers } from "graphql-tools";
 import programDonorSummaryEntriesAndStatsResolver from "./summaryEntriesAndStats";
 import { GraphQLFieldResolver } from "graphql";
 import { AuthenticationError, ApolloError } from "apollo-server-express";
@@ -28,6 +27,7 @@ import {
 import { Client } from "@elastic/elasticsearch";
 import { GlobalGqlContext } from "gql/server";
 import { egoTokenUtils } from "external/ego/utils";
+import { IResolvers } from "@graphql-tools/utils";
 class UnauthorizedError extends ApolloError {
   constructor(message: string) {
     super(message);
