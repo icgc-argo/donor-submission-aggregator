@@ -17,29 +17,42 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { makeExecutableSchema } from "graphql-tools";
-import { merge } from "lodash";
-import ProgramDonorSummary from "./ProgramDonorSummary/typeDefs";
-import ProgramDonorPublishedAnalysisByDateRange from "./ProgramDonorPublishedAnalysisByDateRange/typeDefs";
-import createResolversProgramDonorSummary from "./ProgramDonorSummary/resolvers";
-import createResolversProgramDonorPublishedAnalysisByDateRange from "./ProgramDonorPublishedAnalysisByDateRange/resolvers";
-import { Client } from "@elastic/elasticsearch";
-
-const createSchema = async ({ esClient }: { esClient: Client }) => {
-  const ProgramSummaryResolvers = await createResolversProgramDonorSummary(
-    esClient
-  );
-  const ProgramDonorPublishedAnalysisByDateRangeResolvers = await createResolversProgramDonorPublishedAnalysisByDateRange(
-    esClient
-  );
-
-  return makeExecutableSchema({
-    typeDefs: [ProgramDonorSummary, ProgramDonorPublishedAnalysisByDateRange],
-    resolvers: merge(
-      ProgramSummaryResolvers,
-      ProgramDonorPublishedAnalysisByDateRangeResolvers
-    ),
-  });
+export type BaseQueryArguments = {
+  programShortName: string;
 };
 
-export default createSchema;
+export type ResponseBucket = {
+  date: string;
+  donors: number;
+};
+
+export type ProgramDonorGqlResponse = {
+  buckets: ResponseBucket[];
+  title: string;
+};
+
+// keys are from elasticsearch
+export type EsAggsBucket = {
+  doc_count: number;
+  key: string;
+  to_as_string: string; // ISO date time
+  to: number;
+};
+
+export type EsAggsBuckets = {
+  buckets: EsAggsBucket[];
+};
+
+export type DonorFields =
+  | "alignmentFirstPublishedDate"
+  | "coreCompletionDate"
+  | "mutectFirstPublishedDate"
+  | "rawReadsFirstPublishedDate"
+  | "sangerVcsFirstPublishedDate"
+  | "openAccessFirstPublishedDate"
+  | "rnaRawReadsFirstPublishedDate"
+  | "rnaAlignmentFirstPublishedDate";
+
+export type EsAggs = {
+  [key in DonorFields]: EsAggsBuckets;
+};

@@ -9,7 +9,8 @@ import * as swaggerUi from "swagger-ui-express";
 import yaml from "yamljs";
 import applyStatusReport from "./statusReport";
 import { startStandaloneServer } from "@apollo/server/standalone";
-import { apolloServer, gqlContext } from "gql/server";
+import { createApolloServer, gqlContext } from "gql/server";
+import { getEsClient } from "external/elasticsearch";
 
 (async () => {
 	/**
@@ -23,6 +24,8 @@ import { apolloServer, gqlContext } from "gql/server";
 		swaggerUi.setup(yaml.load(path.join(__dirname, './assets/swagger.yaml'))),
 	);
 
+  const esClient = await getEsClient();
+  const apolloServer = await createApolloServer({ esClient });
   const { url } = await startStandaloneServer(apolloServer, {
     context: gqlContext,
     listen: { port: GRAPHQL_PORT },

@@ -20,7 +20,8 @@
 import { ApolloServer, ContextFunction } from "@apollo/server";
 import { StandaloneServerContextFunctionArgument } from "@apollo/server/standalone";
 import { EgoJwtData } from "@icgc-argo/ego-token-utils/dist/common";
-import schema from "./schema";
+import { Client } from "@elastic/elasticsearch";
+import createSchema from "./schema";
 
 export type GlobalGqlContext = {
   egoToken: string;
@@ -53,6 +54,14 @@ export const gqlContext: ContextFunction<
   };
 };
 
-export const apolloServer = new ApolloServer({
-  schema,
-});
+export const createApolloServer = async ({
+  esClient,
+}: {
+  esClient: Client;
+}) => {
+  const schema = await createSchema({ esClient });
+
+  return new ApolloServer({
+    schema,
+  });
+};
