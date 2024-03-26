@@ -47,3 +47,22 @@ export const convertStringToISODate = (dateInput: string | Date) => {
   const result = formatISO(date);
   return new Date(result);
 };
+
+/** Date Utils */
+
+export const validateISODate = (dateInput: string | Date) => {
+  const date = new Date(dateInput);
+  try {
+    const result = formatISO(date);
+    return !!result;
+  } catch (err) {
+    logger.error(`Date string can't be used as an ISO string: ${err}`);
+    return false;
+  }
+};
+
+export const convertStringToISODate = (dateInput: string | Date) => {
+  const date = new Date(dateInput);
+  const result = formatISO(date);
+  return new Date(result);
+};
