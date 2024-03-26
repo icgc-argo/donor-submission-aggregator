@@ -16,36 +16,43 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import { formatISO } from "date-fns";
-import logger from "logger";
 
-export const isNotAbsent = (
-  value: string | number | boolean | undefined
-): value is string | number | boolean => {
-  return value !== null && value !== undefined;
+export type BaseQueryArguments = {
+  programShortName: string;
 };
 
-export const isNotEmptyString = (
-  value: string | undefined
-): value is string => {
-  return isNotAbsent(value) && value.trim() !== "";
+export type ResponseBucket = {
+  date: string;
+  donors: number;
 };
 
-/** Date Utils */
-
-export const validateISODate = (dateInput: string | Date) => {
-  const date = new Date(dateInput);
-  try {
-    const result = formatISO(date);
-    return !!result;
-  } catch (err) {
-    logger.error(`Date string can't be used as an ISO string: ${err}`);
-    return false;
-  }
+export type ProgramDonorGqlResponse = {
+  buckets: ResponseBucket[];
+  title: string;
 };
 
-export const convertStringToISODate = (dateInput: string | Date) => {
-  const date = new Date(dateInput);
-  const result = formatISO(date);
-  return new Date(result);
+// keys are from elasticsearch
+export type EsAggsBucket = {
+  doc_count: number;
+  key: string;
+  to_as_string: string; // ISO date time
+  to: number;
+};
+
+export type EsAggsBuckets = {
+  buckets: EsAggsBucket[];
+};
+
+export type DonorFields =
+  | "alignmentFirstPublishedDate"
+  | "coreCompletionDate"
+  | "mutectFirstPublishedDate"
+  | "rawReadsFirstPublishedDate"
+  | "sangerVcsFirstPublishedDate"
+  | "openAccessFirstPublishedDate"
+  | "rnaRawReadsFirstPublishedDate"
+  | "rnaAlignmentFirstPublishedDate";
+
+export type EsAggs = {
+  [key in DonorFields]: EsAggsBuckets;
 };

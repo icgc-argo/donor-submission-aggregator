@@ -268,3 +268,13 @@ export const featureFlags = {
  */
 export const GRAPHQL_PORT =
   Number.parseInt(process.env.GRAPHQL_PORT || "") || 3001;
+
+/**
+ * Elasticsearch
+ */
+
+export const ELASTICSEARCH_PROGRAM_DONOR_DASHBOARD_INDEX =
+  process.env.ELASTICSEARCH_PROGRAM_DONOR_DASHBOARD_INDEX || "donor_centric";
+
+export const ENABLE_ELASTICSEARCH_LOGGING =
+  process.env.ENABLE_ELASTICSEARCH_LOGGING === "true";

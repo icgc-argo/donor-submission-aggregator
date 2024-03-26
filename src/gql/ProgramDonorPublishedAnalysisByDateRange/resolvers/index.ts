@@ -17,10 +17,26 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-const resolvers = {
-  Query: {
-    ping: () => true,
-  },
+import { Client } from "@elastic/elasticsearch";
+import { resolveWithProgramAuth } from "../../ProgramDonorSummary/resolvers";
+import programDonorPublishedAnalysisByDateRangeResolver from "./programDonorPublishedAnalysisByDateRange";
+import { GlobalGqlContext } from "gql/server";
+import { IResolvers } from "@graphql-tools/utils";
+
+const createResolvers = async (
+  esClient: Client
+): Promise<IResolvers<unknown, GlobalGqlContext>> => {
+  return {
+    Query: {
+      programDonorPublishedAnalysisByDateRange: (...resolverArguments) =>
+        resolveWithProgramAuth(
+          programDonorPublishedAnalysisByDateRangeResolver(esClient)(
+            ...resolverArguments
+          ),
+          resolverArguments
+        ),
+    },
+  };
 };
 
-export default resolvers;
+export default createResolvers;
