@@ -18,15 +18,9 @@
  */
 
 import programDonorSummaryEntriesAndStatsResolver from "./summaryEntriesAndStats";
-import { GraphQLFieldResolver } from "graphql";
-import { AuthenticationError, ApolloError } from "apollo-server-express";
-import {
-  BaseQueryArguments,
-  ProgramDonorSummaryStatsGqlResponse,
-} from "./types";
+import { ProgramDonorSummaryStatsGqlResponse } from "./types";
 import { Client } from "@elastic/elasticsearch";
 import { GlobalGqlContext } from "gql/server";
-import { egoTokenUtils } from "external/ego/utils";
 import { IResolvers } from "@graphql-tools/utils";
 import { resolveWithProgramAuth } from "gql/auth";
 
