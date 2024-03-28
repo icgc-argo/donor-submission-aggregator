@@ -76,7 +76,7 @@
     "@apollo/subgraph": "^2.5.2",
     "@elastic/elasticsearch": "^7.5.0",
     "@graphql-tools/utils": "^10.1.2",
-    "@icgc-argo/ego-token-utils": "^8.0.0",
+    "@icgc-argo/ego-token-utils": "file:../ego-token-utils",
     "apollo-server-express": "^3.13.0",
     "date-fns": "^3.6.0",
     "dotenv": "^8.2.0",

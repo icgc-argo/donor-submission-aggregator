@@ -18,10 +18,10 @@
  */
 
 import { Client } from "@elastic/elasticsearch";
-import { resolveWithProgramAuth } from "../../ProgramDonorSummary/resolvers";
 import programDonorPublishedAnalysisByDateRangeResolver from "./programDonorPublishedAnalysisByDateRange";
 import { GlobalGqlContext } from "gql/server";
 import { IResolvers } from "@graphql-tools/utils";
+import { resolveWithProgramAuth } from "gql/auth";
 
 const createResolvers = async (
   esClient: Client

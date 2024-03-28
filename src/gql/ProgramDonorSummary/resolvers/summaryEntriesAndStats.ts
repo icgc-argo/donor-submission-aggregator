@@ -69,6 +69,7 @@ const programDonorSummaryEntriesAndStatsResolver: (
   const { programShortName } = args;
 
   const MAXIMUM_SUMMARY_PAGE_SIZE = 500;
+
   if (args.first > MAXIMUM_SUMMARY_PAGE_SIZE) {
     throw new UserInputError(
       `Max page size of ${MAXIMUM_SUMMARY_PAGE_SIZE} exceeded`,
