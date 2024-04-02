@@ -22,6 +22,7 @@ import { egoTokenUtils } from "external/ego/utils";
 import { GraphQLFieldResolver } from "graphql";
 import { BaseQueryArguments } from "./ProgramDonorSummary/resolvers/types";
 import { GlobalGqlContext } from "./server";
+import { RDPC_CODE } from "config";
 
 class UnauthorizedError extends ApolloError {
   constructor(message: string) {
@@ -49,7 +50,6 @@ export const resolveWithProgramAuth = <
   } = egoTokenUtils;
 
   const programId = args.programShortName;
-  const rdpcCode = args.rdpcCode;
 
   if (egoToken) {
     const permissions = getPermissionsFromToken(egoToken);
@@ -62,7 +62,7 @@ export const resolveWithProgramAuth = <
         permissions,
         programId,
       }) ||
-      canReadFromRdpc({ permissions, rdpcCode });
+      canReadFromRdpc({ permissions, rdpcCode: RDPC_CODE });
 
     const authorized = egoToken && isValidJwt(egoToken) && hasPermission;
 
