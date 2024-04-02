@@ -49,6 +49,7 @@ export const resolveWithProgramAuth = <
   } = egoTokenUtils;
 
   const programId = args.programShortName;
+  const rdpcCode = args.rdpcCode;
 
   if (egoToken) {
     const permissions = getPermissionsFromToken(egoToken);
@@ -61,7 +62,7 @@ export const resolveWithProgramAuth = <
         permissions,
         programId,
       }) ||
-      canReadFromRdpc({ permissions, programId });
+      canReadFromRdpc({ permissions, rdpcCode });
 
     const authorized = egoToken && isValidJwt(egoToken) && hasPermission;
 
