@@ -190,7 +190,6 @@ export type DonorSummaryEntrySort = {
   order: SortOrder;
 };
 export type BaseQueryArguments = {
-  rdpcCode: string;
   programShortName: string;
 };
 
