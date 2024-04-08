@@ -18,63 +18,11 @@
  */
 
 import programDonorSummaryEntriesAndStatsResolver from "./summaryEntriesAndStats";
-import { GraphQLFieldResolver } from "graphql";
-import { AuthenticationError, ApolloError } from "apollo-server-express";
-import {
-  BaseQueryArguments,
-  ProgramDonorSummaryStatsGqlResponse,
-} from "./types";
+import { ProgramDonorSummaryStatsGqlResponse } from "./types";
 import { Client } from "@elastic/elasticsearch";
 import { GlobalGqlContext } from "gql/server";
-import { egoTokenUtils } from "external/ego/utils";
 import { IResolvers } from "@graphql-tools/utils";
-class UnauthorizedError extends ApolloError {
-  constructor(message: string) {
-    super(message);
-  }
-  extensions = {
-    code: "UNAUTHORIZED",
-  };
-}
-
-export const resolveWithProgramAuth = <
-  ResolverType = GraphQLFieldResolver<unknown, unknown, unknown>
->(
-  resolver: ResolverType,
-  gqlResolverArguments: [unknown, BaseQueryArguments, GlobalGqlContext, unknown]
-): ResolverType => {
-  const [_, args, context] = gqlResolverArguments;
-  const { egoToken } = context;
-  const {
-    getPermissionsFromToken,
-    isValidJwt,
-    canReadProgramData,
-    canReadProgram,
-  } = egoTokenUtils;
-
-  if (egoToken) {
-    const permissions = getPermissionsFromToken(egoToken);
-    const hasPermission =
-      canReadProgram({
-        permissions,
-        programId: args.programShortName,
-      }) ||
-      canReadProgramData({
-        permissions,
-        programId: args.programShortName,
-      });
-
-    const authorized = egoToken && isValidJwt(egoToken) && hasPermission;
-
-    if (authorized) {
-      return resolver;
-    } else {
-      throw new UnauthorizedError("unauthorized");
-    }
-  } else {
-    throw new AuthenticationError("you must be logged in to access this data");
-  }
-};
+import { resolveWithProgramAuth } from "gql/auth";
 
 const createResolvers = async (
   esClient: Client

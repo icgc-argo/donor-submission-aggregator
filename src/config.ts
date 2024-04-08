@@ -244,3 +244,8 @@ export const ELASTICSEARCH_PROGRAM_DONOR_DASHBOARD_INDEX =
 
 export const ENABLE_ELASTICSEARCH_LOGGING =
   process.env.ENABLE_ELASTICSEARCH_LOGGING === "true";
+
+/**
+ * RDPC
+ */
+export const RDPC_CODE = process.env.RDPC_CODE || "";
