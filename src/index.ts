@@ -8,6 +8,7 @@ import { KnownEventType } from 'processors/types';
 import * as swaggerUi from 'swagger-ui-express';
 import yaml from 'yamljs';
 import applyStatusReport from './statusReport';
+import indexingRouter from './routes/indexing';
 
 (async () => {
 	/**
@@ -21,32 +22,7 @@ import applyStatusReport from './statusReport';
 		swaggerUi.setup(yaml.load(path.join(__dirname, './assets/swagger.yaml'))),
 	);
 
-	expressApp.post('/index/program/:program_id', async (req, res) => {
-		const programId = req.params.program_id;
-		try {
-			logger.info(`received request to index program ${programId}, validating program id...`);
-			// validate programId:
-			const regex = new RegExp('^[A-Z0-9][-_A-Z0-9]{2,7}[-](([A-Z][A-Z])|(INTL))$');
-			const found = programId.match(regex);
-
-			if (!found) {
-				return res
-					.status(400)
-					.send(`ProgramId (${programId}) is invalid, please enter a valid programId.`);
-			} else {
-				await queueProgramUpdateEvent({
-					programId: programId,
-					type: KnownEventType.SYNC,
-					rdpcGatewayUrls: [RDPC_URL],
-				});
-				logger.info(`Program ${programId} has been queued for indexing.`);
-				return res.status(200).send(`Program ${programId} has been queued for indexing.`);
-			}
-		} catch (error) {
-			logger.error('Error in processing index program request: ' + error);
-			return res.status(500).send(`Failed to queue program ${programId} for indexing.`);
-		}
-	});
+	expressApp.post('/index', indexingRouter);
 
 	// Initialize Kafka Consumers and Producers
 	//  - Can be disabled to simplify running in dev, set FLAG_DEV_DISABLE_KAFKA=true in .env
