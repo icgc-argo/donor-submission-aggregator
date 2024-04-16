@@ -33,7 +33,9 @@ import indexingRouter from "routes/indexing";
   });
   logger.info(`GQL server ready at port: ${GRAPHQL_PORT}`);
 
-  expressApp.post("/index", indexingRouter);
+  if (featureFlags.endpoint.index) {
+    expressApp.post("/index", indexingRouter);
+  }
 
   // Initialize Kafka Consumers and Producers
   //  - Can be disabled to simplify running in dev, set FLAG_DEV_DISABLE_KAFKA=true in .env
