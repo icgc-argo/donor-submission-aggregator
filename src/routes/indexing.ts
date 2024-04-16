@@ -17,8 +17,10 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { RDPC_URL } from "config";
+import { getTokenFromRequest } from "auth";
+import { RDPC_CODE, RDPC_URL } from "config";
 import express from "express";
+import { egoTokenUtils } from "external/ego/utils";
 import { queueProgramUpdateEvent } from "external/kafka/producers/programQueueProducer";
 import logger from "logger";
 import { KnownEventType } from "processors/types";
@@ -27,6 +29,18 @@ const indexingRouter = express.Router({ mergeParams: true });
 
 indexingRouter.post("/program/:program_id", async (req, res) => {
   const programId = req.params.program_id;
+
+  const egoToken = await getTokenFromRequest(req);
+  const { canWriteToRdpc, getPermissionsFromToken } = egoTokenUtils;
+
+  if (egoToken) {
+    const permissions = getPermissionsFromToken(egoToken);
+    const isAuthorized = canWriteToRdpc({ permissions, rdpcCode: RDPC_CODE });
+    if (!isAuthorized) {
+      return res.sendStatus(401);
+    }
+  }
+
   try {
     logger.info(
       `received request to index program ${programId}, validating program id...`
