@@ -35,15 +35,11 @@ dotenv.config({
 
 export const PORT = Number(process.env.PORT || 7000);
 
-export const EGO_URL_RDPC = process.env.EGO_URL_RDPC || 'http://localhost:8081';
-export const EGO_URL_DCC = process.env.EGO_URL_DCC || 'http://localhost:8081';
+export const EGO_URL = process.env.EGO_URL || 'http://localhost:8081';
 
-export const EGO_APP_RDPC_CLIENT_ID =
+export const EGO_APP_CLIENT_ID =
 	process.env.EGO_APP_RDPC_CLIENT_ID || 'donor-submission-aggregator-rdpc';
-export const EGO_APP_RDPC_CLIENT_SECRET = process.env.EGO_APP_RDPC_CLIENT_SECRET || 'top-secret';
-export const EGO_APP_DCC_CLIENT_ID =
-	process.env.EGO_APP_DCC_CLIENT_ID || 'donor-submission-aggregator-dcc';
-export const EGO_APP_DCC_CLIENT_SECRET = process.env.EGO_APP_RDPC_CLIENT_SECRET || 'top-secret';
+export const EGO_APP_CLIENT_SECRET = process.env.EGO_APP_RDPC_CLIENT_SECRET || 'top-secret';
 
 export const EGO_PUBLIC_KEY = process.env.EGO_PUBLIC_KEY as string;
 export const RDPC_URL = process.env.RDPC_URL || 'http://localhost:8000';
@@ -174,8 +170,7 @@ export const VAULT_URL = process.env.VAULT_URL as string;
 export const VAULT_ROLE = process.env.VAULT_ROLE as string;
 export const VAULT_ES_SECRET_PATH = process.env.VAULT_ES_SECRET_PATH as string;
 export const VAULT_EGO_SECRET_PATH = process.env.VAULT_EGO_SECRET_PATH as string;
-export const VAULT_SECRET_PATH_EGO_APP_RDPC = process.env.VAULT_SECRET_PATH_EGO_APP_RDPC;
-export const VAULT_SECRET_PATH_EGO_APP_DCC = process.env.VAULT_SECRET_PATH_EGO_APP_DCC;
+export const VAULT_SECRET_PATH_EGO_APP = process.env.VAULT_SECRET_PATH_EGO_APP;
 const REQUIRED_VAULT_CONFIGS = {
 	VAULT_AUTH_METHOD,
 	VAULT_URL,
