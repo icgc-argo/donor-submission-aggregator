@@ -1,10 +1,10 @@
-import { expect } from 'chai';
-import createRollcallClient from './index';
-import { GenericContainer, StartedTestContainer, Wait } from 'testcontainers';
 import { Client } from '@elastic/elasticsearch';
-import { Duration, TemporalUnit } from 'node-duration';
-import { RollCallClient } from './types';
+import { expect } from 'chai';
 import { rollcallConfig } from 'config';
+import { Duration, TemporalUnit } from 'node-duration';
+import { GenericContainer, StartedTestContainer, Wait } from 'testcontainers';
+import createRollcallClient from './index';
+import { RollCallClient } from './types';
 
 describe('rollcall integration', () => {
 	let elasticsearchContainer: StartedTestContainer;

@@ -1,16 +1,15 @@
-import fetch from 'node-fetch';
-import { Analysis, AnalysisState, AnalysisType, WorkflowName } from '../types';
-import logger from 'logger';
-import promiseRetry from 'promise-retry';
-import _ from 'lodash';
-import { getEgoToken } from 'external/ego';
 import {
 	MUTECT_REPO_URL,
-	SANGER_VC_REPO_URL,
-	SEQ_ALIGN_REPO_URL,
 	OPEN_ACCESS_REPO_URL,
 	RNA_SEQ_ALIGN_REPO_URL,
+	SANGER_VC_REPO_URL,
+	SEQ_ALIGN_REPO_URL,
 } from 'config';
+import { getEgoToken } from 'external/ego';
+import logger from 'logger';
+import fetch from 'node-fetch';
+import promiseRetry from 'promise-retry';
+import { Analysis, AnalysisState, AnalysisType, WorkflowName } from '../types';
 import { QueryVariable } from './types';
 
 const query = `

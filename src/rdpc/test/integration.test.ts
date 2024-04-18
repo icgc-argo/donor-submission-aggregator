@@ -5,8 +5,11 @@ import { initIndexMapping } from 'external/elasticsearch';
 import { EsHit } from 'indexClinicalData/types';
 import { Duration, TemporalUnit } from 'node-duration';
 import { indexRdpcData } from 'rdpc';
-import { GenericContainer, StartedTestContainer, Wait } from 'testcontainers';
 import fetchAnalyses from 'rdpc/query/fetchAnalyses';
+import fetchVariantCallingAnalyses from 'rdpc/query/fetchVariantCallingAnalyses';
+import { GenericContainer, StartedTestContainer, Wait } from 'testcontainers';
+import fetchAnalysesWithSpecimens from '../query/fetchAnalysesWithSpecimens';
+import { Analysis, AnalysisType, WorkflowName } from '../types';
 import { clinicalDataset, expectedRDPCData } from './fixtures/integrationTest/dataset';
 import {
 	seqAlignmentAnalyses_mutect,
@@ -16,9 +19,6 @@ import {
 	variantCallingAnalyses,
 	variantCallingAnalyses_open,
 } from './fixtures/integrationTest/mockAnalyses';
-import { Analysis, AnalysisType, WorkflowName } from '../types';
-import fetchAnalysesWithSpecimens from '../query/fetchAnalysesWithSpecimens';
-import fetchVariantCallingAnalyses from 'rdpc/query/fetchVariantCallingAnalyses';
 
 describe('should index RDPC analyses to donor index', () => {
 	let elasticsearchContainer: StartedTestContainer;

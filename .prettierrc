@@ -3,5 +3,6 @@
 	"printWidth": 100,
 	"trailingComma": "all",
 	"singleQuote": true,
-	"useTabs": true
+	"useTabs": true,
+	"plugins": ["prettier-plugin-organize-imports"]
 }

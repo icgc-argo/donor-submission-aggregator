@@ -1,5 +1,5 @@
-import { getEgoToken } from 'external/ego';
 import { FILES_SERVICE_URL, FILES_STREAM_SIZE } from 'config';
+import { getEgoToken } from 'external/ego';
 import logger from 'logger';
 import fetch from 'node-fetch';
 import promiseRetry from 'promise-retry';

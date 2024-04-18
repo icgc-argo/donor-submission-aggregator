@@ -1,18 +1,18 @@
 import egoTokenUtils from '@icgc-argo/ego-token-utils';
-import _ from 'lodash';
-import fetch from 'node-fetch';
-import urlJoin from 'url-join';
 import {
-	USE_VAULT,
-	VAULT_SECRET_PATH_EGO_APP_RDPC,
-	VAULT_SECRET_PATH_EGO_APP_DCC,
-	EGO_APP_RDPC_CLIENT_ID,
-	EGO_APP_RDPC_CLIENT_SECRET,
 	EGO_APP_DCC_CLIENT_ID,
 	EGO_APP_DCC_CLIENT_SECRET,
+	EGO_APP_RDPC_CLIENT_ID,
+	EGO_APP_RDPC_CLIENT_SECRET,
+	USE_VAULT,
+	VAULT_SECRET_PATH_EGO_APP_DCC,
+	VAULT_SECRET_PATH_EGO_APP_RDPC,
 } from 'config';
 import { loadVaultSecret } from 'external/vault';
+import _ from 'lodash';
 import logger from 'logger';
+import fetch from 'node-fetch';
+import urlJoin from 'url-join';
 
 export type EgoApplicationCredential = {
 	clientId: string;

@@ -1,7 +1,7 @@
 import fetchAnalyses from 'rdpc/query/fetchAnalyses';
 import {
-	countRnaAlignmentRunState,
 	countAlignmentRunState,
+	countRnaAlignmentRunState,
 	getAllMergedDonor,
 } from '../analysesProcessor';
 import { AnalysisType, DonorInfoMap, WorkflowName } from '../types';

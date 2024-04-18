@@ -9,6 +9,7 @@ import { queueProgramUpdateEvent } from 'external/kafka/producers/programQueuePr
 import { EsHit } from 'indexClinicalData/types';
 import { Kafka } from 'kafkajs';
 import { Duration, TemporalUnit } from 'node-duration';
+import processRdpcAnalysisUpdateEvent from 'processors/processRdpcAnalysisUpdate';
 import {
 	clinicalDataset,
 	expectedRDPCData,
@@ -20,15 +21,14 @@ import { promisify } from 'util';
 import * as kafka from '../../external/kafka';
 import createRollCallClient from '../../external/rollCall';
 import { RollCallClient } from '../../external/rollCall/types';
+import processClinicalUpdateEvent from '../processClinicalUpdate';
+import { KnownEventType } from '../types';
+import { generateIndexName } from '../util';
 import {
 	mockAnalysesWithSpecimensFetcher,
 	mockAnalysisFetcher,
 	mockVariantCallingFetcher,
 } from './MockFetch';
-import processClinicalUpdateEvent from '../processClinicalUpdate';
-import { KnownEventType } from '../types';
-import { generateIndexName } from '../util';
-import processRdpcAnalysisUpdateEvent from 'processors/processRdpcAnalysisUpdate';
 
 const TEST_US = 'TEST-US';
 const TEST_CA = 'TEST-CA';

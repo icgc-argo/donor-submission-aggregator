@@ -1,8 +1,8 @@
-import { kafkaConfig, DEFAULT_HEARTBEAT_INTERVAL } from 'config';
+import { DEFAULT_HEARTBEAT_INTERVAL, kafkaConfig } from 'config';
 import { KafkaMessage } from 'kafkajs';
+import logger from 'logger';
 import processProgramQueueEvent from 'processors/processProgramQueue';
 import createConsumer from '../createConsumer';
-import logger from 'logger';
 
 /**
  * Receive events from the program queue and initiate the appropriate process for that event.

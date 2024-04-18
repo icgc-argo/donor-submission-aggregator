@@ -1,8 +1,8 @@
+import { APP_DIR } from 'config';
 import express from 'express';
+import { promises } from 'fs';
 import logger from 'logger';
 import path from 'path';
-import { promises } from 'fs';
-import { APP_DIR } from 'config';
 
 const packageJson = promises
 	.readFile(path.resolve(APP_DIR, '../package.json'), 'utf-8')
