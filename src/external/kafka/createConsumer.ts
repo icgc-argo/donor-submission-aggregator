@@ -1,4 +1,4 @@
-import { kafkaConfig, KafkaConsumerConfiguration } from 'config';
+import { KafkaConsumerConfiguration } from 'config';
 import { Consumer, Kafka, KafkaMessage, Producer } from 'kafkajs';
 import logger from 'logger';
 

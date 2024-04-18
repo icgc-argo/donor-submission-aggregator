@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import {
-	getLatestRun,
-	getAllRunsByAnalysesByDonors,
-	toDonorCentric,
 	countAlignmentRunState,
 	countVCRunState,
+	getAllRunsByAnalysesByDonors,
+	getLatestRun,
 	removeCompleteRunsWithSuppressedAnalyses,
+	toDonorCentric,
 } from 'rdpc/analysesProcessor';
 import { findEarliestAvailableSamplePair, findMatchedTNPairs } from '../findMatchedTNPairs';
 import {

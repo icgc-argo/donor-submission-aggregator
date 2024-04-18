@@ -1,5 +1,5 @@
-import { AuthClient, createAuthClient, getEgoAppCredentials } from 'external/ego/utils';
 import { EGO_URL_DCC, EGO_URL_RDPC } from 'config';
+import { AuthClient, createAuthClient, getEgoAppCredentials } from 'external/ego/utils';
 import logger from 'logger';
 
 /**

@@ -1,10 +1,10 @@
-import { KafkaMessage } from 'kafkajs';
-import createConsumer from '../createConsumer';
-import { queueProgramUpdateEvent } from '../producers/programQueueProducer';
 import { kafkaConfig } from 'config';
 import parseClinicalProgramUpdateEvent from 'external/kafka/consumers/eventParsers/parseClinicalProgramUpdateEvent';
-import { isNotEmptyString } from 'utils';
+import { KafkaMessage } from 'kafkajs';
 import { KnownEventType } from 'processors/types';
+import { isNotEmptyString } from 'utils';
+import createConsumer from '../createConsumer';
+import { queueProgramUpdateEvent } from '../producers/programQueueProducer';
 
 /**
  * Clinical Update Event Consumer

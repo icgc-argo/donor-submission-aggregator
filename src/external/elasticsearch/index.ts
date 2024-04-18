@@ -1,16 +1,16 @@
+import { ApiResponse, Client } from '@elastic/elasticsearch';
 import {
-	ES_HOST,
-	VAULT_ES_SECRET_PATH,
-	USE_VAULT,
 	ES_CLIENT_TRUST_SSL_CERT,
+	ES_HOST,
 	rollcallConfig,
+	USE_VAULT,
+	VAULT_ES_SECRET_PATH,
 } from 'config';
 import flatMap from 'lodash/flatMap';
-import esMapping from './donorIndexMapping.json';
-import { ApiResponse, Client } from '@elastic/elasticsearch';
-import { loadVaultSecret } from '../vault';
 import logger from 'logger';
 import { generateIndexName } from '../../processors/util';
+import { loadVaultSecret } from '../vault';
+import esMapping from './donorIndexMapping.json';
 
 type EsSecret = {
 	user: string;

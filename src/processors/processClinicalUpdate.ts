@@ -1,13 +1,13 @@
-import withRetry from 'promise-retry';
+import { Client } from '@elastic/elasticsearch';
 import { RETRY_CONFIG_RDPC_GATEWAY, rollcallConfig } from 'config';
 import { getEsClient, setIndexWritable } from 'external/elasticsearch';
 import createRollcallClient from 'external/rollCall';
+import { RollCallClient } from 'external/rollCall/types';
+import indexClinicalData from 'indexClinicalData';
+import logger from 'logger';
+import withRetry from 'promise-retry';
 import { ClinicalUpdateEvent } from './types';
 import { getNewResolvedIndex, handleIndexingFailure } from './util';
-import logger from 'logger';
-import indexClinicalData from 'indexClinicalData';
-import { RollCallClient } from 'external/rollCall/types';
-import { Client } from '@elastic/elasticsearch';
 
 /**
  * Processor for Clinical Update event

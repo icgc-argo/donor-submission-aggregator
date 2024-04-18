@@ -1,9 +1,9 @@
-import { expect } from 'chai';
-import { initIndexMapping, toEsBulkIndexActions } from './index';
-import donorIndexMapping from './donorIndexMapping.json';
-import { GenericContainer, StartedTestContainer } from 'testcontainers';
 import { Client } from '@elastic/elasticsearch';
+import { expect } from 'chai';
 import { Duration, TemporalUnit } from 'node-duration';
+import { GenericContainer, StartedTestContainer } from 'testcontainers';
+import donorIndexMapping from './donorIndexMapping.json';
+import { initIndexMapping, toEsBulkIndexActions } from './index';
 const TEST_INDEX = 'test_index';
 
 describe('toEsBulkIndexActions', () => {

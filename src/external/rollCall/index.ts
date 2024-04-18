@@ -1,15 +1,15 @@
+import { RollcallConfig } from 'config';
+import donorIndexMapping from 'external/elasticsearch/donorIndexMapping.json';
+import logger from 'logger';
 import fetch from 'node-fetch';
+import urljoin from 'url-join';
 import {
-	IndexReleaseRequest,
 	CreateResolvableIndexRequest,
-	ResolvedIndexSchema,
+	IndexReleaseRequest,
 	ResolvedIndex,
+	ResolvedIndexSchema,
 	RollCallClient,
 } from './types';
-import urljoin from 'url-join';
-import logger from 'logger';
-import donorIndexMapping from 'external/elasticsearch/donorIndexMapping.json';
-import { RollcallConfig, rollcallConfig } from 'config';
 
 const createRollcallClient = (config: RollcallConfig): RollCallClient => {
 	const { rootUrl, aliasName, indexEntity, indexType, shardPrefix } = config;

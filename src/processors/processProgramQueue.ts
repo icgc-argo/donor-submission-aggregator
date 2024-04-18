@@ -4,7 +4,7 @@ import processClinicalUpdateEvent from './processClinicalUpdate';
 import processFileReleaseEvent from './processFileRelease';
 import processRdpcAnalysisUpdateEvent from './processRdpcAnalysisUpdate';
 import processSyncProgramEvent from './processSync';
-import { isQueueRecord, KnownEventType, QueueRecord } from './types';
+import { isQueueRecord, KnownEventType } from './types';
 
 async function processProgramQueueEvent(
 	message: KafkaMessage,
