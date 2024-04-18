@@ -1,23 +1,22 @@
-import { initialRdpcInfo, mergeDonorInfo } from './analysesProcessor';
-import { STREAM_CHUNK_SIZE } from 'config';
-import { queryDocumentsByDonorIds } from 'indexClinicalData';
 import { Client } from '@elastic/elasticsearch';
-import { EsDonorDocument, EsHit, RdpcDonorInfo } from 'indexClinicalData/types';
+import { STREAM_CHUNK_SIZE } from 'config';
 import { toEsBulkIndexActions } from 'external/elasticsearch';
+import { queryDocumentsByDonorIds } from 'indexClinicalData';
+import { EsDonorDocument, EsHit, RdpcDonorInfo } from 'indexClinicalData/types';
 import logger from 'logger';
-import fetchAnalyses from './query/fetchAnalyses';
-import fetchDonorIdsByAnalysis from './query/fetchDonorIdsByAnalysis';
-import { AnalysisType, WorkflowName } from './types';
-import fetchVariantCallingAnalyses from './query/fetchVariantCallingAnalyses';
-import { getSangerData } from './convertData/getSangerData';
+import { initialRdpcInfo, mergeDonorInfo } from './analysesProcessor';
 import { getAlignmentData } from './convertData/getAlignmentData';
-import { getSeqExpSpecimenData } from './convertData/getSeqExpSpecimenData';
-import { getSeqAlignSpecimenData } from './convertData/getSeqAlignSpecimenData';
 import { getMutectData } from './convertData/getMutectData';
 import { getOpenAccessData } from './convertData/getOpenAccessData';
-import fetchAnalysesWithSpecimens from './query/fetchAnalysesWithSpecimens';
+import { getSangerData } from './convertData/getSangerData';
+import { getSeqAlignSpecimenData } from './convertData/getSeqAlignSpecimenData';
+import { getSeqExpSpecimenData } from './convertData/getSeqExpSpecimenData';
 import { getVariantCallingData } from './convertData/getVariantCallingData';
-import _ from 'lodash';
+import fetchAnalyses from './query/fetchAnalyses';
+import fetchAnalysesWithSpecimens from './query/fetchAnalysesWithSpecimens';
+import fetchDonorIdsByAnalysis from './query/fetchDonorIdsByAnalysis';
+import fetchVariantCallingAnalyses from './query/fetchVariantCallingAnalyses';
+import { AnalysisType, WorkflowName } from './types';
 
 export const convertToEsDocument = (
 	existingEsHit: EsDonorDocument,

@@ -1,24 +1,24 @@
+import { DonorMolecularDataReleaseStatus } from 'files/types';
+import { RdpcDonorInfo } from 'indexClinicalData/types';
+import _ from 'lodash';
+import logger from 'logger';
+import fetchAnalyses from 'rdpc/query/fetchAnalyses';
+import HashCode from 'ts-hashcode';
 import {
+	Analysis,
+	AnalysisType,
+	DNA_SAMPLE_TYPE_KEYWORD,
+	DonorData,
+	DonorInfoMap,
+	RNA_SAMPLE_TYPE_KEYWORD,
 	Run,
 	RunsByAnalysesByDonors,
-	Analysis,
-	DonorInfoMap,
 	RunsByInputAnalyses,
 	RunState,
-	TumourNormalDesignationValue,
-	DonorData,
 	StringMap,
+	TumourNormalDesignationValue,
 	WorkflowName,
-	AnalysisType,
-	RNA_SAMPLE_TYPE_KEYWORD,
-	DNA_SAMPLE_TYPE_KEYWORD,
 } from './types';
-import logger from 'logger';
-import HashCode from 'ts-hashcode';
-import fetchAnalyses from 'rdpc/query/fetchAnalyses';
-import _ from 'lodash';
-import { RdpcDonorInfo } from 'indexClinicalData/types';
-import { DonorMolecularDataReleaseStatus } from 'files/types';
 
 type StreamState = {
 	currentPage: number;

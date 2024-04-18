@@ -24,8 +24,8 @@ import clinicalUpdateConsumer from './consumers/clinicalUpdateConsumer';
 import filePublicReleaseConsumer from './consumers/filePublicReleaseConsumer';
 import programQueueConsumer from './consumers/programQueueConsumer';
 import rdpcAnalysisUpdateConsumer from './consumers/rdpcAnalysisUpdateConsumer';
-import * as programQueueProducer from './producers/programQueueProducer';
 import createTopic from './createTopic';
+import * as programQueueProducer from './producers/programQueueProducer';
 
 const consumers = [
 	programQueueConsumer,

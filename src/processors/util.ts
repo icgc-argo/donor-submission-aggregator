@@ -2,8 +2,8 @@ import { Client } from '@elastic/elasticsearch';
 import { rollcallConfig } from 'config';
 import { getIndexSettings, getLatestIndexName, initIndexMapping } from 'external/elasticsearch';
 import donorIndexMapping from 'external/elasticsearch/donorIndexMapping.json';
-import logger from 'logger';
 import { ResolvedIndex, RollCallClient } from 'external/rollCall/types';
+import logger from 'logger';
 
 export const generateIndexName = (programId: string): string => {
 	const programName = programId.replace('-', '').toLocaleLowerCase();

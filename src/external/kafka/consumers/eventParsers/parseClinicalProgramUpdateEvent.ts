@@ -1,5 +1,5 @@
+import { isArray, isObjectLike, isString } from 'lodash';
 import logger from 'logger';
-import { isObjectLike, isString, isArray } from 'lodash';
 
 type ClinicalProgramUpdateEvent = {
 	programId: string;
