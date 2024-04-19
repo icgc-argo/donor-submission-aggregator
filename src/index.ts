@@ -49,7 +49,7 @@ import applyStatusReport from './statusReport';
 	});
 
 	// Initialize Kafka Consumers and Producers
-	//  - Can be disabled to simplify running in dev, set FLAG_DEV_DISABLE_KAFKA=true in .env
+	//  - Can be disabled to simplify running in dev, set FEATURE_DEV_DISABLE_KAFKA=true in .env
 	if (featureFlags.kafka) {
 		await kafka.setup();
 	}
