@@ -38,7 +38,7 @@ export const PORT = Number(process.env.PORT || 7000);
 export const EGO_URL = process.env.EGO_URL || 'http://localhost:8081';
 
 export const EGO_APP_CLIENT_ID =
-	process.env.EGO_APP_RDPC_CLIENT_ID || 'donor-submission-aggregator-rdpc';
+	process.env.EGO_APP_RDPC_CLIENT_ID || 'donor-submission-aggregator';
 export const EGO_APP_CLIENT_SECRET = process.env.EGO_APP_RDPC_CLIENT_SECRET || 'top-secret';
 
 export const EGO_PUBLIC_KEY = process.env.EGO_PUBLIC_KEY as string;
