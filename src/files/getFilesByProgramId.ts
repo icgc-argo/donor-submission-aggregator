@@ -20,7 +20,7 @@ export const getFilesByProgramId = async (programId: string, page: number): Prom
 				method: 'GET',
 				headers: {
 					'Content-type': 'application/json',
-					authorization: `Bearer ${await getEgoToken('dcc')}`,
+					authorization: `Bearer ${await getEgoToken()}`,
 				},
 			});
 			const jsonResponse = await response.json();

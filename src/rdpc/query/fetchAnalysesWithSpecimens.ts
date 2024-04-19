@@ -70,7 +70,7 @@ const fetchAnalysesWithSpecimens = async ({
 				}),
 				headers: {
 					'Content-type': 'application/json',
-					authorization: `Bearer ${await getEgoToken('rdpc')}`,
+					authorization: `Bearer ${await getEgoToken()}`,
 				},
 			});
 			const jsonResponse = await response.json();

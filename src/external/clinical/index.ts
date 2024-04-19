@@ -29,7 +29,7 @@ export async function fetchDonorById(programId: string, donorId: string) {
 		logger.debug(`Fetcing clinical data for ${JSON.stringify({ programId, donorId })}`);
 		const response = await fetch(`${CLINICAL_URL}/clinical/program/${programId}/donor/${donorId}`, {
 			headers: {
-				Authorization: `Bearer ${await getEgoToken('dcc')}`,
+				Authorization: `Bearer ${await getEgoToken()}`,
 			},
 		});
 		const donor = await response.json();
@@ -53,7 +53,7 @@ export async function* fetchAllDonorsForProgram(programId: string): AsyncGenerat
 
 	const response = await fetch(`${CLINICAL_URL}/clinical/program/${programId}/donors`, {
 		headers: {
-			Authorization: `Bearer ${await getEgoToken('dcc')}`,
+			Authorization: `Bearer ${await getEgoToken()}`,
 		},
 	});
 	// Expected response is json-lines: new line delimited JSON documents that will be streamed in chunks

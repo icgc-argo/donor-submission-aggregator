@@ -1,12 +1,9 @@
 import egoTokenUtils from '@icgc-argo/ego-token-utils';
 import {
-	EGO_APP_DCC_CLIENT_ID,
-	EGO_APP_DCC_CLIENT_SECRET,
-	EGO_APP_RDPC_CLIENT_ID,
-	EGO_APP_RDPC_CLIENT_SECRET,
+	EGO_APP_CLIENT_ID,
+	EGO_APP_CLIENT_SECRET,
 	USE_VAULT,
-	VAULT_SECRET_PATH_EGO_APP_DCC,
-	VAULT_SECRET_PATH_EGO_APP_RDPC,
+	VAULT_SECRET_PATH_EGO_APP,
 } from 'config';
 import { loadVaultSecret } from 'external/vault';
 import _ from 'lodash';
@@ -106,11 +103,8 @@ export const createAuthClient = async (
 	};
 };
 
-export const getEgoAppCredentials = async (
-	cluster: 'rdpc' | 'dcc',
-): Promise<EgoApplicationCredential> => {
-	const vaultPath =
-		cluster === 'rdpc' ? VAULT_SECRET_PATH_EGO_APP_RDPC : VAULT_SECRET_PATH_EGO_APP_DCC;
+export const getEgoAppCredentials = async (): Promise<EgoApplicationCredential> => {
+	const vaultPath = VAULT_SECRET_PATH_EGO_APP;
 	if (USE_VAULT && vaultPath) {
 		const secret = await loadVaultSecret()(vaultPath);
 		if (isEgoCredential(secret)) {
@@ -120,8 +114,8 @@ export const getEgoAppCredentials = async (
 		}
 	} else {
 		return {
-			clientId: cluster === 'rdpc' ? EGO_APP_RDPC_CLIENT_ID : EGO_APP_DCC_CLIENT_ID,
-			clientSecret: cluster === 'rdpc' ? EGO_APP_RDPC_CLIENT_SECRET : EGO_APP_DCC_CLIENT_SECRET,
+			clientId: EGO_APP_CLIENT_ID,
+			clientSecret: EGO_APP_CLIENT_SECRET,
 		};
 	}
 };

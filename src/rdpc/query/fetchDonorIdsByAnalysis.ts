@@ -52,7 +52,7 @@ const fetchDonorIdsByAnalysis = async ({
 				method: 'POST',
 				headers: {
 					'Content-type': 'application/json',
-					authorization: `Bearer ${await getEgoToken('rdpc')}`,
+					authorization: `Bearer ${await getEgoToken()}`,
 				},
 				body,
 			})
