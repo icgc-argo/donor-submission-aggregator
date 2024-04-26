@@ -35,9 +35,9 @@ type EgoAccessTokenError = {
 };
 
 export const getPublicKey = async (egoHost: string): Promise<string> => {
-  const url = urlJoin(egoHost, "/oauth/token/public_key");
-  const response = await fetch(url);
-  const key = await response.text();
+	const url = urlJoin(egoHost, '/oauth/token/public_key');
+	const response = await fetch(url);
+	const key = await response.text();
 
 	if (!response.ok) {
 		throw new Error(

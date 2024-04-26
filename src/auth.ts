@@ -17,22 +17,17 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { EGO_URL_DCC } from "config";
-import { Request } from "express";
-import { getPublicKey } from "external/ego/utils";
-import _ from "lodash";
-import logger from "logger";
-import jwt from "jsonwebtoken";
+import { Request } from 'express';
+import jwt from 'jsonwebtoken';
+import logger from 'logger';
 
-export const getTokenFromRequest = async (
-  request: Request
-): Promise<string | null> => {
-  if (!request.headers.authorization?.startsWith("Bearer ")) {
-    logger.debug(`invalid token provided`);
-    return null;
-  }
-  const authToken = request.headers.authorization.slice(7).trim(); // remove 'Bearer ' from header
-  const isJwt = Boolean(jwt.decode(authToken));
+export const getTokenFromRequest = async (request: Request): Promise<string | null> => {
+	if (!request.headers.authorization?.startsWith('Bearer ')) {
+		logger.debug(`invalid token provided`);
+		return null;
+	}
+	const authToken = request.headers.authorization.slice(7).trim(); // remove 'Bearer ' from header
+	const isJwt = Boolean(jwt.decode(authToken));
 
-  return isJwt ? authToken : null;
+	return isJwt ? authToken : null;
 };
