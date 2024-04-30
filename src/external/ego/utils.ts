@@ -2,6 +2,7 @@ import createEgoTokenUtils from '@icgc-argo/ego-token-utils';
 import {
 	EGO_APP_CLIENT_ID,
 	EGO_APP_CLIENT_SECRET,
+	EGO_PUBLIC_KEY,
 	USE_VAULT,
 	VAULT_SECRET_PATH_EGO_APP,
 } from 'config';
@@ -124,5 +125,4 @@ const isEgoCredential = (obj: { [k: string]: any }): obj is EgoApplicationCreden
 	return _.isString(obj.clientId) && _.isString(obj.clientSecret);
 };
 
-const publicKey = process.env.JWT_TOKEN_PUBLIC_KEY || '';
-export const egoTokenUtils = createEgoTokenUtils(publicKey);
+export const egoTokenUtils = createEgoTokenUtils(EGO_PUBLIC_KEY);
