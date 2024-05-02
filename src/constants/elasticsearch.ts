@@ -16,34 +16,5 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import { formatISO } from "date-fns";
-import logger from "logger";
 
-export const isNotAbsent = (
-	value: string | number | boolean | undefined,
-): value is string | number | boolean => {
-	return value !== null && value !== undefined;
-};
-
-export const isNotEmptyString = (value: string | undefined): value is string => {
-	return isNotAbsent(value) && value.trim() !== '';
-};
-
-/** Date Utils */
-
-export const validateISODate = (dateInput: string | Date) => {
-  const date = new Date(dateInput);
-  try {
-    const result = formatISO(date);
-    return !!result;
-  } catch (err) {
-    logger.error(`Date string can't be used as an ISO string: ${err}`);
-    return false;
-  }
-};
-
-export const convertStringToISODate = (dateInput: string | Date) => {
-  const date = new Date(dateInput);
-  const result = formatISO(date);
-  return new Date(result);
-};
+export const ELASTICSEARCH_DATE_TIME_FORMAT = 'strict_date_time';

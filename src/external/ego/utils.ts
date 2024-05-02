@@ -1,7 +1,8 @@
-import egoTokenUtils from '@icgc-argo/ego-token-utils';
+import createEgoTokenUtils from '@icgc-argo/ego-token-utils';
 import {
 	EGO_APP_CLIENT_ID,
 	EGO_APP_CLIENT_SECRET,
+	EGO_PUBLIC_KEY,
 	USE_VAULT,
 	VAULT_SECRET_PATH_EGO_APP,
 } from 'config';
@@ -87,7 +88,7 @@ export const createAuthClient = async (
 	let latestJwt: string;
 
 	const publicKey = await getPublicKey(egoHost);
-	const tokenUtils = egoTokenUtils(publicKey);
+	const tokenUtils = createEgoTokenUtils(publicKey);
 
 	const getAuth = async () => {
 		if (latestJwt && tokenUtils.isValidJwt(latestJwt)) {
@@ -123,3 +124,5 @@ export const getEgoAppCredentials = async (): Promise<EgoApplicationCredential> 
 const isEgoCredential = (obj: { [k: string]: any }): obj is EgoApplicationCredential => {
 	return _.isString(obj.clientId) && _.isString(obj.clientSecret);
 };
+
+export const egoTokenUtils = createEgoTokenUtils(EGO_PUBLIC_KEY);
