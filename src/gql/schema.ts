@@ -16,34 +16,30 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import { formatISO } from "date-fns";
-import logger from "logger";
 
-export const isNotAbsent = (
-	value: string | number | boolean | undefined,
-): value is string | number | boolean => {
-	return value !== null && value !== undefined;
+import { makeExecutableSchema } from "graphql-tools";
+import { merge } from "lodash";
+import ProgramDonorSummary from "./ProgramDonorSummary/typeDefs";
+import ProgramDonorPublishedAnalysisByDateRange from "./ProgramDonorPublishedAnalysisByDateRange/typeDefs";
+import createResolversProgramDonorSummary from "./ProgramDonorSummary/resolvers";
+import createResolversProgramDonorPublishedAnalysisByDateRange from "./ProgramDonorPublishedAnalysisByDateRange/resolvers";
+import { Client } from "@elastic/elasticsearch";
+
+const createSchema = async ({ esClient }: { esClient: Client }) => {
+  const ProgramSummaryResolvers = await createResolversProgramDonorSummary(
+    esClient
+  );
+  const ProgramDonorPublishedAnalysisByDateRangeResolvers = await createResolversProgramDonorPublishedAnalysisByDateRange(
+    esClient
+  );
+
+  return makeExecutableSchema({
+    typeDefs: [ProgramDonorSummary, ProgramDonorPublishedAnalysisByDateRange],
+    resolvers: merge(
+      ProgramSummaryResolvers,
+      ProgramDonorPublishedAnalysisByDateRangeResolvers
+    ),
+  });
 };
 
-export const isNotEmptyString = (value: string | undefined): value is string => {
-	return isNotAbsent(value) && value.trim() !== '';
-};
-
-/** Date Utils */
-
-export const validateISODate = (dateInput: string | Date) => {
-  const date = new Date(dateInput);
-  try {
-    const result = formatISO(date);
-    return !!result;
-  } catch (err) {
-    logger.error(`Date string can't be used as an ISO string: ${err}`);
-    return false;
-  }
-};
-
-export const convertStringToISODate = (dateInput: string | Date) => {
-  const date = new Date(dateInput);
-  const result = formatISO(date);
-  return new Date(result);
-};
+export default createSchema;

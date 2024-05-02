@@ -41,7 +41,8 @@ export const EGO_APP_CLIENT_ID =
 	process.env.EGO_APP_RDPC_CLIENT_ID || 'donor-submission-aggregator';
 export const EGO_APP_CLIENT_SECRET = process.env.EGO_APP_RDPC_CLIENT_SECRET || 'top-secret';
 
-export const EGO_PUBLIC_KEY = process.env.EGO_PUBLIC_KEY as string;
+export const EGO_PUBLIC_KEY = process.env.EGO_PUBLIC_KEY || '';
+
 export const RDPC_URL = process.env.RDPC_URL || 'http://localhost:8000';
 
 export const FILES_SERVICE_URL = process.env.FILES_SERVICE_URL || 'http://localhost:8000';
@@ -228,3 +229,22 @@ export const featureFlags = {
 	},
 	kafka: !FEATURE_DEV_DISABLE_KAFKA,
 };
+
+/**
+ * GraphQL
+ */
+export const GRAPHQL_PORT = Number.parseInt(process.env.GRAPHQL_PORT || '') || 3001;
+
+/**
+ * Elasticsearch
+ */
+
+export const ELASTICSEARCH_PROGRAM_DONOR_DASHBOARD_INDEX =
+	process.env.ELASTICSEARCH_PROGRAM_DONOR_DASHBOARD_INDEX || 'donor_centric';
+
+export const ENABLE_ELASTICSEARCH_LOGGING = process.env.ENABLE_ELASTICSEARCH_LOGGING === 'true';
+
+/**
+ * RDPC
+ */
+export const RDPC_CODE = process.env.RDPC_CODE || '';
