@@ -75,7 +75,7 @@
 		"yargs": "^16.0.3"
 	},
 	"dependencies": {
-		"@apollo/server": "^4.0.0",
+		"@apollo/server": "^4.10.4",
 		"@apollo/subgraph": "^2.5.2",
 		"@elastic/elasticsearch": "^7.5.0",
 		"@graphql-tools/utils": "^10.1.2",
