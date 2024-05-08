@@ -16,34 +16,18 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import { formatISO } from 'date-fns';
+
+import { Request } from 'express';
+import jwt from 'jsonwebtoken';
 import logger from 'logger';
 
-export const isNotAbsent = (
-	value: string | number | boolean | undefined,
-): value is string | number | boolean => {
-	return value !== null && value !== undefined;
-};
-
-export const isNotEmptyString = (value: string | undefined): value is string => {
-	return isNotAbsent(value) && value.trim() !== '';
-};
-
-/** Date Utils */
-
-export const validateISODate = (dateInput: string | Date) => {
-	const date = new Date(dateInput);
-	try {
-		const result = formatISO(date);
-		return !!result;
-	} catch (err) {
-		logger.error(`Date string can't be used as an ISO string: ${err}`);
-		return false;
+export const getTokenFromRequest = async (request: Request): Promise<string | null> => {
+	if (!request.headers.authorization?.startsWith('Bearer ')) {
+		logger.debug(`invalid token provided`);
+		return null;
 	}
-};
+	const authToken = request.headers.authorization.slice(7).trim(); // remove 'Bearer ' from header
+	const isJwt = Boolean(jwt.decode(authToken));
 
-export const convertStringToISODate = (dateInput: string | Date) => {
-	const date = new Date(dateInput);
-	const result = formatISO(date);
-	return new Date(result);
+	return isJwt ? authToken : null;
 };

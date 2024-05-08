@@ -222,12 +222,18 @@ export const FEATURE_INDEX_FILE_ENABLED = process.env.FEATURE_INDEX_FILE_ENABLED
 // Default enable kafka unless this flag is provided with value = false
 export const FEATURE_DEV_DISABLE_KAFKA = process.env.FEATURE_DEV_DISABLE_KAFKA === 'true';
 
+// Indexing api endpoint enabled
+export const FEATURE_INDEX_ENDPOINT_ENABLED = process.env.FEATURE_INDEX_ENDPOINT_ENABLED === 'true';
+
 export const featureFlags = {
 	index: {
 		rdpc: FEATURE_RDPC_INDEXING_ENABLED,
 		files: FEATURE_INDEX_FILE_ENABLED,
 	},
 	kafka: !FEATURE_DEV_DISABLE_KAFKA,
+	endpoint: {
+		index: FEATURE_INDEX_ENDPOINT_ENABLED,
+	},
 };
 
 /**
