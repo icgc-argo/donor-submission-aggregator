@@ -11,7 +11,7 @@ WORKDIR /aggregator
 
 COPY . .
 
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 RUN npm run build
 RUN rm dist/**/*.test.js dist/**/*.test.js.map
