@@ -1,8 +1,11 @@
-dist
-.vscode
-node_modules
+.DS_Store
 .env
-docker
-coverage
 .nyc_output
+.vscode
+
+node_modules
+
+coverage
+dist
+docker
 *.log
