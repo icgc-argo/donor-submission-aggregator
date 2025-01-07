@@ -1,4 +1,4 @@
-FROM node:12.13.1
+FROM node:20
 
 ENV APP_UID=9999
 ENV APP_GID=9999
@@ -11,7 +11,7 @@ WORKDIR /aggregator
 
 COPY . .
 
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 RUN npm run build
 RUN rm dist/**/*.test.js dist/**/*.test.js.map

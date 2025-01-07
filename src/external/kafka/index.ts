@@ -17,42 +17,42 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { kafkaConfig } from "config";
-import { Kafka, KafkaConfig } from "kafkajs";
-import logger from "../../logger";
-import clinicalUpdateConsumer from "./consumers/clinicalUpdateConsumer";
-import filePublicReleaseConsumer from "./consumers/filePublicReleaseConsumer";
-import programQueueConsumer from "./consumers/programQueueConsumer";
-import rdpcAnalysisUpdateConsumer from "./consumers/rdpcAnalysisUpdateConsumer";
-import * as programQueueProducer from "./producers/programQueueProducer";
-import createTopic from "./createTopic";
+import { kafkaConfig } from 'config';
+import { Kafka, KafkaConfig } from 'kafkajs';
+import logger from '../../logger';
+import clinicalUpdateConsumer from './consumers/clinicalUpdateConsumer';
+import filePublicReleaseConsumer from './consumers/filePublicReleaseConsumer';
+import programQueueConsumer from './consumers/programQueueConsumer';
+import rdpcAnalysisUpdateConsumer from './consumers/rdpcAnalysisUpdateConsumer';
+import createTopic from './createTopic';
+import * as programQueueProducer from './producers/programQueueProducer';
 
 const consumers = [
-  programQueueConsumer,
-  clinicalUpdateConsumer,
-  filePublicReleaseConsumer,
-  rdpcAnalysisUpdateConsumer,
+	programQueueConsumer,
+	clinicalUpdateConsumer,
+	filePublicReleaseConsumer,
+	rdpcAnalysisUpdateConsumer,
 ];
 
 export const setup = async (
-  config: KafkaConfig = {
-    clientId: "donor-submission-aggregator",
-    brokers: kafkaConfig.brokers,
-  }
+	config: KafkaConfig = {
+		clientId: 'donor-submission-aggregator',
+		brokers: kafkaConfig.brokers,
+	},
 ): Promise<void> => {
-  const kafka = new Kafka(config);
+	const kafka = new Kafka(config);
 
-  logger.info("Initializing Kafka connections...");
-  await Promise.all([
-    createTopic(kafka, kafkaConfig.topics.programQueue),
-    ...consumers.map((consumer) => consumer.init(kafka)),
-    programQueueProducer.init(kafka),
-  ]);
-  logger.info("Connected.");
+	logger.info('Initializing Kafka connections...');
+	await Promise.all([
+		createTopic(kafka, kafkaConfig.topics.programQueue),
+		...consumers.map((consumer) => consumer.init(kafka)),
+		programQueueProducer.init(kafka),
+	]);
+	logger.info('Connected.');
 };
 
 export const disconnect = async () => {
-  logger.warn("Disconnecting all from Kafka...");
-  await Promise.all(consumers.map((consumer) => consumer.disconnect()));
-  logger.warn("Disconnected.");
+	logger.warn('Disconnecting all from Kafka...');
+	await Promise.all(consumers.map((consumer) => consumer.disconnect()));
+	logger.warn('Disconnected.');
 };
