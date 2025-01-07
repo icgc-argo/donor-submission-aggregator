@@ -99,13 +99,16 @@ export default (donor: ClinicalDonor, existingEsData?: EsDonorDocument): EsDonor
 const calculateRegisteredSamples = (
 	specimens: ClinicalSpecimen[],
 	tumourNormalDesignation: TumourNormalDesignation,
-	sampleTYpeKeyword: string,
+	sampleTypeKeyword: string,
 ): number => {
 	return specimens
-		.filter(
-			(specimen) =>
-				specimen.tumourNormalDesignation === tumourNormalDesignation &&
-				specimen.samples[0]?.sampleType.toUpperCase().includes(sampleTYpeKeyword),
-		)
-		.reduce((sum, specimen) => sum + specimen.samples.length, 0);
+		.filter((specimen) => specimen.tumourNormalDesignation === tumourNormalDesignation)
+		.reduce(
+			(sum, specimen) =>
+				sum +
+				specimen.samples.filter((sample) =>
+					sample.sampleType.toUpperCase().includes(sampleTypeKeyword),
+				).length,
+			0,
+		);
 };
