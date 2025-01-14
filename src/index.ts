@@ -1,17 +1,15 @@
-import { featureFlags, GRAPHQL_PORT, PORT, RDPC_URL } from "config";
-import express from "express";
-import * as kafka from "external/kafka";
-import { queueProgramUpdateEvent } from "external/kafka/producers/programQueueProducer";
-import logger from "logger";
-import path from "path";
-import { KnownEventType } from "processors/types";
-import * as swaggerUi from "swagger-ui-express";
-import yaml from "yamljs";
-import applyStatusReport from "./statusReport";
-import { startStandaloneServer } from "@apollo/server/standalone";
-import { createApolloServer, gqlContext } from "gql/server";
-import { getEsClient } from "external/elasticsearch";
-import indexingRouter from "routes/indexing";
+import { startStandaloneServer } from '@apollo/server/standalone';
+import { featureFlags, GRAPHQL_PORT, PORT } from 'config';
+import express from 'express';
+import { getEsClient } from 'external/elasticsearch';
+import * as kafka from 'external/kafka';
+import { createApolloServer, gqlContext } from 'gql/server';
+import logger from 'logger';
+import path from 'path';
+import indexingRouter from 'routes/indexing';
+import * as swaggerUi from 'swagger-ui-express';
+import yaml from 'yamljs';
+import applyStatusReport from './statusReport';
 
 (async () => {
 	/**
@@ -25,23 +23,23 @@ import indexingRouter from "routes/indexing";
 		swaggerUi.setup(yaml.load(path.join(__dirname, './assets/swagger.yaml'))),
 	);
 
-  const esClient = await getEsClient();
-  const apolloServer = await createApolloServer({ esClient });
-  const { url } = await startStandaloneServer(apolloServer, {
-    context: gqlContext,
-    listen: { port: GRAPHQL_PORT },
-  });
-  logger.info(`GQL server ready at port: ${GRAPHQL_PORT}`);
+	const esClient = await getEsClient();
+	const apolloServer = await createApolloServer({ esClient });
+	const { url } = await startStandaloneServer(apolloServer, {
+		context: gqlContext,
+		listen: { port: GRAPHQL_PORT },
+	});
+	logger.info(`GQL server ready at port: ${GRAPHQL_PORT}`);
 
-  if (featureFlags.endpoint.index) {
-    expressApp.post("/index", indexingRouter);
-  }
+	if (featureFlags.endpoint.index) {
+		expressApp.use('/index', indexingRouter);
+	}
 
-  // Initialize Kafka Consumers and Producers
-  //  - Can be disabled to simplify running in dev, set FLAG_DEV_DISABLE_KAFKA=true in .env
-  if (featureFlags.kafka) {
-    await kafka.setup();
-  }
+	// Initialize Kafka Consumers and Producers
+	//  - Can be disabled to simplify running in dev, set FLAG_DEV_DISABLE_KAFKA=true in .env
+	if (featureFlags.kafka) {
+		await kafka.setup();
+	}
 
 	logger.info('pipeline is ready!');
 	expressApp.listen(PORT, () => {
