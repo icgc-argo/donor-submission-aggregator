@@ -50,6 +50,8 @@ export const FILES_SERVICE_URL = process.env.FILES_SERVICE_URL || 'http://localh
 export const CLINICAL_URL = process.env.CLINICAL_URL || 'http://localhost:3000';
 
 export const ES_HOST = process.env.ES_HOST || 'http://localhost:9200';
+export const ES_USERNAME = process.env.ES_USERNAME;
+export const ES_PASSWORD = process.env.ES_PASSWORD;
 export const ES_CLIENT_TRUST_SSL_CERT = process.env.ES_CLIENT_TRUST_SSL_CERT === 'true';
 
 export const rollcallConfig: RollcallConfig = {

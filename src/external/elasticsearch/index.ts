@@ -2,6 +2,8 @@ import { ApiResponse, Client } from '@elastic/elasticsearch';
 import {
 	ES_CLIENT_TRUST_SSL_CERT,
 	ES_HOST,
+	ES_PASSWORD,
+	ES_USERNAME,
 	rollcallConfig,
 	USE_VAULT,
 	VAULT_ES_SECRET_PATH,
@@ -53,8 +55,18 @@ export const createEsClient = async (): Promise<Client> => {
 			throw new Error(`vault secret at ${VAULT_ES_SECRET_PATH} could not be read`);
 		}
 	} else {
+		if (!ES_USERNAME) {
+			throw new Error(`Missing env value ES_USERNAME`);
+		}
+		if (!ES_PASSWORD) {
+			throw new Error(`Missing env value ES_PASSWORD`);
+		}
 		esClient = new Client({
 			node: ES_HOST,
+			auth: {
+				username: ES_USERNAME ?? '',
+				password: ES_PASSWORD ?? '',
+			},
 		});
 	}
 	try {
@@ -79,18 +91,19 @@ export const initIndexMapping = async (index: string, esClient: Client) => {
 	}
 };
 
-export const toEsBulkIndexActions =
-	<T = {}>(indexName: string, getDocumentId: (document: T) => string | undefined) =>
-	(docs: Array<T>) =>
-		flatMap(docs, (doc) => {
-			const documentId = getDocumentId(doc);
-			return [
-				{
-					index: documentId ? { _index: indexName, _id: documentId } : { _index: indexName },
-				},
-				doc,
-			];
-		});
+export const toEsBulkIndexActions = <T = {}>(
+	indexName: string,
+	getDocumentId: (document: T) => string | undefined,
+) => (docs: Array<T>) =>
+	flatMap(docs, (doc) => {
+		const documentId = getDocumentId(doc);
+		return [
+			{
+				index: documentId ? { _index: indexName, _id: documentId } : { _index: indexName },
+			},
+			doc,
+		];
+	});
 
 export type AliasResponse = ApiResponse<{
 	[indexName: string]: {
