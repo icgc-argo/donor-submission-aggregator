@@ -11,7 +11,7 @@ export const getFilesByProgramId = async (programId: string, page: number): Prom
 	const fileQueryUrl = new URL(urljoin(FILES_SERVICE_URL, 'files'));
 	fileQueryUrl.searchParams.append('page', page.toString());
 	fileQueryUrl.searchParams.append('limit', FILES_STREAM_SIZE.toString());
-	fileQueryUrl.searchParams.append('programId', programId);
+	fileQueryUrl.searchParams.append('programs', programId);
 	logger.info(`Getting files from: ${fileQueryUrl}`);
 
 	return await promiseRetry<File[]>(async (retry) => {
